@@ -1,0 +1,19 @@
+# Dependencies
+node_modules
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor
+.DS_Store
+.vscode/
+
+# Local env
+.env*
+!.env.example
+
+# Build output (we commit docs/ for GH Pages, so do not ignore it)
+dist
