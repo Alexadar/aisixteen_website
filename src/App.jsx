@@ -62,19 +62,12 @@ function AppsSections() {
                   </div>
                 </div>
               </div>
-              {app.video && (
-                <div className="app-video">
-                  <video 
-                    autoPlay 
-                    muted 
-                    loop 
-                    playsInline
-                    poster={app.icon ? `${import.meta.env.BASE_URL}${app.icon}` : undefined}
-                  >
-                    <source src={`${import.meta.env.BASE_URL}${app.video}`} type="video/mp4" />
-                    <source src={`${import.meta.env.BASE_URL}${app.video}`} type="video/quicktime" />
-                    Your browser does not support the video tag.
-                  </video>
+              {app.screenshot && (
+                <div className="app-screenshot">
+                  <img 
+                    src={`${import.meta.env.BASE_URL}${app.screenshot}`} 
+                    alt={`${app.name} screenshot`}
+                  />
                 </div>
               )}
             </article>

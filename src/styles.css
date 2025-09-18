@@ -241,14 +241,14 @@ main {
   flex: 1;
 }
 
-.app-video {
+.app-screenshot {
   margin-top: 24px;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-.app-video video {
+.app-screenshot img {
   width: 100%;
   height: auto;
   display: block;
@@ -440,7 +440,7 @@ main {
     margin-bottom: 20px;
   }
   
-  .app-video {
+  .app-screenshot {
     margin-top: 20px;
   }
   
