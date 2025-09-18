@@ -11,6 +11,7 @@ export default function App() {
       <HeaderSection />
       <main>
         <AppsSections />
+        <PrivacyPolicySection />
       </main>
       <Footer />
     </div>
@@ -81,6 +82,29 @@ function AppsSections() {
         </section>
       ))}
     </div>
+  )
+}
+
+function PrivacyPolicySection() {
+  return (
+    <section id="privacy" className="section privacy-section">
+      <div className="container">
+        <article className="privacy-card">
+          <div className="privacy-header">
+            <div className="privacy-info">
+              <h2 className="privacy-title">Privacy Policy</h2>
+              <p className="privacy-desc">
+                We respect your privacy and are committed to protecting your personal information. 
+                Our applications do not collect, store, or transmit any personal data or user information. 
+                We do not gather any information from users, including but not limited to personal identifiers, 
+                usage data, or device information. Your privacy is important to us, and we ensure that 
+                our apps operate without accessing or collecting any user data whatsoever.
+              </p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
   )
 }
 
