@@ -40,11 +40,42 @@ function AppsSections() {
         <section id={app.slug} key={app.slug} className="section app-section">
           <div className="container">
             <article className="app-card">
-              <h2 className="app-title">{app.name}</h2>
-              <p className="app-desc">{app.description}</p>
-              <div className="app-actions">
-                <a className="btn primary" href="#" target="_blank" rel="noreferrer">AppStore</a>
+              <div className="app-header">
+                {app.icon && (
+                  <div className="app-icon">
+                    <img src={`${import.meta.env.BASE_URL}${app.icon}`} alt={`${app.name} icon`} />
+                  </div>
+                )}
+                <div className="app-info">
+                  <h2 className="app-title">{app.name}</h2>
+                  <p className="app-desc">{app.description}</p>
+                  <div className="app-actions">
+                    <a 
+                      className="btn primary" 
+                      href={`https://apps.apple.com/app/id${app.appStoreId}`} 
+                      target="_blank" 
+                      rel="noreferrer"
+                    >
+                      App Store
+                    </a>
+                  </div>
+                </div>
               </div>
+              {app.video && (
+                <div className="app-video">
+                  <video 
+                    autoPlay 
+                    muted 
+                    loop 
+                    playsInline
+                    poster={app.icon ? `${import.meta.env.BASE_URL}${app.icon}` : undefined}
+                  >
+                    <source src={`${import.meta.env.BASE_URL}${app.video}`} type="video/mp4" />
+                    <source src={`${import.meta.env.BASE_URL}${app.video}`} type="video/quicktime" />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              )}
             </article>
           </div>
         </section>

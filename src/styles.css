@@ -176,6 +176,43 @@ main {
   transition: all 0.3s ease;
 }
 
+.app-header {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.app-icon {
+  flex-shrink: 0;
+}
+
+.app-icon img {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.app-info {
+  flex: 1;
+}
+
+.app-video {
+  margin-top: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.app-video video {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-height: 400px;
+  object-fit: cover;
+}
+
 .app-section .app-card:hover {
   transform: translateY(-2px);
   border-color: rgba(124, 92, 255, 0.3);
@@ -321,6 +358,13 @@ main {
     padding: 24px;
   }
   
+  .app-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    text-align: center;
+  }
+  
   .app-title {
     font-size: 24px;
   }
@@ -338,6 +382,14 @@ main {
   
   .app-section .app-card {
     padding: 20px;
+  }
+  
+  .app-header {
+    margin-bottom: 20px;
+  }
+  
+  .app-video {
+    margin-top: 20px;
   }
   
   .badge {
