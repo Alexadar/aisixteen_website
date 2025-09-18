@@ -28,6 +28,22 @@ Edit `src/data/apps.js` to manage the cards on the page.
 
 ## Build
 
+### Quick Build (Automated)
+
+Use the automated build script for a complete build and deployment process:
+
+```bash
+./build.sh
+```
+
+This script will:
+- Clean the `docs/` directory
+- Run the build process
+- Ensure CNAME is set to `aisixteen.com`
+- Commit all changes to git
+
+### Manual Build
+
 ```bash
 npm run build
 ```
