@@ -24,7 +24,7 @@ function HeaderSection() {
       <div className="container">
         <div className="brand-row">
           <div className="brand">
-            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="AISixteen logo" width="40" height="40" />
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="AISixteen logo" width="40" height="45" />
             <span className="brand-name">AISixteen</span>
           </div>
         </div>
