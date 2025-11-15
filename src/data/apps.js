@@ -7,6 +7,13 @@ export const apps = [
     screenshot: 'goldencalc/screenshot.png'
   },
   {
+    slug: 'golden-ratio-calculator-lite',
+    name: 'Golden Ratio Calculator Lite',
+    description: 'A simple, easy-to-use golden ratio calculator. Perfect for quick calculations when you need the golden ratio for your designs. Just enter any value and instantly see the lesser, greater, and whole parts. Streamlined and accessible for everyone.',
+    appStoreId: '1570956847',
+    screenshot: 'goldencalclite/screenshot.png'
+  },
+  {
     slug: 'skyscraper-frog',
     name: 'Skyscraper Frog',
     description: 'You and the bravest ever frog will experience a journey you have never seen before! In this 8bit style game, you will help to choose the path of a frog over the roofs of the tallest skyscrapers. Eventually, the fly will come and go, do not miss your chance and eat it to have a vital boost!',
