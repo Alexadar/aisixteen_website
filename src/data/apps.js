@@ -1,5 +1,12 @@
 export const apps = [
   {
+    slug: 'typing-mill',
+    name: 'Typing Mill',
+    description: 'Master your typing speed with Typing Mill. Practice typing with real words across 4 difficulty levels, from beginner-friendly to expert challenges. Beautiful animated interface makes learning to type fast an enjoyable experience.',
+    appStoreId: '1631148042',
+    screenshot: 'typingmill/screenshot.png'
+  },
+  {
     slug: 'indox-text',
     name: 'Indox Text',
     description: 'Transform lengthy articles, documents, and web pages into quick, digestible summaries with Indox Text for iPhone, iPad, Mac, and Safari. Powered entirely by your device\'s CPU and Neural Engine, Indox Text works offline and keeps your data private — no cloud, no servers, just fast AI summarization at your fingertips.',
