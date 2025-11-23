@@ -1,5 +1,12 @@
 export const apps = [
   {
+    slug: 'indox-text',
+    name: 'Indox Text',
+    description: 'Transform lengthy articles, documents, and web pages into quick, digestible summaries with Indox Text for iPhone, iPad, Mac, and Safari. Powered entirely by your device\'s CPU and Neural Engine, Indox Text works offline and keeps your data private — no cloud, no servers, just fast AI summarization at your fingertips.',
+    appStoreId: '1603883417',
+    screenshot: 'indoxtext/screenshot.png'
+  },
+  {
     slug: 'golden-ratio-calculator',
     name: 'Golden Ratio Calculator',
     description: 'Calculate any part of the golden ratio instantly. Perfect for designers, architects, and mathematicians who need precise golden ratio calculations. Enter any value to reactively calculate lesser, greater, and whole parts with professional precision.',
