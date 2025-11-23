@@ -16,16 +16,11 @@ else
     echo "📁 Docs directory doesn't exist, will be created during build"
 fi
 
-# Step 2: Run the build command
+# Step 2: Run the build command (includes CNAME copy in postbuild)
 echo "🔨 Building the project..."
 npm run build
 
-# Step 3: Ensure CNAME file exists in docs with aisixteen.com
-echo "🌐 Setting up CNAME for aisixteen.com..."
-echo "aisixteen.com" > docs/CNAME
-echo "✅ CNAME file created in docs/"
-
-# Step 4: Add and commit all changes
+# Step 3: Add and commit all changes
 echo "📝 Committing changes..."
 git add .
 git commit -m "Build: Updated site build $(date '+%Y-%m-%d %H:%M:%S')" || echo "⚠️  No changes to commit"
@@ -33,8 +28,7 @@ git commit -m "Build: Updated site build $(date '+%Y-%m-%d %H:%M:%S')" || echo "
 echo "✅ Build process completed successfully!"
 echo "📋 Summary:"
 echo "   - Docs directory cleaned"
-echo "   - Project built with Vite"
-echo "   - CNAME configured for aisixteen.com"
+echo "   - Project built with Vite (includes CNAME copy)"
 echo "   - Changes committed to git"
 echo ""
 echo "🌍 Your site is ready for deployment!"
