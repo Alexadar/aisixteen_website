@@ -46,5 +46,13 @@ export const apps = [
     appStoreId: '1563057204',
     icon: 'froggo/icon.png',
     screenshot: 'froggo/screenshot.png'
+  },
+  {
+    slug: 'monstro-shooter',
+    name: 'Monstro Shooter',
+    description: 'Survive the alien invasion in this intense top-down shooter. Battle waves of deadly creatures across Mars deserts and asteroid fields. Control your exosuit, unleash firepower, and fight to stay alive against bugs, birds, walkers, and berserkers.',
+    appStoreId: '6752858611',
+    icon: 'monstro_shooter/icon.png',
+    screenshot: 'monstro_shooter/screenshot.png'
   }
 ]
