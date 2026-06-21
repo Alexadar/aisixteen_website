@@ -54,5 +54,13 @@ export const apps = [
     appStoreId: '6752858611',
     icon: 'monstro_shooter/icon.png',
     screenshot: 'monstro_shooter/screenshot.png'
+  },
+  {
+    slug: 'ephemeris-sky',
+    name: 'Ephemeris Sky',
+    description: 'Turn any moment into a precise picture of the solar system. Ephemeris Sky computes real geocentric planetary positions, the aspects between them, and a live chart wheel for any date and time. It also tracks each planet\'s synodic cycle — inferior and superior conjunctions, retrograde and direct stations, and greatest elongations — so you always know where Mercury is and when the next retrograde begins. 100% on-device, no account, works offline.',
+    appStoreId: '6782659268',
+    icon: 'ephemeris_sky/icon.png',
+    screenshot: 'ephemeris_sky/screenshot.png'
   }
 ]
