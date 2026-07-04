@@ -62,5 +62,13 @@ export const apps = [
     appStoreId: '6782659268',
     icon: 'ephemeris_sky/icon.png',
     screenshot: 'ephemeris_sky/screenshot.png'
+  },
+  {
+    slug: 'overtone-lab',
+    name: 'Overtone Lab',
+    description: 'A precision calculation studio for audio engineers, musicians, and instrument builders — twenty exact tools in one app. Compute tempo and note timing, SMPTE timecode, pitch and harmonics, just intonation and temperament, string tension, room reverb and acoustic modes, horn and pipe resonance, vocal formants, SPL and inverse-square distance, Butterworth filters and Linkwitz-Riley crossovers, A/C/Z weighting, ITU-R BS.1770 LUFS loudness, and dB level conversions. Every formula is reference-validated. 100% offline and private — no account, no network, no data collection.',
+    appStoreId: '6787524729',
+    icon: 'overtonelab/icon.png',
+    screenshot: 'overtonelab/screenshot.png'
   }
 ]
