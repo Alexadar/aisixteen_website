@@ -14,6 +14,7 @@ pnpm-debug.log*
 # Local env
 .env*
 !.env.example
+tmp
 
 # Build output (we commit docs/ for GH Pages, so do not ignore it)
 dist

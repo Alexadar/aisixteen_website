@@ -1,0 +1,23 @@
+# AISixteen
+
+> AISixteen is an independent developer of small, fast, private apps for iPhone, iPad and Mac. Every app runs entirely on-device: no accounts, no tracking, and no data ever leaves the user's device.
+
+## About
+- All apps work offline and require no account or sign-up.
+- No personal data is collected, stored, or transmitted by any app.
+- No subscriptions — apps are downloaded from the Apple App Store.
+
+## Apps
+- [Ephemeris Sky](https://apps.apple.com/app/id6782659268): Real geocentric planetary positions, aspects, and a live chart wheel for any moment; tracks retrogrades and conjunctions. 100% on-device. (Sky & science)
+- [Overtone Lab](https://apps.apple.com/app/id6787524729): Twenty exact, reference-validated audio tools — tempo, SMPTE, pitch and harmonics, room acoustics, filters, and LUFS loudness. Offline and private. (Creative tools)
+- [Indox Text](https://apps.apple.com/app/id1603883417): On-device AI that summarizes articles, documents, and web pages using the device's CPU and Neural Engine. Works offline; iPhone, iPad, Mac, and a Safari extension. (AI & utilities)
+- [Typing Mill](https://apps.apple.com/app/id1631148042): Typing practice with real words across four difficulty levels, in an animated interface. (AI & utilities)
+- [Golden Ratio Calculator](https://apps.apple.com/app/id1570841203): Reactively calculates the lesser, greater, and whole parts of the golden ratio with professional precision. (Creative tools)
+- [Golden Ratio Calculator Lite](https://apps.apple.com/app/id1570956847): A simple, streamlined golden-ratio calculator for quick design work. (Creative tools)
+- [Big Pink Cat](https://apps.apple.com/app/id6497066161): A cosmic, choose-your-path interactive story. (Games)
+- [Skyscraper Frog](https://apps.apple.com/app/id1563057204): An 8-bit game about guiding a frog across the rooftops of the tallest skyscrapers. (Games)
+- [Monstro Shooter](https://apps.apple.com/app/id6752858611): An intense top-down wave-survival shooter across Mars deserts and asteroid fields. (Games)
+
+## Contact
+- Email: info@aisixteen.com
+- Website: https://aisixteen.com
