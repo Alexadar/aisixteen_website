@@ -79,7 +79,11 @@ const AppStoreButton = ({ app }) => (
 /* ---------------- home ---------------- */
 const AppCard = ({ app }) => (
   <a className="card" href={`/${app.slug}/`} data-group={app.group} style={{ '--accent': app.accent }} aria-label={`Open ${app.name}`}>
-    <div className="card__bar" />
+    <div className="card__shotwrap">
+      <img className="card__shot" src={asset(app.screenshot)} alt="" loading="lazy" decoding="async" />
+      <div className="card__shotfade" />
+      <div className="card__bar" />
+    </div>
     <div className="card__body">
       <div className="card__head">
         <img className="card__icon" src={asset(app.icon)} alt={`${app.name} icon`} width="56" height="56" loading="lazy" decoding="async" />
@@ -89,7 +93,7 @@ const AppCard = ({ app }) => (
         </div>
       </div>
       <p className="card__desc">{app.tagline}</p>
-      <span className="card__more">Learn more <span>&rarr;</span></span>
+      <span className="card__more">Learn more <span className="card__arrow">&rarr;</span></span>
     </div>
   </a>
 )
@@ -152,6 +156,7 @@ export const Home = ({ apps, featured, year }) => (
       <section className="apps" id="apps">
         <div className="apps__head">
           <div>
+            <div className="apps__eyebrow">Catalog</div>
             <h2>All apps</h2>
             <p>Every one runs offline and collects nothing.</p>
           </div>
