@@ -17,6 +17,7 @@
 - [Big Pink Cat](https://apps.apple.com/app/id6497066161): A cosmic, choose-your-path interactive story. (Games)
 - [Skyscraper Frog](https://apps.apple.com/app/id1563057204): An 8-bit game about guiding a frog across the rooftops of the tallest skyscrapers. (Games)
 - [Monstro Shooter](https://apps.apple.com/app/id6752858611): An intense top-down wave-survival shooter across Mars deserts and asteroid fields. (Games)
+- [Kerf Calc](https://apps.apple.com/app/id6788179502): An offline construction field calculator — feet-inch-fraction math plus framing (rafters, stairs to code), concrete, rebar, roofing and materials; each tool shows the formula and the code it cites. (Creative tools)
 
 ## Contact
 - Email: info@aisixteen.com

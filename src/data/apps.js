@@ -175,6 +175,26 @@ export const apps = [
       'Mars deserts & asteroid fields',
       'Battle bugs, birds, walkers & berserkers'
     ]
+  },
+  {
+    slug: 'kerf-calc',
+    name: 'Kerf Calc',
+    category: 'Creative tools',
+    group: 'tools',
+    accent: '#c9e34a',
+    device: 'ios',
+    appStoreId: '6788179502',
+    icon: 'kerfcalc/icon.png',
+    screenshot: 'kerfcalc/screenshot.png',
+    tagline: 'The field calculator that shows its work.',
+    short: 'Feet-inch-fraction math plus framing, concrete, and materials — offline.',
+    blurb: 'Kerf Calc is the offline construction field calculator that just works — no account, no subscription. Punch feet-inch-fraction dimensions like a tape, then run rafters, stairs to code, concrete, rebar, roofing, drywall and more — each tool shows the exact formula and the code it cites (IRC, ASTM, NIST, ACI).',
+    features: [
+      'Feet-inch-fraction tape math, down to 1/64',
+      'Framing: rafters, stairs to IRC/IBC code & pitch',
+      'Concrete, rebar, roofing, drywall & materials',
+      'Shows the formula and the code it cites · 100% offline'
+    ]
   }
 ]
 
