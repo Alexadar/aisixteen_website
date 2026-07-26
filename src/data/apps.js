@@ -195,6 +195,26 @@ export const apps = [
       'Concrete, rebar, roofing, drywall & materials',
       'Shows the formula and the code it cites · 100% offline'
     ]
+  },
+  {
+    slug: 'truecourse-e6b',
+    name: 'TrueCourse E6B',
+    category: 'Sky & science',
+    group: 'science',
+    accent: '#2fd4e8',
+    device: 'ios',
+    appStoreId: '6788926819',
+    icon: 'truecourse/icon.png',
+    screenshot: 'truecourse/screenshot.png',
+    tagline: 'The E6B you can trust on a checkride.',
+    short: 'Wind triangle, true airspeed, density altitude, fuel, and weight & balance.',
+    blurb: 'A modern E6B flight computer for student pilots, GA pilots, and CFIs — the digital whiz wheel you are taught to use for the FAA knowledge exam and every flight after it. Solve the wind triangle, true airspeed and Mach, density and pressure altitude, nav log, fuel, climb and descent, and weight & balance with a live CG envelope. Every number comes from validated, published formulas (FAA-H-8083 handbooks and the ICAO Standard Atmosphere).',
+    features: [
+      'Wind triangle — heading, groundspeed & crosswind, with a live vector diagram',
+      'True airspeed, Mach, density, pressure & true altitude',
+      'Nav log, fuel, climb/descent and weight & balance with a CG envelope',
+      'Glass-cockpit readouts with a night mode · validated formulas, works offline'
+    ]
   }
 ]
 

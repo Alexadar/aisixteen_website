@@ -18,6 +18,7 @@
 - [Skyscraper Frog](https://apps.apple.com/app/id1563057204): An 8-bit game about guiding a frog across the rooftops of the tallest skyscrapers. (Games)
 - [Monstro Shooter](https://apps.apple.com/app/id6752858611): An intense top-down wave-survival shooter across Mars deserts and asteroid fields. (Games)
 - [Kerf Calc](https://apps.apple.com/app/id6788179502): An offline construction field calculator — feet-inch-fraction math plus framing (rafters, stairs to code), concrete, rebar, roofing and materials; each tool shows the formula and the code it cites. (Creative tools)
+- [TrueCourse E6B](https://apps.apple.com/app/id6788926819): A modern E6B flight computer for pilots and CFIs — wind triangle, true airspeed and Mach, density altitude, nav log, fuel, climb/descent, and weight & balance, computed from validated FAA and ICAO Standard Atmosphere formulas. Offline, no account. (Sky & science)
 
 ## Contact
 - Email: info@aisixteen.com
