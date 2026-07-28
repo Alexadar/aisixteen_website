@@ -238,6 +238,26 @@ export const apps = [
       'Aurora chance tonight with the view line',
       'Hp30 at 30-minute resolution · Apple Watch complications'
     ]
+  },
+  {
+    slug: 'marine-nav',
+    name: 'Marine Nav',
+    category: 'Sky & science',
+    group: 'science',
+    accent: '#2e9fe0',
+    device: 'ios',
+    appStoreId: '6795571481',
+    icon: 'marinenav/icon.png',
+    screenshot: 'marinenav/screenshot.png',
+    tagline: 'Tides, currents and celestial navigation.',
+    short: 'Offline tide and tidal-current predictions, sight reduction, and magnetic declination.',
+    blurb: 'An offline navigation toolkit for sailors and navigators. Predict tide heights and tidal currents — including slack water — work a celestial sight from sextant altitude to a fix, read magnetic declination from the World Magnetic Model, and solve great-circle distance and bearing. Everything is computed on your device from published data, so it keeps working with no signal at sea.',
+    features: [
+      'Tide heights and tidal currents, with slack water',
+      'Celestial sight reduction — sextant altitude to a fix',
+      'Magnetic declination from the World Magnetic Model',
+      'Great-circle distance & bearing · 100% offline'
+    ]
   }
 ]
 
