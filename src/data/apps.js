@@ -258,6 +258,26 @@ export const apps = [
       'Magnetic declination from the World Magnetic Model',
       'Great-circle distance & bearing · 100% offline'
     ]
+  },
+  {
+    slug: 'par',
+    name: 'Par',
+    category: 'Creative tools',
+    group: 'tools',
+    accent: '#ffa01e',
+    device: 'ios',
+    appStoreId: '6795570043',
+    icon: 'par/icon.png',
+    screenshot: 'par/screenshot.png',
+    tagline: 'The financial calculator that cites its sources.',
+    short: 'Ten tools — time value of money, bonds, amortization, cash flow and more.',
+    blurb: 'An offline financial calculator for people who must have one: loan officers, mortgage and commercial real-estate underwriters, treasury and fixed-income desks, and candidates studying where only a financial calculator is permitted. Ten tools cover time value of money, amortization, bonds, cash flow, day count, depreciation, percent, rate conversion, real estate, and statistics — and every displayed number traces to a cited authority.',
+    features: [
+      'Ten tools: TVM, amortization, bonds, cash flow, depreciation & more',
+      'Every result cites its authority — US Treasury, CFPB Reg Z & DD, IRS, NIST',
+      'A running tape of your calculations you can review and save',
+      'One-time purchase · no ads, no subscription, no account, no network'
+    ]
   }
 ]
 
