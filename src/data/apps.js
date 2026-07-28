@@ -215,6 +215,29 @@ export const apps = [
       'Nav log, fuel, climb/descent and weight & balance with a CG envelope',
       'Glass-cockpit readouts with a night mode · validated formulas, works offline'
     ]
+  },
+  {
+    slug: 'earth-around',
+    name: 'Earth Around',
+    category: 'Sky & science',
+    group: 'science',
+    accent: '#4df0a0',
+    device: 'ios',
+    platforms: 'iPhone, iPad, Mac & Apple Watch',
+    live: true,           // shows live public data — never claim it works fully offline
+    liveSource: 'NOAA',
+    appStoreId: '6794748918',
+    icon: 'eartharound/icon.png',
+    screenshot: 'eartharound/screenshot.png',
+    tagline: 'Watch the Sun, from your wrist.',
+    short: 'Live solar storms, aurora chance, and the solar wind driving them.',
+    blurb: 'Earth Around watches the Sun for you. See whether a storm is happening right now on the NOAA G, R and S scales, what is driving it — solar wind speed and Bz — and live GOES X-ray flux for flares. Check tonight\'s aurora chance and view line, and read Hp30 for 30-minute storm resolution. On iPhone, iPad, Mac, and right on your Apple Watch.',
+    features: [
+      'Storm right now — live NOAA G · R · S scales',
+      'Solar wind speed and Bz, plus GOES X-ray flare flux',
+      'Aurora chance tonight with the view line',
+      'Hp30 at 30-minute resolution · Apple Watch complications'
+    ]
   }
 ]
 

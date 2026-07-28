@@ -33,8 +33,8 @@ const { apps, featuredSlug } = await import(pathToFileURL(join(siteSrc, '..', 'd
 //    EVERY platform's screenshots, each shown in the device frame designed for it.
 //    A platform is only included when its screenshots' orientation matches its frame
 //    (mac = landscape; iPad/iPhone = portrait) — so the two landscape games stay on Mac.
-const PLATFORM_FRAME = { mac: 'mac', ipad: 'ipad', ios: 'iphone' }
-const FRAME_IS_LANDSCAPE = { mac: true, ipad: false, iphone: false }
+const PLATFORM_FRAME = { mac: 'mac', ipad: 'ipad', ios: 'iphone', watch: 'watch' }
+const FRAME_IS_LANDSCAPE = { mac: true, ipad: false, iphone: false, watch: false }
 const LANDSCAPE_GAMES = new Set(['skyscraper-frog', 'monstro-shooter'])
 const PER_PLATFORM = 3 // screenshots per platform in the carousel
 const isLandscape = (a, plat) => plat === 'mac' || ((plat === 'ios' || plat === 'ipad') && LANDSCAPE_GAMES.has(a.slug))
@@ -42,7 +42,7 @@ const isLandscape = (a, plat) => plat === 'mac' || ((plat === 'ios' || plat === 
 const decorated = apps.map((a) => {
   const folder = a.icon.split('/')[0]
   // Lead with the app's own device, then the remaining platforms.
-  const order = [a.device, 'mac', 'ipad', 'ios'].filter((p, i, arr) => arr.indexOf(p) === i)
+  const order = [a.device, 'mac', 'ipad', 'ios', 'watch'].filter((p, i, arr) => arr.indexOf(p) === i)
   const slides = []
   for (const plat of order) {
     const dir = join(media, folder, plat)

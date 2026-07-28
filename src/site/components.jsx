@@ -1,5 +1,5 @@
 import React from 'react'
-import { SITE, FILTERS, appStoreUrl, deviceLabel, appFolder, platformsOf, faqsOf } from './theme.js'
+import { SITE, FILTERS, appStoreUrl, deviceLabel, appFolder, platformsOf, faqsOf, trustPointsOf, privacyLineOf } from './theme.js'
 
 const asset = (p) => `/${p}`
 
@@ -200,8 +200,14 @@ const FrameIphone = ({ children }) => (
     </div>
   </div>
 )
-const FRAME = { mac: FrameMac, ipad: FrameIpad, iphone: FrameIphone }
-const FRAME_LABEL = { mac: 'Mac', ipad: 'iPad', iphone: 'iPhone' }
+const FrameWatch = ({ children }) => (
+  <div className="frame-watch">
+    <div className="frame-watch__crown" />
+    <div className="frame-watch__screen frame__screen"><div className="frame__glow" />{children}</div>
+  </div>
+)
+const FRAME = { mac: FrameMac, ipad: FrameIpad, iphone: FrameIphone, watch: FrameWatch }
+const FRAME_LABEL = { mac: 'Mac', ipad: 'iPad', iphone: 'iPhone', watch: 'Apple Watch' }
 
 // Rotates through every platform's screenshots, each in its own device frame.
 // site.js crossfades the .cslide items (5s hold, 0.5s fade).
@@ -256,9 +262,9 @@ export const Landing = ({ app, more, year }) => (
               <span className="meta-note">On the App Store · {platformsOf(app)}</span>
             </div>
             <div className="trust-row">
-              <span className="trust"><CheckCircleIcon /> Runs 100% on-device</span>
-              <span className="trust"><CheckCircleIcon /> No tracking, ever</span>
-              <span className="trust"><CheckCircleIcon /> No account or subscription</span>
+              {trustPointsOf(app).map((t, i) => (
+                <span className="trust" key={i}><CheckCircleIcon /> {t}</span>
+              ))}
             </div>
           </div>
           <Carousel app={app} />
@@ -280,7 +286,7 @@ export const Landing = ({ app, more, year }) => (
       <section className="privacy-strip">
         <div className="privacy-strip__box">
           <ShieldIcon size={26} />
-          <p>No account, no tracking, no data collection. {app.name} works fully offline.</p>
+          <p>{privacyLineOf(app)}</p>
         </div>
       </section>
 

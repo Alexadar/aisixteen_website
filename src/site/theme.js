@@ -27,10 +27,24 @@ export const appFolder = (app) => app.icon.split('/')[0]
 // Supported devices line (defaults unless an app overrides).
 export const platformsOf = (app) => app.platforms || 'iPhone, iPad & Mac'
 
+// `app.live` marks an app that fetches public live data (e.g. NOAA space weather). Those apps
+// are still account-free and tracking-free, but they are NOT offline — never claim otherwise.
+export const trustPointsOf = (app) => app.live
+  ? [app.liveSource ? `Live ${app.liveSource} data` : 'Live public data', 'No tracking, ever', 'No account or subscription']
+  : ['Runs 100% on-device', 'No tracking, ever', 'No account or subscription']
+
+export const privacyLineOf = (app) => app.live
+  ? `No account, no tracking, no data collection. ${app.name} only fetches public ${app.liveSource || 'data'} feeds — nothing about you is sent anywhere.`
+  : `No account, no tracking, no data collection. ${app.name} works fully offline.`
+
 // Honest, generated FAQ — one source for both the visible accordion and FAQPage schema.
 export const faqsOf = (app) => app.faqs || [
-  { q: `Does ${app.name} work offline?`, a: `Yes. ${app.name} runs entirely on your device, so it works with no internet connection.` },
+  app.live
+    ? { q: `Does ${app.name} need an internet connection?`, a: `Yes, for live readings. ${app.name} pulls public ${app.liveSource || 'data'} feeds to show current conditions; previously loaded values stay visible offline.` }
+    : { q: `Does ${app.name} work offline?`, a: `Yes. ${app.name} runs entirely on your device, so it works with no internet connection.` },
   { q: 'Is there an account or subscription?', a: `No. There's no sign-up, no login, and no subscription — just download ${app.name} from the App Store and open it.` },
-  { q: `What data does ${app.name} collect?`, a: 'None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.' },
+  { q: `What data does ${app.name} collect?`, a: app.live
+    ? 'None. It collects no personal data and has no analytics or tracking — the only network requests are to the public data feeds it displays.'
+    : 'None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.' },
   { q: 'Which devices are supported?', a: `${app.name} is available for ${platformsOf(app)}.` },
 ]
