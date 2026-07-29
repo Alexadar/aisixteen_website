@@ -278,6 +278,27 @@ export const apps = [
       'A running tape of your calculations you can review and save',
       'One-time purchase · no ads, no subscription, no account, no network'
     ]
+  },
+  {
+    slug: 'storypole',
+    name: 'Storypole',
+    category: 'Creative tools',
+    group: 'tools',
+    accent: '#d9431c',
+    device: 'ios',
+    platforms: 'iPhone, iPad, Mac & Apple Watch',
+    appStoreId: '6796056413',
+    icon: 'storypole/icon.png',
+    screenshot: 'storypole/screenshot.png',
+    tagline: 'Layout, lumber and takeoff, on site.',
+    short: 'Tape math, on-center layout, board feet, roof pitch and takeoff — all offline.',
+    blurb: 'A job-site calculator for carpenters, framers and remodelers. Run feet-inch-fraction tape math, lay out equal spacing and on-center marks, size lumber in board feet with nominal-versus-dressed dimensions, work roof pitch and rafters, square up and solve miters and bevels, take off concrete in cubic yards, and check wire gauge. Everything runs on your device — including on your wrist, right at the wall.',
+    features: [
+      'Tape calculator with feet-inch-fraction math',
+      'Layout: equal spacing, on-center marks and square-up',
+      'Lumber board feet, roof pitch and rafters, miter and bevel',
+      'Concrete takeoff, wire gauge and conversions · also on Apple Watch'
+    ]
   }
 ]
 
