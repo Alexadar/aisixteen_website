@@ -299,6 +299,27 @@ export const apps = [
       'Lumber board feet, roof pitch and rafters, miter and bevel',
       'Concrete takeoff, wire gauge and conversions · also on Apple Watch'
     ]
+  },
+  {
+    slug: 'aircore',
+    name: 'AirCore',
+    category: 'Creative tools',
+    group: 'tools',
+    accent: '#1e90d6',
+    device: 'ios',
+    platforms: 'iPhone, iPad, Mac & Apple Watch',
+    appStoreId: '6799999307',
+    icon: 'aircore/icon.png',
+    screenshot: 'aircore/screenshot.png',
+    tagline: 'The offline air-side HVAC calculator.',
+    short: 'Psychrometrics, duct, fan and pipe in one app — corrected for your site elevation, not sea level.',
+    blurb: 'The air-side calculator for HVAC technicians, designers and contractors. Enter any two of dry bulb, wet bulb, dew point, relative humidity, humidity ratio, enthalpy or specific volume and AirCore solves the rest, putting the point on a real psychrometric chart — type a value and the point moves, drag the point and the values follow. Site elevation sits in the toolbar of every screen and every number is corrected to it, so you are not quietly working at sea level. Imperial and metric switch freely without re-rounding, and the physics lives in independently tested modules checked against published reference data.',
+    features: [
+      'Any two knowns solve the whole air state, plotted on a real chart',
+      'Corrected for your site elevation — see what the altitude costs',
+      'Air-side heat in any direction, and air mixing weighted by mass',
+      'Duct from friction, fan laws, and pipe by Darcy or Hazen–Williams'
+    ]
   }
 ]
 
