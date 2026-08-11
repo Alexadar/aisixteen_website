@@ -195,7 +195,6 @@ const FrameIpad = ({ children }) => (
 const FrameIphone = ({ children }) => (
   <div className="frame-iphone">
     <div className="frame-iphone__screen">
-      <div className="frame-iphone__island" />
       <div className="frame__glow" />{children}
     </div>
   </div>

@@ -228,7 +228,6 @@ img { display: block; max-width: 100%; }
 
 .frame-iphone { max-width: 288px; margin: 0 auto; padding: 12px; border-radius: 46px; background: linear-gradient(150deg, #2a2d3d, #101219); border: 1px solid rgba(255, 255, 255, .08); box-shadow: 0 30px 80px rgba(0, 0, 0, .55); }
 .frame-iphone__screen { position: relative; aspect-ratio: 9 / 19.5; border-radius: 36px; overflow: hidden; background: #05060f; }
-.frame-iphone__island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 88px; height: 26px; background: #000; border-radius: 16px; z-index: 4; }
 
 /* ---------- what's inside ---------- */
 .inside { max-width: 1120px; margin: 0 auto; padding: 60px 28px 10px; }
