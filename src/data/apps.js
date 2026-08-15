@@ -9,17 +9,18 @@ export const apps = [
     group: 'science',
     accent: '#a78bfa',
     device: 'mac',
+    icloud: true,        // saved charts sync via the user's own iCloud — keep privacy copy precise
     appStoreId: '6782659268',
     icon: 'ephemeris_sky/icon.png',
     screenshot: 'ephemeris_sky/screenshot.png',
     tagline: 'The sky, computed for any moment.',
-    short: 'Real planetary positions, aspects, and a live chart wheel — 100% on-device.',
-    blurb: 'Turn any moment into a precise picture of the solar system. Ephemeris Sky computes real geocentric planetary positions, the aspects between them, and a live chart wheel for any date and time — and tracks each planet’s synodic cycle so you always know when the next retrograde begins.',
+    short: 'Natal charts, transits, real planetary positions and aspects — computed on your device.',
+    blurb: 'Turn any moment into a precise picture of the solar system. Ephemeris Sky computes real geocentric planetary positions, the aspects between them, and a live chart wheel for any date and time. Save your natal chart and read today’s sky against it, choose your house system — Placidus, Koch, Whole Sign and more — and follow an event timeline of ingresses, lunations and aspects. It also tracks each planet’s synodic cycle, so you always know when the next retrograde begins.',
     features: [
-      'Real geocentric planetary positions',
-      'Aspects and a live chart wheel',
-      'Tracks retrogrades, conjunctions & elongations',
-      '100% on-device, no account, works offline'
+      'Your natal chart, saved and synced through your own iCloud',
+      'Natal plus transits — today’s sky on your own chart',
+      'Houses and angles: Placidus, Koch, Whole Sign & more',
+      'Positions, aspects, synodic cycle and an event timeline'
     ]
   },
   {
