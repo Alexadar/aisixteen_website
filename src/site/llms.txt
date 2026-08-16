@@ -10,7 +10,7 @@
 - Apps are downloaded from the Apple App Store.
 
 ## Apps
-- [Ephemeris Sky](https://apps.apple.com/app/id6782659268): Real geocentric planetary positions, aspects and a live chart wheel for any moment, plus your saved natal chart with transits, house systems (Placidus, Koch, Whole Sign and more), a synodic-cycle tracker for retrogrades and conjunctions, and an event timeline. Computed on-device; saved charts sync through your own iCloud. (Sky & science)
+- [Ephemeris Sky](https://apps.apple.com/app/id6782659268): Real geocentric planetary positions, aspects and a live chart wheel for any moment, plus your saved natal chart with transits, synastry that ranks every contact between two charts, scored dignities and chart balance, solar and lunar returns to the minute, house systems (Placidus, Koch, Whole Sign and more), and an event timeline of ingresses, lunations and aspects. Computed on-device; saved charts sync through your own iCloud. (Sky & science)
 - [Overtone Lab](https://apps.apple.com/app/id6787524729): Twenty exact, reference-validated audio tools — tempo, SMPTE, pitch and harmonics, room acoustics, filters, and LUFS loudness. Offline and private. (Creative tools)
 - [Indox Text](https://apps.apple.com/app/id1603883417): On-device AI that summarizes articles, documents, and web pages using the device's CPU and Neural Engine. Works offline; iPhone, iPad, Mac, and a Safari extension. (AI & utilities)
 - [Typing Mill](https://apps.apple.com/app/id1631148042): Typing practice with real words across four difficulty levels, in an animated interface. (AI & utilities)
