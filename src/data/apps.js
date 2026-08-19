@@ -329,18 +329,17 @@ export const apps = [
     group: 'ai',
     accent: '#e1b859',
     device: 'ios',
-    platforms: 'iPhone, iPad and Mac with Apple Intelligence',
     appStoreId: '6802612778',
     icon: 'tarot/icon.png',
     screenshot: 'tarot/screenshot.png',
     tagline: 'A reflection, not a prediction.',
     short: 'A deck of 78 cards you handle yourself, read on your device by Apple Intelligence.',
-    blurb: 'A table, a question, and a deck of 78 cards you handle yourself. Drag each card into place \u2014 they are weighted and move with real physics, not a slideshow of pictures. Pick from four methods, from a single daily card to the Celtic Cross, then watch the reading being written in front of you. Tarot faithfully recreates the classical card-reading tradition practised for centuries; it is made for reflection and entertainment, it does not predict the future, and the interpretation is written on your device and never leaves it.',
+    blurb: 'A table, a question, and a deck of 78 cards you handle yourself. Drag each card into place \u2014 they are weighted and move with real physics, not a slideshow of pictures. Pick from four methods, from a single daily card to the Celtic Cross, then watch the reading being written in front of you. Tarot faithfully recreates the classical card-reading tradition practised for centuries; it is made for reflection and entertainment, it does not predict the future, and the interpretation is written on your device and never leaves it. The cards cannot tell you what to do \u2014 the decisions you take, or do not take, remain your own.',
     features: [
       'A full 78-card Classic 1909 deck you handle yourself',
       'Weighted cards with real physics \u2014 drag each one into place',
       'Four methods, from a single daily card to the Celtic Cross',
-      'Written on device by Apple Intelligence \u00b7 no network, no subscription'
+      'Interpretations written on device by Apple Intelligence \u2014 the deck itself works on any device'
     ]
   }
 ]
