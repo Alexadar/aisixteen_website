@@ -25,9 +25,6 @@ export const deviceLabel = (device) =>
 export const appFolder = (app) => app.icon.split('/')[0]
 
 // Supported devices line (defaults unless an app overrides).
-// Apps staged but not yet released: no live store link is presented.
-export const isComingSoon = (app) => app.status === 'coming-soon'
-
 export const platformsOf = (app) => app.platforms || 'iPhone, iPad & Mac'
 
 // `app.live` marks an app that fetches public live data (e.g. NOAA space weather). Those apps

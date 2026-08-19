@@ -1,5 +1,5 @@
 import React from 'react'
-import { SITE, FILTERS, appStoreUrl, deviceLabel, appFolder, platformsOf, faqsOf, trustPointsOf, privacyLineOf, isComingSoon } from './theme.js'
+import { SITE, FILTERS, appStoreUrl, deviceLabel, appFolder, platformsOf, faqsOf, trustPointsOf, privacyLineOf } from './theme.js'
 
 const asset = (p) => `/${p}`
 
@@ -67,23 +67,13 @@ export const Footer = ({ year }) => (
 )
 
 const AppStoreButton = ({ app }) => (
-  isComingSoon(app) ? (
-    <span className="btn btn--appstore btn--soon" aria-disabled="true">
-      <AppleIcon />
-      <span className="as-lines">
-        <span className="as-top">Coming soon to the</span>
-        <span className="as-big">App Store</span>
-      </span>
+  <a className="btn btn--appstore" href={appStoreUrl(app)} target="_blank" rel="noreferrer">
+    <AppleIcon />
+    <span className="as-lines">
+      <span className="as-top">Download on the</span>
+      <span className="as-big">App Store</span>
     </span>
-  ) : (
-    <a className="btn btn--appstore" href={appStoreUrl(app)} target="_blank" rel="noreferrer">
-      <AppleIcon />
-      <span className="as-lines">
-        <span className="as-top">Download on the</span>
-        <span className="as-big">App Store</span>
-      </span>
-    </a>
-  )
+  </a>
 )
 
 /* ---------------- home ---------------- */
@@ -100,7 +90,6 @@ const AppCard = ({ app }) => (
         <div style={{ minWidth: 0 }}>
           <div className="card__name">{app.name}</div>
           <span className="badge">{app.category}</span>
-          {isComingSoon(app) && <span className="badge badge--soon">Coming soon</span>}
         </div>
       </div>
       <p className="card__desc">{app.tagline}</p>
@@ -269,7 +258,7 @@ export const Landing = ({ app, more, year }) => (
             <p className="landing__blurb">{app.blurb}</p>
             <div className="landing__actions">
               <AppStoreButton app={app} />
-              <span className="meta-note">{isComingSoon(app) ? 'Coming soon' : 'On the App Store'}{app.storeName ? ` as ${app.storeName}` : ''} · {platformsOf(app)}</span>
+              <span className="meta-note">On the App Store{app.storeName ? ` as ${app.storeName}` : ''} · {platformsOf(app)}</span>
             </div>
             <div className="trust-row">
               {trustPointsOf(app).map((t, i) => (
@@ -329,7 +318,7 @@ export const Landing = ({ app, more, year }) => (
 
       <section className="final-cta-wrap">
         <div className="final-cta">
-          <h2>{isComingSoon(app) ? `${app.name} is coming soon` : `Get ${app.name}`}</h2>
+          <h2>Get {app.name}</h2>
           <p>{app.tagline} On-device, no account, no tracking.</p>
           <AppStoreButton app={app} />
         </div>
@@ -343,15 +332,9 @@ export const Landing = ({ app, more, year }) => (
         <img src={asset(app.icon)} alt="" width="38" height="38" loading="lazy" decoding="async" />
         <span className="sticky-cta__name">{app.name}</span>
       </div>
-      {isComingSoon(app) ? (
-        <span className="sticky-cta__btn sticky-cta__btn--soon" aria-disabled="true">
-          <AppleIcon size={16} /> Coming soon
-        </span>
-      ) : (
-        <a className="sticky-cta__btn" href={appStoreUrl(app)} target="_blank" rel="noreferrer">
-          <AppleIcon size={16} /> App Store
-        </a>
-      )}
+      <a className="sticky-cta__btn" href={appStoreUrl(app)} target="_blank" rel="noreferrer">
+        <AppleIcon size={16} /> App Store
+      </a>
     </div>
 
     <Footer year={year} />
