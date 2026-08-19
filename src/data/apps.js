@@ -304,6 +304,7 @@ export const apps = [
   {
     slug: 'aircore',
     name: 'AirCore',
+    storeName: 'AirCore: HVAC Calculator',
     category: 'Creative tools',
     group: 'tools',
     accent: '#1e90d6',
@@ -325,6 +326,7 @@ export const apps = [
   {
     slug: 'tarot',
     name: 'Tarot',
+    storeName: 'Tarot Table: Card Readings',
     category: 'AI & utilities',
     group: 'ai',
     accent: '#e1b859',

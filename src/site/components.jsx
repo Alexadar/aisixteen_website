@@ -258,7 +258,7 @@ export const Landing = ({ app, more, year }) => (
             <p className="landing__blurb">{app.blurb}</p>
             <div className="landing__actions">
               <AppStoreButton app={app} />
-              <span className="meta-note">On the App Store · {platformsOf(app)}</span>
+              <span className="meta-note">On the App Store{app.storeName ? ` as ${app.storeName}` : ''} · {platformsOf(app)}</span>
             </div>
             <div className="trust-row">
               {trustPointsOf(app).map((t, i) => (

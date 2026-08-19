@@ -76,7 +76,7 @@ export function renderLanding(app, apps, { year }) {
   const softwareApp = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: app.name,
+    name: app.storeName || app.name,
     description: app.blurb,
     applicationCategory: app.group === 'games' ? 'GameApplication' : 'UtilitiesApplication',
     operatingSystem: 'iOS, iPadOS, macOS',
