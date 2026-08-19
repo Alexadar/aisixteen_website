@@ -68,6 +68,11 @@ img { display: block; max-width: 100%; }
 .btn--appstore .as-big { font-size: 18px; font-weight: 600; }
 .btn--appstore .as-lines { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.05; }
 
+.btn--soon { background: rgba(255, 255, 255, .07); border-color: rgba(255, 255, 255, .14); color: var(--muted); cursor: default; box-shadow: none; }
+.btn--soon:hover { transform: none; }
+.badge--soon { margin-left: 6px; color: var(--ink); background: rgba(255, 255, 255, .1); }
+.sticky-cta__btn--soon { background: rgba(255, 255, 255, .08); color: var(--muted); cursor: default; }
+
 /* ---------- header ---------- */
 .site-header {
   position: sticky; top: 0; z-index: 50;

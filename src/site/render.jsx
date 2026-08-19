@@ -80,10 +80,10 @@ export function renderLanding(app, apps, { year }) {
     description: app.blurb,
     applicationCategory: app.group === 'games' ? 'GameApplication' : 'UtilitiesApplication',
     operatingSystem: 'iOS, iPadOS, macOS',
-    url: appStoreUrl(app),
     image: `${SITE.origin}/${hero}`,
     publisher: { '@type': 'Organization', name: SITE.name },
   }
+  if (app.status !== 'coming-soon') softwareApp.url = appStoreUrl(app)
   if (app.rating && app.ratingCount) {
     softwareApp.aggregateRating = {
       '@type': 'AggregateRating', ratingValue: String(app.rating), ratingCount: String(app.ratingCount),

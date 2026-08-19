@@ -303,6 +303,7 @@ export const apps = [
   },
   {
     slug: 'aircore',
+    status: 'coming-soon',
     name: 'AirCore',
     storeName: 'AirCore: HVAC Calculator',
     category: 'Creative tools',
@@ -325,6 +326,7 @@ export const apps = [
   },
   {
     slug: 'tarot',
+    status: 'coming-soon',
     name: 'Tarot',
     storeName: 'Tarot Table: Card Readings',
     category: 'AI & utilities',
