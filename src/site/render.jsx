@@ -68,7 +68,7 @@ export function renderHome(apps, featured, { year, fantastic }) {
   })
 }
 
-export function renderLanding(app, apps, { year }) {
+export function renderLanding(app, apps, { year, fantastic }) {
   const more = apps.filter((a) => a.slug !== app.slug).slice(0, 4)
   // og/schema image: prefer the app's PNG screenshot for max social-crawler compatibility.
   const hero = app.screenshot
@@ -102,7 +102,7 @@ export function renderLanding(app, apps, { year }) {
     canonical: `${SITE.origin}/${app.slug}/`,
     ogImage: `${SITE.origin}/${hero}`,
     jsonld: [ORG, softwareApp, faqPage],
-    body: renderToStaticMarkup(<Landing app={app} more={more} year={year} />),
+    body: renderToStaticMarkup(<Landing app={app} more={more} fantastic={fantastic} year={year} />),
   })
 }
 

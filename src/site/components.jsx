@@ -168,11 +168,6 @@ const FantasticHero = ({ f }) => (
       <img className="fx-hero__icon" src={asset(f.icon)} alt={`${f.name} icon`} width="96" height="96" />
       <Terminal title="the idea in one call">{f.oneCall}</Terminal>
     </div>
-    <div className="hero__stats">
-      <div className="stat"><b>1</b>primitive: send</div>
-      <div className="stat"><b>{f.runtimes.length}</b>runtimes, one protocol</div>
-      <div className="stat"><b>AGPL</b>open source</div>
-    </div>
   </section>
 )
 
@@ -287,7 +282,21 @@ const Carousel = ({ app }) => {
   )
 }
 
-export const Landing = ({ app, more, year }) => (
+// Slim cross-promo bar on every app page. Border runs from the app's accent to Fantastic's.
+const MadeInFantastic = ({ f }) => (
+  <section className="mif-wrap">
+    <a className="mif" href={`/${f.slug}/`} style={{ '--fx': f.accent }} aria-label={`Made in ${f.name} — learn about ${f.fullName}`}>
+      <img className="mif__icon" src={asset(f.icon)} alt="" width="40" height="40" loading="lazy" decoding="async" />
+      <span className="mif__text">
+        <span className="mif__label">Made in <b>{f.name}</b></span>
+        <span className="mif__sub">Built by humans and AIs in one workspace — our open-source kernel of agents.</span>
+      </span>
+      <span className="mif__cta">Explore <span className="card__arrow">&rarr;</span></span>
+    </a>
+  </section>
+)
+
+export const Landing = ({ app, more, fantastic, year }) => (
   <div className="page" style={{ '--accent': app.accent }}>
     <Header />
     <main>
@@ -318,6 +327,8 @@ export const Landing = ({ app, more, year }) => (
           <Carousel app={app} />
         </div>
       </section>
+
+      {fantastic && app.madeInFantastic !== false && <MadeInFantastic f={fantastic} />}
 
       <section className="inside">
         <h2>What's inside</h2>

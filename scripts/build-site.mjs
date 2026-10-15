@@ -77,7 +77,7 @@ const write = (rel, html) => {
 
 const written = []
 written.push(write('index.html', renderHome(decorated, featured, { year, fantastic })))
-for (const app of decorated) written.push(write(`${app.slug}/index.html`, renderLanding(app, decorated, { year })))
+for (const app of decorated) written.push(write(`${app.slug}/index.html`, renderLanding(app, decorated, { year, fantastic })))
 written.push(write(`${fantastic.slug}/index.html`, renderFantastic(fantastic, { year })))
 written.push(write('404.html', renderNotFound({ year })))
 
