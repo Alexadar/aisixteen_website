@@ -7,7 +7,7 @@
 - No personal data is collected, stored, or transmitted by any app.
 - Every app works offline, except Earth Around, which fetches public NOAA space-weather feeds to show live readings (it still collects nothing about the user).
 - Ephemeris Sky computes offline too; charts a user saves sync through that user's own private iCloud container, never through AISixteen servers.
-- Apps are downloaded from the Apple App Store.
+- Apps are downloaded from the Apple App Store. Fantastic, the developer software, is installed from crates.io or GitHub.
 
 ## Apps
 - [Ephemeris Sky](https://apps.apple.com/app/id6782659268): Real geocentric planetary positions, aspects and a live chart wheel for any moment, plus your saved natal chart with transits, synastry that ranks every contact between two charts, scored dignities and chart balance, solar and lunar returns to the minute, house systems (Placidus, Koch, Whole Sign and more), and an event timeline of ingresses, lunations and aspects. Computed on-device; saved charts sync through your own iCloud. (Sky & science)
@@ -26,6 +26,9 @@
 - [Marine Nav](https://apps.apple.com/app/id6795571481): An offline marine navigation toolkit — tide and tidal-current predictions with slack water, celestial sight reduction from sextant altitude, magnetic declination from the World Magnetic Model, and great-circle distance and bearing. Works with no signal at sea. (Sky & science)
 - [Earth Around](https://apps.apple.com/app/id6794748918): Live space weather — NOAA G/R/S storm scales, solar wind speed and Bz, GOES X-ray flare flux, tonight's aurora chance and view line, and Hp30 at 30-minute resolution. iPhone, iPad, Mac and Apple Watch. Needs a connection for live readings; no account, no tracking. (Sky & science)
 - [TrueCourse E6B](https://apps.apple.com/app/id6788926819): A modern E6B flight computer for pilots and CFIs — wind triangle, true airspeed and Mach, density altitude, nav log, fuel, climb/descent, and weight & balance, computed from validated FAA and ICAO Standard Atmosphere formulas. Offline, no account. (Sky & science)
+
+## Developer software
+- [Aisixteen Fantastic](https://aisixteen.com/fantastic/): An open-source (AGPL-3.0-or-later), alpha-stage kernel of agents — models, programs, files, shells, a browser canvas and the human are all agents in one tree, reached with one call, `send`; every agent describes itself via `reflect`. Ships as the `fantastic` CLI for macOS and Linux (terminal UI, browser canvas, MCP server for coding CLIs), with Python, Rust, Swift and TypeScript runtimes. Free; install with `cargo install fantastic` (crates.io: https://crates.io/crates/fantastic) or a prebuilt binary; source at https://github.com/aisixteen/fantastic. Unlike the apps above it is not on the App Store.
 
 ## Contact
 - Email: info@aisixteen.com

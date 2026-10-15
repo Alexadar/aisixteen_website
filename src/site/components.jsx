@@ -1,5 +1,5 @@
 import React from 'react'
-import { SITE, FILTERS, appStoreUrl, deviceLabel, appFolder, platformsOf, faqsOf, trustPointsOf, privacyLineOf } from './theme.js'
+import { SITE, FILTERS, appStoreUrl, deviceLabel, appFolder, platformsOf, faqsOf, trustPointsOf, privacyLineOf, claimOf } from './theme.js'
 
 const asset = (p) => `/${p}`
 
@@ -37,6 +37,7 @@ export const Header = () => (
       </a>
       <nav className="nav">
         <a className="nav__link nav__text" href="/#apps">Apps</a>
+        <a className="nav__link nav__text" href="/fantastic/">Fantastic</a>
         <a className="nav__link nav__text" href="/#privacy">Privacy</a>
         <a className="btn btn--primary btn--sm" href={`mailto:${SITE.email}`}>Get in touch</a>
       </nav>
@@ -58,6 +59,7 @@ export const Footer = ({ year }) => (
       <div className="footer__links">
         <b>Links</b>
         <a className="nav__link" href="/#apps">All apps</a>
+        <a className="nav__link" href="/fantastic/">Fantastic</a>
         <a className="nav__link" href="/#privacy">Privacy</a>
         <a className="nav__link" href={`mailto:${SITE.email}`}>Contact</a>
       </div>
@@ -126,20 +128,22 @@ const PrivacyBlock = () => (
       <div className="privacy__icon"><ShieldIcon /></div>
       <div>
         <h2>Privacy by default</h2>
-        <p>Our apps do not collect, store, or transmit any personal data — no identifiers, no usage analytics, no device information. Everything happens on your device. There's no account to create and nothing to opt out of, because there was never anything to collect.</p>
+        <p>Our apps do not collect, store, or transmit any personal data — no identifiers, no usage analytics, no device information. Nothing about you leaves your device. There's no account to create and nothing to opt out of, because there was never anything to collect.</p>
       </div>
     </div>
   </section>
 )
 
-export const Home = ({ apps, featured, year }) => (
+export const Home = ({ apps, featured, fantastic, year }) => {
+  const liveApps = apps.filter((a) => a.live).map((a) => a.name)
+  return (
   <div className="page">
     <Header />
     <main>
       <section className="hero rise">
         <div className="hero__badge"><span className="dot-live" /> Independent apps for iPhone, iPad &amp; Mac</div>
         <h1 className="hero__title">Apps that keep<br /><span className="grad">to themselves.</span></h1>
-        <p className="hero__sub">AISixteen builds small, fast, thoughtfully crafted apps that run entirely on your device — no accounts, no tracking, nothing sent to a server.</p>
+        <p className="hero__sub">AISixteen builds small, fast, thoughtfully crafted apps that run on your device — no accounts, no tracking, nothing about you sent to a server.</p>
         <div className="hero__cta">
           <a className="btn btn--primary" href="#apps">Explore the apps</a>
           <a className="btn btn--ghost" href="#privacy">Our privacy stance</a>
@@ -147,18 +151,20 @@ export const Home = ({ apps, featured, year }) => (
         <div className="hero__stats">
           <div className="stat"><b>{apps.length}</b>apps shipped</div>
           <div className="stat"><b>0</b>data collected</div>
-          <div className="stat"><b>100%</b>on-device</div>
+          <div className="stat"><b>0</b>accounts needed</div>
         </div>
       </section>
 
       <Featured app={featured} />
+
+      {fantastic && <FantasticBanner f={fantastic} />}
 
       <section className="apps" id="apps">
         <div className="apps__head">
           <div>
             <div className="apps__eyebrow">Catalog</div>
             <h2>All apps</h2>
-            <p>Every one runs offline and collects nothing.</p>
+            <p>Every one collects nothing{liveApps.length ? `, and all but ${liveApps.join(' and ')} run fully offline` : ' and runs offline'}.</p>
           </div>
           <div className="filters">
             {FILTERS.map((f) => (
@@ -175,7 +181,8 @@ export const Home = ({ apps, featured, year }) => (
     </main>
     <Footer year={year} />
   </div>
-)
+  )
+}
 
 /* ---------------- landing preview (multi-device carousel) ---------------- */
 const FrameMac = ({ app, children }) => (
@@ -319,7 +326,7 @@ export const Landing = ({ app, more, year }) => (
       <section className="final-cta-wrap">
         <div className="final-cta">
           <h2>Get {app.name}</h2>
-          <p>{app.tagline} On-device, no account, no tracking.</p>
+          <p>{app.tagline} {claimOf(app)}</p>
           <AppStoreButton app={app} />
         </div>
       </section>
@@ -337,6 +344,167 @@ export const Landing = ({ app, more, year }) => (
       </a>
     </div>
 
+    <Footer year={year} />
+  </div>
+)
+
+/* ---------------- fantastic ---------------- */
+const GitHubIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.39-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z" />
+  </svg>
+)
+
+// Home-page block: kept apart from the consumer-app grid on purpose.
+const FantasticBanner = ({ f }) => (
+  <section className="section">
+    <a className="fx-banner" href={`/${f.slug}/`} style={{ '--accent': f.accent }} aria-label={`Open ${f.name}`}>
+      <img className="fx-banner__icon" src={asset(f.icon)} alt={`${f.name} icon`} width="72" height="72" loading="lazy" decoding="async" />
+      <div className="fx-banner__body">
+        <span className="eyebrow">{f.status}</span>
+        <div className="fx-banner__name">{f.fullName}</div>
+        <p className="fx-banner__desc">{f.tagline} {f.short}</p>
+      </div>
+      <span className="btn btn--ghost fx-banner__cta">Explore Fantastic <span className="card__arrow">&rarr;</span></span>
+    </a>
+  </section>
+)
+
+const Terminal = ({ title, children }) => (
+  <div className="frame-mac fx-term">
+    <div className="frame-mac__bar">
+      <span className="tl tl--r" /><span className="tl tl--y" /><span className="tl tl--g" />
+      <span className="frame-mac__title">{title}</span>
+    </div>
+    <pre className="fx-code">{children}</pre>
+  </div>
+)
+
+export const FantasticPage = ({ f, year }) => (
+  <div className="page" style={{ '--accent': f.accent }}>
+    <Header />
+    <main>
+      <section className="landing-hero" style={{ paddingTop: 34, paddingBottom: 0 }}>
+        <a className="back" href="/"><span>&larr;</span> AISixteen</a>
+      </section>
+
+      <section className="landing-hero rise">
+        <div className="split">
+          <div>
+            <span className="landing__cat">{f.status}</span>
+            <div className="landing__head">
+              <img className="landing__icon" src={asset(f.icon)} alt={`${f.name} icon`} width="78" height="78" />
+              <h1 className="landing__title">{f.name}</h1>
+            </div>
+            <p className="landing__tagline">{f.tagline}</p>
+            <p className="landing__blurb">{f.blurb}</p>
+            <div className="landing__actions">
+              <a className="btn btn--primary" href={f.releases} target="_blank" rel="noreferrer">Download the CLI</a>
+              <a className="btn btn--ghost" href={f.repo} target="_blank" rel="noreferrer"><GitHubIcon /> Source on GitHub</a>
+            </div>
+            <p className="meta-note fx-meta">macOS &amp; Linux · arm64 &amp; x86_64 · {f.license} · <a className="fx-link" href={f.crate} target="_blank" rel="noreferrer">on crates.io</a></p>
+          </div>
+          <div>
+            <Terminal title="the idea in one call">{f.oneCall}</Terminal>
+            <p className="fx-note">{f.oneCallNote}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="inside">
+        <h2>One primitive, all the way down</h2>
+        <div className="features">
+          {f.concepts.map((c) => (
+            <div className="feature" key={c.term}>
+              <h3 className="fx-term-name">{c.term}</h3>
+              <p>{c.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="inside">
+        <h2>What's in the box</h2>
+        <div className="features fx-grid-2">
+          {f.inTheBox.map((b) => (
+            <div className="feature" key={b.title}>
+              <div className="feature__icon"><CheckIcon /></div>
+              <h3 className="fx-h3">{b.title}</h3>
+              <p>{b.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="inside" id="install">
+        <h2>Install</h2>
+        <div className="fx-install">
+          {f.install.map((i) => (
+            <div key={i.label}>
+              <h3 className="fx-h3">{i.label}</h3>
+              {i.note && <p className="fx-p">{i.note}</p>}
+              <pre className="fx-code fx-code--block">{i.code}</pre>
+            </div>
+          ))}
+          <div>
+            <h3 className="fx-h3">Or start with your coding agent</h3>
+            <p className="fx-p">Open Claude Code, Codex, Gemini CLI or any CLI agent in a project folder and paste:</p>
+            <blockquote className="fx-quote">{f.agentPrompt}</blockquote>
+            <p className="fx-p">Run from an agent's shell, <code>fantastic</code> starts in doc mode: it prints its readme and command list, and starts and writes nothing.</p>
+          </div>
+        </div>
+        <div className="fx-commands">
+          {f.commands.map(([cmd, what]) => (
+            <div className="fx-cmd" key={cmd}><code>{cmd}</code><span>{what}</span></div>
+          ))}
+        </div>
+      </section>
+
+      <section className="inside">
+        <h2>Four runtimes, one protocol</h2>
+        <p className="fx-p fx-lead">Interchangeable hosts share one wire protocol and one <code>.fantastic/</code> workdir. A shared contract corpus pins identical behaviour across them, and model-driven end-to-end tests score live models by what they built — not by what they said.</p>
+        <div className="features">
+          {f.runtimes.map((r) => (
+            <div className="feature" key={r.name}>
+              <h3 className="fx-term-name">{r.name}</h3>
+              <p>{r.role}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="inside">
+        <h2>The Fantastic family</h2>
+        <div className="features">
+          {f.family.map((m) => (
+            <div className="feature" key={m.name}>
+              <span className={`fx-state${m.state === 'Available' ? ' is-live' : ''}`}>{m.state}</span>
+              <h3 className="fx-h3">{m.name}</h3>
+              <p>{m.text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="privacy-strip">
+        <div className="privacy-strip__box">
+          <ShieldIcon size={26} />
+          <p><b>Deny-all by default.</b> {f.security}</p>
+        </div>
+      </section>
+
+      <section className="final-cta-wrap">
+        <div className="final-cta">
+          <h2>Try {f.name}</h2>
+          <p>Free and open source under {f.license}. Alpha — expect sharp edges, and tell us what you build.</p>
+          <pre className="fx-code fx-code--block fx-code--inline">cargo install fantastic</pre>
+          <div className="fx-cta-row">
+            <a className="btn btn--primary" href={f.releases} target="_blank" rel="noreferrer">Download the CLI</a>
+            <a className="btn btn--ghost" href={f.repo} target="_blank" rel="noreferrer"><GitHubIcon /> GitHub</a>
+          </div>
+        </div>
+      </section>
+    </main>
     <Footer year={year} />
   </div>
 )

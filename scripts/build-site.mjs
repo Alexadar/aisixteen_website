@@ -26,8 +26,9 @@ await build({
   external: ['react', 'react-dom', 'react-dom/server'],
   logLevel: 'warning',
 })
-const { renderHome, renderLanding, renderNotFound } = await import(pathToFileURL(bundlePath).href)
+const { renderHome, renderLanding, renderNotFound, renderFantastic, renderRedirect } = await import(pathToFileURL(bundlePath).href)
 const { apps, featuredSlug } = await import(pathToFileURL(join(siteSrc, '..', 'data', 'apps.js')).href)
+const { fantastic } = await import(pathToFileURL(join(siteSrc, '..', 'data', 'fantastic.js')).href)
 
 // 2) Decorate apps with build-time facts: a multi-device carousel that rotates through
 //    EVERY platform's screenshots, each shown in the device frame designed for it.
@@ -75,8 +76,11 @@ const write = (rel, html) => {
 }
 
 const written = []
-written.push(write('index.html', renderHome(decorated, featured, { year })))
+written.push(write('index.html', renderHome(decorated, featured, { year, fantastic })))
 for (const app of decorated) written.push(write(`${app.slug}/index.html`, renderLanding(app, decorated, { year })))
+written.push(write(`${fantastic.slug}/index.html`, renderFantastic(fantastic, { year })))
+// Common misspelling of the product URL → canonical page.
+written.push(write('fantasit/index.html', renderRedirect(`/${fantastic.slug}/`)))
 written.push(write('404.html', renderNotFound({ year })))
 
 // 4) Shared cached assets (one copy each).
@@ -100,6 +104,7 @@ for (const app of decorated) {
   copyMedia(app.screenshot)
   app.previews.forEach(copyMedia)
 }
+copyMedia(fantastic.icon)
 if (fs.existsSync(join(media, 'logo.png'))) fs.copyFileSync(join(media, 'logo.png'), join(docs, 'logo.png'))
 
 // 6) Custom domain for GitHub Pages.

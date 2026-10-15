@@ -313,3 +313,45 @@ img { display: block; max-width: 100%; }
   .footer { grid-template-columns: 1fr; gap: 26px; }
 }
 @media (max-width: 560px) { .nav__text { display: none; } }
+
+/* ---------- fantastic (home banner + /fantastic/ page) ---------- */
+.fx-banner {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 24px; align-items: center;
+  margin-top: 20px; padding: clamp(22px, 3vw, 32px); border-radius: 22px; position: relative; overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+  background: linear-gradient(120deg, color-mix(in srgb, var(--accent) 16%, transparent), rgba(255, 255, 255, .02));
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.fx-banner:hover { transform: translateY(-3px); box-shadow: 0 20px 60px rgba(0, 0, 0, .45); }
+.fx-banner:hover .card__arrow { transform: translateX(4px); }
+.fx-banner__icon { width: 72px; height: 72px; border-radius: 18px; background: #0d1530; box-shadow: 0 8px 26px rgba(0, 0, 0, .45); }
+.fx-banner__name { font-family: var(--display); font-weight: 700; font-size: 24px; line-height: 1.15; margin: 6px 0 6px; }
+.fx-banner__desc { margin: 0; color: #c4cadb; font-size: 15px; line-height: 1.55; max-width: 64ch; }
+@media (max-width: 760px) { .fx-banner { grid-template-columns: auto 1fr; } .fx-banner__cta { grid-column: 1 / -1; justify-self: start; } }
+
+.fx-meta { margin: 16px 0 0; }
+.fx-term .fx-code { margin: 0; }
+.fx-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13.5px; line-height: 1.6;
+  color: #cfe3ff; background: #05060f; padding: 18px 20px; overflow-x: auto; white-space: pre;
+}
+.fx-code--block { border-radius: 14px; border: 1px solid var(--line); margin: 0; }
+.fx-note { color: var(--muted); font-size: 14.5px; line-height: 1.6; margin: 16px 4px 0; }
+.fx-term-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; color: var(--accent); margin: 0 0 8px; font-weight: 600; }
+.fx-h3 { font-family: var(--display); font-weight: 600; font-size: 17px; margin: 0 0 8px; }
+.fx-grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.fx-p { color: var(--muted); font-size: 15px; line-height: 1.6; margin: 0 0 12px; }
+.fx-lead { max-width: 72ch; margin-bottom: 24px; }
+.fx-p code, .fx-cmd code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em; color: var(--ink); }
+.fx-install { display: grid; gap: 26px; }
+.fx-quote { margin: 0 0 12px; padding: 14px 18px; border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; background: rgba(255, 255, 255, .04); color: var(--ink); font-size: 15px; }
+.fx-commands { margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px 24px; }
+.fx-cmd { display: flex; flex-direction: column; gap: 2px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.fx-cmd span { color: var(--dim); font-size: 14px; }
+.fx-state { display: inline-block; font-size: 11.5px; font-weight: 600; letter-spacing: .3px; padding: 3px 10px; border-radius: 999px; color: var(--muted); background: rgba(255, 255, 255, .06); margin-bottom: 12px; }
+.fx-state.is-live { color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.fx-cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.split > *, .fx-install > * { min-width: 0; }
+@media (max-width: 560px) { .fx-code { font-size: 12.5px; padding: 14px 16px; } }
+.fx-link { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.fx-code--inline { display: inline-block; margin: 0 0 22px; text-align: left; }

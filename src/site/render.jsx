@@ -1,7 +1,7 @@
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { Home, Landing, NotFound } from './components.jsx'
-import { SITE, appStoreUrl, faqsOf } from './theme.js'
+import { Home, Landing, NotFound, FantasticPage } from './components.jsx'
+import { SITE, appStoreUrl, faqsOf, claimOf } from './theme.js'
 
 const esc = (s) => String(s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -49,7 +49,7 @@ ${body}
 </html>`
 }
 
-export function renderHome(apps, featured, { year }) {
+export function renderHome(apps, featured, { year, fantastic }) {
   const itemList = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -64,7 +64,7 @@ export function renderHome(apps, featured, { year }) {
     canonical: `${SITE.origin}/`,
     ogImage: `${SITE.origin}/logo.png`,
     jsonld: [ORG, itemList],
-    body: renderToStaticMarkup(<Home apps={apps} featured={featured} year={year} />),
+    body: renderToStaticMarkup(<Home apps={apps} featured={featured} fantastic={fantastic} year={year} />),
   })
 }
 
@@ -98,12 +98,69 @@ export function renderLanding(app, apps, { year }) {
   }
   return doc({
     title: `${app.name} — ${app.tagline} | AISixteen`,
-    description: `${app.name}: ${app.short} On-device, no account, works offline — on the App Store for ${app.platforms || 'iPhone, iPad and Mac'}.`,
+    description: `${app.name}: ${app.short} ${claimOf(app)} On the App Store for ${app.platforms || 'iPhone, iPad and Mac'}.`,
     canonical: `${SITE.origin}/${app.slug}/`,
     ogImage: `${SITE.origin}/${hero}`,
     jsonld: [ORG, softwareApp, faqPage],
     body: renderToStaticMarkup(<Landing app={app} more={more} year={year} />),
   })
+}
+
+// Fantastic is free, open-source developer software — not an App Store app — so it gets
+// its own page and schema. Every structured-data value mirrors text visible on the page;
+// no rating is asserted (Google's software-app rich result needs one, so none is expected).
+export function renderFantastic(f, { year }) {
+  const url = `${SITE.origin}/${f.slug}/`
+  const softwareApp = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: f.fullName,
+    alternateName: f.name,
+    description: f.blurb,
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'macOS, Linux',
+    url,
+    downloadUrl: f.releases,
+    sameAs: [f.repo, f.crate],
+    image: `${SITE.origin}/${f.icon}`,
+    license: 'https://www.gnu.org/licenses/agpl-3.0.html',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher: { '@type': 'Organization', name: SITE.name, url: SITE.origin },
+  }
+  const sourceCode = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareSourceCode',
+    name: f.fullName,
+    codeRepository: f.repo,
+    license: 'https://www.gnu.org/licenses/agpl-3.0.html',
+    programmingLanguage: f.runtimes.map((r) => r.name),
+    targetProduct: { '@type': 'SoftwareApplication', name: f.fullName, url },
+  }
+  return doc({
+    title: `${f.name} — a workspace where humans and AIs are agents in one tree | AISixteen`,
+    description: `${f.fullName}: ${f.short} Open source (AGPL), alpha, for macOS and Linux.`,
+    canonical: url,
+    ogImage: `${SITE.origin}/${f.icon}`,
+    jsonld: [ORG, softwareApp, sourceCode],
+    body: renderToStaticMarkup(<FantasticPage f={f} year={year} />),
+  })
+}
+
+// Tiny noindex page that forwards a URL to its canonical home (GitHub Pages has no 301s).
+export function renderRedirect(to) {
+  const href = `${SITE.origin}${to}`
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Redirecting…</title>
+<link rel="canonical" href="${href}">
+<meta name="robots" content="noindex, follow">
+<meta http-equiv="refresh" content="0; url=${to}">
+<script>location.replace(${JSON.stringify(to)} + location.hash)</script>
+</head>
+<body><a href="${to}">Continue to ${href}</a></body>
+</html>`
 }
 
 export function renderNotFound({ year }) {

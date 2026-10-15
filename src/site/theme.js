@@ -33,6 +33,13 @@ export const trustPointsOf = (app) => app.live
   ? [app.liveSource ? `Live ${app.liveSource} data` : 'Live public data', 'No tracking, ever', 'No account or subscription']
   : ['Runs 100% on-device', 'No tracking, ever', 'No account or subscription']
 
+// Short claim used in meta descriptions and CTAs. Google's generative-AI content guidance
+// (updated 2026-10-01) holds titles, meta descriptions and structured data to the same
+// accuracy bar as the page — so a live-data app must never be described as offline.
+export const claimOf = (app) => app.live
+  ? `No account, no tracking — live ${app.liveSource || 'public'} data.`
+  : 'On-device, no account, works offline.'
+
 export const privacyLineOf = (app) => app.live
   ? `No account, no tracking, no data collection. ${app.name} only fetches public ${app.liveSource || 'data'} feeds — nothing about you is sent anywhere.`
   : app.icloud
