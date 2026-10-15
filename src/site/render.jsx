@@ -146,23 +146,6 @@ export function renderFantastic(f, { year }) {
   })
 }
 
-// Tiny noindex page that forwards a URL to its canonical home (GitHub Pages has no 301s).
-export function renderRedirect(to) {
-  const href = `${SITE.origin}${to}`
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Redirecting…</title>
-<link rel="canonical" href="${href}">
-<meta name="robots" content="noindex, follow">
-<meta http-equiv="refresh" content="0; url=${to}">
-<script>location.replace(${JSON.stringify(to)} + location.hash)</script>
-</head>
-<body><a href="${to}">Continue to ${href}</a></body>
-</html>`
-}
-
 export function renderNotFound({ year }) {
   return doc({
     title: 'Page not found — AISixteen',

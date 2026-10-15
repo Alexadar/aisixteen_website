@@ -26,7 +26,7 @@ await build({
   external: ['react', 'react-dom', 'react-dom/server'],
   logLevel: 'warning',
 })
-const { renderHome, renderLanding, renderNotFound, renderFantastic, renderRedirect } = await import(pathToFileURL(bundlePath).href)
+const { renderHome, renderLanding, renderNotFound, renderFantastic } = await import(pathToFileURL(bundlePath).href)
 const { apps, featuredSlug } = await import(pathToFileURL(join(siteSrc, '..', 'data', 'apps.js')).href)
 const { fantastic } = await import(pathToFileURL(join(siteSrc, '..', 'data', 'fantastic.js')).href)
 
@@ -79,8 +79,6 @@ const written = []
 written.push(write('index.html', renderHome(decorated, featured, { year, fantastic })))
 for (const app of decorated) written.push(write(`${app.slug}/index.html`, renderLanding(app, decorated, { year })))
 written.push(write(`${fantastic.slug}/index.html`, renderFantastic(fantastic, { year })))
-// Common misspelling of the product URL → canonical page.
-written.push(write('fantasit/index.html', renderRedirect(`/${fantastic.slug}/`)))
 written.push(write('404.html', renderNotFound({ year })))
 
 // 4) Shared cached assets (one copy each).
@@ -106,6 +104,16 @@ for (const app of decorated) {
 }
 copyMedia(fantastic.icon)
 if (fs.existsSync(join(media, 'logo.png'))) fs.copyFileSync(join(media, 'logo.png'), join(docs, 'logo.png'))
+
+// Sitemap of every indexable page (redirect stubs and 404 excluded). No <lastmod>:
+// a build date on every URL would be inaccurate, and Google ignores unreliable lastmod.
+const indexable = ['', ...decorated.map((a) => `${a.slug}/`), `${fantastic.slug}/`]
+fs.writeFileSync(join(docs, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${indexable.map((p) => `  <url><loc>https://aisixteen.com/${p}</loc></url>`).join('\n')}
+</urlset>
+`)
+fs.writeFileSync(join(docs, 'robots.txt'), 'User-agent: *\nAllow: /\n\nSitemap: https://aisixteen.com/sitemap.xml\n')
 
 // 6) Custom domain for GitHub Pages.
 if (fs.existsSync(join(root, 'CNAME'))) fs.copyFileSync(join(root, 'CNAME'), join(docs, 'CNAME'))
