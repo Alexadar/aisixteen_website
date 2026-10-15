@@ -15,7 +15,7 @@ export const fantastic = {
   // Launch-directory badges. LaunchNest verifies the backlink: keep the <a> followed
   // (no nofollow/sponsored/ugc) and keep their hosted image URL.
   badges: [
-    { href: 'https://launchnest.io/p/fantastic', src: 'https://launchnest.io/badge/fantastic.svg?variant=featured', alt: 'Fantastic on LaunchNest', width: 220, height: 56 },
+    { href: 'https://launchnest.io/p/fantastic', src: 'https://launchnest.io/badge/fantastic.svg?variant=featured', alt: 'Aisixteen Fantastic on LaunchNest', width: 220, height: 56 },
   ],
   tagline: 'A medium that unifies humans and AIs into a single workspace.',
   short: 'A kernel of agents: models, programs, files, shells, a browser canvas and you, all in one tree, all reached with one call.',
