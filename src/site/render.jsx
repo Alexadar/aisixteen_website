@@ -11,7 +11,7 @@ const ORG = {
   '@type': 'Organization',
   name: SITE.name,
   url: SITE.origin,
-  description: 'Independent developer of small, fast, private, on-device apps for iPhone, iPad and Mac.',
+  description: 'Independent developer of Aisixteen Fantastic, an open-source kernel of agents, and of small, fast, private apps for iPhone, iPad and Mac.',
   email: SITE.email,
 }
 
@@ -59,8 +59,8 @@ export function renderHome(apps, featured, { year, fantastic }) {
     })),
   }
   return doc({
-    title: 'AISixteen — private, on-device apps for iPhone, iPad & Mac',
-    description: 'AISixteen builds small, fast, private apps for iPhone, iPad and Mac — no accounts, no tracking, everything runs on-device.',
+    title: 'AISixteen — Fantastic: humans and AIs, one workspace',
+    description: 'Aisixteen Fantastic is an open-source kernel of agents where models, programs, files and people share one workspace. AISixteen also makes small, private apps for iPhone, iPad and Mac — no accounts, no tracking.',
     canonical: `${SITE.origin}/`,
     ogImage: `${SITE.origin}/logo.png`,
     jsonld: [ORG, itemList],
