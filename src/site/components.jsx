@@ -402,6 +402,15 @@ export const FantasticPage = ({ f, year }) => (
               <a className="btn btn--primary" href={f.releases} target="_blank" rel="noreferrer">Download the CLI</a>
               <a className="btn btn--ghost" href={f.repo} target="_blank" rel="noreferrer"><GitHubIcon /> Source on GitHub</a>
             </div>
+            {f.badges && f.badges.length > 0 && (
+              <div className="fx-badges">
+                {f.badges.map((b) => (
+                  <a href={b.href} target="_blank" rel="noopener" key={b.href}>
+                    <img src={b.src} alt={b.alt} width={b.width} height={b.height} />
+                  </a>
+                ))}
+              </div>
+            )}
             <p className="meta-note fx-meta">macOS &amp; Linux · arm64 &amp; x86_64 · {f.license} · <a className="fx-link" href={f.crate} target="_blank" rel="noreferrer">on crates.io</a></p>
           </div>
           <div>

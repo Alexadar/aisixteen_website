@@ -355,3 +355,5 @@ img { display: block; max-width: 100%; }
 @media (max-width: 560px) { .fx-code { font-size: 12.5px; padding: 14px 16px; } }
 .fx-link { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 .fx-code--inline { display: inline-block; margin: 0 0 22px; text-align: left; }
+.fx-badges { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.fx-badges img { display: block; height: 56px; width: auto; }
