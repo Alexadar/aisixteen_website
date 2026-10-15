@@ -405,7 +405,7 @@ export const FantasticPage = ({ f, year }) => (
             {f.badges && f.badges.length > 0 && (
               <div className="fx-badges">
                 {f.badges.map((b) => (
-                  <a href={b.href} target="_blank" rel="noopener" key={b.href}>
+                  <a href={b.href} target="_blank" key={b.href}>
                     <img src={b.src} alt={b.alt} width={b.width} height={b.height} />
                   </a>
                 ))}
