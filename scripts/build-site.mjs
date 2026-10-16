@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 // Static site generator: pre-renders the home page + one real HTML page per app
 // into docs/ so every app gets its own crawlable URL on GitHub Pages (no server).
 // React is used only here, at build time, as the template engine.
@@ -68,10 +69,15 @@ const year = new Date().getFullYear()
 fs.rmSync(docs, { recursive: true, force: true })
 fs.mkdirSync(docs, { recursive: true })
 
+// Cache-bust the shared assets: browsers keep them for an hour, so every page links them
+// with a content hash and a deploy is picked up on the next page load.
+const assetHash = createHash('sha256')
+  .update(fs.readFileSync(join(siteSrc, 'site.css'))).update(fs.readFileSync(join(siteSrc, 'site.js')))
+  .digest('hex').slice(0, 10)
 const write = (rel, html) => {
   const out = join(docs, rel)
   fs.mkdirSync(dirname(out), { recursive: true })
-  fs.writeFileSync(out, html)
+  fs.writeFileSync(out, html.replace(/\/assets\/(site\.(?:css|js))"/g, `/assets/$1?v=${assetHash}"`))
   return rel
 }
 
