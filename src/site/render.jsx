@@ -136,12 +136,27 @@ export function renderFantastic(f, { year }) {
     programmingLanguage: f.runtimes.map((r) => r.name),
     targetProduct: { '@type': 'SoftwareApplication', name: f.fullName, url },
   }
+  const v = f.video
+  const video = {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: v.title,
+    description: v.description,
+    thumbnailUrl: `${SITE.origin}/${v.poster}`,
+    contentUrl: `${SITE.origin}/${v.src}`,
+    uploadDate: v.uploadDate,
+    duration: v.duration,
+    hasPart: v.chapters.map((c, i) => ({
+      '@type': 'Clip', name: c.label, url: `${url}#t=${c.t}`,
+      startOffset: Math.floor(c.t), endOffset: Math.floor(v.chapters[i + 1]?.t ?? 124),
+    })),
+  }
   return doc({
-    title: `${f.name} — a workspace where humans and AIs are agents in one tree | AISixteen`,
-    description: `${f.fullName}: ${f.short} Open source (AGPL), alpha, for macOS and Linux.`,
+    title: `${f.name} — a meta-runtime where humans and AIs share one workspace | AISixteen`,
+    description: `${f.fullName}: ${f.short} Install with cargo install fantastic. Open source (AGPL), alpha, for macOS and Linux.`,
     canonical: url,
-    ogImage: `${SITE.origin}/${f.icon}`,
-    jsonld: [ORG, softwareApp, sourceCode],
+    ogImage: `${SITE.origin}/${v.poster}`,
+    jsonld: [ORG, softwareApp, sourceCode, video],
     body: renderToStaticMarkup(<FantasticPage f={f} year={year} />),
   })
 }

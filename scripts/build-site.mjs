@@ -103,6 +103,8 @@ for (const app of decorated) {
   app.previews.forEach(copyMedia)
 }
 copyMedia(fantastic.icon)
+copyMedia(fantastic.video.src)
+copyMedia(fantastic.video.poster)
 if (fs.existsSync(join(media, 'logo.png'))) fs.copyFileSync(join(media, 'logo.png'), join(docs, 'logo.png'))
 
 // Sitemap of every indexable page (redirect stubs and 404 excluded). No <lastmod>:
