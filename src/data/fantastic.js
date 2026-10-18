@@ -14,6 +14,7 @@ export const fantastic = {
   repo: 'https://github.com/aisixteen/fantastic',
   releases: 'https://github.com/aisixteen/fantastic/releases/latest',
   crate: 'https://crates.io/crates/fantastic',
+  roadmap: 'https://github.com/orgs/aisixteen/projects/1',
   tagline: 'A medium that unifies humans and AIs into a single workspace.',
   short: 'A kernel of agents: models, programs, files, shells, a browser canvas and you, all in one tree, all reached with one call.',
   blurb: 'Fantastic is a kernel of agents. A model, a program, a file tree, a shell, a browser canvas and the human at the keyboard are all agents in one tree, addressed by id and reached the same way: one call, send. Compute, inference and memory are interchangeable — a step written as code and the same step written as an LLM call plug into the wiring identically.',

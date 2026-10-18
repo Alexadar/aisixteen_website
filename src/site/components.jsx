@@ -446,7 +446,7 @@ export const FantasticPage = ({ f, year }) => {
         <p className="hero__sub">{f.tagline} {f.short}</p>
         <div className="fx-phero__install">
           <CopyLine code={installCmd} />
-          <p className="fx-phero__note">From <a className="fx-link" href={f.crate} target="_blank" rel="noreferrer">crates.io</a> · Rust 1.88+ · macOS &amp; Linux · <a className="fx-link" href="#install">other ways to install</a></p>
+          <p className="fx-phero__note">From <a className="fx-link" href={f.crate} target="_blank" rel="noreferrer">crates.io</a> · Rust 1.88+ · macOS &amp; Linux · <a className="fx-link" href="#install">other ways to install</a> · <a className="fx-link" href={f.roadmap} target="_blank" rel="noreferrer">roadmap</a></p>
         </div>
         <div className="hero__cta">
           <a className="btn btn--primary" href="#install">Install</a>
@@ -638,7 +638,7 @@ export const FantasticPage = ({ f, year }) => {
       <section className="final-cta-wrap">
         <div className="final-cta">
           <h2>Try {f.name}</h2>
-          <p>Free and open source under {f.license}. Alpha — expect sharp edges, and tell us what you build.</p>
+          <p>Free and open source under {f.license}. Alpha — expect sharp edges, and tell us what you build. See what's next on the <a className="fx-link" href={f.roadmap} target="_blank" rel="noreferrer">public roadmap</a>.</p>
           <div className="fx-final-install"><CopyLine code={installCmd} /></div>
           <div className="fx-cta-row">
             <a className="btn btn--primary" href={f.crate} target="_blank" rel="noreferrer">View on crates.io</a>
