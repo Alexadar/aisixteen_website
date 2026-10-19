@@ -116,9 +116,9 @@ export function renderFantastic(f, { year }) {
     '@type': 'SoftwareApplication',
     name: f.fullName,
     alternateName: f.name,
-    description: f.blurb,
+    description: f.stackLead,
     applicationCategory: 'DeveloperApplication',
-    operatingSystem: 'macOS, Linux',
+    operatingSystem: 'macOS, Linux, Windows',
     url,
     downloadUrl: f.releases,
     sameAs: [f.repo, f.crate],
@@ -152,8 +152,8 @@ export function renderFantastic(f, { year }) {
     })),
   }
   return doc({
-    title: `${f.name} — a meta-runtime where humans and AIs share one workspace | AISixteen`,
-    description: `${f.fullName}: ${f.short} Install with cargo install fantastic. Open source (AGPL), alpha, for macOS and Linux.`,
+    title: `${f.name} — humans and AIs in one workspace, built from scratch | AISixteen`,
+    description: `${f.fullName}, built from scratch layer by layer: a kernel of agents in Python, Rust, Swift and TypeScript, the fantastic CLI, a browser canvas and an MCP server. Open source (AGPL), alpha, for macOS, Linux and Windows. A desktop app and fantastic OS are on the roadmap.`,
     canonical: url,
     ogImage: `${SITE.origin}/${v.poster}`,
     jsonld: [ORG, softwareApp, sourceCode, video],

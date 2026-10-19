@@ -156,7 +156,7 @@ const FantasticHero = ({ f }) => (
   <section className="hero fx-hero rise" style={{ '--accent': f.accent }}>
     <a className="hero__badge" href={`/${f.slug}/`}><span className="dot-live" /> {f.fullName} · {f.status}</a>
     <h1 className="hero__title fx-hero__title">Humans and AIs,<br /><span className="grad">one workspace.</span></h1>
-    <p className="hero__sub">{f.short} Open source, for macOS and Linux.</p>
+    <p className="hero__sub">{f.homeSub}</p>
     <div className="hero__cta">
       <a className="btn btn--primary" href={`/${f.slug}/`}>Explore Fantastic</a>
       <a className="btn btn--ghost" href={f.repo} target="_blank" rel="noreferrer"><GitHubIcon /> Source on GitHub</a>
@@ -164,9 +164,12 @@ const FantasticHero = ({ f }) => (
     <div className="fx-hero__install">
       <span className="fx-hero__prompt">$</span><code>cargo install fantastic --locked</code>
     </div>
-    <div className="fx-hero__visual">
-      <img className="fx-hero__icon" src={asset(f.icon)} alt={`${f.name} icon`} width="96" height="96" />
-      <Terminal title="the idea in one call">{f.oneCall}</Terminal>
+    <div className="fx-hero__duo">
+      <StackStrip f={f} />
+      <div className="fx-hero__visual">
+        <img className="fx-hero__icon" src={asset(f.icon)} alt={`${f.name} icon`} width="96" height="96" />
+        <Terminal title="the idea in one call">{f.oneCall}</Terminal>
+      </div>
     </div>
   </section>
 )
@@ -434,6 +437,220 @@ const HeroVideo = ({ v }) => (
   </figure>
 )
 
+
+/* ---------------- fantastic: stack, roadmap, architecture ---------------- */
+const issueUrl = (f, n) => `${f.repo}/issues/${n}`
+const IssueRef = ({ f, n }) => (
+  <a className="fx-issue" href={issueUrl(f, n)} target="_blank" rel="noreferrer" aria-label={`Issue ${n} on GitHub`}>#{n}</a>
+)
+// Status chip: colour AND glyph shape differ per status, so it never relies on colour alone.
+const Chip = ({ f, s }) => <span className={`fx-chip fx-chip--${s}`}>{f.statuses[s].label}</span>
+// Done / not-yet mark for a roadmap part; the hidden text is what a screen reader hears.
+const Mark = ({ done, status = 'soon' }) => (
+  <span className={`fx-mark fx-mark--${done ? 'done' : status}`}>
+    <span className="sr-only">{done ? 'Done: ' : `${status === 'progress' ? 'In progress' : status === 'stretch' ? 'Stretch' : 'Planned'}: `}</span>
+  </span>
+)
+
+const StackLegend = ({ f, keys = ['available', 'progress', 'dev', 'soon', 'stretch', 'host'] }) => (
+  <ul className="fx-legend" aria-label="Status legend">
+    {keys.map((k) => (
+      <li key={k}><Chip f={f} s={k} /><span>{f.statuses[k].note}</span></li>
+    ))}
+  </ul>
+)
+
+const StackBlock = ({ f, b }) => (
+  <li className={`fx-sb fx-sb--${b.status}${b.span >= 6 ? ' fx-sb--wide' : ''}`} style={{ '--span': b.span }}>
+    <div className="fx-sb__top">
+      <h4 className="fx-sb__name">{b.name}</h4>
+      <Chip f={f} s={b.status} />
+    </div>
+    {b.id && <code className="fx-sb__id">{b.id}</code>}
+    <p className="fx-sb__text">{b.text}</p>
+    {b.parts && (
+      <ul className="fx-parts">
+        {b.parts.map((p) => (
+          <li key={p.issue}><Mark done={p.done} status="progress" />{p.text} <IssueRef f={f} n={p.issue} /></li>
+        ))}
+      </ul>
+    )}
+    {b.issue && <p className="fx-sb__ref">Roadmap <IssueRef f={f} n={b.issue} /></p>}
+  </li>
+)
+
+// The centerpiece: every layer of the stack, top (what you touch) to bottom (the machine).
+const StackDiagram = ({ f }) => (
+  <ol className="fx-stack" aria-label="The Fantastic stack, from apps at the top to hardware at the bottom">
+    {f.stack.map((l, i) => (
+      <li className={`fx-layer-row fx-layer-row--${l.key}`} key={l.key}>
+        <div className="fx-layer-row__label">
+          <span className="fx-layer-row__n" aria-hidden="true">L{f.stack.length - i}</span>
+          <h3 className="fx-layer-row__name">{l.name}</h3>
+          <code className="fx-layer-row__id">{l.id}</code>
+        </div>
+        <ul className="fx-layer-row__blocks">
+          {l.blocks.map((b) => <StackBlock f={f} b={b} key={b.name} />)}
+        </ul>
+      </li>
+    ))}
+  </ol>
+)
+
+// Compact stack for the home hero: one row per layer, one glyph per block, links to the full diagram.
+// `row` lays the layers out left to right (the /fantastic/ hero); the default stacks them (home).
+const StackStrip = ({ f, row = false }) => {
+  const layers = f.stack.filter((l) => l.key !== 'hw')
+  const count = (l, ks) => l.blocks.filter((b) => ks.includes(b.status)).length
+  return (
+    <a className={`fx-strip${row ? ' fx-strip--row' : ''}`} href={row ? '#stack' : `/${f.slug}/#stack`}>
+      <span className="fx-strip__title">{row ? 'Every layer, top to bottom' : 'The stack, built from scratch'} <span className="card__arrow">&rarr;</span></span>
+      <span className="fx-strip__rows">
+        {layers.map((l) => {
+          const live = count(l, ['available'])
+          const doing = count(l, ['progress', 'dev'])
+          const later = count(l, ['soon', 'stretch'])
+          const said = [live && `${live} available`, doing && `${doing} in progress`, later && `${later} planned`].filter(Boolean).join(', ')
+          return (
+            <span className="fx-strip__row" key={l.key}>
+              <span className="fx-strip__name">{l.name}</span>
+              <span className="fx-strip__dots" aria-hidden="true">
+                {l.blocks.map((b) => <i className={`fx-dot fx-dot--${b.status}`} key={b.name} />)}
+              </span>
+              <span className="sr-only">: {said}.</span>
+            </span>
+          )
+        })}
+      </span>
+      <span className="fx-strip__key" aria-hidden="true">
+        <span><i className="fx-dot fx-dot--available" /> Available</span>
+        <span><i className="fx-dot fx-dot--progress" /> In progress</span>
+        <span><i className="fx-dot fx-dot--soon" /> Coming soon</span>
+        <span><i className="fx-dot fx-dot--stretch" /> Stretch</span>
+        <span><i className="fx-dot fx-dot--host" /> Host</span>
+      </span>
+    </a>
+  )
+}
+
+const Roadmap = ({ f }) => (
+  <section className="inside" id="roadmap" aria-labelledby="roadmap-title">
+    <p className="fx-kicker">Roadmap</p>
+    <h2 id="roadmap-title">{f.roadmapTitle}</h2>
+    <p className="fx-p fx-lead">Public, milestone by milestone, in epic <IssueRef f={f} n={57} />. No dates: every phase lands only when CI is green on Linux, macOS and Windows. Ticked items are merged in the source; they reach a release with the milestone.</p>
+    <ol className="fx-rm">
+      {f.milestones.map((m) => {
+        const done = m.items.filter((i) => i.done).length
+        return (
+          <li className={`fx-rm__m fx-rm__m--${m.status}`} key={m.id}>
+            <span className="fx-rm__node" aria-hidden="true">{m.id}</span>
+            <div className="fx-rm__card">
+              <div className="fx-rm__head">
+                <h3 className="fx-rm__name">
+                  {m.id !== '+' && <span className="fx-rm__id">{m.id} · </span>}
+                  {m.url ? <a href={m.url} target="_blank" rel="noreferrer">{m.name}</a> : m.name}
+                </h3>
+                <Chip f={f} s={m.status} />
+              </div>
+              <p className="fx-rm__text">{m.text}</p>
+              <p className="fx-rm__count">{done} of {m.items.length} done</p>
+              <ul className="fx-rm__items">
+                {m.items.map((it) => (
+                  <li key={it.issue} className={it.done ? 'is-done' : ''}>
+                    <Mark done={it.done} status={it.status || (m.status === 'stretch' ? 'stretch' : 'soon')} />
+                    <span>{it.text} <IssueRef f={f} n={it.issue} /></span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        )
+      })}
+    </ol>
+    <p className="fx-rm__deferred"><b>Deferred:</b> {f.deferred.text} <IssueRef f={f} n={f.deferred.issue} /></p>
+    <div className="fx-row-links">
+      <a className="btn btn--primary" href={f.roadmap} target="_blank" rel="noreferrer">Full roadmap</a>
+      <a className="btn btn--ghost" href={f.epic} target="_blank" rel="noreferrer"><GitHubIcon /> Epic #57</a>
+    </div>
+  </section>
+)
+
+const ArchLink = ({ link }) => (
+  Array.isArray(link) ? (
+    <div className="fx-arch__link fx-arch__link--pair" aria-hidden="true">
+      <span className="fx-arch__wire fx-arch__wire--down">{link[0]}</span>
+      <span className="fx-arch__wire fx-arch__wire--up">{link[1]}</span>
+    </div>
+  ) : (
+    <div className="fx-arch__link" aria-hidden="true"><span className="fx-arch__wire fx-arch__wire--down">{link}</span></div>
+  )
+)
+
+const Architecture = ({ f }) => (
+  <section className="inside" id="architecture" aria-labelledby="arch-title">
+    <p className="fx-kicker">Architecture</p>
+    <h2 id="arch-title">One UI, many skins, a pure core</h2>
+    <p className="fx-p fx-lead">How the desktop app and fantastic OS are put together, from the window you see down to the one place that touches the OS.</p>
+    <div className="fx-arch">
+      <ol className="fx-arch__flow" aria-label="From the outermost shell to the OS layer">
+        {f.arch.map((n) => (
+          <li className="fx-arch__step" key={n.layer}>
+            <div className="fx-arch__node">
+              <span className="fx-arch__layer">{n.layer}</span>
+              <div className="fx-arch__body">
+                <div className="fx-arch__top">
+                  <h3 className="fx-arch__name">{n.name}</h3>
+                  <Chip f={f} s={n.status} />
+                </div>
+                <code className="fx-arch__id">{n.id}</code>
+                <p className="fx-arch__text">{n.text}</p>
+                <p className="fx-arch__refs">
+                  {n.issues.map((i) => (
+                    <span key={i.n}><Mark done={i.done} status={i.status} /><IssueRef f={f} n={i.n} /></span>
+                  ))}
+                </p>
+              </div>
+            </div>
+            {n.link && <ArchLink link={n.link} />}
+            {n.link && <p className="sr-only">{Array.isArray(n.link) ? `${n.link[0]} go down to the next layer; ${n.link[1]} come back up.` : `It ${n.link} the next layer.`}</p>}
+          </li>
+        ))}
+      </ol>
+      <dl className="fx-principles">
+        {f.principles.map((p) => (
+          <div key={p.term}>
+            <dt>{p.term}</dt>
+            <dd>{p.text}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+)
+
+const ComingSoon = ({ f }) => (
+  <section className="final-cta-wrap fx-soon-wrap" aria-labelledby="soon-title">
+    <div className="fx-soon">
+      <p className="fx-kicker">Coming soon</p>
+      <h2 id="soon-title">The desktop app, then fantastic OS</h2>
+      <p className="fx-soon__lead">Built in the open, phase by phase. No release dates: each one ships when it is ready and green on CI.</p>
+      <div className="fx-soon__cards">
+        {f.comingSoon.map((c) => (
+          <div className={`fx-soon__card fx-soon__card--${c.status}`} key={c.name}>
+            <Chip f={f} s={c.status} />
+            <h3 className="fx-h3">{c.name}</h3>
+            <p>{c.text}</p>
+          </div>
+        ))}
+      </div>
+      <div className="fx-cta-row">
+        <a className="btn btn--primary" href={f.roadmap} target="_blank" rel="noreferrer">Follow the roadmap</a>
+        <a className="btn btn--ghost" href={f.repo} target="_blank" rel="noreferrer"><GitHubIcon /> Watch or star on GitHub</a>
+      </div>
+    </div>
+  </section>
+)
+
 export const FantasticPage = ({ f, year }) => {
   const installCmd = f.install[0].code
   return (
@@ -442,17 +659,27 @@ export const FantasticPage = ({ f, year }) => {
     <main>
       <section className="hero fx-hero fx-phero rise">
         <span className="hero__badge"><img src={asset(f.icon)} alt="" width="22" height="22" className="fx-phero__icon" /> {f.fullName} · {f.status}</span>
-        <h1 className="hero__title fx-hero__title">Humans and AIs,<br /><span className="grad">one workspace.</span></h1>
-        <p className="hero__sub">{f.tagline} {f.short}</p>
+        <h1 className="hero__title fx-hero__title">Built from scratch,<br /><span className="grad">layer by layer.</span></h1>
+        <p className="hero__sub">{f.tagline} {f.heroSub}</p>
         <div className="fx-phero__install">
           <CopyLine code={installCmd} />
-          <p className="fx-phero__note">From <a className="fx-link" href={f.crate} target="_blank" rel="noreferrer">crates.io</a> · Rust 1.88+ · macOS &amp; Linux · <a className="fx-link" href="#install">other ways to install</a> · <a className="fx-link" href={f.roadmap} target="_blank" rel="noreferrer">roadmap</a></p>
+          <p className="fx-phero__note">From <a className="fx-link" href={f.crate} target="_blank" rel="noreferrer">crates.io</a> · Rust 1.88+ · macOS, Linux &amp; Windows · <a className="fx-link" href="#install">other ways to install</a> · <a className="fx-link" href={f.roadmap} target="_blank" rel="noreferrer">roadmap</a></p>
         </div>
         <div className="hero__cta">
           <a className="btn btn--primary" href="#install">Install</a>
           <a className="btn btn--ghost" href={f.repo} target="_blank" rel="noreferrer"><GitHubIcon /> Source on GitHub</a>
         </div>
+        <StackStrip f={f} row />
         <HeroVideo v={f.video} />
+      </section>
+
+      <section className="inside fx-stack-wrap" id="stack" aria-labelledby="stack-title">
+        <p className="fx-kicker">The stack</p>
+        <h2 id="stack-title">One product family, every layer</h2>
+        <p className="fx-p fx-lead">{f.stackLead}</p>
+        <StackLegend f={f} />
+        <StackDiagram f={f} />
+        <p className="fx-stack__foot">Status as of the public roadmap, epic <IssueRef f={f} n={57} />. <a className="fx-link" href="#roadmap">Milestones below</a> · <a className="fx-link" href={f.roadmap} target="_blank" rel="noreferrer">full roadmap</a></p>
       </section>
 
       <section className="inside fx-layers-wrap">
@@ -602,31 +829,11 @@ export const FantasticPage = ({ f, year }) => {
         </div>
       </section>
 
-      <section className="inside">
-        <h2>Four runtimes, one protocol</h2>
-        <p className="fx-p fx-lead">Interchangeable hosts share one wire protocol and one <code>.fantastic/</code> workdir. A shared contract corpus pins identical behaviour across them, and model-driven end-to-end tests score live models by what they built — not by what they said.</p>
-        <div className="features">
-          {f.runtimes.map((r) => (
-            <div className="feature" key={r.name}>
-              <h3 className="fx-term-name">{r.name}</h3>
-              <p>{r.role}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <Roadmap f={f} />
 
-      <section className="inside">
-        <h2>The Fantastic family</h2>
-        <div className="features">
-          {f.family.map((m) => (
-            <div className="feature" key={m.name}>
-              <span className={`fx-state${m.state === 'Available' ? ' is-live' : ''}`}>{m.state}</span>
-              <h3 className="fx-h3">{m.name}</h3>
-              <p>{m.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <Architecture f={f} />
+
+      <ComingSoon f={f} />
 
       <section className="privacy-strip">
         <div className="privacy-strip__box">
