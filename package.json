@@ -5,13 +5,15 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build-site.mjs",
-    "preview": "node scripts/build-site.mjs && npx --yes serve docs -l 4173"
+    "preview": "node scripts/build-site.mjs && npx --yes serve docs -l 4173",
+    "test:layout": "playwright test"
   },
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@playwright/test": "1.56.1",
     "esbuild": "^0.21.0"
   }
 }

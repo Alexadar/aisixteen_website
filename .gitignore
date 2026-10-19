@@ -18,3 +18,7 @@ tmp
 
 # Build output (we commit docs/ for GH Pages, so do not ignore it)
 dist
+
+# Layout test output
+test-results/
+playwright-report/

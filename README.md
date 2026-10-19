@@ -117,3 +117,13 @@ Then set the same custom domain in the repo’s Pages settings.
 ## License
 
 MIT — do whatever you want, no warranty.
+
+## Layout tests
+
+`npm run test:layout` runs Playwright against the built `docs/` in Chromium, Firefox and
+WebKit, on desktop and phone sizes (`playwright.config.mjs`, `tests/layout.spec.mjs`). It checks
+that no page scrolls sideways at any common width, that nothing moves after load (scroll
+reveals, the /fantastic/ reel, the video), that the reel keeps one size on every slide with its
+drawings inside it, and that no script throws. Install the browsers once with
+`npx playwright install chromium firefox webkit`, or run one, e.g. `--project=chromium`.
+The `Layout tests` workflow runs all of them on every pull request.
