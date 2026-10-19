@@ -90,19 +90,68 @@ export const fantastic = {
     { title: 'Kernel services', text: 'A scheduler, credentials by reference with secret fields masked in records and events, a persistent tree on disk, and a task table with Unix-style ps / cancel.' },
   ],
   runtimes: [
-    { name: 'Python', role: 'The reference. When runtimes disagree, Python is right.' },
-    { name: 'Rust', role: 'Server and CLI host — the fantastic binary.' },
-    { name: 'Swift', role: 'Apple platforms, linked in-process by the Apple client.' },
-    { name: 'TypeScript', role: 'The browser frontend kernel, served by any host.' },
+    { name: 'Python', short: 'the reference', role: 'The reference. When runtimes disagree, Python is right.' },
+    { name: 'Rust', short: 'CLI & server host', role: 'Server and CLI host — the fantastic binary.' },
+    { name: 'Swift', short: 'Apple, in-process', role: 'Apple platforms, linked in-process by the Apple client.' },
+    { name: 'TypeScript', short: 'the browser kernel', role: 'The browser frontend kernel, served by any host.' },
   ],
-  family: [
-    { name: 'Fantastic CLI & canvas', state: 'Available', text: 'A terminal coder, a browser canvas where you build and run your own systems visually with an AI, and an MCP face for coding CLIs. macOS and Linux, arm64 and x86_64.' },
-    { name: 'Apple client', state: 'In development', text: 'A native SwiftUI app for Mac, iPhone, iPad, Vision Pro and Apple Watch that runs the Swift kernel in-process — or attaches to a remote kernel over SSH, with no difference in architecture.' },
-    { name: 'Relay', state: 'In development', text: 'A relay-kernel that turns connected kernels into agents: an addressable router with a live directory, so kernels reach each other through NAT and firewalls.' },
+  // ---- Landing copy (the /fantastic/ redesign) ----
+  // Kept deliberately light, but every line is true to the repo (README, CHANGELOG) and
+  // the public roadmap. Nothing unreleased is called available. No issue links, no dates,
+  // no effort numbers. The Apple client and the relay are private: describe, never link.
+  heroSub: 'A kernel of agents, built from scratch. Models, programs, files and you share one tree, and one call reaches all of them.',
+  homeSub: 'Built from scratch, layer by layer: a kernel of agents in four runtimes, the fantastic CLI and a browser canvas today; a desktop app and fantastic OS next. Open source, for macOS, Linux and Windows.',
+  // Visible as the #stack lead, and used as the SoftwareApplication description.
+  stackLead: 'Built from scratch at every layer: a kernel library in four runtimes, the fantastic CLI and a browser canvas you can use today, with a desktop app and fantastic OS coming soon. One protocol runs through all of it.',
+  statuses: {
+    available: { label: 'Available' },
+    progress: { label: 'In progress' },
+    soon: { label: 'Coming soon' },
+    stretch: { label: 'Stretch' },
+  },
+  // Top to bottom. Used by the isometric stack (/fantastic/#stack) and the home strip.
+  stackLayers: [
+    { key: 'apps', name: 'Apps', status: ['available', 'soon'], text: 'The browser canvas and the terminal UI today. A desktop app and a native Apple client next.' },
+    { key: 'home', name: 'Home', status: ['soon'], text: 'One place to open, start and stop every fantastic, in any skin.' },
+    { key: 'cli', name: 'CLI', status: ['available'], text: 'One static binary for macOS, Linux and Windows.' },
+    { key: 'kernel', name: 'Kernel library', status: ['available'], text: 'Python, Rust, Swift and TypeScript, held to one contract.' },
+    { key: 'bridges', name: 'Bridges', status: ['available', 'soon'], text: 'Files, processes, browsers, other kernels and MCP servers, each sealed until opened. A relay comes next.' },
+    { key: 'os', name: 'fantastic OS', status: ['soon'], text: 'An image that boots straight into fantastic.' },
   ],
+  // The ad reel. The OS and desktop visuals are drawings of the plan, badged as such.
+  reel: [
+    // Each step lights up at `t` seconds, in sync with the drawing beside it.
+    { key: 'os', name: 'fantastic OS', status: 'soon', tone: '#b48cff',
+      title: 'An agentic OS that builds with you.',
+      text: 'A new kind of operating system: it boots straight into fantastic, the machine itself is made of agents, and the interface grows as you and an AI build it.',
+      steps: [['Power on: it boots straight into Home.', 0.4], ['Network, audio, power and displays answer as agents.', 2.1], ['Ask for a tool, and an AI builds its view and its function.', 3.7]] },
+    { key: 'app', name: 'The desktop app', status: 'soon', tone: '#55d3ff',
+      title: 'Every fantastic, one click away.',
+      text: 'Home lists every workspace you have, with live status. Click one and its canvas opens in the same window, ready to build on with an AI.',
+      steps: [['Home shows every fantastic, live.', 0.4], ['Click Open: its canvas fills the window.', 2.5], ['Build views and agents on it with an AI, in any skin.', 3.9]] },
+    { key: 'cli', name: 'The fantastic CLI', status: 'available', tone: '#4fc27a',
+      title: 'One binary. The whole kernel.',
+      text: 'Install it in one line, then run it three ways: a terminal UI, a browser canvas where you build with an AI, or an MCP server your coding agent drives.',
+      steps: [['Install it with one cargo command.', 0.4], ['fantastic canvas opens the canvas in your browser.', 2.2], ['fantastic mcp lets Claude Code or Codex plug in.', 3]] },
+    { key: 'lib', name: 'The kernel library', status: 'available', tone: '#3d82d8',
+      title: 'Four runtimes. One protocol.',
+      text: 'The kernel underneath it all: everything is an agent in one tree, reached with one call. The same protocol runs in Python, Rust, Swift and TypeScript.',
+      steps: [['A model, a program, files and you: all agents.', 0.4], ['One call, send, reaches any of them.', 1.5], ['One contract keeps all four runtimes identical.', 2.7]] },
+  ],
+  // Runs-with marquee: AI backends and coding agents named in the README.
+  worksWith: ['vLLM', 'Ollama', 'OpenAI Responses API', 'Anthropic Messages API', 'Apple on-device model', 'MCP', 'Claude Code', 'Codex', 'Gemini CLI', 'Aider', 'opencode'],
+  // Epic "From the fantastic app to fantastic OS". Rendered as progress only: no issue
+  // numbers, no dates, no effort figures.
+  milestones: [
+    { id: 'M1', name: 'App MVP', status: 'progress', text: 'Home lists your fantastics with live status; open, start and stop them.', done: 3, total: 5 },
+    { id: 'M2', name: 'Cross-platform app', status: 'progress', text: 'macOS, Windows and Linux with signed installers; one UI, many skins.', done: 1, total: 4 },
+    { id: 'M3', name: 'fantastic OS: kiosk', status: 'soon', text: 'A Debian image that boots straight into fantastic.', done: 0, total: 1 },
+    { id: 'M4', name: 'fantastic OS: system agents', status: 'soon', text: 'Network, audio, power and displays as agents.', done: 0, total: 1 },
+  ],
+  principles: ['A pure core: no OS, no I/O, no clock', 'One UI, many skins', 'Green on Linux, macOS and Windows'],
   install: [
     { label: 'From crates.io', note: 'Needs Rust 1.88 or newer and a C compiler (Xcode Command Line Tools on macOS, build-essential on Linux). The canvas page comes prebuilt, so no Go is needed. All four AI backends — vLLM, Ollama, OpenAI Responses and Anthropic — are on by default.', code: 'cargo install fantastic --locked' },
-    { label: 'Prebuilt binary (Apple silicon)', note: 'Archives for Apple silicon and Intel Macs and static Linux binaries (arm64 and x86_64) are on the latest release, with SHA256SUMS beside them.', code:'curl -LO https://github.com/aisixteen/fantastic/releases/latest/download/fantastic-aarch64-apple-darwin.tar.gz\ntar xzf fantastic-aarch64-apple-darwin.tar.gz && sudo mv fantastic /usr/local/bin/' },
+    { label: 'Prebuilt binary (Apple silicon)', note: 'Archives for Apple silicon and Intel Macs, static Linux binaries (arm64 and x86_64) and a Windows (x86_64) zip are on the latest release, with SHA256SUMS beside them.', code:'curl -LO https://github.com/aisixteen/fantastic/releases/latest/download/fantastic-aarch64-apple-darwin.tar.gz\ntar xzf fantastic-aarch64-apple-darwin.tar.gz && sudo mv fantastic /usr/local/bin/' },
   ],
   agentPrompt: 'Run `fantastic` and read what it prints. Explain to me what it is, then ask me how I want to run it.',
   commands: [

@@ -156,7 +156,7 @@ const FantasticHero = ({ f }) => (
   <section className="hero fx-hero rise" style={{ '--accent': f.accent }}>
     <a className="hero__badge" href={`/${f.slug}/`}><span className="dot-live" /> {f.fullName} · {f.status}</a>
     <h1 className="hero__title fx-hero__title">Humans and AIs,<br /><span className="grad">one workspace.</span></h1>
-    <p className="hero__sub">{f.short} Open source, for macOS and Linux.</p>
+    <p className="hero__sub">{f.homeSub}</p>
     <div className="hero__cta">
       <a className="btn btn--primary" href={`/${f.slug}/`}>Explore Fantastic</a>
       <a className="btn btn--ghost" href={f.repo} target="_blank" rel="noreferrer"><GitHubIcon /> Source on GitHub</a>
@@ -164,9 +164,12 @@ const FantasticHero = ({ f }) => (
     <div className="fx-hero__install">
       <span className="fx-hero__prompt">$</span><code>cargo install fantastic --locked</code>
     </div>
-    <div className="fx-hero__visual">
-      <img className="fx-hero__icon" src={asset(f.icon)} alt={`${f.name} icon`} width="96" height="96" />
-      <Terminal title="the idea in one call">{f.oneCall}</Terminal>
+    <div className="fx-hero__duo">
+      <StackStrip f={f} />
+      <div className="fx-hero__visual">
+        <img className="fx-hero__icon" src={asset(f.icon)} alt={`${f.name} icon`} width="96" height="96" />
+        <Terminal title="the idea in one call">{f.oneCall}</Terminal>
+      </div>
     </div>
   </section>
 )
@@ -434,223 +437,517 @@ const HeroVideo = ({ v }) => (
   </figure>
 )
 
-export const FantasticPage = ({ f, year }) => {
-  const installCmd = f.install[0].code
-  return (
-  <div className="page" style={{ '--accent': f.accent }}>
-    <Header />
-    <main>
-      <section className="hero fx-hero fx-phero rise">
-        <span className="hero__badge"><img src={asset(f.icon)} alt="" width="22" height="22" className="fx-phero__icon" /> {f.fullName} · {f.status}</span>
-        <h1 className="hero__title fx-hero__title">Humans and AIs,<br /><span className="grad">one workspace.</span></h1>
-        <p className="hero__sub">{f.tagline} {f.short}</p>
-        <div className="fx-phero__install">
-          <CopyLine code={installCmd} />
-          <p className="fx-phero__note">From <a className="fx-link" href={f.crate} target="_blank" rel="noreferrer">crates.io</a> · Rust 1.88+ · macOS &amp; Linux · <a className="fx-link" href="#install">other ways to install</a> · <a className="fx-link" href={f.roadmap} target="_blank" rel="noreferrer">roadmap</a></p>
-        </div>
-        <div className="hero__cta">
-          <a className="btn btn--primary" href="#install">Install</a>
-          <a className="btn btn--ghost" href={f.repo} target="_blank" rel="noreferrer"><GitHubIcon /> Source on GitHub</a>
-        </div>
-        <HeroVideo v={f.video} />
-      </section>
 
-      <section className="inside fx-layers-wrap">
-        <p className="fx-kicker">Not a simple harness</p>
-        <h2>A meta-runtime — ready to power any AI app.</h2>
-        <div className="fx-layers">
-          {[f.layers.product, f.layers.engine].map((l) => (
-            <div className={`fx-layer${l === f.layers.engine ? ' fx-layer--engine' : ''}`} key={l.name}>
-              <span className="fx-layer__name">{l.name}</span>
-              <h3 className="fx-layer__title">{l.title}</h3>
-              <p>{l.text}</p>
+/* ---------------- fantastic: landing (/fantastic/) ---------------- */
+// Status pill: colour AND glyph shape differ per status, so it never relies on colour alone.
+const Chip = ({ f, s }) => <span className={`fx-chip fx-chip--${s}`}>{f.statuses[s].label}</span>
+
+// Section header used across the landing: mono eyebrow, big title, optional lead.
+const Head = ({ eyebrow, title, lead, center = false, id }) => (
+  <header className={`fl-head${center ? ' fl-head--center' : ''}`} data-reveal="">
+    <p className="fl-eyebrow"><span className="fl-eyebrow__dot" />{eyebrow}</p>
+    <h2 className="fl-title" id={id}>{title}</h2>
+    {lead && <p className="fl-lead">{lead}</p>}
+  </header>
+)
+
+const StarIcon = () => (
+  <svg className="fl-star" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" />
+  </svg>
+)
+const GitHubCta = ({ f, label = 'Star on GitHub', primary = false }) => (
+  <a className={`btn ${primary ? 'btn--primary' : 'btn--ghost'} fl-gh`} href={f.repo} target="_blank" rel="noreferrer">
+    <GitHubIcon /> {label} {!primary && <StarIcon />}
+  </a>
+)
+
+// Compact stack for the home hero: one row per layer, one glyph per status, links to the full stack.
+const StackStrip = ({ f }) => (
+  <a className="fx-strip" href={`/${f.slug}/#stack`}>
+    <span className="fx-strip__title">The stack, built from scratch <span className="card__arrow">&rarr;</span></span>
+    <span className="fx-strip__rows">
+      {f.stackLayers.map((l) => (
+        <span className="fx-strip__row" key={l.key}>
+          <span className="fx-strip__name">{l.name}</span>
+          <span className="fx-strip__dots" aria-hidden="true">
+            {l.status.map((s) => <i className={`fx-dot fx-dot--${s}`} key={s} />)}
+          </span>
+          <span className="sr-only">: {l.status.map((s) => f.statuses[s].label).join(', ')}.</span>
+        </span>
+      ))}
+    </span>
+    <span className="fx-strip__key" aria-hidden="true">
+      <span><i className="fx-dot fx-dot--available" /> Available</span>
+      <span><i className="fx-dot fx-dot--soon" /> Coming soon</span>
+    </span>
+  </a>
+)
+
+/* ---- the reel: drawn, animated "ads" for each member of the family ---- */
+// Drawings, not screenshots: the OS and desktop slides depict the plan and say "Concept".
+// `fl-morph` marks each slide's main frame: between slides it morphs into the next one's.
+const Cursor = () => (
+  <svg width="20" height="24" viewBox="0 0 20 24" aria-hidden="true">
+    <path d="M2 1.5v18.2l4.6-4.3 3 6.8 3.2-1.4-3-6.7 6.4-.3z" fill="#fff" stroke="#0b1020" strokeWidth="1.5" strokeLinejoin="round" />
+  </svg>
+)
+const VisualOS = () => (
+  <div className="fx-v fx-v--os" aria-hidden="true">
+    <span className="fx-v__concept">Concept</span>
+    <div className="fx-v-os__screen fl-morph">
+      <div className="fx-v-os__boot">
+        <span><b>[ ok ]</b> system image</span>
+        <span><b>[ ok ]</b> kiosk compositor</span>
+        <span><b>[ ok ]</b> fantastic, full-screen</span>
+      </div>
+      <div className="fx-v-os__home">
+        <span className="fx-v-os__homebar">Home</span>
+        <span className="fx-v-os__tiles">
+          <i /><i /><i /><i /><i />
+          <i className="fx-v-os__new"><b /><b /><b /></i>
+        </span>
+      </div>
+      <span className="fx-v-os__ask">make me a mixer</span>
+    </div>
+    <div className="fx-v-os__stand" />
+    <div className="fx-v-os__bus">
+      {['network', 'audio', 'power', 'displays'].map((a) => <span className={`fx-v-os__agent fx-v-os__agent--${a}`} key={a}><code>{a}</code></span>)}
+    </div>
+  </div>
+)
+const VisualApp = () => (
+  <div className="fx-v fx-v--app" aria-hidden="true">
+    <span className="fx-v__concept">Concept</span>
+    <div className="fx-v-app__win fl-morph">
+      <div className="frame-mac__bar">
+        <span className="tl tl--r" /><span className="tl tl--y" /><span className="tl tl--g" />
+        <span className="frame-mac__title fx-v-app__title"><span className="fx-v-app__t1">Home</span><span className="fx-v-app__t2">dashboard · canvas</span></span>
+      </div>
+      <div className="fx-v-app__body">
+        <div className="fx-v-app__list">
+          {[['dashboard', 'on'], ['artwork', 'on'], ['chatbot', 'off'], ['notes', 'off']].map(([n, st], i) => (
+            <div className="fx-v-app__row" key={n}>
+              <i className={`fx-v-app__led fx-v-app__led--${st}`} />
+              <span className="fx-v-app__name">{n}</span>
+              <span className={`fx-v-app__btn${i === 0 ? ' fx-v-app__btn--target' : ''}`}>{st === 'on' ? 'Open' : 'Start'}</span>
             </div>
           ))}
         </div>
-      </section>
+        <div className="fx-v-app__canvas">
+          <span className="fx-v-app__cell fx-v-app__cell--chart"><small>chart_agent</small><span className="fx-v-app__bars"><i /><i /><i /><i /><i /><i /><i /></span></span>
+          <span className="fx-v-app__cell fx-v-app__cell--term"><small>terminal</small><span className="fx-v-app__lines"><i /><i /><i /></span></span>
+          <span className="fx-v-app__cell fx-v-app__cell--ai"><small>ai</small><span className="fx-v-app__chat"><i /><i /><i className="fx-v-app__typing"><b /><b /><b /></i></span></span>
+        </div>
+        <span className="fx-v-app__cursor"><Cursor /></span>
+      </div>
+    </div>
+    <div className="fx-v-app__foot">
+      <span className="fx-v-app__skins"><span className="fx-v-app__thumb" /><span>dark</span><span>glass</span></span>
+      <span>macOS · Windows · Linux</span>
+    </div>
+  </div>
+)
+const VisualCLI = () => (
+  <div className="fx-v fx-v--cli" aria-hidden="true">
+    <div className="frame-mac fx-v-cli__term fl-morph">
+      <div className="frame-mac__bar">
+        <span className="tl tl--r" /><span className="tl tl--y" /><span className="tl tl--g" />
+        <span className="frame-mac__title">~/project</span>
+      </div>
+      <div className="fx-v-cli__code">
+        {['cargo install fantastic --locked', 'fantastic', 'fantastic canvas', 'fantastic mcp'].map((c, i) => (
+          <span className="fx-v-cli__line" key={c} style={{ '--n': c.length + 2, '--d': `${0.35 + i * 0.75}s` }}><b>$ </b>{c}</span>
+        ))}
+      </div>
+    </div>
+    <div className="fx-v-cli__faces">
+      <span className="fx-v-cli__face"><code>TUI</code>your terminal</span>
+      <span className="fx-v-cli__face"><code>canvas</code>your browser</span>
+      <span className="fx-v-cli__face"><code>mcp</code>your coding agent</span>
+    </div>
+  </div>
+)
+const VisualLib = ({ f }) => (
+  <div className="fx-v fx-v--lib" aria-hidden="true">
+    <div className="fx-v-lib__grid fl-morph">
+      {f.runtimes.map((r) => (
+        <span className={`fx-v-lib__rt fx-v-lib__rt--${r.name.toLowerCase()}`} key={r.name}>
+          <b>{r.name}</b><small>{r.short}</small>
+        </span>
+      ))}
+      <span className="fx-v-lib__ring" />
+      <span className="fx-v-lib__core"><code>send</code><small>one protocol</small></span>
+    </div>
+    <div className="fx-v-lib__contract"><code>contract/</code> the same behaviour in every runtime</div>
+  </div>
+)
+const VISUAL = { os: VisualOS, app: VisualApp, cli: VisualCLI, lib: VisualLib }
 
-      <section className="inside">
-        <h2>The idea in one call</h2>
-        <div className="split fx-split">
-          <div>
-            <p className="fx-p fx-lead">{f.blurb}</p>
-            <p className="fx-p">{f.oneCallNote}</p>
-          </div>
-          <Terminal title="one batch send">{f.oneCall}</Terminal>
-        </div>
-        <div className="features fx-concepts">
-          {f.concepts.map((c) => (
-            <div className="feature" key={c.term}>
-              <h3 className="fx-term-name">{c.term}</h3>
-              <p>{c.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="inside" id="compare">
-        <p className="fx-kicker">Fantastic and other agent harnesses</p>
-        <h2>Not another agent loop</h2>
-        <p className="fx-p fx-lead">What agent frameworks and coding harnesses typically offer as of October 2026 (LangGraph, Microsoft Agent Framework, OpenAI Agents SDK, Claude Agent SDK, Google ADK, CrewAI, Mastra, Pydantic AI, Letta, Claude Code, Codex, Gemini CLI and others), and what Fantastic does instead. “Not built” means exactly that.</p>
-        <div className="fx-cmp-legend" aria-hidden="true">
-          <span className="fx-cmp-key fx-cmp-key--typ">Typical harness</span>
-          <span className="fx-cmp-key fx-cmp-key--fx">Aisixteen Fantastic</span>
-          <span className="fx-cmp-key fx-cmp-key--gap">Not built — said plainly</span>
-        </div>
-        <div className="fx-cmp">
-          {f.compareGroups.map((g) => (
-            <div className="fx-cmp__group" key={g.group}>
-              <h3 className="fx-cmp__gtitle">{g.group}</h3>
-              {g.rows.map((r) => (
-                <div className="fx-cmp__row" key={r.area}>
-                  <div className="fx-cmp__area">{r.area}</div>
-                  <div className="fx-cmp__typ"><span className="fx-cmp__tag">Typical</span><Md>{r.typical}</Md></div>
-                  <div className="fx-cmp__fx">
-                    <p className="fx-cmp__head">{r.headline}</p>
-                    <p className="fx-cmp__text"><Md>{r.text}</Md></p>
-                    {r.gap && <p className="fx-cmp__gap"><Md>{r.gap}</Md></p>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="inside">
-        <p className="fx-kicker">fantastic canvas</p>
-        <h2>Two kernels, one tree</h2>
-        <div className="fx-kgrid">
-        <div className="fx-kernels">
-          {[f.twoKernels.page, f.twoKernels.host].map((k, i) => (
-            <React.Fragment key={k.name}>
-              {i === 1 && <div className="fx-kernels__wire"><span>one WebSocket · the same send</span></div>}
-              <div className={`fx-kernel${i ? ' fx-kernel--host' : ''}`}>
-                <span className="fx-kernel__where">{k.where}</span>
-                <h3 className="fx-layer__title">{k.name}</h3>
-                <p>{k.role}</p>
+// Tabbed carousel (WAI pattern). site.js plays it: each tab's bar fills, and the bar's
+// animationend advances the reel, so hover/offscreen/pause just pause the bar. Where the
+// browser has View Transitions, the frame, headline and steps morph into the next slide's.
+const Reel = ({ f }) => (
+  <section className="fl-section fl-reel-wrap" id="family" aria-labelledby="family-title">
+    <Head eyebrow="The family" id="family-title" center title={<>One protocol.<br /><span className="grad">Every layer.</span></>}
+      lead="Four layers of one product, from the operating system down to the kernel. Here is what each one does." />
+    <div className="fl-reel" data-reel="" aria-roledescription="carousel" aria-label="The Fantastic family">
+      <div className="fl-reel__stage">
+        {f.reel.map((r, i) => {
+          const V = VISUAL[r.key]
+          return (
+            <div className={`fl-reel__slide fl-reel__slide--${r.key}${i === 0 ? ' is-active' : ''}`} key={r.key} id={`reel-${r.key}`}
+              role="tabpanel" aria-labelledby={`reel-tab-${r.key}`} aria-roledescription="slide" style={{ '--tone': r.tone }}>
+              <div className="fl-reel__copy">
+                <p className="fl-reel__kicker"><span>{r.name}</span><Chip f={f} s={r.status} /></p>
+                <h3 className="fl-reel__title">{r.title}</h3>
+                <p className="fl-reel__text">{r.text}</p>
+                <ol className="fl-reel__steps">
+                  {r.steps.map(([s, t], k) => (
+                    <li key={s} style={{ '--t': `${t}s` }}><span className="fl-reel__stepn">{k + 1}</span><span>{s}</span></li>
+                  ))}
+                </ol>
               </div>
-            </React.Fragment>
+              <div className="fl-reel__visual"><V f={f} /></div>
+            </div>
+          )
+        })}
+      </div>
+      <div className="fl-reel__bar">
+        <div className="fl-reel__tabs" role="tablist" aria-label="Choose a slide">
+          {f.reel.map((r, i) => (
+            <button type="button" role="tab" className={`fl-reel__tab${i === 0 ? ' is-active' : ''}`} id={`reel-tab-${r.key}`} key={r.key}
+              aria-controls={`reel-${r.key}`} aria-selected={i === 0 ? 'true' : 'false'} tabIndex={i === 0 ? 0 : -1} data-slide={i} style={{ '--tone': r.tone }}>
+              <span className="fl-reel__track"><span className="fl-reel__fill" /></span>
+              <span className="fl-reel__tabname">{r.name}</span>
+              <span className="fl-reel__tabstate">{f.statuses[r.status].label}</span>
+            </button>
           ))}
         </div>
-        <ul className="fx-points">
-          {f.twoKernels.points.map((p) => <li key={p}><CheckIcon /> <span>{p}</span></li>)}
-        </ul>
-        </div>
-      </section>
+        <button type="button" className="fl-reel__pause" data-reel-pause="" aria-label="Pause the slideshow">
+          <span className="fl-reel__pause-i" aria-hidden="true" />
+        </button>
+      </div>
+      <noscript><style>{'.fl-reel__stage{display:flex;flex-direction:column;gap:16px}.fl-reel__slide{opacity:1;visibility:visible}.fl-reel__bar{display:none}'}</style></noscript>
+    </div>
+    <div className="fl-cta-row fl-cta-row--center" data-reveal="">
+      <GitHubCta f={f} primary label="Follow Fantastic on GitHub" />
+      <a className="btn btn--ghost" href={f.roadmap} target="_blank" rel="noreferrer">See the roadmap</a>
+    </div>
+  </section>
+)
 
-      <section className="inside">
-        <h2>A coding agent moves in</h2>
-        <ol className="fx-flow">
-          {f.flow.map((s, i) => (
-            <li className="fx-flow__step" key={s.cmd}>
-              <span className="fx-flow__n">{i + 1}</span>
-              <code className="fx-flow__cmd">{s.cmd}</code>
-              <p>{s.text}</p>
+/* ---- the stack, as an isometric layer cake ---- */
+const Stack = ({ f }) => (
+  <section className="fl-section" id="stack" aria-labelledby="stack-title">
+    <div className="fl-stack">
+      <div className="fl-iso" data-reveal="" aria-hidden="true">
+        {f.stackLayers.map((l, i) => (
+          <div className={`fl-iso__plate fl-iso__plate--${l.key}${l.status.includes('available') ? '' : ' is-soon'}`} key={l.key} style={{ '--i': i, zIndex: 20 - i }}>
+            <span className="fl-iso__label">{l.name}</span>
+          </div>
+        ))}
+      </div>
+      <div className="fl-stack__copy">
+        <Head eyebrow="Built from scratch" id="stack-title" title={<>From the kernel up.<br /><span className="grad">Layer by layer.</span></>} lead={f.stackLead} />
+        <ol className="fl-layers" data-reveal="">
+          {f.stackLayers.map((l) => (
+            <li className="fl-layer" data-layer={l.key} key={l.key}>
+              <div className="fl-layer__top">
+                <h3 className="fl-layer__name">{l.name}</h3>
+                <span className="fl-layer__chips">{l.status.map((s) => <Chip f={f} s={s} key={s} />)}</span>
+              </div>
+              <p className="fl-layer__text">{l.text}</p>
             </li>
           ))}
         </ol>
-      </section>
+      </div>
+    </div>
+  </section>
+)
 
-      <section className="inside">
-        <h2>What you can build</h2>
-        <div className="features fx-build">
-          {f.build.map((b) => (
-            <div className={`feature fx-build__card fx-build--${b.key}`} key={b.key}>
-              <h3 className="fx-h3">{b.title}</h3>
-              <p>{b.text}</p>
-              <button type="button" className="fx-watch" data-seek={b.t}>&#9654; Watch · {fmtTime(b.t)}</button>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="inside">
-        <h2>What's in the box</h2>
-        <div className="features fx-grid-2">
-          {f.inTheBox.map((b) => (
-            <div className="feature" key={b.title}>
-              <div className="feature__icon"><CheckIcon /></div>
-              <h3 className="fx-h3">{b.title}</h3>
-              <p>{b.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="inside" id="install">
-        <h2>Install</h2>
-        <div className="fx-install">
-          {f.install.map((i) => (
-            <div key={i.label}>
-              <h3 className="fx-h3">{i.label}</h3>
-              {i.note && <p className="fx-p">{i.note}</p>}
-              <pre className="fx-code fx-code--block">{i.code}</pre>
-            </div>
-          ))}
+/* ---- the kernel, as a bento ---- */
+const Kernel = ({ f }) => {
+  const [agents, send, reflect, gate, bridges, memory] = f.concepts
+  const box = Object.fromEntries(f.inTheBox.map((b) => [b.title, b]))
+  return (
+    <section className="fl-section" id="kernel" aria-labelledby="kernel-title">
+      <Head eyebrow="The kernel" id="kernel-title" title="The idea in one call" lead={f.blurb} />
+      <div className="fl-bento">
+        <article className="fl-tile fl-tile--call" data-reveal="">
+          <Terminal title="one batch send">{f.oneCall}</Terminal>
+          <div className="fl-agents" aria-hidden="true">
+            <span className="fl-agents__root">kernel</span>
+            <span className="fl-agents__row">
+              {['a model', 'a program', 'files', 'a shell', 'the canvas', 'you'].map((n) => <span className="fl-agents__node" key={n}>{n}</span>)}
+            </span>
+          </div>
+          <p className="fl-tile__text">{f.oneCallNote}</p>
+        </article>
+        {[agents, send].map((c) => (
+          <article className="fl-tile fl-tile--sm" key={c.term} data-reveal="">
+            <h3 className="fl-tile__term">{c.term}</h3>
+            <p className="fl-tile__text">{c.text}</p>
+          </article>
+        ))}
+        {[reflect, gate, bridges, memory].map((c) => (
+          <article className="fl-tile fl-tile--q" key={c.term} data-reveal="">
+            <h3 className="fl-tile__term">{c.term}</h3>
+            <p className="fl-tile__text">{c.text}</p>
+          </article>
+        ))}
+        <article className="fl-tile fl-tile--half fl-tile--glow" data-reveal="">
+          <p className="fl-tile__kicker">{f.layers.engine.name}</p>
+          <h3 className="fl-tile__title">{f.layers.engine.title}</h3>
+          <p className="fl-tile__text">{f.layers.engine.text}</p>
+        </article>
+        <article className="fl-tile fl-tile--half" data-reveal="">
+          <p className="fl-tile__kicker">{f.layers.product.name}</p>
+          <h3 className="fl-tile__title">{f.layers.product.title}</h3>
+          <p className="fl-tile__text">{f.layers.product.text}</p>
+        </article>
+        <article className="fl-tile fl-tile--half" data-reveal="">
+          <h3 className="fl-tile__title">{box['AI agents'].title}</h3>
+          <p className="fl-tile__text">{box['AI agents'].text}</p>
+          <div className="fl-pills" aria-hidden="true">{['vLLM', 'Ollama', 'OpenAI Responses', 'Anthropic', 'Apple on-device'].map((m) => <span key={m}>{m}</span>)}</div>
+        </article>
+        <article className="fl-tile fl-tile--half" data-reveal="">
+          <h3 className="fl-tile__title">{box['IO legs'].title}</h3>
+          <p className="fl-tile__text">{box['IO legs'].text}</p>
+          <div className="fl-pills fl-pills--mono" aria-hidden="true">{['file_bridge', 'exec_bridge', 'web_ws', 'web_rest', 'ws_bridge', 'mcp_client'].map((m) => <span key={m}>{m}</span>)}</div>
+        </article>
+        <article className="fl-tile fl-tile--half" data-reveal="">
+          <h3 className="fl-tile__title">{box['Folder bundles'].title}</h3>
+          <p className="fl-tile__text">{box['Folder bundles'].text}</p>
+          <pre className="fl-tree" aria-hidden="true">{'.fantastic/\n└─ bundles/\n   └─ <name>/\n      ├─ bundle.yaml\n      └─ agent.py'}</pre>
+        </article>
+        <article className="fl-tile fl-tile--half" data-reveal="">
+          <h3 className="fl-tile__title">{box['Kernel services'].title}</h3>
+          <p className="fl-tile__text">{box['Kernel services'].text}</p>
+          <div className="fl-pills fl-pills--mono" aria-hidden="true">{['ps', 'cancel', 'schedule', '[secret]'].map((m) => <span key={m}>{m}</span>)}</div>
+        </article>
+        <article className="fl-tile fl-tile--wide fl-tile--secure" data-reveal="" id="security">
+          <div className="fl-secure__icon"><ShieldIcon size={30} /></div>
           <div>
-            <h3 className="fx-h3">Then start with your coding agent</h3>
-            <p className="fx-p">Open Claude Code, Codex, Gemini CLI or any CLI agent in a project folder and paste:</p>
-            <blockquote className="fx-quote">{f.agentPrompt}</blockquote>
-            <p className="fx-p">Run from an agent's shell, <code>fantastic</code> starts in doc mode: it prints its readme and command list, and starts and writes nothing.</p>
+            <h3 className="fl-tile__title">Deny-all by default.</h3>
+            <p className="fl-tile__text">{f.security}</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  )
+}
+
+/* ---- fantastic canvas: two kernels, then a coding agent moves in ---- */
+const Canvas = ({ f }) => (
+  <section className="fl-section" id="canvas" aria-labelledby="canvas-title">
+    <Head eyebrow="fantastic canvas" id="canvas-title" title={<>Two kernels.<br /><span className="grad">One tree.</span></>} />
+    <div className="fl-kernels" data-reveal="">
+      {[f.twoKernels.page, f.twoKernels.host].map((k, i) => (
+        <React.Fragment key={k.name}>
+          {i === 1 && (
+            <div className="fl-wire" aria-hidden="true">
+              <span className="fl-wire__line"><i /><i /><i /></span>
+              <span className="fl-wire__label">one WebSocket · the same send</span>
+            </div>
+          )}
+          <div className={`fl-kernel${i ? ' fl-kernel--host' : ''}`}>
+            <span className="fl-kernel__where">{k.where}</span>
+            <h3 className="fl-kernel__name">{k.name}</h3>
+            <p>{k.role}</p>
+          </div>
+        </React.Fragment>
+      ))}
+    </div>
+    <ul className="fl-points" data-reveal="">
+      {f.twoKernels.points.map((p) => <li key={p}><CheckIcon /> <span>{p}</span></li>)}
+    </ul>
+    <h3 className="fl-subtitle" data-reveal="">A coding agent moves in</h3>
+    <ol className="fl-steps" data-reveal="">
+      {f.flow.map((s, i) => (
+        <li className="fl-step" key={s.cmd}>
+          <span className="fl-step__n">{i + 1}</span>
+          <code className="fl-step__cmd">{s.cmd}</code>
+          <p>{s.text}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+)
+
+const Build = ({ f }) => (
+  <section className="fl-section" id="build" aria-labelledby="build-title">
+    <Head eyebrow="What you can build" id="build-title" title={<>Whatever you imagine.<br /><span className="grad">Built with an AI.</span></>} />
+    <div className="fl-build">
+      {f.build.map((b) => (
+        <article className={`fl-build__card fl-build--${b.key}`} key={b.key} data-reveal="">
+          <h3 className="fl-build__title">{b.title}</h3>
+          <p>{b.text}</p>
+          <button type="button" className="fx-watch" data-seek={b.t}>&#9654; Watch · {fmtTime(b.t)}</button>
+        </article>
+      ))}
+    </div>
+  </section>
+)
+
+const Compare = ({ f }) => {
+  const [first, ...rest] = f.compareGroups
+  const Group = ({ g }) => (
+    <div className="fx-cmp__group">
+      <h3 className="fx-cmp__gtitle">{g.group}</h3>
+      {g.rows.map((r) => (
+        <div className="fx-cmp__row" key={r.area}>
+          <div className="fx-cmp__area">{r.area}</div>
+          <div className="fx-cmp__typ"><span className="fx-cmp__tag">Typical</span><Md>{r.typical}</Md></div>
+          <div className="fx-cmp__fx">
+            <p className="fx-cmp__head">{r.headline}</p>
+            <p className="fx-cmp__text"><Md>{r.text}</Md></p>
+            {r.gap && <p className="fx-cmp__gap"><Md>{r.gap}</Md></p>}
           </div>
         </div>
-        <div className="fx-commands">
+      ))}
+    </div>
+  )
+  return (
+    <section className="fl-section" id="compare" aria-labelledby="compare-title">
+      <Head eyebrow="Fantastic and other agent harnesses" id="compare-title" title="Not another agent loop"
+        lead="What agent frameworks and coding harnesses typically offer as of October 2026 (LangGraph, Microsoft Agent Framework, OpenAI Agents SDK, Claude Agent SDK, Google ADK, CrewAI, Mastra, Pydantic AI, Letta, Claude Code, Codex, Gemini CLI and others), and what Fantastic does instead. “Not built” means exactly that." />
+      <div className="fx-cmp-legend" aria-hidden="true">
+        <span className="fx-cmp-key fx-cmp-key--typ">Typical harness</span>
+        <span className="fx-cmp-key fx-cmp-key--fx">Aisixteen Fantastic</span>
+        <span className="fx-cmp-key fx-cmp-key--gap">Not built — said plainly</span>
+      </div>
+      <div className="fx-cmp" data-reveal="">
+        <Group g={first} />
+        <details className="fl-more">
+          <summary><span>See the full comparison</span><span className="fl-more__n">{rest.reduce((n, g) => n + g.rows.length, 0)} more areas</span></summary>
+          <div className="fx-cmp">{rest.map((g) => <Group g={g} key={g.group} />)}</div>
+        </details>
+      </div>
+    </section>
+  )
+}
+
+const Next = ({ f }) => (
+  <section className="fl-section" id="next" aria-labelledby="next-title">
+    <div className="fl-next" data-reveal="">
+      <div className="fl-next__glow" aria-hidden="true" />
+      <div className="fl-next__copy">
+        <p className="fl-eyebrow"><span className="fl-eyebrow__dot" />Coming soon</p>
+        <h2 className="fl-title" id="next-title">The desktop app.<br /><span className="grad">Then fantastic OS.</span></h2>
+        <p className="fl-lead">From the app to the operating system, built in the open. No release dates: each step ships when it is ready and green on CI.</p>
+        <ul className="fl-principles">{f.principles.map((p) => <li key={p}>{p}</li>)}</ul>
+        <div className="fl-cta-row">
+          <GitHubCta f={f} primary label="Watch on GitHub" />
+          <a className="btn btn--ghost" href={f.roadmap} target="_blank" rel="noreferrer">Follow the roadmap</a>
+        </div>
+      </div>
+      <ol className="fl-miles">
+        {f.milestones.map((m) => (
+          <li className={`fl-mile fl-mile--${m.status}`} key={m.id} style={{ '--p': m.done / m.total }}>
+            <span className="fl-mile__id" aria-hidden="true">{m.id}</span>
+            <div className="fl-mile__body">
+              <div className="fl-mile__top"><h3 className="fl-mile__name">{m.name}</h3><Chip f={f} s={m.status} /></div>
+              <p className="fl-mile__text">{m.text}</p>
+              <span className="fl-mile__meter" role="img" aria-label={`${m.done} of ${m.total} steps done`}><span /></span>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+)
+
+const Install = ({ f }) => (
+  <section className="fl-section" id="install" aria-labelledby="install-title">
+    <Head eyebrow="Install" id="install-title" title={<>Start in <span className="grad">one line.</span></>} />
+    <div className="fl-install">
+      <div className="fl-install__main" data-reveal="">
+        {f.install.map((i, n) => (
+          <div className="fl-install__item" key={i.label}>
+            <h3 className="fl-install__label">{i.label}</h3>
+            {n === 0 ? <CopyLine code={i.code} /> : <pre className="fx-code fx-code--block">{i.code}</pre>}
+            {i.note && <p className="fl-install__note">{i.note}</p>}
+          </div>
+        ))}
+      </div>
+      <div className="fl-install__agent" data-reveal="">
+        <h3 className="fl-install__label">Then hand it to your coding agent</h3>
+        <p className="fl-install__note">Open Claude Code, Codex, Gemini CLI or any CLI agent in a project folder and paste:</p>
+        <blockquote className="fl-prompt">
+          <p>{f.agentPrompt}</p>
+          <button type="button" className="fx-copy" data-copy={f.agentPrompt} aria-label="Copy the prompt">Copy</button>
+        </blockquote>
+        <p className="fl-install__note">Run from an agent's shell, <code>fantastic</code> starts in doc mode: it prints its readme and command list, and starts and writes nothing.</p>
+        <div className="fl-cmds">
           {f.commands.map(([cmd, what]) => (
-            <div className="fx-cmd" key={cmd}><code>{cmd}</code><span>{what}</span></div>
+            <div className="fl-cmd" key={cmd}><code>{cmd}</code><span>{what}</span></div>
           ))}
         </div>
+      </div>
+    </div>
+  </section>
+)
+
+export const FantasticPage = ({ f, year }) => (
+  <div className="page fl-page" style={{ '--accent': f.accent }}>
+    <Header />
+    <main>
+      <section className="fl-hero">
+        <div className="fl-hero__bg" aria-hidden="true"><span /><span /><span /></div>
+        <a className="fl-pill fl-in" href="#next" style={{ '--d': '0s' }}>
+          <span className="fl-pill__tag">Coming soon</span> The desktop app and fantastic OS <span className="card__arrow">&rarr;</span>
+        </a>
+        <h1 className="fl-hero__title fl-in" style={{ '--d': '.08s' }}>Humans and AIs.<br /><span className="grad">One workspace.</span></h1>
+        <p className="fl-hero__sub fl-in" style={{ '--d': '.16s' }}>{f.heroSub}</p>
+        <div className="fl-hero__cta fl-in" style={{ '--d': '.24s' }}>
+          <CopyLine code={f.install[0].code} />
+          <GitHubCta f={f} />
+        </div>
+        <p className="fl-hero__meta fl-in" style={{ '--d': '.3s' }}>
+          <img src={asset(f.icon)} alt="" width="20" height="20" /> {f.fullName} · {f.status} · macOS, Linux &amp; Windows ·{' '}
+          <a className="fx-link" href={f.crate} target="_blank" rel="noreferrer">crates.io</a> ·{' '}
+          <a className="fx-link" href={f.roadmap} target="_blank" rel="noreferrer">roadmap</a>
+        </p>
+        <div className="fl-hero__video fl-in" style={{ '--d': '.38s' }}><HeroVideo v={f.video} /></div>
       </section>
 
-      <section className="inside">
-        <h2>Four runtimes, one protocol</h2>
-        <p className="fx-p fx-lead">Interchangeable hosts share one wire protocol and one <code>.fantastic/</code> workdir. A shared contract corpus pins identical behaviour across them, and model-driven end-to-end tests score live models by what they built — not by what they said.</p>
-        <div className="features">
-          {f.runtimes.map((r) => (
-            <div className="feature" key={r.name}>
-              <h3 className="fx-term-name">{r.name}</h3>
-              <p>{r.role}</p>
-            </div>
-          ))}
+      <section className="fl-marquee" aria-label="Works with">
+        <p className="fl-marquee__label">Drives any capable model · lives next to your coding agent</p>
+        <div className="fl-marquee__mask">
+          <ul className="fl-marquee__track">
+            {[0, 1].map((copy) => f.worksWith.map((w) => (
+              <li key={`${copy}-${w}`} aria-hidden={copy ? 'true' : undefined}>{w}</li>
+            )))}
+          </ul>
         </div>
       </section>
 
-      <section className="inside">
-        <h2>The Fantastic family</h2>
-        <div className="features">
-          {f.family.map((m) => (
-            <div className="feature" key={m.name}>
-              <span className={`fx-state${m.state === 'Available' ? ' is-live' : ''}`}>{m.state}</span>
-              <h3 className="fx-h3">{m.name}</h3>
-              <p>{m.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <Reel f={f} />
+      <Stack f={f} />
+      <Kernel f={f} />
+      <Canvas f={f} />
+      <Build f={f} />
+      <Compare f={f} />
+      <Next f={f} />
+      <Install f={f} />
 
-      <section className="privacy-strip">
-        <div className="privacy-strip__box">
-          <ShieldIcon size={26} />
-          <p><b>Deny-all by default.</b> {f.security}</p>
-        </div>
-      </section>
-
-      <section className="final-cta-wrap">
-        <div className="final-cta">
-          <h2>Try {f.name}</h2>
-          <p>Free and open source under {f.license}. Alpha — expect sharp edges, and tell us what you build. See what's next on the <a className="fx-link" href={f.roadmap} target="_blank" rel="noreferrer">public roadmap</a>.</p>
-          <div className="fx-final-install"><CopyLine code={installCmd} /></div>
-          <div className="fx-cta-row">
-            <a className="btn btn--primary" href={f.crate} target="_blank" rel="noreferrer">View on crates.io</a>
-            <a className="btn btn--ghost" href={f.repo} target="_blank" rel="noreferrer"><GitHubIcon /> GitHub</a>
-          </div>
+      <section className="fl-final">
+        <div className="fl-final__glow" aria-hidden="true" />
+        <img className="fl-final__icon" src={asset(f.icon)} alt={`${f.name} icon`} width="88" height="88" loading="lazy" decoding="async" />
+        <h2 className="fl-final__title">Build with <span className="grad">{f.name}.</span></h2>
+        <p className="fl-lead">Free and open source under {f.license}. Alpha: expect sharp edges, and tell us what you build.</p>
+        <div className="fl-final__install"><CopyLine code={f.install[0].code} /></div>
+        <div className="fl-cta-row fl-cta-row--center">
+          <GitHubCta f={f} primary label="Star on GitHub" />
+          <a className="btn btn--ghost" href={f.crate} target="_blank" rel="noreferrer">View on crates.io</a>
+          <a className="btn btn--ghost" href={f.roadmap} target="_blank" rel="noreferrer">Roadmap</a>
         </div>
       </section>
     </main>
     <Footer year={year} />
   </div>
-  )
-}
+)
 
 /* ---------------- 404 ---------------- */
 export const NotFound = ({ year }) => (
