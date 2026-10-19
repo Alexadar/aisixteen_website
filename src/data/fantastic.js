@@ -95,159 +95,47 @@ export const fantastic = {
     { name: 'Swift', short: 'Apple, in-process', role: 'Apple platforms, linked in-process by the Apple client.' },
     { name: 'TypeScript', short: 'the browser kernel', role: 'The browser frontend kernel, served by any host.' },
   ],
-  // ---- The stack, the roadmap and the architecture ----
-  // Status reflects what a visitor can install, checked against the repo and epic #57
-  // (aisixteen/fantastic#57, re-read 2026-10-19). `parts` marked done are merged in the
-  // source but not in a release yet — never present them as shipped. Private repos
-  // (Apple client, Relay) are "In development" and are never linked.
-  epic: 'https://github.com/aisixteen/fantastic/issues/57',
-  heroSub: 'One product family across the whole stack: a kernel library in four runtimes, the fantastic CLI, a browser canvas and an MCP server you can install today, with a desktop app and fantastic OS on the way.',
+  // ---- Landing copy (the /fantastic/ redesign) ----
+  // Kept deliberately light, but every line is true to the repo (README, CHANGELOG) and
+  // the public roadmap. Nothing unreleased is called available. No issue links, no dates,
+  // no effort numbers. The Apple client and the relay are private: describe, never link.
+  heroSub: 'A kernel of agents, built from scratch. Models, programs, files and you share one tree, and one call reaches all of them.',
   homeSub: 'Built from scratch, layer by layer: a kernel of agents in four runtimes, the fantastic CLI and a browser canvas today; a desktop app and fantastic OS next. Open source, for macOS, Linux and Windows.',
-  stackLead: 'Fantastic is built from scratch, layer by layer: a kernel library in four runtimes, the fantastic CLI, a browser canvas and an MCP server you can install today; a desktop app, its Home and skins in progress; fantastic OS on the roadmap. One protocol runs through every layer.',
+  // Visible as the #stack lead, and used as the SoftwareApplication description.
+  stackLead: 'Built from scratch at every layer: a kernel library in four runtimes, the fantastic CLI and a browser canvas you can use today, with a desktop app and fantastic OS coming soon. One protocol runs through all of it.',
   statuses: {
-    available: { label: 'Available', note: 'In a public release you can use today.' },
-    progress: { label: 'In progress', note: 'Being built. ✓ = merged in the source, not yet released.' },
-    dev: { label: 'In development', note: 'Built in a private repo; not released.' },
-    soon: { label: 'Coming soon', note: 'On the public roadmap; not started.' },
-    stretch: { label: 'Stretch', note: 'An ambition, not a commitment.' },
-    host: { label: 'Host', note: 'The platform underneath; not ours.' },
+    available: { label: 'Available' },
+    progress: { label: 'In progress' },
+    soon: { label: 'Coming soon' },
+    stretch: { label: 'Stretch' },
   },
-  // Top to bottom. `span` is the block's width on a 12-column row.
-  stack: [
-    {
-      key: 'apps', name: 'Apps & shells', id: 'what you touch',
-      blocks: [
-        { name: 'Browser canvas', id: 'fantastic canvas', status: 'available', span: 3, text: 'Build, run and wire your own systems visually with an AI, in the browser.' },
-        { name: 'Terminal UI', id: 'fantastic', status: 'available', span: 3, text: 'The terminal coder. Run from an agent’s shell, it prints its docs and starts nothing.' },
-        { name: 'Desktop app', id: 'Tauri 2', status: 'progress', span: 3, issue: 48, text: 'A thin native shell beside the CLI: it runs the home kernel in-process and shows Home in one window. macOS, Windows, Linux.' },
-        { name: 'Apple client', id: 'SwiftUI', status: 'dev', span: 3, text: 'Mac, iPhone, iPad, Vision Pro and Apple Watch. Runs the Swift kernel in-process, or attaches to a remote kernel over SSH.' },
-        { name: 'Native apps as canvas cells', status: 'stretch', span: 12, issue: 56, text: 'Native apps such as a browser or an editor inside canvas cells, panning and zooming with the canvas. It starts with a compositor spike.' },
-      ],
-    },
-    {
-      key: 'home', name: 'Home', id: '~/.fantastic/',
-      blocks: [
-        { name: 'Home kernel', id: 'fantastic-home-kernel', status: 'progress', span: 5, text: 'A minimal kernel the desktop app runs in-process. Its home agent lists, opens, starts and stops your fantastics; its state lives in ~/.fantastic/app/.',
-          parts: [{ text: 'Library, home agent and OS layer', done: true, issue: 46 }, { text: 'Everything under ~/.fantastic', done: true, issue: 71 }, { text: 'Home UI as canvas view bundles', issue: 47 }] },
-        { name: 'Model + ViewModel', id: 'fantastic-home', status: 'progress', span: 3, text: 'Pure: no OS, no I/O, no clock. Events in, effects out, rows to draw.',
-          parts: [{ text: 'The pure crate', done: true, issue: 45 }] },
-        { name: 'Skins', id: 'design tokens', status: 'progress', span: 4, text: 'Every colour, radius, font and motion value is a token. Stock skins dark and glass; an AI can write more.',
-          parts: [{ text: 'Tokens and the skin agent', done: true, issue: 49 }, { text: 'The reskin contract', issue: 50 }] },
-      ],
-    },
-    {
-      key: 'cli', name: 'CLI', id: 'one binary',
-      blocks: [
-        { name: 'The fantastic CLI', id: 'fantastic', status: 'available', span: 12, text: 'One static binary that runs the Rust kernel in-process: terminal UI, canvas and MCP face. macOS and Linux (arm64, x86_64), Windows (x86_64). From crates.io or GitHub releases.' },
-      ],
-    },
-    {
-      key: 'kernel', name: 'Kernel library', id: 'one protocol',
-      blocks: [
-        { name: 'Python', id: 'src/lib/python', status: 'available', span: 3, text: 'The reference. When runtimes disagree, Python is right.' },
-        { name: 'Rust', id: 'src/lib/rust', status: 'available', span: 3, text: 'Server and CLI host — the kernel inside fantastic.' },
-        { name: 'Swift', id: 'src/lib/swift', status: 'available', span: 3, text: 'Apple platforms, linked in-process by the Apple client.' },
-        { name: 'TypeScript', id: 'src/lib/ts', status: 'available', span: 3, text: 'The browser kernel: the canvas page, served by any host.' },
-        { name: 'Contract corpus', id: 'contract/', status: 'available', span: 12, text: 'Cross-runtime requirements written as data and run by every host, pinning identical behaviour across them.' },
-      ],
-    },
-    {
-      key: 'bridges', name: 'Bridges', id: 'IO legs',
-      blocks: [
-        { name: 'IO legs', id: 'file_bridge · exec_bridge · web_ws · mcp_client', status: 'available', span: 6, text: 'Files, commands and terminals, the browser and HTTP faces, kernel-to-kernel links, a remote MCP server’s tools. Each sealed until opened.' },
-        { name: 'MCP face', id: 'fantastic mcp', status: 'available', span: 3, text: 'MCP over stdio, so a coding CLI drives the kernel.' },
-        { name: 'Relay', id: 'relay-kernel', status: 'dev', span: 3, text: 'An addressable router with a live directory: kernels reach each other through NAT and firewalls.' },
-      ],
-    },
-    {
-      key: 'os', name: 'Operating system', id: 'boots into fantastic',
-      blocks: [
-        { name: 'Your OS today', id: 'macOS · Linux · Windows', status: 'host', span: 4, text: 'Fantastic runs as a program on the system you already have.' },
-        { name: 'fantastic OS', id: 'Debian + Wayland kiosk', status: 'soon', span: 4, issue: 54, text: 'A headless Debian image that boots into the desktop app’s Home, full-screen under a Wayland kiosk compositor.' },
-        { name: 'System agents', id: 'network · audio · power · displays', status: 'soon', span: 4, issue: 55, text: 'The machine itself as agents, reached with the same send.' },
-      ],
-    },
-    {
-      key: 'hw', name: 'Hardware', id: 'arm64 · x86_64',
-      blocks: [
-        { name: 'Your machine', id: 'arm64 · x86_64', status: 'host', span: 12, text: 'Mac, PC or Linux box.' },
-      ],
-    },
+  // Top to bottom. Used by the isometric stack (/fantastic/#stack) and the home strip.
+  stackLayers: [
+    { key: 'apps', name: 'Apps', status: ['available', 'soon'], text: 'The browser canvas and the terminal UI today. A desktop app and a native Apple client next.' },
+    { key: 'home', name: 'Home', status: ['soon'], text: 'One place to open, start and stop every fantastic, in any skin.' },
+    { key: 'cli', name: 'CLI', status: ['available'], text: 'One static binary for macOS, Linux and Windows.' },
+    { key: 'kernel', name: 'Kernel library', status: ['available'], text: 'Python, Rust, Swift and TypeScript, held to one contract.' },
+    { key: 'bridges', name: 'Bridges', status: ['available', 'soon'], text: 'Files, processes, browsers, other kernels and MCP servers, each sealed until opened. A relay comes next.' },
+    { key: 'os', name: 'fantastic OS', status: ['soon'], text: 'An image that boots straight into fantastic.' },
   ],
-  // Epic #57: "From the fantastic app to fantastic OS". No hours or dates are published.
-  roadmapTitle: 'From the fantastic app to fantastic OS',
+  // The ad reel. The OS and desktop visuals are drawings of the plan, badged as such.
+  reel: [
+    { key: 'os', name: 'fantastic OS', status: 'soon', tone: '#b48cff', title: 'Boot straight into fantastic.', text: 'A minimal system image that starts in Home, where the machine itself is made of agents.' },
+    { key: 'app', name: 'The desktop app', status: 'soon', tone: '#55d3ff', title: 'Every fantastic. One window.', text: 'A native app for macOS, Windows and Linux that keeps every workspace one click away, in any skin.' },
+    { key: 'cli', name: 'The fantastic CLI', status: 'available', tone: '#4fc27a', title: 'One binary. The whole kernel.', text: 'A terminal UI, a browser canvas and an MCP server for your coding agent. Install it in one line.' },
+    { key: 'lib', name: 'The kernel library', status: 'available', tone: '#3d82d8', title: 'Four runtimes. One protocol.', text: 'Python, Rust, Swift and TypeScript, held to one contract. One call reaches every agent.' },
+  ],
+  // Runs-with marquee: AI backends and coding agents named in the README.
+  worksWith: ['vLLM', 'Ollama', 'OpenAI Responses API', 'Anthropic Messages API', 'Apple on-device model', 'MCP', 'Claude Code', 'Codex', 'Gemini CLI', 'Aider', 'opencode'],
+  // Epic "From the fantastic app to fantastic OS". Rendered as progress only: no issue
+  // numbers, no dates, no effort figures.
   milestones: [
-    { id: 'M1', name: 'App MVP', status: 'progress', url: 'https://github.com/aisixteen/fantastic/milestone/1', text: 'The manager of your fantastics as a desktop app: Home lists them with live status; open, start and stop them.',
-      items: [
-        { issue: 45, text: 'Pure home model and ViewModel crate', done: true },
-        { issue: 46, text: 'Home kernel: an in-process library with the home agent and its OS layer', done: true },
-        { issue: 71, text: 'Home layout v2: everything under ~/.fantastic', done: true },
-        { issue: 47, text: 'Home UI as canvas view bundles', status: 'progress' },
-        { issue: 48, text: 'Tauri desktop app for macOS, Windows and Linux', status: 'progress' },
-      ] },
-    { id: 'M2', name: 'Cross-platform app and the reskin contract', status: 'progress', url: 'https://github.com/aisixteen/fantastic/milestone/2', text: 'Tauri on macOS, Windows and Linux with signed installers; one UI, many skins, and the contract other projects reskin.',
-      items: [
-        { issue: 49, text: 'Skins: design tokens and a skin agent', done: true },
-        { issue: 50, text: 'The reskin contract' },
-        { issue: 51, text: 'Installers and signing' },
-        { issue: 52, text: 'Linux rendering and per-OS polish' },
-      ] },
-    { id: 'M3', name: 'fantastic OS: kiosk', status: 'soon', url: 'https://github.com/aisixteen/fantastic/milestone/3', text: 'A Debian headless image that boots straight into fantastic.',
-      items: [{ issue: 54, text: 'Debian headless kiosk image' }] },
-    { id: 'M4', name: 'fantastic OS: system agents', status: 'soon', url: 'https://github.com/aisixteen/fantastic/milestone/4', text: 'Network, audio, power and displays as agents.',
-      items: [{ issue: 55, text: 'System agents' }] },
-    { id: '+', name: 'Stretch', status: 'stretch', text: 'Beyond the four milestones.',
-      items: [{ issue: 56, text: 'Native apps as canvas cells' }] },
+    { id: 'M1', name: 'App MVP', status: 'progress', text: 'Home lists your fantastics with live status; open, start and stop them.', done: 3, total: 5 },
+    { id: 'M2', name: 'Cross-platform app', status: 'progress', text: 'macOS, Windows and Linux with signed installers; one UI, many skins.', done: 1, total: 4 },
+    { id: 'M3', name: 'fantastic OS: kiosk', status: 'soon', text: 'A Debian image that boots straight into fantastic.', done: 0, total: 1 },
+    { id: 'M4', name: 'fantastic OS: system agents', status: 'soon', text: 'Network, audio, power and displays as agents.', done: 0, total: 1 },
   ],
-  deferred: { issue: 53, text: 'Retiring the Swift kernel runtime (keeping the Foundation Models bridge) is deferred: Swift stays for now.' },
-  // Epic #57's architecture principles, drawn as the schematic. `issue` = the phase that builds it.
-  arch: [
-    { layer: 'Shell', name: 'Tauri 2 · Wayland kiosk', id: 'macOS · Windows · Linux · fantastic OS', status: 'progress', issues: [{ n: 48, status: 'progress' }, { n: 54, status: 'soon' }], text: 'A native window beside the CLI on each desktop; full-screen on fantastic OS.', link: 'hosts' },
-    { layer: 'Skin', name: 'Design tokens + native backdrop', id: 'dark · glass', status: 'progress', issues: [{ n: 49, done: true }, { n: 50, status: 'soon' }], text: 'Swap the skin, keep the app.', link: 'styles' },
-    { layer: 'View', name: 'Canvas view bundles', id: 'Home UI', status: 'progress', issues: [{ n: 47, status: 'progress' }], text: 'Render the state; send intents.', link: ['events', 'rows'] },
-    { layer: 'ViewModel', name: 'Model + ViewModel', id: 'fantastic-home', status: 'progress', issues: [{ n: 45, done: true }], text: 'Pure: no OS, no I/O, no clock. Events in, effects out.', link: ['effects', 'answers'] },
-    { layer: 'OS layer', name: 'Home kernel → sys', id: 'home/sys: unix · windows', status: 'progress', issues: [{ n: 46, done: true }], text: 'Every OS call lives here, one module per OS family.' },
-  ],
-  principles: [
-    { term: 'MVVM, pure', text: 'Model and ViewModel live in a dependency-free crate. The OS is reached only through sys modules, one per OS family; views render state and send intents.' },
-    { term: 'Home is a fantastic', text: 'A minimal home kernel, a library the desktop app runs in-process, manages your fantastics. Its state lives in ~/.fantastic/app/.' },
-    { term: 'One UI, many skins', text: 'Design tokens plus a native backdrop. The home protocol, the pure crate and the token schema form a contract any project can reskin.' },
-    { term: 'Green on three OSes', text: 'Every phase lands with CI green on Linux, macOS and Windows.' },
-  ],
-  // Ad-style infographic carousel. Every figure is a fact from the repo or the roadmap;
-  // the OS and app visuals are drawings of the plan (marked "Concept"), not screenshots.
-  ads: [
-    {
-      key: 'os', tab: 'OS', n: '01', name: 'fantastic OS', status: 'soon', tone: '#b48cff',
-      title: 'Boot straight into fantastic.',
-      text: 'A headless Debian image with a Wayland kiosk that runs the desktop app full-screen. The machine itself becomes agents you reach with the same send.',
-      stats: [['1', 'image, x86_64 first, then arm64'], ['4', 'system agents planned'], ['0', 'desktop environments: one kiosk app']],
-      issue: 54,
-    },
-    {
-      key: 'app', tab: 'App', n: '02', name: 'The desktop app', status: 'progress', tone: '#55d3ff',
-      title: 'Every fantastic, one window.',
-      text: 'A Tauri 2 app beside the CLI. Home lists your fantastics with live status, and opens, starts and stops them. Restyle it with a skin.',
-      stats: [['3', 'desktops: macOS, Windows, Linux'], ['2', 'stock skins: dark and glass'], ['1', 'home kernel, in-process']],
-      issue: 48,
-    },
-    {
-      key: 'cli', tab: 'CLI', n: '03', name: 'The fantastic CLI', status: 'available', tone: '#4fc27a',
-      title: 'One binary. The whole kernel.',
-      text: 'A terminal UI, a browser canvas where you and an AI build live systems, and an MCP server for your coding agent. Install it in one line.',
-      stats: [['1', 'static binary'], ['5', 'release targets'], ['3', 'faces: TUI, canvas, MCP']],
-    },
-    {
-      key: 'lib', tab: 'Library', n: '04', name: 'The kernel library', status: 'available', tone: '#3d82d8',
-      title: 'Four runtimes. One protocol.',
-      text: 'Python, Rust, Swift and TypeScript share one wire protocol. A contract corpus pins identical behaviour, and one call, send, reaches every agent.',
-      stats: [['4', 'runtimes'], ['1', 'primitive: send'], ['1', 'shared contract corpus']],
-    },
-  ],
-  comingSoon: [
-    { name: 'The desktop app', status: 'progress', text: 'A Tauri 2 app for macOS, Windows and Linux that lives beside the CLI. Home lists your fantastics with live status and opens, starts and stops them; skins restyle it, and signed installers ship it.' },
-    { name: 'fantastic OS', status: 'soon', text: 'A Debian headless image that boots straight into fantastic: a Wayland kiosk runs the desktop app full-screen, and network, audio, power and displays become agents you reach with the same send.' },
-  ],
+  principles: ['A pure core: no OS, no I/O, no clock', 'One UI, many skins', 'Green on Linux, macOS and Windows'],
   install: [
     { label: 'From crates.io', note: 'Needs Rust 1.88 or newer and a C compiler (Xcode Command Line Tools on macOS, build-essential on Linux). The canvas page comes prebuilt, so no Go is needed. All four AI backends — vLLM, Ollama, OpenAI Responses and Anthropic — are on by default.', code: 'cargo install fantastic --locked' },
     { label: 'Prebuilt binary (Apple silicon)', note: 'Archives for Apple silicon and Intel Macs, static Linux binaries (arm64 and x86_64) and a Windows (x86_64) zip are on the latest release, with SHA256SUMS beside them.', code:'curl -LO https://github.com/aisixteen/fantastic/releases/latest/download/fantastic-aarch64-apple-darwin.tar.gz\ntar xzf fantastic-aarch64-apple-darwin.tar.gz && sudo mv fantastic /usr/local/bin/' },

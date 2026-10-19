@@ -79,44 +79,86 @@
   });
 })();
 
-// Fantastic family carousel: scroll-snap does the sliding (works without JS);
-// this wires the tabs and arrows and marks the slide in view.
+// /fantastic/ reel: a tabbed carousel. Each tab's bar fills over 6.5s and its
+// animationend advances the reel, so hover, keyboard focus, the pause button and
+// scrolling it off screen pause it simply by pausing the bar. No autoplay with
+// reduced motion.
 (function () {
-  var root = document.querySelector('.fx-ads');
-  if (!root) return;
-  var track = root.querySelector('.fx-ads__track');
-  var slides = root.querySelectorAll('.fx-ad');
-  var tabs = root.querySelectorAll('[data-slide]');
+  var reel = document.querySelector('[data-reel]');
+  if (!reel) return;
+  var slides = reel.querySelectorAll('.fl-reel__slide');
+  var tabs = reel.querySelectorAll('[role="tab"]');
+  var pause = reel.querySelector('[data-reel-pause]');
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var current = 0;
-  function mark(i) {
-    current = i;
+  var cur = 0;
+  function show(i, focus) {
+    cur = (i + slides.length) % slides.length;
+    slides.forEach(function (s, k) { s.classList.toggle('is-active', k === cur); });
     tabs.forEach(function (t, k) {
-      t.classList.toggle('is-active', k === i);
-      if (k === i) t.setAttribute('aria-current', 'true'); else t.removeAttribute('aria-current');
+      var on = k === cur;
+      t.classList.toggle('is-active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
     });
+    if (focus) tabs[cur].focus();
   }
-  function go(i) {
-    i = Math.max(0, Math.min(slides.length - 1, i));
-    slides[i].scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest', inline: 'start' });
-    mark(i);
-  }
-  root.addEventListener('click', function (e) {
-    var t = e.target.closest('[data-slide]');
-    if (t) return go(parseInt(t.dataset.slide, 10));
-    var s = e.target.closest('[data-step]');
-    if (s) go(current + parseInt(s.dataset.step, 10));
+  tabs.forEach(function (t, k) {
+    t.addEventListener('click', function () { show(k); });
+    t.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); show(cur + (e.key === 'ArrowRight' ? 1 : -1), true); }
+    });
+    t.querySelector('.fl-reel__fill').addEventListener('animationend', function () { if (k === cur) show(cur + 1); });
   });
-  track.addEventListener('keydown', function (e) {
-    if (e.key === 'ArrowRight') { e.preventDefault(); go(current + 1); }
-    if (e.key === 'ArrowLeft') { e.preventDefault(); go(current - 1); }
+  var stage = reel.querySelector('.fl-reel__stage');
+  var x0 = null;
+  // Swipe on touch and pen only; a mouse drag keeps selecting text as usual.
+  stage.addEventListener('pointerdown', function (e) { x0 = e.pointerType === 'mouse' ? null : e.clientX; });
+  stage.addEventListener('pointerup', function (e) {
+    if (x0 === null) return;
+    var dx = e.clientX - x0; x0 = null;
+    if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
+  });
+  if (reduce) return;
+  reel.classList.add('is-autoplay', 'is-playing');
+  pause.addEventListener('click', function () {
+    var p = reel.classList.toggle('is-paused');
+    pause.setAttribute('aria-label', p ? 'Play the slideshow' : 'Pause the slideshow');
   });
   if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (en.isIntersecting) mark(Array.prototype.indexOf.call(slides, en.target));
-      });
-    }, { root: track, threshold: 0.6 });
-    slides.forEach(function (s) { io.observe(s); });
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) { reel.classList.toggle('is-offscreen', !e.isIntersecting); });
+    }, { threshold: 0.3 }).observe(reel);
   }
+})();
+
+// Scroll reveal: only what starts below the fold fades in, so nothing on screen
+// at load ever flashes or shifts. No JS or reduced motion: everything is visible.
+(function () {
+  var els = document.querySelectorAll('[data-reveal]');
+  if (!els.length) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || !('IntersectionObserver' in window)) { els.forEach(function (el) { el.classList.add('is-in'); }); return; }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (!en.isIntersecting) return;
+      en.target.classList.remove('is-pending');
+      en.target.classList.add('is-in');
+      io.unobserve(en.target);
+    });
+  }, { rootMargin: '0px 0px -8% 0px' });
+  els.forEach(function (el) {
+    if (el.getBoundingClientRect().top > window.innerHeight) el.classList.add('is-pending');
+    io.observe(el);
+  });
+})();
+
+// Bento tiles: a soft spotlight follows the pointer.
+(function () {
+  document.addEventListener('pointermove', function (e) {
+    var t = e.target.closest && e.target.closest('.fl-tile');
+    if (!t) return;
+    var r = t.getBoundingClientRect();
+    t.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+    t.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  }, { passive: true });
 })();
