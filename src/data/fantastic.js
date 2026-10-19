@@ -120,10 +120,23 @@ export const fantastic = {
   ],
   // The ad reel. The OS and desktop visuals are drawings of the plan, badged as such.
   reel: [
-    { key: 'os', name: 'fantastic OS', status: 'soon', tone: '#b48cff', title: 'Boot straight into fantastic.', text: 'A minimal system image that starts in Home, where the machine itself is made of agents.' },
-    { key: 'app', name: 'The desktop app', status: 'soon', tone: '#55d3ff', title: 'Every fantastic. One window.', text: 'A native app for macOS, Windows and Linux that keeps every workspace one click away, in any skin.' },
-    { key: 'cli', name: 'The fantastic CLI', status: 'available', tone: '#4fc27a', title: 'One binary. The whole kernel.', text: 'A terminal UI, a browser canvas and an MCP server for your coding agent. Install it in one line.' },
-    { key: 'lib', name: 'The kernel library', status: 'available', tone: '#3d82d8', title: 'Four runtimes. One protocol.', text: 'Python, Rust, Swift and TypeScript, held to one contract. One call reaches every agent.' },
+    // Each step lights up at `t` seconds, in sync with the drawing beside it.
+    { key: 'os', name: 'fantastic OS', status: 'soon', tone: '#b48cff',
+      title: 'An agentic OS that builds with you.',
+      text: 'A new kind of operating system: it boots straight into fantastic, the machine itself is made of agents, and the interface grows as you and an AI build it.',
+      steps: [['Power on: it boots straight into Home.', 0.4], ['Network, audio, power and displays answer as agents.', 2.1], ['Ask for a tool, and an AI builds its view and its function.', 3.7]] },
+    { key: 'app', name: 'The desktop app', status: 'soon', tone: '#55d3ff',
+      title: 'Every fantastic, one click away.',
+      text: 'Home lists every workspace you have, with live status. Click one and its canvas opens in the same window, ready to build on with an AI.',
+      steps: [['Home shows every fantastic, live.', 0.4], ['Click Open: its canvas fills the window.', 2.5], ['Build views and agents on it with an AI, in any skin.', 3.9]] },
+    { key: 'cli', name: 'The fantastic CLI', status: 'available', tone: '#4fc27a',
+      title: 'One binary. The whole kernel.',
+      text: 'Install it in one line, then run it three ways: a terminal UI, a browser canvas where you build with an AI, or an MCP server your coding agent drives.',
+      steps: [['Install it with one cargo command.', 0.4], ['fantastic canvas opens the canvas in your browser.', 2.2], ['fantastic mcp lets Claude Code or Codex plug in.', 3]] },
+    { key: 'lib', name: 'The kernel library', status: 'available', tone: '#3d82d8',
+      title: 'Four runtimes. One protocol.',
+      text: 'The kernel underneath it all: everything is an agent in one tree, reached with one call. The same protocol runs in Python, Rust, Swift and TypeScript.',
+      steps: [['A model, a program, files and you: all agents.', 0.4], ['One call, send, reaches any of them.', 1.5], ['One contract keeps all four runtimes identical.', 2.7]] },
   ],
   // Runs-with marquee: AI backends and coding agents named in the README.
   worksWith: ['vLLM', 'Ollama', 'OpenAI Responses API', 'Anthropic Messages API', 'Apple on-device model', 'MCP', 'Claude Code', 'Codex', 'Gemini CLI', 'Aider', 'opencode'],

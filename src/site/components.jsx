@@ -486,10 +486,16 @@ const StackStrip = ({ f }) => (
 
 /* ---- the reel: drawn, animated "ads" for each member of the family ---- */
 // Drawings, not screenshots: the OS and desktop slides depict the plan and say "Concept".
+// `fl-morph` marks each slide's main frame: between slides it morphs into the next one's.
+const Cursor = () => (
+  <svg width="20" height="24" viewBox="0 0 20 24" aria-hidden="true">
+    <path d="M2 1.5v18.2l4.6-4.3 3 6.8 3.2-1.4-3-6.7 6.4-.3z" fill="#fff" stroke="#0b1020" strokeWidth="1.5" strokeLinejoin="round" />
+  </svg>
+)
 const VisualOS = () => (
   <div className="fx-v fx-v--os" aria-hidden="true">
     <span className="fx-v__concept">Concept</span>
-    <div className="fx-v-os__screen">
+    <div className="fx-v-os__screen fl-morph">
       <div className="fx-v-os__boot">
         <span><b>[ ok ]</b> system image</span>
         <span><b>[ ok ]</b> kiosk compositor</span>
@@ -497,31 +503,43 @@ const VisualOS = () => (
       </div>
       <div className="fx-v-os__home">
         <span className="fx-v-os__homebar">Home</span>
-        <span className="fx-v-os__tiles"><i /><i /><i /><i /><i /><i /></span>
+        <span className="fx-v-os__tiles">
+          <i /><i /><i /><i /><i />
+          <i className="fx-v-os__new"><b /><b /><b /></i>
+        </span>
       </div>
+      <span className="fx-v-os__ask">make me a mixer</span>
     </div>
     <div className="fx-v-os__stand" />
     <div className="fx-v-os__bus">
-      {['network', 'audio', 'power', 'displays'].map((a) => <span className="fx-v-os__agent" key={a}><code>{a}</code></span>)}
+      {['network', 'audio', 'power', 'displays'].map((a) => <span className={`fx-v-os__agent fx-v-os__agent--${a}`} key={a}><code>{a}</code></span>)}
     </div>
   </div>
 )
 const VisualApp = () => (
   <div className="fx-v fx-v--app" aria-hidden="true">
     <span className="fx-v__concept">Concept</span>
-    <div className="fx-v-app__win">
+    <div className="fx-v-app__win fl-morph">
       <div className="frame-mac__bar">
         <span className="tl tl--r" /><span className="tl tl--y" /><span className="tl tl--g" />
-        <span className="frame-mac__title">Home</span>
+        <span className="frame-mac__title fx-v-app__title"><span className="fx-v-app__t1">Home</span><span className="fx-v-app__t2">dashboard · canvas</span></span>
       </div>
       <div className="fx-v-app__body">
-        {[['dashboard', 'on'], ['artwork', 'on'], ['chatbot', 'off'], ['notes', 'off']].map(([n, st]) => (
-          <div className="fx-v-app__row" key={n}>
-            <i className={`fx-v-app__led fx-v-app__led--${st}`} />
-            <span className="fx-v-app__name">{n}</span>
-            <span className="fx-v-app__btn">{st === 'on' ? 'Open' : 'Start'}</span>
-          </div>
-        ))}
+        <div className="fx-v-app__list">
+          {[['dashboard', 'on'], ['artwork', 'on'], ['chatbot', 'off'], ['notes', 'off']].map(([n, st], i) => (
+            <div className="fx-v-app__row" key={n}>
+              <i className={`fx-v-app__led fx-v-app__led--${st}`} />
+              <span className="fx-v-app__name">{n}</span>
+              <span className={`fx-v-app__btn${i === 0 ? ' fx-v-app__btn--target' : ''}`}>{st === 'on' ? 'Open' : 'Start'}</span>
+            </div>
+          ))}
+        </div>
+        <div className="fx-v-app__canvas">
+          <span className="fx-v-app__cell fx-v-app__cell--chart"><small>chart_agent</small><span className="fx-v-app__bars"><i /><i /><i /><i /><i /><i /><i /></span></span>
+          <span className="fx-v-app__cell fx-v-app__cell--term"><small>terminal</small><span className="fx-v-app__lines"><i /><i /><i /></span></span>
+          <span className="fx-v-app__cell fx-v-app__cell--ai"><small>ai</small><span className="fx-v-app__chat"><i /><i /><i className="fx-v-app__typing"><b /><b /><b /></i></span></span>
+        </div>
+        <span className="fx-v-app__cursor"><Cursor /></span>
       </div>
     </div>
     <div className="fx-v-app__foot">
@@ -532,7 +550,7 @@ const VisualApp = () => (
 )
 const VisualCLI = () => (
   <div className="fx-v fx-v--cli" aria-hidden="true">
-    <div className="frame-mac fx-v-cli__term">
+    <div className="frame-mac fx-v-cli__term fl-morph">
       <div className="frame-mac__bar">
         <span className="tl tl--r" /><span className="tl tl--y" /><span className="tl tl--g" />
         <span className="frame-mac__title">~/project</span>
@@ -544,15 +562,15 @@ const VisualCLI = () => (
       </div>
     </div>
     <div className="fx-v-cli__faces">
-      <span className="fx-v-cli__face"><code>TUI</code>terminal</span>
-      <span className="fx-v-cli__face"><code>canvas</code>browser</span>
-      <span className="fx-v-cli__face"><code>mcp</code>coding agent</span>
+      <span className="fx-v-cli__face"><code>TUI</code>your terminal</span>
+      <span className="fx-v-cli__face"><code>canvas</code>your browser</span>
+      <span className="fx-v-cli__face"><code>mcp</code>your coding agent</span>
     </div>
   </div>
 )
 const VisualLib = ({ f }) => (
   <div className="fx-v fx-v--lib" aria-hidden="true">
-    <div className="fx-v-lib__grid">
+    <div className="fx-v-lib__grid fl-morph">
       {f.runtimes.map((r) => (
         <span className={`fx-v-lib__rt fx-v-lib__rt--${r.name.toLowerCase()}`} key={r.name}>
           <b>{r.name}</b><small>{r.short}</small>
@@ -561,16 +579,18 @@ const VisualLib = ({ f }) => (
       <span className="fx-v-lib__ring" />
       <span className="fx-v-lib__core"><code>send</code><small>one protocol</small></span>
     </div>
+    <div className="fx-v-lib__contract"><code>contract/</code> the same behaviour in every runtime</div>
   </div>
 )
 const VISUAL = { os: VisualOS, app: VisualApp, cli: VisualCLI, lib: VisualLib }
 
 // Tabbed carousel (WAI pattern). site.js plays it: each tab's bar fills, and the bar's
-// animationend advances the reel, so hover/offscreen/pause just pause the bar.
+// animationend advances the reel, so hover/offscreen/pause just pause the bar. Where the
+// browser has View Transitions, the frame, headline and steps morph into the next slide's.
 const Reel = ({ f }) => (
   <section className="fl-section fl-reel-wrap" id="family" aria-labelledby="family-title">
     <Head eyebrow="The family" id="family-title" center title={<>One protocol.<br /><span className="grad">Every layer.</span></>}
-      lead="From a kernel library and a CLI you can install today to a desktop app and an operating system that are on their way." />
+      lead="Four layers of one product, from the operating system down to the kernel. Here is what each one does." />
     <div className="fl-reel" data-reel="" aria-roledescription="carousel" aria-label="The Fantastic family">
       <div className="fl-reel__stage">
         {f.reel.map((r, i) => {
@@ -582,6 +602,11 @@ const Reel = ({ f }) => (
                 <p className="fl-reel__kicker"><span>{r.name}</span><Chip f={f} s={r.status} /></p>
                 <h3 className="fl-reel__title">{r.title}</h3>
                 <p className="fl-reel__text">{r.text}</p>
+                <ol className="fl-reel__steps">
+                  {r.steps.map(([s, t], k) => (
+                    <li key={s} style={{ '--t': `${t}s` }}><span className="fl-reel__stepn">{k + 1}</span><span>{s}</span></li>
+                  ))}
+                </ol>
               </div>
               <div className="fl-reel__visual"><V f={f} /></div>
             </div>

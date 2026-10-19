@@ -79,7 +79,7 @@
   });
 })();
 
-// /fantastic/ reel: a tabbed carousel. Each tab's bar fills over 6.5s and its
+// /fantastic/ reel: a tabbed carousel. Each tab's bar fills over 8.5s and its
 // animationend advances the reel, so hover, keyboard focus, the pause button and
 // scrolling it off screen pause it simply by pausing the bar. No autoplay with
 // reduced motion.
@@ -91,8 +91,20 @@
   var pause = reel.querySelector('[data-reel-pause]');
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var cur = 0;
+  // Morph between slides with View Transitions where the browser has them.
+  var vt = !!document.startViewTransition && !reduce;
+  if (vt) reel.classList.add('has-vt');
   function show(i, focus) {
-    cur = (i + slides.length) % slides.length;
+    var next = (i + slides.length) % slides.length;
+    if (next === cur) return;
+    if (!vt) return swap(next, focus);
+    reel.classList.add('is-morphing');
+    var t = document.startViewTransition(function () { swap(next, focus); });
+    t.finished.then(done, done);
+    function done() { reel.classList.remove('is-morphing'); }
+  }
+  function swap(next, focus) {
+    cur = next;
     slides.forEach(function (s, k) { s.classList.toggle('is-active', k === cur); });
     tabs.forEach(function (t, k) {
       var on = k === cur;
