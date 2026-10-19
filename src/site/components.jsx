@@ -651,6 +651,151 @@ const ComingSoon = ({ f }) => (
   </section>
 )
 
+
+/* ---------------- fantastic: ad-style infographic carousel ---------------- */
+// Drawings, not screenshots: the OS and app slides show the plan and say "Concept".
+const AdVisualOS = () => (
+  <div className="fx-v fx-v--os" aria-hidden="true">
+    <span className="fx-v__concept">Concept · planned</span>
+    <div className="fx-v-os__screen">
+      <div className="fx-v-os__boot">
+        <span><b>[ ok ]</b> Debian, headless</span>
+        <span><b>[ ok ]</b> Wayland kiosk compositor</span>
+        <span><b>[ ok ]</b> the desktop app, full-screen</span>
+      </div>
+      <div className="fx-v-os__home">
+        <span className="fx-v-os__homebar">Home</span>
+        <span className="fx-v-os__tiles"><i /><i /><i /><i /><i /><i /></span>
+      </div>
+    </div>
+    <div className="fx-v-os__stand" />
+    <div className="fx-v-os__bus">
+      {['network', 'audio', 'power', 'displays'].map((a) => <span className="fx-v-os__agent" key={a}><code>{a}</code></span>)}
+    </div>
+    <span className="fx-v-os__buslabel">system agents · reached with send</span>
+  </div>
+)
+
+const AdVisualApp = () => (
+  <div className="fx-v fx-v--app" aria-hidden="true">
+    <span className="fx-v__concept">Concept · in progress</span>
+    <div className="fx-v-app__win">
+      <div className="frame-mac__bar">
+        <span className="tl tl--r" /><span className="tl tl--y" /><span className="tl tl--g" />
+        <span className="frame-mac__title">fantastic · Home</span>
+      </div>
+      <div className="fx-v-app__body">
+        {[['dashboard', '~/work/dashboard', 'on'], ['artwork', '~/art/scene', 'on'], ['chatbot', '~/srv/chatbot', 'off'], ['notes', '~/notes', 'off']].map(([n, p, st]) => (
+          <div className="fx-v-app__row" key={n}>
+            <i className={`fx-v-app__led fx-v-app__led--${st}`} />
+            <span className="fx-v-app__name">{n}<code>{p}</code></span>
+            <span className="fx-v-app__btn">{st === 'on' ? 'Open' : 'Start'}</span>
+            <span className="fx-v-app__btn fx-v-app__btn--ghost">{st === 'on' ? 'Stop' : '···'}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div className="fx-v-app__foot">
+      <span className="fx-v-app__skins"><span className="is-on">dark</span><span>glass</span></span>
+      <span className="fx-v-app__oses">macOS · Windows · Linux</span>
+    </div>
+  </div>
+)
+
+const AdVisualCLI = ({ f }) => (
+  <div className="fx-v fx-v--cli" aria-hidden="true">
+    <div className="frame-mac fx-v-cli__term">
+      <div className="frame-mac__bar">
+        <span className="tl tl--r" /><span className="tl tl--y" /><span className="tl tl--g" />
+        <span className="frame-mac__title">~/project</span>
+      </div>
+      <pre className="fx-v-cli__code">{[
+        ['$ cargo install fantastic --locked', ''],
+        ['$ fantastic', '# the terminal UI'],
+        ['$ fantastic canvas', '# the browser canvas'],
+        ['$ fantastic mcp', '# MCP for your coding agent'],
+      ].map(([c, k], i) => <span key={i}><b>{c}</b>{k && <em>  {k}</em>}{'\n'}</span>)}</pre>
+    </div>
+    <div className="fx-v-cli__faces">
+      <span className="fx-v-cli__face"><code>TUI</code>in your terminal</span>
+      <span className="fx-v-cli__face"><code>canvas</code>in your browser</span>
+      <span className="fx-v-cli__face"><code>mcp</code>in Claude Code, Codex…</span>
+    </div>
+  </div>
+)
+
+const AdVisualLib = ({ f }) => (
+  <div className="fx-v fx-v--lib" aria-hidden="true">
+    <div className="fx-v-lib__grid">
+      {f.runtimes.map((r) => (
+        <span className={`fx-v-lib__rt fx-v-lib__rt--${r.name.toLowerCase()}`} key={r.name}>
+          <b>{r.name}</b><small>{r.short}</small>
+        </span>
+      ))}
+      <span className="fx-v-lib__core">
+        <code>send</code>
+        <small>one protocol</small>
+      </span>
+    </div>
+    <div className="fx-v-lib__contract"><code>contract/</code> one corpus, run by every host</div>
+  </div>
+)
+
+const AD_VISUAL = { os: AdVisualOS, app: AdVisualApp, cli: AdVisualCLI, lib: AdVisualLib }
+
+const AdCarousel = ({ f }) => (
+  <section className="fx-ads" id="family" aria-roledescription="carousel" aria-label="The Fantastic family: OS, app, CLI and library">
+    <div className="fx-ads__head">
+      <div>
+        <p className="fx-kicker">The family</p>
+        <h2 className="fx-ads__title">One protocol, from the OS to the library.</h2>
+      </div>
+      <div className="fx-ads__nav">
+        <div className="fx-ads__tabs" role="group" aria-label="Choose a slide">
+          {f.ads.map((a, i) => (
+            <button type="button" className={`fx-ads__tab${i === 0 ? ' is-active' : ''}`} data-slide={i} key={a.key} aria-label={`${a.name}, slide ${i + 1} of ${f.ads.length}`} style={{ '--tone': a.tone }}>
+              <span className="fx-ads__tabn">{a.n}</span>{a.tab}
+            </button>
+          ))}
+        </div>
+        <div className="fx-ads__arrows">
+          <button type="button" className="fx-ads__arrow" data-step="-1" aria-label="Previous slide">&larr;</button>
+          <button type="button" className="fx-ads__arrow" data-step="1" aria-label="Next slide">&rarr;</button>
+        </div>
+      </div>
+    </div>
+    <div className="fx-ads__track" tabIndex={0} aria-label="Slides; scroll sideways or use the buttons">
+      {f.ads.map((a, i) => {
+        const Visual = AD_VISUAL[a.key]
+        return (
+          <article className={`fx-ad fx-ad--${a.key}`} key={a.key} style={{ '--tone': a.tone }} aria-roledescription="slide" aria-label={`${i + 1} of ${f.ads.length}: ${a.name}`}>
+            <div className="fx-ad__copy">
+              <div className="fx-ad__meta">
+                <span className="fx-ad__n">{a.n}</span>
+                <span className="fx-ad__name">{a.name}</span>
+                <Chip f={f} s={a.status} />
+              </div>
+              <h3 className="fx-ad__title">{a.title}</h3>
+              <p className="fx-ad__text">{a.text}</p>
+              <dl className="fx-ad__stats">
+                {a.stats.map(([n, l]) => (
+                  <div key={l}><dt>{n}</dt><dd>{l}</dd></div>
+                ))}
+              </dl>
+              <div className="fx-ad__cta">
+                {a.status === 'available' && a.key === 'cli' && <CopyLine code={f.install[0].code} />}
+                {a.status === 'available' && a.key === 'lib' && <a className="btn btn--primary" href={f.repo} target="_blank" rel="noreferrer"><GitHubIcon /> Read the source</a>}
+                {a.status !== 'available' && <a className="btn btn--ghost" href={issueUrl(f, a.issue)} target="_blank" rel="noreferrer">Follow #{a.issue} on GitHub</a>}
+              </div>
+            </div>
+            <div className="fx-ad__visual"><Visual f={f} /></div>
+          </article>
+        )
+      })}
+    </div>
+  </section>
+)
+
 export const FantasticPage = ({ f, year }) => {
   const installCmd = f.install[0].code
   return (
@@ -672,6 +817,8 @@ export const FantasticPage = ({ f, year }) => {
         <StackStrip f={f} row />
         <HeroVideo v={f.video} />
       </section>
+
+      <AdCarousel f={f} />
 
       <section className="inside fx-stack-wrap" id="stack" aria-labelledby="stack-title">
         <p className="fx-kicker">The stack</p>

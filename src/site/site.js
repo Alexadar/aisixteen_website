@@ -78,3 +78,45 @@
     });
   });
 })();
+
+// Fantastic family carousel: scroll-snap does the sliding (works without JS);
+// this wires the tabs and arrows and marks the slide in view.
+(function () {
+  var root = document.querySelector('.fx-ads');
+  if (!root) return;
+  var track = root.querySelector('.fx-ads__track');
+  var slides = root.querySelectorAll('.fx-ad');
+  var tabs = root.querySelectorAll('[data-slide]');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var current = 0;
+  function mark(i) {
+    current = i;
+    tabs.forEach(function (t, k) {
+      t.classList.toggle('is-active', k === i);
+      if (k === i) t.setAttribute('aria-current', 'true'); else t.removeAttribute('aria-current');
+    });
+  }
+  function go(i) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    slides[i].scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest', inline: 'start' });
+    mark(i);
+  }
+  root.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-slide]');
+    if (t) return go(parseInt(t.dataset.slide, 10));
+    var s = e.target.closest('[data-step]');
+    if (s) go(current + parseInt(s.dataset.step, 10));
+  });
+  track.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); go(current + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(current - 1); }
+  });
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) mark(Array.prototype.indexOf.call(slides, en.target));
+      });
+    }, { root: track, threshold: 0.6 });
+    slides.forEach(function (s) { io.observe(s); });
+  }
+})();

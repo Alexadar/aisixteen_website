@@ -90,10 +90,10 @@ export const fantastic = {
     { title: 'Kernel services', text: 'A scheduler, credentials by reference with secret fields masked in records and events, a persistent tree on disk, and a task table with Unix-style ps / cancel.' },
   ],
   runtimes: [
-    { name: 'Python', role: 'The reference. When runtimes disagree, Python is right.' },
-    { name: 'Rust', role: 'Server and CLI host — the fantastic binary.' },
-    { name: 'Swift', role: 'Apple platforms, linked in-process by the Apple client.' },
-    { name: 'TypeScript', role: 'The browser frontend kernel, served by any host.' },
+    { name: 'Python', short: 'the reference', role: 'The reference. When runtimes disagree, Python is right.' },
+    { name: 'Rust', short: 'CLI & server host', role: 'Server and CLI host — the fantastic binary.' },
+    { name: 'Swift', short: 'Apple, in-process', role: 'Apple platforms, linked in-process by the Apple client.' },
+    { name: 'TypeScript', short: 'the browser kernel', role: 'The browser frontend kernel, served by any host.' },
   ],
   // ---- The stack, the roadmap and the architecture ----
   // Status reflects what a visitor can install, checked against the repo and epic #57
@@ -213,6 +213,36 @@ export const fantastic = {
     { term: 'Home is a fantastic', text: 'A minimal home kernel, a library the desktop app runs in-process, manages your fantastics. Its state lives in ~/.fantastic/app/.' },
     { term: 'One UI, many skins', text: 'Design tokens plus a native backdrop. The home protocol, the pure crate and the token schema form a contract any project can reskin.' },
     { term: 'Green on three OSes', text: 'Every phase lands with CI green on Linux, macOS and Windows.' },
+  ],
+  // Ad-style infographic carousel. Every figure is a fact from the repo or the roadmap;
+  // the OS and app visuals are drawings of the plan (marked "Concept"), not screenshots.
+  ads: [
+    {
+      key: 'os', tab: 'OS', n: '01', name: 'fantastic OS', status: 'soon', tone: '#b48cff',
+      title: 'Boot straight into fantastic.',
+      text: 'A headless Debian image with a Wayland kiosk that runs the desktop app full-screen. The machine itself becomes agents you reach with the same send.',
+      stats: [['1', 'image, x86_64 first, then arm64'], ['4', 'system agents planned'], ['0', 'desktop environments: one kiosk app']],
+      issue: 54,
+    },
+    {
+      key: 'app', tab: 'App', n: '02', name: 'The desktop app', status: 'progress', tone: '#55d3ff',
+      title: 'Every fantastic, one window.',
+      text: 'A Tauri 2 app beside the CLI. Home lists your fantastics with live status, and opens, starts and stops them. Restyle it with a skin.',
+      stats: [['3', 'desktops: macOS, Windows, Linux'], ['2', 'stock skins: dark and glass'], ['1', 'home kernel, in-process']],
+      issue: 48,
+    },
+    {
+      key: 'cli', tab: 'CLI', n: '03', name: 'The fantastic CLI', status: 'available', tone: '#4fc27a',
+      title: 'One binary. The whole kernel.',
+      text: 'A terminal UI, a browser canvas where you and an AI build live systems, and an MCP server for your coding agent. Install it in one line.',
+      stats: [['1', 'static binary'], ['5', 'release targets'], ['3', 'faces: TUI, canvas, MCP']],
+    },
+    {
+      key: 'lib', tab: 'Library', n: '04', name: 'The kernel library', status: 'available', tone: '#3d82d8',
+      title: 'Four runtimes. One protocol.',
+      text: 'Python, Rust, Swift and TypeScript share one wire protocol. A contract corpus pins identical behaviour, and one call, send, reaches every agent.',
+      stats: [['4', 'runtimes'], ['1', 'primitive: send'], ['1', 'shared contract corpus']],
+    },
   ],
   comingSoon: [
     { name: 'The desktop app', status: 'progress', text: 'A Tauri 2 app for macOS, Windows and Linux that lives beside the CLI. Home lists your fantastics with live status and opens, starts and stops them; skins restyle it, and signed installers ship it.' },
