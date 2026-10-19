@@ -1,0 +1,508 @@
+# AISixteen — full site text
+
+> AISixteen is an independent developer. Its main product is Aisixteen Fantastic, an open-source kernel of agents built from scratch at every layer; it also makes small, private apps for iPhone, iPad, Mac and Apple Watch with no accounts and no tracking.
+
+Short index: https://aisixteen.com/llms.txt · Sitemap: https://aisixteen.com/sitemap.xml · Contact: info@aisixteen.com
+
+## Aisixteen Fantastic
+
+URL: https://aisixteen.com/fantastic/
+Source: https://github.com/aisixteen/fantastic · crates.io: https://crates.io/crates/fantastic · Roadmap: https://github.com/orgs/aisixteen/projects/1
+Status: Open source · Alpha. License: AGPL-3.0-or-later.
+
+A medium that unifies humans and AIs into a single workspace.
+
+Fantastic is a kernel of agents. A model, a program, a file tree, a shell, a browser canvas and the human at the keyboard are all agents in one tree, addressed by id and reached the same way: one call, send. Compute, inference and memory are interchangeable — a step written as code and the same step written as an LLM call plug into the wiring identically.
+
+There is no client library. The protocol is the API: every agent answers reflect with what it is, and docs says how to call it. Given only those self-descriptions, an AI wires the system itself.
+
+### Built from scratch at every layer
+
+Built from scratch at every layer: a kernel library in four runtimes, the fantastic CLI and a browser canvas you can use today, with a desktop app and fantastic OS coming soon. One protocol runs through all of it.
+
+- **Apps** (Available / Coming soon): The browser canvas and the terminal UI today. A desktop app and a native Apple client next.
+- **Home** (Coming soon): One place to open, start and stop every fantastic, in any skin.
+- **CLI** (Available): One static binary for macOS, Linux and Windows.
+- **Kernel library** (Available): Python, Rust, Swift and TypeScript, held to one contract.
+- **Bridges** (Available / Coming soon): Files, processes, browsers, other kernels and MCP servers, each sealed until opened. A relay comes next.
+- **fantastic OS** (Coming soon): An image that boots straight into fantastic.
+
+### Concepts
+
+- **Agents**: A recursive tree. Each agent runs a bundle (a handler module) and keeps its state in its own record.
+- **send**: The one primitive: batched, concurrent, each item a kernel task you can ps and cancel, joinable and idempotent by id.
+- **reflect / docs**: What an agent is, and how to call it — the whole self-description, one round-trip each.
+- **The call gate**: Deny-all and two-sided: a call passes only when the caller’s can_call and the target’s callable_by both grant it.
+- **Bridges**: Every edge to the outside — another kernel, the disk, a process, a browser, an MCP server — is an IO leg, sealed until opened.
+- **Memory**: Every message lives in a memory store agent; AI agents fold, recall and page their own history.
+
+### What's in the box
+
+- **AI agents**: vLLM, Ollama, the OpenAI Responses API and Anthropic’s Messages API — plus Apple’s on-device model in Swift. Tool calling uses the kernel’s own prompt-taught grammar, so any capable model drives the same verbs.
+- **IO legs**: Files, edits, streams and watches clamped to the running dir; allow-listed commands and PTY terminals; browser and HTTP faces; kernel-to-kernel links; a remote MCP server’s tools as verbs.
+- **Folder bundles**: Drop bundles/<name>/bundle.yaml plus a program into .fantastic/ and it becomes a new kind of agent — hot-reloadable.
+- **Kernel services**: A scheduler, credentials by reference with secret fields masked in records and events, a persistent tree on disk, and a task table with Unix-style ps / cancel.
+
+### Runtimes
+
+- **Python**: The reference. When runtimes disagree, Python is right.
+- **Rust**: Server and CLI host — the fantastic binary.
+- **Swift**: Apple platforms, linked in-process by the Apple client.
+- **TypeScript**: The browser frontend kernel, served by any host.
+
+### Roadmap (from the fantastic app to fantastic OS)
+
+Not shipped unless marked done. Full board: https://github.com/orgs/aisixteen/projects/1
+
+- **M1 — App MVP** (In progress; 3 of 5 done): Home lists your fantastics with live status; open, start and stop them.
+- **M2 — Cross-platform app** (In progress; 1 of 4 done): macOS, Windows and Linux with signed installers; one UI, many skins.
+- **M3 — fantastic OS: kiosk** (Coming soon; 0 of 1 done): A Debian image that boots straight into fantastic.
+- **M4 — fantastic OS: system agents** (Coming soon; 0 of 1 done): Network, audio, power and displays as agents.
+
+### Compared with other agent harnesses
+
+#### The loop
+
+- **Agent loop** — typical: a while-loop per agent (model → tools → repeat until a step cap), or a hand-built state graph. Fantastic: No loop object. A model pass is one message; a chain continues only when the model sends — to itself or to others. All calls of a turn dispatch at once as one kernel batch, and their replies come back later as one message: flat asynchronous flows between addressable agents, mailbox-style. A chain ends only by the model's own `done`; silent turns are capped and thought-only turns are rerolled.
+- **Tool calling** — typical: the provider's native function-calling API with JSON schemas. Fantastic: One prompt-taught `<call>` tag grammar, no JSON on the model path, the same on every provider and local model. A malformed call gets a compiler-style report (line, caret, the form to write); a call written inside the model's thinking never runs.
+- **Tool discovery** — typical: a fixed tool list in the prompt; skill files for progressive disclosure. Fantastic: Every agent answers `reflect` (what it is) and `docs` (how to call it, one-liners or detailed). A model drills down on demand, and docs it already read shrink to stubs.
+- **Parallel tool calls** — typical: parallel calls in one turn, when the provider supports them. Fantastic: Every send is a batch. One turn of 500 calls runs as one kernel batch on every runtime.
+
+#### Many agents
+
+- **Multi-agent** — typical: handoffs, supervisor, swarm, agent-as-tool, sub-agents with their own context. Fantastic: Every AI is an agent with an id: AI-to-AI sends, fan-out to many recipients, inquiries between AIs. Models build their own durable teams — sub-AIs, workers, schedules — and tear them down. No prebuilt supervisor or handoff presets.
+- **Graphs and workflows** — typical: an explicit state-graph or workflow DSL with conditional edges, cycles and fan-out. Fantastic: No graph DSL. The graph is the agent tree plus its grant edges, and a node can be code, a model, a process or a file store — interchangeably. Models wire graphs from the agents' own self-descriptions; a scheduler drives recurring flows.
+- **Human in the loop** — typical: interrupt and resume; approve, edit or reject a tool call; permission modes. Fantastic: The human is an agent (`user`). A model asks through `inquiry` (text, single, multi, confirm) or a plain send and continues when answered; nothing blocks the kernel. Approval splits the rights: a model without the grant proposes a named action, the person who holds it approves, and it runs exactly once under the approver's authority.. Not built: turning a denied call into an approval question automatically.
+
+#### State and memory
+
+- **Durable state** — typical: a per-thread checkpointer; crash-resume through a durable execution engine (Temporal, DBOS, Restate, Inngest) that logs every step and replays to the point of the crash. Fantastic: A kernel ledger: every call and its outcome is a row in a memory-store agent. A named execution is idempotent — a repeat joins it or gets its recorded outcome — with retries and dead letters (listed, acked, never silently re-sent). The agent tree, schedules and conversations are persisted and rehydrate.. Not built: replaying an interrupted turn to where it stopped — an interrupted call becomes a dead letter.
+- **Checkpoints and time travel** — typical: replay or fork a run from a past checkpoint; coding CLIs rewind edits through a shadow git repo. Fantastic: The ledger already holds every conversation row and every tree change, so both are a projection away from rewind and fork.. Not built: the rewind verb, and the record of replaced file bytes — today one undo slot per edited file.
+- **Memory** — typical: thread state, a long-term store with vector search, self-edited memory blocks, instruction files. Fantastic: Every message lives in a memory-store agent (RAM, or SQLite with full-text search in the CLI), per agent, searchable with `grep` and `recall`. Durable notes are files the model writes through a file agent. No vector search, by design: similarity is approximate, and a memory read should return exactly what was written.
+- **Context management** — typical: summarize or compact at a threshold; tool-result clearing. Fantastic: Nested folds: the model summarizes spans of its own history, then folds of folds. Nothing is deleted — `recall`, `grep` and descending into a fold reach everything; `clear` is a boundary, not a deletion. The budget is calibrated from the server's own prompt-size reports.
+
+#### Control and safety
+
+- **Security** — typical: approval modes, hooks, OS sandboxes (Seatbelt, bubblewrap, containers, microVMs), guardrail classifiers. Fantastic: A deny-all, two-sided call gate on every agent-to-agent call; every IO leg sealed until opened; file access clamped to the run directory with an allow list; commands allow-listed by regex; secret marks; credentials by reference, bound to one host.. That governs what may be launched; containing a launched process is not built — no OS sandbox, so an allowed command runs with the user's rights.
+- **Streaming and cancellation** — typical: token and event streams, an abort signal. Fantastic: Streamed parts (text, thinking, call drafts) to whoever watches; the receiver can stop a stream. Every dispatch is a kernel task: `ps` lists them, `cancel` kills a whole subtree, real OS processes included. Timeouts are per item and never defaulted.
+- **Observability** — typical: OpenTelemetry traces, hosted tracing, eval suites, visual debuggers. Fantastic: A live state stream of who sent what to whom, the ledger, the task table, and the canvas views over them. No OpenTelemetry export; evaluation is the e2e suites and an Exercism benchmark.
+- **Background work** — typical: hosted agent runtimes, cron triggers, cloud background agents. Fantastic: A scheduler (interval-based, persisted, fires under its own grants), command and terminal jobs as kernel tasks, folder-bundle programs as agents. No cron expressions, no hosted platform.
+
+#### Platform
+
+- **Protocols** — typical: MCP client (universal), MCP server, A2A, AG-UI, ACP. Fantastic: MCP client (2026-07-28; each remote tool becomes a verb), an MCP server face for coding CLIs (`fantastic mcp`, stdio), its own WebSocket and REST wire, and kernel-to-kernel bridges, direct or through a relay. No A2A, AG-UI or ACP.
+- **Runtimes** — typical: mostly Python and TypeScript; some .NET, Go, Java. Fantastic: One protocol in Python, Rust and Swift (in-process on Apple platforms) plus a browser kernel in TypeScript; a single static binary; a contract corpus pins identical behaviour across them.
+- **Models** — typical: provider SDKs; other providers through adapters. Fantastic: vLLM, Ollama, the OpenAI Responses API, Anthropic, and Apple's on-device model — the same call grammar on all; a KV-cache slot table for shared vLLM servers.
+- **UI** — typical: chat UI kits, generative UI, IDE extensions, studios. Fantastic: A terminal UI and a browser canvas where a model builds live panels, terminals and services and wires them by grants.
+- **Extensibility** — typical: plugins, skill files, tools written in code. Fantastic: Folder bundles — a `bundle.yaml` plus a program becomes a new kind of agent, hot-reloaded, self-describing like every other.
+
+### Security
+
+Nothing is open by default. Every IO leg denies until an operator opens it, grants are explicit on both ends of a call, an agent never raises its own authority, and file access is clamped to the directory the kernel runs in. One root reflect shows the whole landscape.
+
+### Install
+
+**From crates.io.** Needs Rust 1.88 or newer and a C compiler (Xcode Command Line Tools on macOS, build-essential on Linux). The canvas page comes prebuilt, so no Go is needed. All four AI backends — vLLM, Ollama, OpenAI Responses and Anthropic — are on by default.
+
+```sh
+cargo install fantastic --locked
+```
+
+**Prebuilt binary (Apple silicon).** Archives for Apple silicon and Intel Macs, static Linux binaries (arm64 and x86_64) and a Windows (x86_64) zip are on the latest release, with SHA256SUMS beside them.
+
+```sh
+curl -LO https://github.com/aisixteen/fantastic/releases/latest/download/fantastic-aarch64-apple-darwin.tar.gz
+tar xzf fantastic-aarch64-apple-darwin.tar.gz && sudo mv fantastic /usr/local/bin/
+```
+
+Or ask a coding agent (Claude Code, Codex, Gemini CLI): "Run `fantastic` and read what it prints. Explain to me what it is, then ask me how I want to run it."
+
+Commands:
+
+- `fantastic` — the terminal UI
+- `fantastic canvas` — the browser canvas
+- `fantastic ai vllm -p PORT` — the root AI on a backend
+- `fantastic run CMD` — your own program in a terminal cell
+- `fantastic mcp` — MCP over stdio for a coding CLI
+- `fantastic readme [key]` — the docs
+
+## Apps
+
+Every app: no account, no subscription, no personal data collected. Downloaded from the Apple App Store.
+
+### Ephemeris Sky
+
+URL: https://aisixteen.com/ephemeris-sky/ · App Store: https://apps.apple.com/app/id6782659268
+Category: Sky & science · Platforms: iPhone, iPad & Mac
+
+The sky, computed for any moment. Natal charts, transits, synastry and returns — computed on your device.
+
+Turn any moment into a precise picture of the solar system. Ephemeris Sky computes real geocentric planetary positions, the aspects between them, and a live chart wheel for any date and time. Save your natal chart and read today’s sky against it, compare two charts with synastry that ranks every contact, score dignities and see the balance of a chart, and get the next solar or lunar return to the minute. Choose your house system — Placidus, Koch, Whole Sign and more — and follow an event timeline of ingresses, lunations and aspects.
+
+- Your natal chart, saved in your own iCloud, with today’s transits
+- Synastry — two charts, every contact ranked
+- Dignities and balance, scored and ranked, with the shape of the chart
+- Solar and lunar returns to the minute, plus an event timeline
+
+Privacy: On-device, no account, works offline.
+
+**Does Ephemeris Sky work offline?** Yes. Every calculation runs on your device, so it works with no internet connection. Anything you save syncs through your own iCloud whenever a connection is available.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Ephemeris Sky from the App Store and open it.
+
+**What data does Ephemeris Sky collect?** None. There are no accounts, no analytics and no tracking, and we receive nothing. Anything you save is stored in your own private iCloud container, not on our servers.
+
+**Which devices are supported?** Ephemeris Sky is available for iPhone, iPad & Mac.
+
+### Overtone Lab
+
+URL: https://aisixteen.com/overtone-lab/ · App Store: https://apps.apple.com/app/id6787524729
+Category: Creative tools · Platforms: iPhone, iPad & Mac
+
+Twenty exact audio tools in one app. A precision calculation studio for audio engineers, musicians, and instrument builders.
+
+A precision calculation studio for audio engineers, musicians, and instrument builders — twenty exact tools in one app. Compute tempo and timing, SMPTE, pitch and harmonics, string tension, room acoustics, filters and crossovers, LUFS loudness, and more. Every formula is reference-validated.
+
+- Tempo, SMPTE timecode, pitch & harmonics
+- Reverb, room modes, filters & crossovers
+- ITU-R BS.1770 LUFS loudness metering
+- Reference-validated · 100% offline & private
+
+Privacy: On-device, no account, works offline.
+
+**Does Overtone Lab work offline?** Yes. Overtone Lab runs entirely on your device, so it works with no internet connection.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Overtone Lab from the App Store and open it.
+
+**What data does Overtone Lab collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
+
+**Which devices are supported?** Overtone Lab is available for iPhone, iPad & Mac.
+
+### Indox Text
+
+URL: https://aisixteen.com/indox-text/ · App Store: https://apps.apple.com/app/id1603883417
+Category: AI & utilities · Platforms: iPhone, iPad, Mac & Safari
+
+Summarize anything, fully on-device. Turn long articles and documents into quick, digestible summaries.
+
+Transform lengthy articles, documents, and web pages into quick, digestible summaries — on iPhone, iPad, Mac, and Safari. Powered entirely by your device’s CPU and Neural Engine, Indox Text works offline and keeps your data private. No cloud, no servers, just fast AI summarization at your fingertips.
+
+- On-device AI — CPU & Neural Engine
+- Works offline, nothing leaves your device
+- iPhone, iPad, Mac & a Safari extension
+
+Privacy: On-device, no account, works offline.
+
+**Does Indox Text work offline?** Yes. Indox Text runs entirely on your device, so it works with no internet connection.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Indox Text from the App Store and open it.
+
+**What data does Indox Text collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
+
+**Which devices are supported?** Indox Text is available for iPhone, iPad, Mac & Safari.
+
+### Typing Mill
+
+URL: https://aisixteen.com/typing-mill/ · App Store: https://apps.apple.com/app/id1631148042
+Category: AI & utilities · Platforms: iPhone, iPad & Mac
+
+Master your typing speed, the fun way. Practice with real words across four difficulty levels.
+
+Master your typing speed with Typing Mill. Practice typing with real words across four difficulty levels, from beginner-friendly to expert challenges. A beautiful animated interface makes learning to type fast an enjoyable experience.
+
+- Practice with real words, not random letters
+- Four difficulty levels, beginner to expert
+- Beautiful animated interface
+
+Privacy: On-device, no account, works offline.
+
+**Does Typing Mill work offline?** Yes. Typing Mill runs entirely on your device, so it works with no internet connection.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Typing Mill from the App Store and open it.
+
+**What data does Typing Mill collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
+
+**Which devices are supported?** Typing Mill is available for iPhone, iPad & Mac.
+
+### Golden Ratio Calculator
+
+URL: https://aisixteen.com/golden-ratio-calculator/ · App Store: https://apps.apple.com/app/id1570841203
+Category: Creative tools · Platforms: iPhone, iPad & Mac
+
+Precise golden-ratio math, instantly. For designers, architects, and mathematicians who need exact figures.
+
+Calculate any part of the golden ratio instantly. Perfect for designers, architects, and mathematicians who need precise golden ratio calculations. Enter any value to reactively calculate the lesser, greater, and whole parts with professional precision.
+
+- Reactively calculates lesser, greater & whole parts
+- Professional precision
+- Built for designers, architects & mathematicians
+
+Privacy: On-device, no account, works offline.
+
+**Does Golden Ratio Calculator work offline?** Yes. Golden Ratio Calculator runs entirely on your device, so it works with no internet connection.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Golden Ratio Calculator from the App Store and open it.
+
+**What data does Golden Ratio Calculator collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
+
+**Which devices are supported?** Golden Ratio Calculator is available for iPhone, iPad & Mac.
+
+### Golden Ratio Calculator Lite
+
+URL: https://aisixteen.com/golden-ratio-calculator-lite/ · App Store: https://apps.apple.com/app/id1570956847
+Category: Creative tools · Platforms: iPhone, iPad & Mac
+
+The golden ratio, simplified. A quick, streamlined calculator for everyday design work.
+
+A simple, easy-to-use golden ratio calculator. Perfect for quick calculations when you need the golden ratio for your designs. Just enter any value and instantly see the lesser, greater, and whole parts. Streamlined and accessible for everyone.
+
+- Enter a value, instantly see every part
+- Streamlined and accessible
+- Free and quick
+
+Privacy: On-device, no account, works offline.
+
+**Does Golden Ratio Calculator Lite work offline?** Yes. Golden Ratio Calculator Lite runs entirely on your device, so it works with no internet connection.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Golden Ratio Calculator Lite from the App Store and open it.
+
+**What data does Golden Ratio Calculator Lite collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
+
+**Which devices are supported?** Golden Ratio Calculator Lite is available for iPhone, iPad & Mac.
+
+### Big Pink Cat
+
+URL: https://aisixteen.com/big-pink-cat/ · App Store: https://apps.apple.com/app/id6497066161
+Category: Games · Platforms: iPhone, iPad & Mac
+
+A cosmic, choose-your-path story. Meet the mysterious Pink Cat and uncover the secrets of the universe.
+
+Embark on a cosmic visual adventure with Big Pink Cat. Meet the mysterious Pink Cat and uncover the secrets of the universe through an interactive story. Choose your path, shape your destiny, and discover what awaits among the stars.
+
+- Interactive, branching story
+- Choose your path and shape your destiny
+- Uncover secrets among the stars
+
+Privacy: On-device, no account, works offline.
+
+**Does Big Pink Cat work offline?** Yes. Big Pink Cat runs entirely on your device, so it works with no internet connection.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Big Pink Cat from the App Store and open it.
+
+**What data does Big Pink Cat collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
+
+**Which devices are supported?** Big Pink Cat is available for iPhone, iPad & Mac.
+
+### Skyscraper Frog
+
+URL: https://aisixteen.com/skyscraper-frog/ · App Store: https://apps.apple.com/app/id1563057204
+Category: Games · Platforms: iPhone, iPad & Mac
+
+8-bit leaping across the rooftops. Guide the bravest frog over the tallest skyscrapers.
+
+You and the bravest frog ever will experience a journey like no other. In this 8-bit style game, help choose the frog’s path across the roofs of the tallest skyscrapers. When the fly comes and goes, don’t miss your chance — eat it for a vital boost!
+
+- Retro 8-bit style
+- Choose the frog’s path across the rooftops
+- Catch the fly for a vital boost
+
+Privacy: On-device, no account, works offline.
+
+**Does Skyscraper Frog work offline?** Yes. Skyscraper Frog runs entirely on your device, so it works with no internet connection.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Skyscraper Frog from the App Store and open it.
+
+**What data does Skyscraper Frog collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
+
+**Which devices are supported?** Skyscraper Frog is available for iPhone, iPad & Mac.
+
+### Monstro Shooter
+
+URL: https://aisixteen.com/monstro-shooter/ · App Store: https://apps.apple.com/app/id6752858611
+Category: Games · Platforms: iPhone, iPad & Mac
+
+Survive the alien invasion. An intense top-down shooter across Mars deserts and asteroid fields.
+
+Survive the alien invasion in this intense top-down shooter. Battle waves of deadly creatures across Mars deserts and asteroid fields. Control your exosuit, unleash firepower, and fight to stay alive against bugs, birds, walkers, and berserkers.
+
+- Top-down wave survival
+- Mars deserts & asteroid fields
+- Battle bugs, birds, walkers & berserkers
+
+Privacy: On-device, no account, works offline.
+
+**Does Monstro Shooter work offline?** Yes. Monstro Shooter runs entirely on your device, so it works with no internet connection.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Monstro Shooter from the App Store and open it.
+
+**What data does Monstro Shooter collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
+
+**Which devices are supported?** Monstro Shooter is available for iPhone, iPad & Mac.
+
+### Kerf Calc
+
+URL: https://aisixteen.com/kerf-calc/ · App Store: https://apps.apple.com/app/id6788179502
+Category: Creative tools · Platforms: iPhone, iPad & Mac
+
+The field calculator that shows its work. Feet-inch-fraction math plus framing, concrete, and materials — offline.
+
+Kerf Calc is the offline construction field calculator that just works — no account, no subscription. Punch feet-inch-fraction dimensions like a tape, then run rafters, stairs to code, concrete, rebar, roofing, drywall and more — each tool shows the exact formula and the code it cites (IRC, ASTM, NIST, ACI).
+
+- Feet-inch-fraction tape math, down to 1/64
+- Framing: rafters, stairs to IRC/IBC code & pitch
+- Concrete, rebar, roofing, drywall & materials
+- Shows the formula and the code it cites · 100% offline
+
+Privacy: On-device, no account, works offline.
+
+**Does Kerf Calc work offline?** Yes. Kerf Calc runs entirely on your device, so it works with no internet connection.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Kerf Calc from the App Store and open it.
+
+**What data does Kerf Calc collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
+
+**Which devices are supported?** Kerf Calc is available for iPhone, iPad & Mac.
+
+### TrueCourse E6B
+
+URL: https://aisixteen.com/truecourse-e6b/ · App Store: https://apps.apple.com/app/id6788926819
+Category: Sky & science · Platforms: iPhone, iPad & Mac
+
+The E6B you can trust on a checkride. Wind triangle, true airspeed, density altitude, fuel, and weight & balance.
+
+A modern E6B flight computer for student pilots, GA pilots, and CFIs — the digital whiz wheel you are taught to use for the FAA knowledge exam and every flight after it. Solve the wind triangle, true airspeed and Mach, density and pressure altitude, nav log, fuel, climb and descent, and weight & balance with a live CG envelope. Every number comes from validated, published formulas (FAA-H-8083 handbooks and the ICAO Standard Atmosphere).
+
+- Wind triangle — heading, groundspeed & crosswind, with a live vector diagram
+- True airspeed, Mach, density, pressure & true altitude
+- Nav log, fuel, climb/descent and weight & balance with a CG envelope
+- Glass-cockpit readouts with a night mode · validated formulas, works offline
+
+Privacy: On-device, no account, works offline.
+
+**Does TrueCourse E6B work offline?** Yes. TrueCourse E6B runs entirely on your device, so it works with no internet connection.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download TrueCourse E6B from the App Store and open it.
+
+**What data does TrueCourse E6B collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
+
+**Which devices are supported?** TrueCourse E6B is available for iPhone, iPad & Mac.
+
+### Earth Around
+
+URL: https://aisixteen.com/earth-around/ · App Store: https://apps.apple.com/app/id6794748918
+Category: Sky & science · Platforms: iPhone, iPad, Mac & Apple Watch
+
+Watch the Sun, from your wrist. Live solar storms, aurora chance, and the solar wind driving them.
+
+Earth Around watches the Sun for you. See whether a storm is happening right now on the NOAA G, R and S scales, what is driving it — solar wind speed and Bz — and live GOES X-ray flux for flares. Check tonight's aurora chance and view line, and read Hp30 for 30-minute storm resolution. On iPhone, iPad, Mac, and right on your Apple Watch.
+
+- Storm right now — live NOAA G · R · S scales
+- Solar wind speed and Bz, plus GOES X-ray flare flux
+- Aurora chance tonight with the view line
+- Hp30 at 30-minute resolution · Apple Watch complications
+
+Privacy: No account, no tracking — live NOAA data.
+
+**Does Earth Around need an internet connection?** Yes, for live readings. Earth Around pulls public NOAA feeds to show current conditions; previously loaded values stay visible offline.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Earth Around from the App Store and open it.
+
+**What data does Earth Around collect?** None. It collects no personal data and has no analytics or tracking — the only network requests are to the public data feeds it displays.
+
+**Which devices are supported?** Earth Around is available for iPhone, iPad, Mac & Apple Watch.
+
+### Marine Nav
+
+URL: https://aisixteen.com/marine-nav/ · App Store: https://apps.apple.com/app/id6795571481
+Category: Sky & science · Platforms: iPhone, iPad & Mac
+
+Tides, currents and celestial navigation. Offline tide and tidal-current predictions, sight reduction, and magnetic declination.
+
+An offline navigation toolkit for sailors and navigators. Predict tide heights and tidal currents — including slack water — work a celestial sight from sextant altitude to a fix, read magnetic declination from the World Magnetic Model, and solve great-circle distance and bearing. Everything is computed on your device from published data, so it keeps working with no signal at sea.
+
+- Tide heights and tidal currents, with slack water
+- Celestial sight reduction — sextant altitude to a fix
+- Magnetic declination from the World Magnetic Model
+- Great-circle distance & bearing · 100% offline
+
+Privacy: On-device, no account, works offline.
+
+**Does Marine Nav work offline?** Yes. Marine Nav runs entirely on your device, so it works with no internet connection.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Marine Nav from the App Store and open it.
+
+**What data does Marine Nav collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
+
+**Which devices are supported?** Marine Nav is available for iPhone, iPad & Mac.
+
+### Par
+
+URL: https://aisixteen.com/par/ · App Store: https://apps.apple.com/app/id6795570043
+Category: Creative tools · Platforms: iPhone, iPad & Mac
+
+The financial calculator that cites its sources. Ten tools — time value of money, bonds, amortization, cash flow and more.
+
+An offline financial calculator for people who must have one: loan officers, mortgage and commercial real-estate underwriters, treasury and fixed-income desks, and candidates studying where only a financial calculator is permitted. Ten tools cover time value of money, amortization, bonds, cash flow, day count, depreciation, percent, rate conversion, real estate, and statistics — and every displayed number traces to a cited authority.
+
+- Ten tools: TVM, amortization, bonds, cash flow, depreciation & more
+- Every result cites its authority — US Treasury, CFPB Reg Z & DD, IRS, NIST
+- A running tape of your calculations you can review and save
+- One-time purchase · no ads, no subscription, no account, no network
+
+Privacy: On-device, no account, works offline.
+
+**Does Par work offline?** Yes. Par runs entirely on your device, so it works with no internet connection.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Par from the App Store and open it.
+
+**What data does Par collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
+
+**Which devices are supported?** Par is available for iPhone, iPad & Mac.
+
+### Storypole
+
+URL: https://aisixteen.com/storypole/ · App Store: https://apps.apple.com/app/id6796056413
+Category: Creative tools · Platforms: iPhone, iPad, Mac & Apple Watch
+
+Layout, lumber and takeoff, on site. Tape math, on-center layout, board feet, roof pitch and takeoff — all offline.
+
+A job-site calculator for carpenters, framers and remodelers. Run feet-inch-fraction tape math, lay out equal spacing and on-center marks, size lumber in board feet with nominal-versus-dressed dimensions, work roof pitch and rafters, square up and solve miters and bevels, take off concrete in cubic yards, and check wire gauge. Everything runs on your device — including on your wrist, right at the wall.
+
+- Tape calculator with feet-inch-fraction math
+- Layout: equal spacing, on-center marks and square-up
+- Lumber board feet, roof pitch and rafters, miter and bevel
+- Concrete takeoff, wire gauge and conversions · also on Apple Watch
+
+Privacy: On-device, no account, works offline.
+
+**Does Storypole work offline?** Yes. Storypole runs entirely on your device, so it works with no internet connection.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Storypole from the App Store and open it.
+
+**What data does Storypole collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
+
+**Which devices are supported?** Storypole is available for iPhone, iPad, Mac & Apple Watch.
+
+### AirCore
+
+URL: https://aisixteen.com/aircore/ · App Store: https://apps.apple.com/app/id6799999307
+Category: Creative tools · Platforms: iPhone, iPad, Mac & Apple Watch
+
+The offline air-side HVAC calculator. Psychrometrics, duct, fan and pipe in one app — corrected for your site elevation, not sea level.
+
+The air-side calculator for HVAC technicians, designers and contractors. Enter any two of dry bulb, wet bulb, dew point, relative humidity, humidity ratio, enthalpy or specific volume and AirCore solves the rest, putting the point on a real psychrometric chart — type a value and the point moves, drag the point and the values follow. Site elevation sits in the toolbar of every screen and every number is corrected to it, so you are not quietly working at sea level. Imperial and metric switch freely without re-rounding, and the physics lives in independently tested modules checked against published reference data.
+
+- Any two knowns solve the whole air state, plotted on a real chart
+- Corrected for your site elevation — see what the altitude costs
+- Air-side heat in any direction, and air mixing weighted by mass
+- Duct from friction, fan laws, and pipe by Darcy or Hazen–Williams
+
+Privacy: On-device, no account, works offline.
+
+**Does AirCore work offline?** Yes. AirCore runs entirely on your device, so it works with no internet connection.
+
+**Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download AirCore from the App Store and open it.
+
+**What data does AirCore collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
+
+**Which devices are supported?** AirCore is available for iPhone, iPad, Mac & Apple Watch.

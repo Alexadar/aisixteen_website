@@ -26,7 +26,7 @@ export const fantastic = {
     width: 1600,
     height: 800,
     duration: 'PT2M4S',
-    uploadDate: '2026-10-16',
+    uploadDate: '2026-10-16T03:50:00+03:00',
     title: 'How Aisixteen Fantastic works',
     description: 'A two-minute tour: the kernel, how it differs from typical agent harnesses, the two kernels behind fantastic canvas, a coding agent connecting, and what you can build — a dashboard, artwork, a chatbot, or your own.',
     chapters: [

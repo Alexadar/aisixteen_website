@@ -1,6 +1,8 @@
 # AISixteen
 
-> AISixteen is an independent developer of small, fast, private apps for iPhone, iPad, Mac and Apple Watch. No accounts, no tracking, and no personal data ever leaves the user's device.
+> AISixteen is an independent developer. Its main product is Aisixteen Fantastic (https://aisixteen.com/fantastic/), an open-source kernel of agents built from scratch at every layer. It also makes small, fast, private apps for iPhone, iPad, Mac and Apple Watch: no accounts, no tracking, and no personal data ever leaves the user's device.
+
+Full text of the site for LLMs: https://aisixteen.com/llms-full.txt
 
 ## About
 - No account or sign-up is required for any app, and there are no subscriptions.

@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { robotsTxt, llmsFullTxt } from './ai-files.mjs'
 // Static site generator: pre-renders the home page + one real HTML page per app
 // into docs/ so every app gets its own crawlable URL on GitHub Pages (no server).
 // React is used only here, at build time, as the template engine.
@@ -121,7 +122,12 @@ fs.writeFileSync(join(docs, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8
 ${indexable.map((p) => `  <url><loc>https://aisixteen.com/${p}</loc></url>`).join('\n')}
 </urlset>
 `)
-fs.writeFileSync(join(docs, 'robots.txt'), 'User-agent: *\nAllow: /\n\nSitemap: https://aisixteen.com/sitemap.xml\n')
+fs.writeFileSync(join(docs, 'robots.txt'), robotsTxt())
+fs.writeFileSync(join(docs, 'llms-full.txt'), llmsFullTxt({ apps: decorated, fantastic }))
+// IndexNow (Bing, Yandex, Seznam…; Bing's index feeds ChatGPT search and Copilot):
+// the key file must be served at the site root. Ping with `npm run indexnow` after a deploy.
+const indexNowKey = fs.readFileSync(join(root, 'indexnow-key.txt'), 'utf8').trim()
+fs.writeFileSync(join(docs, `${indexNowKey}.txt`), indexNowKey)
 
 // 6) Custom domain for GitHub Pages.
 if (fs.existsSync(join(root, 'CNAME'))) fs.copyFileSync(join(root, 'CNAME'), join(docs, 'CNAME'))
