@@ -1,0 +1,32 @@
+{
+  "add": {
+    "duration": 9.67,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 100112,
+      "webm": 99933,
+      "webp": 28526
+    }
+  },
+  "fire": {
+    "duration": 11.03,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 114179,
+      "webm": 105687,
+      "webp": 28796
+    }
+  },
+  "wake": {
+    "duration": 11.57,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 92250,
+      "webm": 84111,
+      "webp": 21362
+    }
+  }
+}

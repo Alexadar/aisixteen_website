@@ -1,0 +1,42 @@
+{
+  "call": {
+    "duration": 11.53,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 110633,
+      "webm": 102138,
+      "webp": 23768
+    }
+  },
+  "hello": {
+    "duration": 12.5,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 120731,
+      "webm": 120679,
+      "webp": 24388
+    }
+  },
+  "out": {
+    "duration": 12.9,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 124402,
+      "webm": 120355,
+      "webp": 20534
+    }
+  },
+  "stop": {
+    "duration": 9.9,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 107327,
+      "webm": 103748,
+      "webp": 22100
+    }
+  }
+}

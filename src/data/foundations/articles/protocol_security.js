@@ -58,7 +58,7 @@ export default {
       id: 'edges',
       title: 'The process and file edges',
       blocks: [
-        'Two bridges cross out of the kernel: `exec_bridge` runs commands, and `file_bridge` reads and writes files. Both are **sealed by default**. A freshly created leg refuses every verb except discovery with `{reason: "unauthorized"}` until an operator opens it with `update_agent <id> ingress_rule=allow_all_ingress` (or `password_ingress`).',
+        'Two bridges cross out of the kernel: `exec_bridge` runs commands, and `file_bridge` reads and writes files. Both are **sealed by default**. A freshly created leg refuses every verb except discovery with `{reason: "unauthorized"}` until an operator opens it with `update_agent <id> ingress_rule=allow_all_ingress`. Both runtimes refuse `password_ingress` on these edges: a process edge has no wire envelope, so no frame can present a token.',
         { h3: 'exec_bridge: the allowlist is the law' },
         'Even open, `start` runs a command only if the whole line, `command` plus `args` joined, fully matches one regex in the record’s `allowed` list. There is no default list, no per-call override, and an empty list runs nothing. The one exception is the record’s `shell` field, which permits exactly the child’s own shell line on a PTY job. A request that matches nothing is refused with the patterns in the message.',
         'Where and with what a command runs also belongs to the record. A per-call `env` or `cwd` is refused, `cwd` is required, and the child’s environment is built from the record: the kernel variables named in `inherit_env` (none by default) plus the record’s own `env`.',

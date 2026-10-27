@@ -493,7 +493,7 @@ The store’s own guidance is not to give a credential to an AI agent’s prompt
 
 #### The process and file edges
 
-Two bridges cross out of the kernel: `exec_bridge` runs commands, and `file_bridge` reads and writes files. Both are **sealed by default**. A freshly created leg refuses every verb except discovery with `{reason: "unauthorized"}` until an operator opens it with `update_agent <id> ingress_rule=allow_all_ingress` (or `password_ingress`).
+Two bridges cross out of the kernel: `exec_bridge` runs commands, and `file_bridge` reads and writes files. Both are **sealed by default**. A freshly created leg refuses every verb except discovery with `{reason: "unauthorized"}` until an operator opens it with `update_agent <id> ingress_rule=allow_all_ingress`. Both runtimes refuse `password_ingress` on these edges: a process edge has no wire envelope, so no frame can present a token.
 
 #### exec_bridge: the allowlist is the law
 
@@ -1459,7 +1459,7 @@ The AI agent keeps a long conversation in a finite window by folding it: a finis
 
 *Animation: A fold is a new row* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/fold.mp4). context_fold over rows 3 to 8 appends one fold row (13) to the store, with refs to its members; nothing is deleted. In the view the fold sits at its anchor, row 3, in place of its members, and everything before the range keeps its exact bytes.
 
-In this part: AI agent (https://aisixteen.com/fantastic/foundations/agents/ai-agent/); Memory stores (https://aisixteen.com/fantastic/foundations/agents/memory-stores/); Credential store (https://aisixteen.com/fantastic/foundations/agents/credential-store/)
+In this part: AI agent (https://aisixteen.com/fantastic/foundations/agents/ai-agent/); Memory stores (https://aisixteen.com/fantastic/foundations/agents/memory-stores/); Credential store (https://aisixteen.com/fantastic/foundations/agents/credential-store/); Exec bridge (https://aisixteen.com/fantastic/foundations/agents/exec-bridge/); File agent (https://aisixteen.com/fantastic/foundations/agents/file/); MCP client (https://aisixteen.com/fantastic/foundations/agents/mcp-client/); Web agents (https://aisixteen.com/fantastic/foundations/agents/web/); Bridge (https://aisixteen.com/fantastic/foundations/agents/bridge/); Scheduler (https://aisixteen.com/fantastic/foundations/agents/scheduler/); Program agents (https://aisixteen.com/fantastic/foundations/agents/program-agents/); Static loader (https://aisixteen.com/fantastic/foundations/agents/static-loader/); Agentic resources and tasks (https://aisixteen.com/fantastic/foundations/agents/agentic-resources/)
 
 Sources: README.md: what’s in the box (https://github.com/aisixteen/fantastic/blob/main/README.md#L49); README.md: memory (https://github.com/aisixteen/fantastic/blob/main/README.md#L47); ai_core (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core)
 
@@ -2120,6 +2120,895 @@ The `fantastic` CLI keeps all provider keys in one store agent with the id `cred
 A key’s ref is `<provider>/<host>`, for example `responses/api.openai.com`. The app declares the ref on the store, then sends `set` with the key marked secret. It then grants the AI agent `get` on the store and the store’s `callable_by` the agent, which are the two ends the call gate needs.
 
 Sources: credential_store readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-credential-store/src/readme.md#L1); credential_store (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-credential-store/src/lib.rs#L1); credential_store (Python, canonical) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/security/credential_store/src/credential_store/tools.py#L1); the Rust keychain, by OS (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-credential-store/src/sys/keychain.rs#L1); how an AI backend reads its key (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/credentials.rs#L154); the credential store test spec (https://github.com/aisixteen/fantastic/blob/main/contract/agentic/specs/credential_store.yaml#L1); the CLI’s key handling (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/keys.rs#L1); the CLI’s key modes (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-user-home-store/src/secrets.rs#L1)
+
+### Foundations › Agents › Exec bridge
+
+URL: https://aisixteen.com/fantastic/foundations/agents/exec-bridge/
+
+The `exec_bridge` agent is the edge where the kernel meets operating-system processes. It starts a command in the background, keeps its output, and can attach a terminal to it. It also hands the child one open socket, so the program can send messages back to the kernel.
+
+The bridge is **sealed by default** and runs only the command lines its operator allowlisted. [Security](/fantastic/foundations/protocol/security/#edges) explains that gate. This page covers what happens after a line passes: jobs, terminals and the wire.
+
+#### The record decides where and with what
+
+A `start` names a `command` and its `args`. Everything else about the run comes from the agent’s record, never from the call. `cwd` is required: a bridge without one runs nothing. `env` holds the operator’s extra variables, and `inherit_env` names which of the kernel’s variables pass through (none by default, `["*"]` for all).
+
+A `start` that carries its own `env` or `cwd` is refused. The child’s environment is exactly what the record builds. The kernel’s own environment does not leak in.
+
+A bare command such as `ffmpeg` is looked up on the child’s `PATH` only. If the record passes no `PATH`, the start is refused and the refusal names it. Start an absolute path, or pass `PATH` through `inherit_env`.
+
+The command is one program. If `command` holds several words and `args` is empty, the refusal says to put the arguments in `args`.
+
+a record that can run ffmpeg (illustrative id):
+
+```
+update_agent runner cwd=/srv/work inherit_env='["PATH"]' allowed='["ffmpeg .*"]'
+```
+
+#### A start is a job
+
+Each `start` creates a **job**. It returns at once with `{job_id, status: "running", pty}`. There is no verb that blocks until the command ends, so many jobs run in parallel. The job’s output arrives as events on the agent: `job_started`, then a `progress` event for each line (`{job_id, n, line, stream}`), then `job_done` with `exit_code` and `ok`.
+
+A job is also a row in the kernel’s task table, and its `job_id` is that row’s id. `ps` lists it and `cancel task_id=<job_id>` ends it. The bridge’s `on_cancel` hook sends SIGKILL to the real process before the task is aborted ([Tasks](/fantastic/foundations/kernel/tasks/)). Deleting the agent or stopping the kernel kills its jobs the same way.
+
+To read output later, `tail` returns the last lines of any job and `grep` returns the lines that match a regex. Each line comes as `{n, stream, line}`. A job keeps its last 256 KiB of lines, and `stream` is `stdout`, `stderr` or `both`.
+
+`stop` sends SIGKILL to the job’s whole session: the command and everything it launched, such as a `server &` or a `nohup`. A process that leaves the session on purpose with `setsid` escapes. `interrupt` sends SIGINT, `clear` forgets finished rows, and leaving out `job_id` applies the verb to every job of the agent.
+
+Nothing restarts a job. `boot` does nothing, because a caller starts a command, not the record. A `monitor` verb can watch a running job and send the lines that match a regex to another agent, so a long run can be stopped early.
+
+*Animation: A start is a job* (https://aisixteen.com/fantastic/foundations/agents/exec-bridge/jobs.mp4). Agent runner is sent start for ffmpeg. The reply returns job 41 as running at once. Lines arrive as progress events, then job_done with exit_code 0. A second job, 42, is stopped: stop sends SIGKILL to its whole session, and its status becomes stopped.
+
+#### A terminal is a job on a pseudo-terminal
+
+A `start` with `pty: {cols, rows}` runs the command on a pseudo-terminal, with `TERM=xterm-256color`. It passes the same gate and the same record rules as any job. If `command` is left out, the bridge runs the child’s own `$SHELL`, read from the environment the record passes down. With no `SHELL` there, the start is refused and says so. The shell is never guessed.
+
+A caller that cannot name its shell, such as a browser page, cannot write an exact `allowed` line for it. The record’s `shell` field permits exactly that one line on a PTY job: `true` for `$SHELL`, `"login"` for `$SHELL -l`. It is one line, not a pattern. Any other argument, and every pipe job, still needs an `allowed` match.
+
+A terminal job streams its output as `output {job_id, data}` events and ends with `job_done {job_id, exit_code, ok}`. You drive it with four verbs:
+
+| verb | what it does |
+|---|---|
+| `write {job_id, data}` | types keystrokes or a paste; written in full and one write at a time per job |
+| `resize {job_id, cols, rows}` | sets the window size, and the program gets SIGWINCH |
+| `ack {job_id, chars}` | tells the reader how many characters the viewer has drawn |
+| `output {job_id, max_bytes?}` | returns the last 256 KiB of output, for a viewer that re-attaches |
+
+The `ack` verb is flow control. When more than 100,000 characters are unacknowledged, the reader stops reading the terminal, so the program fills the tty and slows down. When acknowledgements bring the backlog under 5,000, the reader resumes. An `output` replay clears the backlog, and the reader does not pause for it until that viewer sends its first `ack`.
+
+Each of these is a separate verb at the call gate, so a viewer granted only `status`, `output` and `ack` can watch a terminal but cannot type. Any caller the gate admits to a verb may use it on any job of this agent. `paste_image` saves an image of up to 5 MiB and types its path into the terminal.
+
+*Animation: A terminal on a pseudo-terminal* (https://aisixteen.com/fantastic/foundations/agents/exec-bridge/terminal.mp4). A start with pty cols 80 and rows 24 and no command runs the child’s own $SHELL as job 7. Keystrokes go in with write, and output events come back. When more than 100,000 characters are unacked, the reader pauses. After ack brings the backlog under 5,000, it resumes.
+
+#### The wire back to the kernel
+
+The bridge publishes one contract to its children: a **wire**. Each child inherits two environment variables. `FANTASTIC_CTRL_FD` is an already-open socket to the spawner. `FANTASTIC_SELF_ID` is the id of the owning agent, the bridge itself and not the job. Arguments arrive as ordinary argv.
+
+Each frame is `[4-byte big-endian length | kind | rest]`. Kind `T` carries a JSON envelope. Kind `B` carries a binary frame, so raw bytes cross without base64. The child sends six ops: `send`, `emit`, `watch`, `unwatch`, `onmessage` and `offmessage`. The parent answers with `reply`, `event` and `inbox`. A `rid` ties a `send` to its `reply`.
+
+a send over the wire (illustrative target):
+
+```
+→ {"op": "send", "rid": 7, "target": "store", "payload": {"type": "get"}}
+← {"op": "reply", "rid": 7, "data": {…}}
+```
+
+The bridge relays a `send` to the kernel untouched. The relay runs as the runner, so the call gate judges the runner: its `can_call` must name the target, and the target’s `callable_by` must name the runner ([Security](/fantastic/foundations/protocol/security/#spawn)). You grant the runner, not the program.
+
+A frame is at most 16 MiB in both runtimes. A longer length prefix is a wire violation, and the relay closes the socket, so large data moves in chunks. When the child reads end-of-file on the fd, the kernel is gone. The child never dials a host. Its traffic goes to the spawner and from there to the kernel.
+
+A program that never reads the fd runs like any other OS process. One that wants a `kernel` object can send the bridge `connector`. That verb works even on a sealed bridge, and its reply is the source of a reference client in Python. The program pastes it at the top of its own file, and it gives `kernel.send`, `emit`, `reflect`, `watch` and `on_message`.
+
+*Animation: The control wire* (https://aisixteen.com/fantastic/foundations/agents/exec-bridge/wire.mp4). The child inherits FANTASTIC_CTRL_FD. It writes a send frame for target store with rid 7. The relay forwards it as the runner. The call gate admits it only if the runner’s can_call names store, and then the reply with rid 7 comes back on the same fd. Without that grant the reply is a refusal.
+
+#### Mail for a running program
+
+Any verb the bridge does not own is **mail** for the running program. It goes to the program’s `on_message` and is answered `{queued: true}`. With no live job it is an error, because a program that has exited has no inbox. A sealed bridge delivers nothing.
+
+A drive verb (`write`, `resize`, `paste_image`, `stop`, `interrupt` or `clear`) that names another job’s id never reaches a program’s `on_message`. Results come back as whatever the program emits on the bridge’s id.
+
+#### What the bridge does not do
+
+The allowlist names which commands run. It does not contain them. A permitted `python3` still has `open()`, `socket` and `subprocess`. The readme says it plainly: opening this leg grants local code execution to whoever can reach it. Stronger containment would need an operating-system mechanism and is not built.
+
+The bridge starts commands. A folder with a program that answers its own verbs is a different mechanism, covered in [Kernel › Bundles](/fantastic/foundations/kernel/bundles/#folder-bundles).
+
+You open the bridge with `ingress_rule=allow_all_ingress`. Both runtimes refuse `password_ingress` on this edge when it is written: a process edge has no wire envelope, so no frame can present a token.
+
+Sources: exec_bridge readme (Rust crate) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-exec-bridge/src/readme.md#L1); the verbs and the gate (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-exec-bridge/src/lib.rs#L1); terminal jobs and flow control (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-exec-bridge/src/pty.rs#L26); the control wire relay (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-exec-bridge/src/relay.rs#L41); spawning a job and its session kill (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-exec-bridge/src/spawn.rs#L63); the Python bundle (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/io/exec_bridge/src/exec_bridge/tools.py#L1); the reference wire client (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/io/exec_bridge/src/exec_bridge/_connector.py#L1); the exec_bridge folders (https://github.com/aisixteen/fantastic/tree/main/src/lib/rust/crates/bundles/fantastic-exec-bridge)
+
+### Foundations › Agents › File agent
+
+URL: https://aisixteen.com/fantastic/foundations/agents/file/
+
+In Fantastic a folder on disk is reached the way any other agent is: by sending it a verb. The bundle that does this is `file_bridge`, with the handler module `file_bridge.tools`. There is no agent called `file`.
+
+This page covers what a file bridge can do once it is open: text verbs that guard against lost updates, edits that apply to every file or to none, raw byte streams, directory verbs and path watching. Who may open it, and what the `allow` list exposes, is on the [Security page](/fantastic/foundations/protocol/security/#edges).
+
+#### A folder with verbs
+
+A file bridge is an agent whose record names a `root` folder and may carry a `readonly` flag. The disk itself lies outside the trust domain, so the bridge is the gate: it checks the caller, the clamp and the `allow` list, and only then touches the disk. A new bridge is sealed, and a path it does not expose answers `not_found`. [Security](/fantastic/foundations/protocol/security/#edges) explains both rules, so this page assumes a bridge that is open and exposes the path in question.
+
+The verb table has 17 entries, the same in the Rust and Python runtimes. Besides `reflect` and `boot`, they fall into five groups.
+
+| group | verbs |
+|---|---|
+| text documents | `read`, `write`, `edit`, `append`, `undo` |
+| byte streams | `read_stream`, `write_stream`, `pump` |
+| the directory tree | `list`, `mkdir`, `rename`, `delete` |
+| watching | `watch_path`, `unwatch_path` |
+| views | `open_view` |
+
+With `readonly: true` on the record, every mutating verb is refused in the [common refusal shape](/fantastic/foundations/protocol/refusals/) with the reason `unauthorized` and the error “agent is readonly”. Reads still work. `reflect` is the one verb a sealed bridge answers: it reports the root, the `readonly` flag, the number of `allow` entries and the edit grammar.
+
+The records store described in [State](/fantastic/foundations/kernel/state/) is one such bridge, rooted at `.fantastic`. This page is about the bridge as a filesystem, not about how records are saved.
+
+#### Text documents and versions
+
+`read {path, offset?, limit?}` returns a page of lines, numbered from 1. `offset` counts lines and starts at 0, and `limit` defaults to 200. The reply holds `lines: [{n, text}]`, `total`, `eof` and `newline`, which says whether the file ends in a newline. A file with a NUL byte, or one that is not valid UTF-8, is refused with `bad_arg`: the text verbs work on text.
+
+The reply also holds a **version**: the first 16 hex digits of the SHA-256 of the file’s bytes. It is computed when asked and never stored. If those digits would parse as a number, the first one becomes `a`, so a JSON client cannot lose digits. Python applies the same rule, so both runtimes give the same version for the same bytes.
+
+`write {path, bytes, if_match?}` replaces the whole document. The bridge writes a fresh temporary file next to the target and renames it over, so a reader sees the old file or the new one, never half of one. Missing parent folders are created. The reply is `{path, size, version}`.
+
+With `if_match` set to the version you read, the write is refused if the file has changed since. The check runs under a lock held per bridge and path, so two writers cannot both pass it. The refusal carries `reason: "version_mismatch"` together with the `expected` and `actual` versions. `actual` is null when the file is gone.
+
+the refusal (illustrative versions):
+
+```
+{"error": "version mismatch — the document changed since you read it",
+ "reason": "version_mismatch", "path": "notes.md",
+ "expected": "5e0b94a1c2d7f3a8", "actual": "c41d02e7b9a6f358"}
+```
+
+*Animation: read, then write only if unchanged* (https://aisixteen.com/fantastic/foundations/agents/file/text.mp4). read returns notes.md as numbered lines with version 5e0b94a1c2d7f3a8. Another writer changes line 2, so the version becomes c41d02e7b9a6f358. A write with if_match 5e0b… is refused with version_mismatch and nothing is written. After a new read, a write with if_match c41d… lands and the reply holds the new version.
+
+`append {path, bytes}` adds one chunk at the end and creates the file when it is absent. For all three content verbs, the document travels in `bytes`. On a binary transport it is the raw body. On a JSON-only channel a string is encoded as UTF-8.
+
+#### edit: every hunk or none
+
+`edit {edits, bytes, dry_run?}` changes several files in one transaction. `edits` is a list of `{path, hunks, if_match?}`, and `bytes` holds the patch: SEARCH/REPLACE blocks written as `<<<<<<< SEARCH`, `=======` and `>>>>>>> REPLACE`. Each SEARCH text must occur exactly once in its file. A path appears at most once in `edits`.
+
+The bridge verifies every hunk of every file before it writes anything. A SEARCH that is not found fails with the reason `no_match`, and one that matches more than once fails with `ambiguous`. Either way the reply is “a hunk did not apply — nothing written”, with the failing path and hunk index. `dry_run: true` stops after this check and writes nothing.
+
+If the writes themselves fail part way, the files already written are put back from the copies the bridge holds. Text that itself contains conflict markers takes the 8-character fence: `<<<<<<<< SEARCH`, `========` and `>>>>>>>> REPLACE`. A successful edit replies `{edited: true, edits: [{path, hunks, size, version}]}`.
+
+*Animation: edit: every hunk, or nothing* (https://aisixteen.com/fantastic/foundations/agents/file/edit.mp4). An edit lists a.py and b.py with one hunk each. The hunk for a.py matches once, but the SEARCH text for b.py is not found: no_match. The bridge writes nothing, so both files are unchanged. With the search text fixed, both files are written together and the reply is edited: true.
+
+#### undo
+
+`write`, `edit` and `append` each keep what they replaced. `undo {path}` swaps the file with that copy, and a second `undo` swaps back, so it is also redo. There is one slot per bridge and path, held in memory: a restart drops it and nothing is kept on disk. If the file did not exist before the change, `undo` deletes it and replies `deleted: true`. With no slot, the reply is `not_found`.
+
+#### Streams: raw bytes in chunks
+
+The text verbs fit documents. Anything else, such as an image, an archive or a large file, moves in chunks over the stream verbs. A chunk is raw bytes and never base64: on a web socket or a bridge it rides as a binary frame.
+
+`read_stream {path, offset?, length?}` returns one chunk. `offset` defaults to 0 and `length` to 65536. The chunk is the body of the reply, and the JSON beside it holds `next_offset`, `eof` and `size`. The bridge keeps no open handle: a reader calls again with `offset` set to `next_offset` until `eof` is true.
+
+`write_stream {path, bytes, offset?, truncate?}` writes one chunk. Without `offset` it appends at the end of the file. `truncate: true`, or a file that does not exist yet, starts from an empty file. The reply is `{path, written, offset, size}`. A JSON string where raw bytes belong is refused with `missing_arg`.
+
+`pump {source?, source_path, sink?, sink_path?, chunk?}` does the whole copy in one call. It loops over `read_stream` on the source and `write_stream` on the sink, and the first write truncates. `source` and `sink` are agent ids, and an omitted one means this bridge. `sink_path` defaults to `source_path`. The reply is `{source, sink, bytes, chunks}`.
+
+A pump runs both ends as the bridge itself. The bridge’s `can_call` must reach the source and the sink, and each end’s `callable_by` must accept the bridge, as the [call gate](/fantastic/foundations/protocol/call-gate/) requires for any send. Each end also checks its own seal and clamp. A pump whose sink is its own source file is refused with `bad_arg`, because the first write would truncate the file being read.
+
+#### Listing, creating, renaming, deleting
+
+Four verbs work on the directory tree. Each one needs its path to be exposed, and the three that change anything need the bridge not to be `readonly`.
+
+| verb | what it does | reply |
+|---|---|---|
+| `list {path?}` | the entries of a folder, sorted by name, as `{name, path, type, size?}` with `type` `file` or `dir`. Shows only exposed entries, plus the folders on the way to one | `{path, files}` |
+| `mkdir {path}` | creates the folder and its parents. An existing folder is fine, an existing file is not | `{path, created: true}` |
+| `rename {old_path, new_path}` | moves a file or folder and creates the new path’s missing parents. Both ends must be exposed | `{old_path, new_path}` |
+| `delete {path, recursive?}` | removes a file, an empty folder, or with `recursive: true` a whole tree. A symlink is unlinked, never followed | `{path, deleted: true}` |
+
+The root is never an operand. For `mkdir`, `rename` and `delete`, an empty path or `.` is `missing_arg`, and a path that resolves to the root itself is `bad_arg` (“a path inside the root, not the root itself”). So `delete` with `recursive: true` cannot empty the whole served folder. A path that does not exist is `not_found`. `list` on a file is `bad_arg`.
+
+#### Watching paths
+
+`watch_path {path}` puts an exposed file or folder under a disk watcher. From then on, any change to it, by any writer, is emitted on the bridge’s own inbox as `{type: "changed", path, kind}`. The writer can be this bridge, an editor or another process. A caller receives the events by registering as a watcher of the bridge, which needs an inbox and passes the gate like a send; a watcher without an inbox is refused `no_consumer` (the kernel refuses it). The reply is `{watching, paths}`.
+
+The `kind` is not the platform’s event name. The bridge keeps a stamp for each path (inode, change time, modification time and size) and judges the new stamp against the last one. A different inode is `added`, a changed stamp on the same inode is `modified`, a missing path is `deleted`, and an unchanged stamp is no event at all. An editor that saves by writing a temporary file and renaming it gives a new inode, so it reports `added`. The consumer’s rule is to treat any `changed` as a prompt to read again.
+
+A file is watched through its parent folder, so such a save is seen. A folder reports its entries, not its subfolders. A burst of events within 50 ms for one path becomes one `changed`. The `allow` list is read live: a path the bridge stops exposing reports nothing more.
+
+*Animation: watch_path: changes arrive as events* (https://aisixteen.com/fantastic/foundations/agents/file/watch.mp4). watch_path puts docs/ under a disk watcher. A change to a.md arrives in the bridge’s inbox as changed with kind modified. A new c.md arrives as added, and the removal of b.md arrives as deleted. Each event carries the path and the kind.
+
+A path that does not exist yet is accepted, and the reply carries `pending: true`. The bridge watches the nearest folder that exists, moves down as folders appear, and reports `added` when the path itself appears. A watch that cannot be armed, such as an unreadable folder, is refused with `transport_error` and holds nothing.
+
+Watches are held per caller. `unwatch_path {path}` drops the caller’s own hold, and the disk watch ends when no caller holds a path. Watches live in memory only. The Rust runtime uses the operating system’s native events and Python uses `watchfiles`, with the same verbs and the same kinds.
+
+#### Views: one file or one folder as an agent
+
+`open_view {kind, path, id?}` hands out a narrower agent. `kind` is `file` or `folder`, and the reply is `{id, kind, path, created}`. There is one view per path, and a second open returns the same agent. A view is a `file_bridge.tools` record that carries `view: file` or `view: folder`, and it is a child of its bridge.
+
+A view reaches its bridge as itself, with a fixed grant. A file view may send `read`, `write`, `watch_path` and `unwatch_path`. A folder view may send `list`, `watch_path` and `unwatch_path`. The [call gate](/fantastic/foundations/protocol/call-gate/) limits a view to those verbs, and the bridge holds it to its own path, so it refuses a verb naming any other path. The `allow` list still decides what exists.
+
+The verbs a view answers are fewer than the bridge’s. A file view answers `read`, `write`, `watch` and `reflect`. A folder view answers `list`, `reveal` (which folders to open on the way down to a path inside it), `watch` and `reflect`. Its `watch` relays the bridge’s changes to the view, and only those inside its path. A folder view names them `added`, `changed` and `removed`. An agent given only a view can do nothing the view does not offer.
+
+Sources: file_bridge: the verb table and the gate (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-file/src/lib.rs#L68); text verbs: read, write, edit, undo (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-file/src/text.rs#L243); directory and disk operations (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-file/src/fs.rs#L224); watch_path and the change stamps (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-file/src/watch.rs#L36); file and folder views (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-file/src/views.rs#L27); the verb table (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/io/file_bridge/src/file_bridge/tools.py#L1462); the file_bridge readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-file/src/readme.md); the Python bundle (https://github.com/aisixteen/fantastic/tree/main/src/lib/python/bundled_agents/io/file_bridge/src/file_bridge)
+
+### Foundations › Agents › MCP client
+
+URL: https://aisixteen.com/fantastic/foundations/agents/mcp-client/
+
+An **MCP server** offers tools over HTTP. The `mcp_client` agent stands for exactly one such server. It lists the server’s tools at boot, and from then on each tool is a verb of the agent: `send {type: <tool>, …arguments}` runs that tool on the remote server.
+
+This page follows one server through the agent: the record that names it, how its tools become verbs, what a call sends and gets back, and how the key and the protocol version are chosen. The opposite direction, where Fantastic is the MCP server, is covered in [Transports](/fantastic/foundations/protocol/transports/#mcp). How an AI agent uses verbs as tools is in [AI agent](/fantastic/foundations/agents/ai-agent/).
+
+#### The record and boot
+
+The handler is `mcp_client.tools`, in Rust and Python. Its record has a required `url`, the server’s MCP endpoint, and an optional `credentials` of the form `{store, ref}`. A record without `credentials` is a keyless server. The write is refused unless `url` is an absolute `http` or `https` URL with a host and no fragment.
+
+a record (illustrative ids):
+
+```
+create_agent  handler_module=mcp_client.tools
+              url=https://mcp.example.com/mcp
+              credentials={store: creds, ref: mcp_client/mcp.example.com}
+```
+
+When the kernel creates the agent, it sends it `boot`. A failing boot does not abort the create. `boot` asks the server who it is (`server/discover`, or `initialize` for a legacy server, see the wire below) and, if the server’s capabilities include `tools`, sends `tools/list` for every page. A repeated `nextCursor` is refused as a `transport_error`.
+
+The answer is `{server, protocol_version, tools: [names], skipped?}`, and the agent emits `tools_listed`. Sent again, `boot` lists the tools again, which is how the agent follows a server whose tools changed. A failed `boot` keeps the tools already listed and answers why; `reflect` shows the reason as `last_error`.
+
+The agent keeps what the server said in memory, per instance. `reflect` answers `{id, sentence, url, protocol_version, server?, instructions?, tools, skipped?, last_error?}`, where `tools` is a count and `protocol_version` is `null` before the first successful `boot`.
+
+#### Each tool is a verb
+
+After `boot`, `docs of=<agent>` lists the server’s tools as the agent’s own verbs. Each entry is built from the tool’s `inputSchema` and `description`: a signature such as `args: title:str (req), body:str?.` followed by the description, or `No args.` when the schema has no properties.
+
+*Animation: Tools become verbs* (https://aisixteen.com/fantastic/foundations/agents/mcp-client/tools.mp4). The agent gh holds the url of a remote MCP server. boot sends server/discover, and the server answers. boot then sends tools/list and gets four tool names. docs of=gh lists three as verbs with their signatures (create_issue, list_issues, add_label); reflect is skipped because the kernel answers that verb.
+
+A grant names tools like any other verb, for example `can_call {gh: ["create_issue"]}`. The [call gate](/fantastic/foundations/protocol/call-gate/) therefore decides, per tool, who may run it. The agent’s notes say it plainly: a tool runs on the remote server with the key’s rights, so the grant on each tool is the consent.
+
+Some tools cannot become verbs. At listing the agent skips, and reports in `skipped` as `{name, why}`, a tool with no name, a tool named like a kernel verb or like `reflect`, `boot` or `shutdown`, a name listed twice, and a tool whose `x-mcp-header` annotation is invalid (see the wire below). The rest are kept.
+
+Two refusals guard a send. Before a successful `boot`, any tool verb is refused `not_connected` with the hint “send boot to <id> once the server is up”. After it, a verb that is not a listed tool is refused `unhandled`, “the MCP server has no tool”, and the hint lists the tools. See [Refusals](/fantastic/foundations/protocol/refusals/) for the closed set of codes.
+
+#### A send is a tools/call
+
+A send to a listed tool becomes `tools/call` with `name` set to the verb and `arguments` set to the rest of the payload, without `type`. The agent reads its key first (next section), then makes one HTTP POST. The call is bounded by the caller’s own timeout; the client sets only a 15 second limit on connecting.
+
+the send and the call (illustrative):
+
+```
+[{"target": "gh", "payload": {"type": "create_issue", "title": "Bug"}}]
+→ tools/call {name: "create_issue", arguments: {title: "Bug"}}
+```
+
+The answer is `{content, structured?}`. `content` holds the tool’s content items as the server sent them. `structuredContent` arrives as `structured`. If the tool reports `isError`, the reply gains `error`, the text items joined, so the call settles `errored`; with no text the error is “the tool reported an error”.
+
+#### Binary content
+
+Image and audio `data`, and an embedded resource’s `blob`, are base64 on the MCP wire. The agent decodes them to raw bytes. A reply carries one binary body, at its top-level `bytes`. The first binary item says `body: "bytes"` and its `size`; any later binary item has only its `size` and an `omitted` note, because its bytes were not sent. Invalid base64 is a `transport_error`.
+
+#### While it runs
+
+A server may send notifications during a call. The agent re-emits `notifications/progress` as `progress {tool, progressToken, progress, total?, message?}` and `notifications/message` as `log {tool, level, data, logger?}`.
+
+A tool that needs input in the middle of a call answers `{error, input_required: {inputRequests, requestState}}`. This client cannot give that input yet, and the call does not continue.
+
+*Animation: A send is a tools/call* (https://aisixteen.com/fantastic/foundations/agents/mcp-client/call.mp4). Agent a sends gh {"type": "create_issue", "title": "Bug"}. gh makes a tools/call to the server and answers content and structured. A second call, add_label, comes back with isError, so the reply has error: label not found. A send named delete_repo, which the server never listed, is refused unhandled and nothing goes to the server.
+
+#### The key
+
+If the record has `credentials`, the agent reads the ref’s `api_key` from the [credential store](/fantastic/foundations/agents/credential-store/) before every request, `boot` and each call included. It sends `get {ref, host}` as itself, with the server’s URL as the host, so the store hands the key out only for the host the ref is bound to. Nothing is cached.
+
+The key goes out as `Authorization: Bearer <key>`. A refused or malformed read becomes an `unauthorized` reply and no request goes out. The wiring is the usual two ends: the agent’s `can_call` names the store, and the store’s `callable_by` names the agent.
+
+#### The wire: two eras
+
+The transport is Streamable HTTP: each request is a POST to the one endpoint, with `Accept: application/json, text/event-stream`. The answer is one JSON object or a stream of server-sent events. The older two-endpoint HTTP+SSE transport of 2024-11-05 is not spoken.
+
+| era | versions | how a request travels |
+|---|---|---|
+| modern | `2026-07-28` | one POST each, no handshake or session; the version, client info and capabilities ride in `params._meta` and in headers `MCP-Protocol-Version`, `Mcp-Method`, `Mcp-Name` (for `tools/call`) |
+| legacy | `2025-11-25`, `2025-06-18`, `2025-03-26`, `2024-11-05` | `initialize`, then `notifications/initialized`; later POSTs carry `MCP-Session-Id` and, from 2025-06-18, `MCP-Protocol-Version` |
+
+The agent tries the modern era first by sending `server/discover`. If the answer names `2026-07-28`, the server is modern. If it lists only legacy versions, or answers with another 4xx or an error that is not a modern one (`-32601` included), the agent falls back to `initialize` in `2025-11-25`. A server that speaks none of these versions is refused with “the server speaks … this client speaks …”.
+
+*Animation: The key and the wire* (https://aisixteen.com/fantastic/foundations/agents/mcp-client/wire.mp4). Before a request, gh sends get {ref, host} to the store creds and receives the api_key. It goes to the server as Authorization: Bearer. The agent first sends server/discover; a server that answers 2026-07-28 is spoken to with one POST per request and no session. A server that refuses discover gets initialize, and every later POST carries MCP-Session-Id.
+
+In the legacy era a 404 on a request that carries a session id means the session expired: the agent runs one new `initialize` and repeats the request. A new session ends the old one with an HTTP DELETE, and a 405 is accepted. If the server sends a request on the stream, `ping` is answered with `{}` and anything else with `-32601`.
+
+#### Mirrored parameters
+
+In the modern era a tool’s `inputSchema` may mark a property with `x-mcp-header`. The agent copies that argument into a header `Mcp-Param-<name>` on each call. The annotation must sit on an integer, string or boolean property, reached through `properties` keys only, with a unique header-token name; otherwise the tool is skipped. An integer beyond 2^53 − 1 is refused `bad_arg`.
+
+#### When the server fails
+
+An unreachable server answers `not_connected`, “cannot connect”; other transport failures answer `transport_error`, and an HTTP error without a JSON-RPC body quotes the status and the first 300 characters of the body. JSON-RPC errors map by code: `-32602` is `bad_arg`, `-32601` is `unhandled`, and `-32022`, `-32021` and `-32020` are `transport_error` replies that name the versions, capabilities or header mismatch. `-32020` hints that `boot` re-lists the tools. Any other code answers `{error, mcp_error}`.
+
+Sources: mcp_client (Rust): the agent (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-mcp-client/src/lib.rs#L1); mcp_client (Rust): the wire (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-mcp-client/src/wire.rs#L1); mcp_client (Python): the agent (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/io/mcp_client/src/mcp_client/tools.py#L1); mcp_client (Python): the wire (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/io/mcp_client/src/mcp_client/wire.py#L1); how the key is read per request (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/credentials.rs#L154); where boot is sent at create (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/lifecycle.rs#L316); the Rust client’s tests (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-mcp-client/src/tests.rs#L1)
+
+### Foundations › Agents › Web agents
+
+URL: https://aisixteen.com/fantastic/foundations/agents/web/
+
+Three agents put a kernel on the network. `web` is the HTTP host: it owns a port and a route table. `web_ws` and `web_rest` are its children, the **legs** that carry verbs over a WebSocket and over REST.
+
+This page covers the host itself: how it builds its route table, why it refuses a request before any route sees it, and how it serves files. What a leg does with a message once it is admitted is the subject of [Transports](/fantastic/foundations/protocol/transports/#wire-legs), and is not repeated here. Rust and Python both implement them, with the same routes, guard, file route and duplicate-route refusal.
+
+#### One host, two legs
+
+A `web` agent (`handler_module` `web.tools`) answers six verbs: `reflect`, `boot`, `stop`, `mount`, `unmount` and `fetch_file`. It has no default port. `boot` needs `port` on the record and raises without it.
+
+The host renders nothing of its own. Its baked routes are exactly two: `GET /_assets/favicon.png` and `GET /<agent id>/file/<path>`. A request for `/` is a 404 unless a leg declares it.
+
+| agent | handler module | routes it declares |
+|---|---|---|
+| `web` | `web.tools` | baked: the favicon and the file route |
+| `web_ws` | `web_ws.tools` | one WebSocket route, `/{host_id}/ws` |
+| `web_rest` | `web_rest.tools` | `POST /<leg id>/{target_id}`, `GET /<leg id>/_reflect`, `GET /<leg id>/_reflect/{target_id}` |
+
+A leg is a child of the host: its `parent_id` is the web agent’s id. The host never hard-codes the leg routes. It asks each child for them.
+
+#### Boot: ask the children, then listen
+
+On `boot`, the host builds its table with the two baked routes. It then sends each child the verb `get_routes`. The reply is plain data, a list of `{kind, method?, path}`. A child that answers no routes mounts nothing.
+
+Only after every child is mounted does the host bind its port. The port never serves a request before the whole table exists. `boot` is idempotent, answers `{running, surfaces}`, and tells the `cli` agent where it listens.
+
+get_routes answered by a web_ws leg:
+
+```
+{"routes": [{"kind": "websocket", "path": "/{host_id}/ws"}]}
+```
+
+*Animation: Boot: ask the children, then listen* (https://aisixteen.com/fantastic/foundations/agents/web/mount.mp4). The web agent starts with its two baked routes, the favicon and the file route. It sends get_routes to its children, a web_ws leg and a web_rest leg, and each answers with the routes it declares (the drawn table shows only some of them). Their paths join the table, with the literal paths before the {host_id} pattern. Only then does the host bind its port and listen (illustrative ids).
+
+The listener binds the record’s `bind` if it has one, else its `host`, else `127.0.0.1`. A bind that fails, for example a port already in use, is logged and not raised, so one bad web agent does not stop the kernel.
+
+#### Which route answers
+
+Matching is first match wins. The host orders its table by the number of `{` in each path, fewest first, and keeps mount order among equals. So a literal path such as `/web_ui/ws` always beats the catch-all `/{host_id}/ws`, whichever leg mounted first.
+
+Children are mounted at boot. A child created later is mounted with `mount {child_id}`, which unmounts that child’s earlier routes first. `unmount {child_id}` removes them. Both answer an error while the host is not running.
+
+#### Two legs, one literal route
+
+Because the first match wins, a second leg declaring the same literal route could never answer. The host refuses it instead of hiding it. A literal route is a path without `{`, and “the same” means the same kind (HTTP or WebSocket), method and path.
+
+the refusal text (illustrative ids):
+
+```
+web: route WS /app/ws declared by ws_b is already declared by ws_a
+```
+
+At `boot` the refusal fails the boot before the listener binds. A later `mount` answers it as `{"error": …}` naming both children.
+
+Patterns are shared on purpose. Two `web_ws` legs may both declare `/{host_id}/ws`. A WebSocket route and an HTTP route on one path, or two methods on one path, never conflict either.
+
+*Animation: Two legs, one literal route* (https://aisixteen.com/fantastic/foundations/agents/web/duplicates.mp4). Leg ws_a declares the literal route /app/ws and is mounted. Leg ws_b declares /{host_id}/ws, a pattern, which is shared and mounts. When leg ws_c also declares /app/ws, the host refuses it with a message naming ws_c and ws_a, and the table keeps the first (illustrative ids).
+
+With two web_ws legs the one mounted first is the first match, so it answers every `/<segment>/ws` upgrade. The segment in the URL is not a leg selector. It names the agent whose events the socket watches, as the WebSocket section shows.
+
+#### The guard in front of every route
+
+Every request passes the origin guard before routing, whatever route it would reach. The guard reads the web record on each request, so changing `host`, `port` or `allowed_origins` applies without a restart.
+
+#### Host check
+
+The `Host` header of every request, GET and WebSocket upgrade included, must be the host’s own authority: `<host>:<port>`. When the host is loopback, `127.0.0.1:<port>`, `localhost:<port>` and `[::1]:<port>` count too. A LAN name, a tunnel name or a container port map is another authority and is refused.
+
+This stops DNS rebinding. A rebinding page sends a same-origin GET with no `Origin` header, so an origin check never sees it, but its `Host` still names the attacker’s domain.
+
+#### Origin check
+
+A WebSocket upgrade, or an HTTP request that is not GET, HEAD or OPTIONS, that carries a browser `Origin` must match the host’s own origin (`http://<host>:<port>`) or an exact string in the record’s `allowed_origins`. A bare string there counts as one origin.
+
+A request with no `Origin`, such as curl, a CLI or a bridge, passes the guard. The leg’s own ingress rule still gates it, as [Security](/fantastic/foundations/protocol/security/#edges) describes.
+
+a refused HTTP request (illustrative origin):
+
+```
+403  {"error": "origin 'https://evil.example' is not allowed on this host",
+      "reason": "unauthorized",
+      "hint": "add it to the web record's allowed_origins"}
+```
+
+A refused WebSocket upgrade is a 403 with no body. Both kinds are logged on the kernel’s output.
+
+*Animation: The guard in front of every route* (https://aisixteen.com/fantastic/foundations/agents/web/guard.mp4). Three requests reach a host bound to localhost:8000. A GET whose Host is evil.example is refused with 403. A POST with a foreign Origin is refused with 403. A POST with no Origin passes the guard and reaches the leg, whose ingress rule still decides (illustrative names).
+
+The binding is separate from the identity. `bind: 0.0.0.0` publishes the listener, for a container, while the guard keeps judging by `host`. A `host` of `0.0.0.0` answers only `Host: 0.0.0.0:<port>`.
+
+#### Serving files: the host reads as itself
+
+The file route turns any agent that answers `read_stream {path, offset, length}` into an HTTP file server. `file_bridge` is the usual one. The host pipes the file in chunks of 256 KiB, so a large file is never held in memory whole. The `Content-Type` comes from the file name’s extension.
+
+A request task runs outside every dispatch, so on its own it would count as the operator. The route does not read as anyone. It sends the web agent `fetch_file {agent_id, path, offset, length}`, and the host sends `read_stream` to the file agent **as itself**.
+
+So the read passes the same [call gate](/fantastic/foundations/protocol/call-gate/) as any send, with all three of these true:
+
+- the web agent’s `can_call` names the file agent (egress);
+- the file agent’s `callable_by` names the web agent (ingress);
+- the file agent’s own leg is open (`ingress_rule`).
+
+If any one is missing, the browser gets a 404. A gate denial (`reason` `unauthorized`) carries a JSON body with `error`, `reason`, `side` and `hint` (`side` is null when the leg itself is sealed), so a person curling the URL learns which half is missing. A missing file, an unknown agent id or an agent that is not a file server is a bare 404 with no body, so the route does not reveal what exists.
+
+*Animation: Serving a file as the web agent* (https://aisixteen.com/fantastic/foundations/agents/web/file.mp4). A browser asks GET /files/file/logo.png. The route sends the web agent fetch_file, and the web agent sends read_stream to the file agent as itself. With can_call and callable_by both granting, 256 KiB chunks stream back as 200. With the file agent’s callable_by empty, the call gate refuses and the browser gets a 404 whose body names the missing side (illustrative ids).
+
+`reflect` on the web agent computes this instead of describing it. Its `browser_reachable` field lists the agent ids a browser could fetch through this host right now, using the real gate and the leg’s resolved ingress rule. The same reply carries `port`, `host`, `allowed_origins`, `running`, `surfaces` (each child with its mounted paths) and the file route’s contract.
+
+#### web_ws: the WebSocket leg
+
+A `web_ws` leg declares `/{host_id}/ws`. It is sealed until you set `ingress_rule`, and an unknown rule name is refused at the write. Who the caller is, the `auth_token` and the `hello` peer are in [Transports](/fantastic/foundations/protocol/transports/#wire-legs).
+
+A client sends these frames: `call`, `emit`, `watch`, `unwatch`, `state_subscribe`, `state_unsubscribe` and `hello`. A binary frame is a 4-byte big-endian length, a JSON envelope and the raw bytes. A `call` is answered with `{"type": "reply", "id": …, "data": …}`. A verb’s error and a gate denial both travel inside `data`. A `type: "error"` frame answers an undecodable frame, and also a `watch` of an unknown agent or a `watch` or `state_subscribe` that the leg refuses; there the refusal’s keys sit on the frame itself, not inside `data`.
+
+The host sends `{"type": "event", "src": …, "payload": …}` for each event of an agent the socket watches. When the socket connects, the host also watches the agent named by the URL segment, but only if the leg admits an unauthenticated `watch`. On a sealed or credentialed leg it does not, so a client that merely completed the handshake receives no events.
+
+An open socket shows in `ps` as the kernel task `ws_drain`, and each call in flight as `ws_call`, both under the URL’s agent ([Tasks](/fantastic/foundations/kernel/tasks/)). The Rust host pings an idle socket every 20 seconds and closes it with 1011 if no pong returns within 20 more. A message, even a fragmented one, is held to the 16 MiB frame cap.
+
+#### web_rest: the REST leg
+
+A `web_rest` leg declares `POST /<leg id>/{target_id}` and two GET shortcuts. The leg’s id sits in the path, so several REST legs under one host do not collide. `GET /<leg id>/_reflect` is a `reflect` of `kernel`, `/_reflect/<target>` reflects that agent, and `?readme=1` adds its readme. They go through the same gate and the same `X-Fantastic-Auth` header as a POST.
+
+a POST (illustrative ids):
+
+```
+curl -X POST -H 'content-type: application/json' \
+  -d '{"type":"reflect"}' http://<host>/<leg id>/<target id>
+```
+
+The body is the payload and must be a JSON object. An empty body is `{}`, and anything else is a 400, for example “web_rest: request body is not valid JSON”. Headers carry what an envelope would: `X-Fantastic-Execution-Id` names the execution, so the same id twice returns the first outcome, and `X-Fantastic-Auth` is the credential. The 16 MiB limit and the 413 are in [Transports](/fantastic/foundations/protocol/transports/#wire-legs).
+
+For raw bytes, send the body with the content type `application/octet-stream`. The JSON part of the payload goes in `X-Fantastic-Payload`, and `X-Fantastic-Bytes-Field` names the key the bytes fill, `bytes` by default. A reply that carries a chunk comes back the same way: the bytes as the body, the rest in `X-Fantastic-Payload`.
+
+Sources: web host: lib.rs (verbs, boot, mount, reflect) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-web/src/lib.rs#L368); routes.rs: the ordered table and the duplicate-route refusal (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-web/src/routes.rs#L185); origin.rs: the Host and Origin guard (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-web/src/origin.rs#L91); handlers.rs: the file route and REST POST (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-web/src/handlers.rs#L166); the web host readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-web/src/readme.md); web_ws readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-web-ws/src/readme.md); web_rest readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-web-rest/src/readme.md); Python web host: mounting and ordering (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/web/host/src/web/tools.py#L86)
+
+### Foundations › Agents › Bridge
+
+URL: https://aisixteen.com/fantastic/foundations/agents/bridge/
+
+The **bridge** is how an agent on one kernel calls an agent on another. There is no agent named `bridge`: the handler is `ws_bridge.tools`, and the agent is a client that dials a WebSocket on the other kernel and sends it plain frames.
+
+This page covers the wire: the record that configures a leg, the frames in each direction, how a forward waits for its reply, and what happens when the link drops. [Transports](/fantastic/foundations/protocol/transports/#bridge) already explains what a `forward` is and who judges it, so this page does not repeat that.
+
+#### Dialing the other kernel
+
+A `ws_bridge` agent reads its target off its own record: `peer_id`, `host` and `port`, with `transport` defaulting to `ws`. The `boot` verb joins them into `ws://<host>:<port>/<peer_id>/ws`, which is the address of a `web_ws` leg on the far kernel. A missing field fails the boot with a message that names it, for example “ws transport requires host (nothing is guessed)”.
+
+The Rust client gives the connection 5 seconds and has no TLS built in, so a `wss://` address fails. The bridge starts no tunnel. If the far kernel is only reachable through ssh, an [`exec_bridge`](/fantastic/foundations/agents/exec-bridge/) job or other tooling opens the tunnel, and the bridge dials its local end.
+
+A successful `boot` starts the **read loop**, a kernel task named `read_loop` that shows in `ps` and can be cancelled, and then emits `bridge_up` on the bridge’s inbox. Booting a bridge that is already connected does nothing and answers `already`.
+
+boot (shape):
+
+```
+{"type": "boot"}
+→ {"booted": true, "transport": "ws"}
+```
+
+#### Raw frames, no peer bridge
+
+The bridge is an asymmetric client. It sends the far `web_ws` the same JSON frames a browser would, and that leg answers them. Nothing runs on the far side except its ordinary `web_ws` leg.
+
+| direction | frame | sent by |
+|---|---|---|
+| out | `{"type": "call", "id", "target", "payload"}` | `forward` |
+| out | `{"type": "watch", "src"}` and `{"type": "unwatch", "src"}` | `watch_remote`, `unwatch_remote` |
+| in | `{"type": "reply", "id", "data"}` | the far leg, settling a call |
+| in | `{"type": "error", "id", "error"}` | the far leg, refusing a call |
+| in | `{"type": "event", "src", "payload"}` | the far leg, for a watched agent |
+
+The bridge never wraps a call in a `forward` envelope. `forward` is only the verb you send to the local bridge; what travels is a `call` frame with the remote `target` and the `payload` to run there. If the leg’s egress rule presents a credential, the bridge writes it as `auth_token` on the frame envelope, and the dispatched payload stays clean.
+
+A frame is a text WebSocket message of JSON, or a binary message of the form `[4B len|header|body]` when it carries raw bytes, such as a `read_stream` chunk. Bytes are never base64-encoded. A frame that does not decode, or decodes to something other than an object, is skipped with a warning on stderr and the reader keeps going. A frame of an unknown `type` is ignored.
+
+*Animation: A forward becomes a call frame* (https://aisixteen.com/fantastic/foundations/agents/bridge/frames.mp4). On kernel A, a local agent sends the bridge a `forward` with target src and a payload. The bridge writes a call frame with an illustrative id, br-ab12-1, and ships it to the web_ws leg of kernel B. A reply frame with the same id returns, and the bridge returns the data unwrapped to the caller. A second forward, br-ab12-2, gets an error frame, which comes back as “remote error: …”.
+
+#### One forward, start to finish
+
+Each `forward` takes the next frame id. The id is `<bridge id>-<nonce>-<n>`: the bridge’s own id, 12 hex characters minted at each boot, and a counter that starts at 1 under that nonce. A dash joins the parts because `<agent>:<hex>` is the kernel’s own namespace for minted execution ids.
+
+The id does a second job. The receiver uses a frame id as the name of the execution, so a second frame with an id it has already settled joins that execution and never runs. The nonce prevents this after a restart: the new boot’s `…-1` cannot collide with the old boot’s.
+
+The bridge records the id in a pending table, sends the frame and waits. A `reply` frame with the same id resolves the forward, and the caller receives `data` unwrapped. An `error` frame resolves it as `{"error": "remote error: …"}`.
+
+#### How a forward fails
+
+The wait lasts 30 seconds unless the item sets `forward_timeout`. The field is not called `timeout`, because that is a call’s own routing field. Each of these local failures comes back as an `error` result with a `bridge.forward:` prefix. An `error` frame from the remote side returns `remote error: …` without that prefix.
+
+| when | result |
+|---|---|
+| no live socket | refused: “bridge.forward: not connected”, with the hint “call boot first” |
+| the socket rejects the write | `bridge.forward: send failed: …` |
+| no reply within `forward_timeout` | `bridge.forward: timeout after 30s` |
+| the link drops while waiting | `bridge.forward: bridge transport closed` |
+
+Large messages have a limit. A frame and a whole WebSocket message are each at most 16 MiB on the dialled socket, in Rust and in Python, and a message over the limit ends the socket.
+
+#### Watching a remote agent
+
+`watch_remote {target}` sends a `watch` frame for one agent on the far kernel and adds that name to the leg’s watch list. The far leg then sends `event` frames that carry the agent’s name as `src`.
+
+The bridge re-emits an event on its own inbox, as the payload plus `src`, only when `src` is on the watch list. An event for anything else is dropped, and `unwatch_remote` takes the name off the list. A local agent that wants those events watches the bridge with `kernel.watch(<bridge id>, …)`.
+
+*Animation: Watching a remote agent* (https://aisixteen.com/fantastic/foundations/agents/bridge/watch.mp4). The bridge sends a watch frame for the remote agent src1 and adds it to its watch list. An event frame with src src1 arrives and is re-emitted on the bridge’s inbox as the payload plus src. An event frame for src2, which is not on the list, is dropped. Ids are illustrative.
+
+#### A leg’s lifetime
+
+When the read loop ends, because the peer closed or the socket failed, the bridge emits `bridge_down` once for that boot. It fails every forward still waiting, and it cancels any inbound call still being served. `reflect` then reports `connected: false`.
+
+The bridge does not reconnect on its own. `reconnect` is an explicit verb that shuts the leg down and boots it again, so a real network problem stays visible instead of being retried silently. A fresh boot mints a new nonce, so the ids it sends start again under a new prefix.
+
+The leg’s rules are read from its record on every frame. Sealing or opening a live leg with `update_agent` takes effect on the next frame, with no reboot, as [Security](/fantastic/foundations/protocol/security/) describes for every edge. `reflect` shows `connected`, `pending_count` and the rules.
+
+*Animation: A leg’s lifetime* (https://aisixteen.com/fantastic/foundations/agents/bridge/lifetime.mp4). boot dials the peer and emits bridge_up. A forward, br-ab12-1, is waiting when the peer drops. The bridge emits bridge_down once and the forward fails with “bridge transport closed”. Nothing redials by itself. reconnect boots again with a new nonce, so the next forward is br-cd34-1. Ids are illustrative.
+
+Rust and Python run the same design. Python’s engine lives in `io_bridge` and `ws_bridge` only adds the WebSocket transport; Rust keeps both in one crate that also registers `relay_connector.tools`.
+
+Sources: the bridge crate: verbs, frames, forward and the read loop (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-bridge/src/lib.rs#L1); ws_bridge readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-bridge/src/readme_ws.md); the WebSocket client transport (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-bridge/src/transport/ws.rs#L1); the 16 MiB message cap (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-bridge/src/transport/mod.rs#L32); Python ws_bridge: the transport builder (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/io/ws_bridge/src/ws_bridge/_ws.py#L99); Python io_bridge engine: forward and read loop (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/io/io_bridge/src/io_bridge/_engine.py#L441); the far side’s frame loop (web_ws) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-web/src/ws.rs#L1)
+
+### Foundations › Agents › Scheduler
+
+URL: https://aisixteen.com/fantastic/foundations/agents/scheduler/
+
+The **scheduler** is an agent that repeats a send. You give it a target, a payload and an interval in seconds; it sends that payload to that target every interval, and keeps a record of each fire.
+
+This page follows one schedule: how it is added, how a fire goes out, and when the loop wakes. The Rust and Python runtimes answer the same verbs in the same way. Its schedules persist as described in [State and persistence](/fantastic/foundations/kernel/state/).
+
+#### A schedule is a record with an interval
+
+The scheduler’s `handler_module` is `scheduler.tools`. Its verbs are `schedule`, `unschedule`, `list`, `pause`, `resume`, `tick_now` and `history`, plus `reflect` and `boot`. Any other verb is refused as unhandled (see [Refusals](/fantastic/foundations/protocol/refusals/)). The kernel sends `boot` to a new agent when it creates it, and `boot` starts the fire loop; a second `boot` changes nothing.
+
+`schedule` takes a `target`, a `payload` and an `interval_seconds`. The payload is the call itself: any verb the target answers, with its arguments. It must carry a `type`. The interval defaults to 60 and must be an integer of at least 1. An optional `fire_timeout` is a positive number of seconds that bounds each fire. Without it a fire waits forever; the kernel does not default it.
+
+schedule (illustrative ids):
+
+```
+{"type": "schedule", "target": "monitor",
+ "payload": {"type": "reflect"}, "interval_seconds": 30}
+→ {"schedule_id": "sch_a1b2c3", "schedule": {…}}
+```
+
+The scheduler stores a record: `id` (`sch_` and six hex digits), `target`, `payload`, `interval_seconds`, `created_at`, `next_run` (now plus the interval), `run_count` (0) and `paused` (false), and `fire_timeout` if you gave one. The first fire comes one interval after you add the schedule, not at once.
+
+A missing `target` or a payload without a `type` is refused with an error. A value that is present but wrong is refused as `bad_arg`: `interval_seconds: "60"`, `true` or a float, and a `fire_timeout` that is not a positive number. The scheduler does not guess what the caller meant.
+
+*Animation: Add a schedule* (https://aisixteen.com/fantastic/foundations/agents/scheduler/add.mp4). A caller sends schedule with target monitor, a reflect payload and interval_seconds 30. The scheduler stores a record with next_run set to now plus 30 and run_count 0, and answers the schedule_id. A second send with interval_seconds "60" is refused as bad_arg.
+
+There is no verb that changes an interval. To change a cadence, `unschedule {schedule_id}` and `schedule` again. If the record cannot be saved, `schedule` answers an error and keeps no schedule.
+
+#### A fire goes out as the scheduler
+
+When a schedule is due, the loop first counts the fire: it adds 1 to `run_count`, sets `next_run` to now plus `interval_seconds`, and saves the schedules. Only then does it send. A crash during the send therefore cannot repeat the same tick after a restart. The next fire counts from the tick, so a late tick does not bring a burst of catch-up fires.
+
+Every schedule that is due in the same tick goes out in one batch send, and the items run concurrently, so one slow target does not hold back the others. A schedule’s `fire_timeout` becomes the `timeout` of its item.
+
+The send is the scheduler’s own: the loop is a task that the scheduler’s `boot` spawned, named `tick_loop`, so it shows in `ps` and `cancel` can stop it (see [Tasks and waiting](/fantastic/foundations/kernel/tasks/)). The [call gate](/fantastic/foundations/protocol/call-gate/) judges every fire as any other send from the scheduler: the scheduler’s `can_call` must name the target, and the target’s `callable_by` must name the scheduler. Without both grants each fire is refused, and the refusal lands in the history.
+
+the grants a fire needs (illustrative ids):
+
+```
+scheduler.can_call     {"monitor": ["reflect"]}
+monitor.callable_by    {"scheduler": ["reflect"]}
+```
+
+After the send, the scheduler records one `schedule_fired` event per fire. It holds `schedule_id`, `scheduler_id`, `target`, `payload`, `result`, `error`, `ts` and `duration_ms`. `result` is the target’s reply when the fire completed. Otherwise `result` is null and `error` is the outcome’s status and its detail. `duration_ms` times the whole batch, so schedules fired together share it.
+
+The event goes to the scheduler’s own inbox and is appended to its history. It does not go to the target. The target gets the payload and nothing else, once per tick. The `history` verb returns at most the newest 500 fires of all the scheduler’s schedules; the history file itself is trimmed back to 500 once it passes 1000.
+
+*Animation: A fire goes out as the scheduler* (https://aisixteen.com/fantastic/foundations/agents/scheduler/fire.mp4). The schedule is due. The loop adds 1 to run_count, sets next_run and saves, then sends the payload to monitor as the scheduler; the gate checks the scheduler’s can_call and monitor’s callable_by. monitor receives the payload once. The schedule_fired event, with the result, goes to the scheduler’s own inbox and its history.
+
+#### Sleeping until the next fire
+
+The loop has no fixed tick. It fires what is due, then sleeps until the earliest `next_run` of any unpaused schedule. A schedule at 5 seconds and one at 10 minutes share one scheduler, and an idle scheduler does not wake at all.
+
+Something wakes the loop early whenever it changes the answer: a schedule is added, removed, paused or resumed, or the scheduler’s own record is updated. Then the loop works out the next fire again.
+
+There are two kinds of pause. `pause {schedule_id}` stops one schedule and keeps its old `next_run`. On `resume {schedule_id}`, if that time has already passed, the schedule is due at once: it fires once and then goes back to its interval. If it has not passed, the schedule waits for the remaining time. `pause` with no id sets `paused` on the scheduler’s own record, and the loop waits until `resume`.
+
+| verb | what it does |
+|---|---|
+| `unschedule {schedule_id}` | removes the schedule; answers `{removed, schedule_id}` |
+| `list` | every schedule record |
+| `tick_now {schedule_id}` | counts and fires that schedule now, as the scheduler; leaves `next_run` alone; answers `{fired, schedule_id, result, error}` |
+| `history {limit?, schedule_id?}` | the newest `limit` fires (1 to 500, default 100) of all schedules, then filtered by `schedule_id` |
+
+`tick_now` answers with the fire’s outcome, not only the fact that it fired. A target that refuses every fire, because the payload’s verb does not exist there, shows up at once in the `error` field. The scheduler gives its verbs to every caller the gate admits: such a caller sees, ticks, pauses and removes every schedule, and reads all the history.
+
+*Animation: Sleeping until the next fire* (https://aisixteen.com/fantastic/foundations/agents/scheduler/wake.mp4). Two schedules, one every 5 seconds and one every 600, share one scheduler. The loop sleeps until the earlier next_run, fires it and sleeps again. Pausing a schedule takes it out of the wait; resuming it fires it at once only if its old next_run has passed. An idle scheduler sleeps with no wakeups.
+
+#### What a schedule can send
+
+A payload is any verb the target answers. `{"type": "send", "text": "…"}` wakes an AI agent with that text. An [exec bridge](/fantastic/foundations/agents/exec-bridge/) `start` runs a one-shot check job on a timer, which suits a source that does not push.
+
+Deleting the scheduler agent (or shutting it down) stops its loop and drops its cached schedules, so an agent created later with the same id does not inherit them.
+
+Sources: scheduler readme (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-scheduler/src/readme.md#L1); scheduler (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-scheduler/src/lib.rs#L530); scheduler (Python, canonical) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/scheduler/src/scheduler/tools.py#L208); the fire: batch send and the schedule_fired event (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/scheduler/src/scheduler/tools.py#L260); the schedule verb (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/scheduler/src/scheduler/tools.py#L348); the scheduler crate (https://github.com/aisixteen/fantastic/tree/main/src/lib/rust/crates/bundles/fantastic-scheduler)
+
+### Foundations › Agents › Program agents
+
+URL: https://aisixteen.com/fantastic/foundations/agents/program-agents/
+
+A **program agent** is an ordinary agent whose handler is a process. The kernel starts the process, forwards each verb to it as a message, and returns what it answers. To a caller it is an agent like any other; nothing in the call tells the two apart.
+
+The base that does this is `py_agent`. How a folder with a `bundle.yaml` becomes a bundle is on [Bundles](/fantastic/foundations/kernel/bundles/#folder-bundles). This page is about the running program: what it sees, what it can do, and how it ends.
+
+#### Start and hello
+
+Each instance of a folder bundle starts its program on `boot`. The command from `bundle.yaml` runs with the bundle folder as its working directory. Starting again while the program runs does nothing.
+
+The program gets only the environment that its record names in `inherit_env` (a list of variable names, or `"*"`), plus two variables the kernel sets: `FANTASTIC_CTRL_FD`, a socket the child inherits, and `FANTASTIC_SELF_ID`, the id of its agent. The record is the `record` defaults from `bundle.yaml`, overlaid by the instance’s own record. A bare command such as `python3` has no `PATH` to be found in, so the start is refused with `missing_arg` and the hint `bundle.yaml record: {inherit_env: [PATH]} (or an absolute command)`.
+
+The first thing the program writes on that socket is `{"op": "hello", "verbs": [...]}`. The verbs must equal the `verbs` of `bundle.yaml`. If they do, the instance becomes `running` and emits `{"type": "status", "phase": "running"}`. If they do not, the kernel kills the program and the instance stops with the reason in `reflect`.
+
+the reason a mismatch leaves (illustrative verbs):
+
+```
+<name>: the program serves ['echo'] but bundle.yaml declares ['echo', 'shout'] — they must match
+```
+
+A call that arrives before `hello` waits for it. If the program never says hello, the caller’s own timeout is what ends the wait.
+
+*Animation: hello: the program names its verbs* (https://aisixteen.com/fantastic/foundations/agents/program-agents/hello.mp4). The kernel starts the program for agent tool with FANTASTIC_CTRL_FD. The program writes hello with [echo]. They match bundle.yaml, so the instance is running. A second program writes hello with [echo, shout] against a bundle that declares only echo, and the instance stops with “they must match”.
+
+#### The wire
+
+The socket is the same connector channel that [Exec bridge](/fantastic/foundations/agents/exec-bridge/) offers to the programs it runs, and `py_agent` reuses its relay. Each frame is a 4-byte big-endian length, one byte for the kind, then the body. Kind `T` is a UTF-8 JSON message. Kind `B` carries raw bytes next to a JSON header, so binary data is never base64.
+
+A `py_agent` program uses three messages of its own, `hello`, `call` and `result`, and from the connector `send` (with its `reply`) and `emit`:
+
+| direction | message | meaning |
+|---|---|---|
+| program → kernel | `{op: "hello", verbs}` | first; the verbs it serves |
+| kernel → program | `{op: "call", rid, payload}` | one verb call; `payload` is the whole send payload, `type` included |
+| program → kernel | `{op: "result", rid, result}` | the answer to the call with that `rid` |
+| program → kernel | `{op: "send", rid, target, payload}` | call another agent; the answer comes back as `{op: "reply", rid, data}` |
+| program → kernel | `{op: "emit", payload}` | an event on the program’s own agent |
+
+The `rid` is a counter per instance; it pairs a result with its call. The connector has more ops (`watch`, `onmessage`); a plain `py_agent` program needs none of them.
+
+#### The program’s side: fantastic_agent.py
+
+The repository carries a reference helper, `fantastic_agent.py`, that speaks this wire. It uses only the Python standard library, and a program copies it next to its own file. It is a convenience: any language that can read and write the socket can do the same.
+
+a program (shape):
+
+```
+import fantastic_agent as fa
+
+def search(p):                 # p = {"type": "search", ...}
+    return {"hits": [...]}
+
+fa.serve({"search": search})   # hello, then answer calls
+```
+
+`fa.serve(handlers)` sends `hello` with the sorted verb names, then reads frames. Each `call` is queued for a worker thread, which runs `handlers[type](payload)` and writes the return value as the `result`. Calls run one at a time, in order. A handler returns a plain object: an answer, or a refusal shaped `{"error", "reason"?, "hint"?}`. A refusal is data, so it reaches the caller unchanged ([Refusals](/fantastic/foundations/protocol/refusals/)).
+
+If a handler raises, the helper prints the traceback to stderr and answers `{"error": "<verb> raised <ExceptionName>: <message>"}`. The program keeps running. When the kernel closes the socket, the helper exits the process.
+
+*Animation: A call, a result, a raise* (https://aisixteen.com/fantastic/foundations/agents/program-agents/call.mp4). A caller sends {type: echo} to tool. The kernel forwards call rid 1 with the whole payload. The handler returns {echo: "hi"}, which goes back as result rid 1, and the caller receives it. A handler that raises answers {error: "echo raised ValueError"} and the program keeps running.
+
+#### Calling out and emitting
+
+`fa.send(target, payload)` writes a `send` message and waits for the `reply`. The kernel makes one ordinary [send](/fantastic/foundations/protocol/messages/) on the program’s behalf, as the program’s agent. That agent’s `can_call` and the target’s `callable_by` decide whether it goes through ([the call gate](/fantastic/foundations/protocol/call-gate/)). A program holds exactly the reach of its agent, and you grant that agent.
+
+Because calls run on a worker thread while the main thread keeps reading, a handler may call `fa.send` and still receive the reply. A program can therefore ask another agent for something in the middle of answering its own caller.
+
+`fa.emit(payload)` writes an `emit` message. The payload becomes an event in the inbox of the program’s agent, where anything that watches the agent sees it. It is how a program reports progress while a call is still open.
+
+*Animation: send and emit from inside a handler* (https://aisixteen.com/fantastic/foundations/agents/program-agents/out.mp4). While answering call rid 2, the handler writes send to agent store. The kernel sends it as tool, checks the gate, and returns reply rid 1 with the data. The handler then writes emit progress, which a watcher of tool sees, and finishes with result rid 2.
+
+The program is still a process with the user’s OS rights. What it does with its own files, subprocesses and network never passes a gate; only the verbs that reach it, and the sends it makes through the socket, do. [Security](/fantastic/foundations/protocol/security/) draws that line.
+
+#### How a program stops
+
+A program stops when its agent is deleted, when the kernel stops, when the instance receives `shutdown` (a reload sends it), when one of the program’s tasks is cancelled ([Tasks](/fantastic/foundations/kernel/tasks/)), when `hello` mismatches, or when the process exits on its own. Unless it exited, the kernel kills the program’s whole session.
+
+Whatever the cause, every call in flight settles at once as `transport_closed` with the reason as its message. Later calls get the same refusal with a hint: `fix the bundle, then the root’s reload_bundle restarts it`. Nothing respawns the process.
+
+a call to a stopped program (fields, not exact text):
+
+```
+{"error": "…", "reason": "transport_closed", "hint": "fix the bundle, then the root’s reload_bundle restarts it"}
+```
+
+When the process exits by itself, the reason is `<id>: its program exited (code N)`. `exit_code` is kept, and the instance emits `{"type": "status", "phase": "stopped", "reason": "exited", "code": N}`. The kernel reads stdout and stderr so that a chatty program never blocks on a full pipe, and it keeps the last 2000 characters of stderr.
+
+`reflect` on an instance shows the state: `id`, `sentence`, `base`, `bundle`, `folder`, `program` (`not started`, `starting`, `running` or `stopped`) and `security`. When they exist it adds `exit_code`, `program_error` (the stop reason) and `stderr_tail`, which is usually where a crash’s traceback is.
+
+*Animation: When the process stops* (https://aisixteen.com/fantastic/foundations/agents/program-agents/stop.mp4). A call rid 3 is in flight. The program exits with code 1. The in-flight call settles as transport_closed with “its program exited (code 1)”, the instance emits status stopped, and the next call is refused with the hint to use reload_bundle. Nothing respawns.
+
+#### Rust and Python
+
+The Rust crate describes itself as the Python `py_agent.tools`, “text for text”, and the two runtimes follow the same protocol, refusals and `reflect` fields. One small difference: Rust also compares the number of verbs in `hello`, so a verb listed twice fails, while Python compares them as sets. The Rust crate registers only in a build with the `full` feature ([Bundles](/fantastic/foundations/kernel/bundles/)).
+
+Sources: py_agent in Rust: start, hello, call, stop (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-py-agent/src/lib.rs#L280); py_agent in Python: _start, _hello, _call, _stop (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/io/py_agent/src/py_agent/tools.py#L194); fantastic_agent.py: serve, send, emit (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/io/py_agent/src/py_agent/fantastic_agent.py#L74); the relay: send and emit ops (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-exec-bridge/src/relay.rs#L394); the child’s environment and fds (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-exec-bridge/src/spawn.rs#L91); tests: verbs, mismatch, exit, delete, cancel (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-py-agent/src/tests.rs#L123)
+
+### Foundations › Agents › Static loader
+
+URL: https://aisixteen.com/fantastic/foundations/agents/static-loader/
+
+The **static loader** is an agent that builds a fixed set of agents from a YAML file. The file is a **manifest**, usually `fantastic.yaml`, and the loader reads it once, when the kernel boots it. Rust and Python do the same thing.
+
+This page covers the manifest, how its entries become agents, what a reboot does with them and what the loader refuses. How `create_agent` and boot work is in [Lifecycle](/fantastic/foundations/kernel/lifecycle/); the record each agent gets is in [Agents as records](/fantastic/foundations/kernel/records/).
+
+#### The manifest and the loader record
+
+The loader is an ordinary agent with `handler_module` `static_loader.tools`. Its record has one field of its own, `manifest`, the path of the YAML file. A `manifest` that is present must be a non-empty string; anything else is refused when the record is written. Whether the file exists is only checked at boot.
+
+The command `fantastic init static_loader ./fantastic.yaml` creates this agent. It sends `create_agent` to the root with the loader’s `id` set to the bundle name, `parent_id` set to the root and the `manifest` field. `create_agent` boots the new loader, and that boot hydrates the roster.
+
+The file is a mapping with an `agents` list. Each entry is the payload of a `create_agent`, minus the parent: a `handler_module`, an `id`, and any other fields the bundle takes.
+
+a manifest (illustrative ids):
+
+```
+agents:
+  - id: memory
+    handler_module: file_bridge.tools
+  - id: worker
+    handler_module: exec_bridge.tools
+    allowed: ['python3 .*']
+    can_call: {memory: [set, read]}
+```
+
+The loader reads the file from the kernel’s running directory and cannot leave it. The kernel itself never parses YAML; this bundle owns the format. A file that is empty, or has no `agents` key, declares no agents. A document that is not a mapping, or an `agents` that is not a list, makes `boot` fail with an error.
+
+The loader answers two verbs. `reflect` returns its `id`, the sentence “declarative YAML roster loader”, `loader: true` and the `manifest` path. `boot` hydrates the roster.
+
+#### Boot: each entry becomes a child
+
+For each entry in order, `boot` checks that it names a `handler_module` and an explicit `id`. Then it calls `create_agent` on the root with the entry’s fields and `parent_id` set to the loader. The declared agent is therefore a child of the loader, and the child boots inside `create_agent`.
+
+The loader does not send these calls through the [call gate](/fantastic/foundations/protocol/call-gate/). It calls the root’s `create_agent` and `update_agent` directly, as kernel bookkeeping, so the loader needs no grant on the root and holds no standing power over it. The `parent_id` is set after the entry’s fields, so an entry that names another parent still lands under the loader.
+
+Every created agent has the baseline grant `{"$self": "*"}` on both `can_call` and `callable_by`. A `can_call` or `callable_by` in the manifest is merged on top. Nothing else is granted: an edge between two roster agents needs both halves written in the manifest.
+
+*Animation: Boot: each entry becomes a child* (https://aisixteen.com/fantastic/foundations/agents/static-loader/hydrate.mp4). The static_loader reads fantastic.yaml, which lists memory and worker. It creates memory first, then worker, each as its own child with the baseline $self grant, and worker’s can_call names memory. The reply lists both ids under created.
+
+The reply lists what happened: `{"booted": true, "created": [...], "reapplied": [...]}`. Any failure while reading the manifest or applying an entry returns `{"error": "...", "booted": false}` and stops. Entries before the failing one are already applied, and the rest are not read.
+
+#### Reboot: the manifest is the truth
+
+The kernel persists the roster agents like any others. On the next start the loader boots again and finds some of the declared ids already in the tree. It does not skip them and it does not duplicate them. It re-applies the entry with `update_agent`: every declared field except `id`, `handler_module` and `parent_id` is written over the persisted record.
+
+Editing a grant in the YAML therefore changes the agent on the next boot, and the persisted record never wins over the file. These ids are listed under `reapplied`; the new ones are listed under `created`.
+
+`update_agent` replaces a named field whole, and a bare `can_call` would delete the `$self` baseline. The loader merges the declared `can_call` and `callable_by` over the baseline first, as `create_agent` does, so `$self` survives.
+
+*Animation: Reboot: the manifest is re-applied* (https://aisixteen.com/fantastic/foundations/agents/static-loader/reapply.mp4). After a restart memory and worker already exist. The loader re-applies each entry with update_agent instead of creating it again, and merges the declared can_call over the $self baseline. The reply lists both ids under reapplied. Had the file changed worker’s handler_module, the boot would fail instead.
+
+One field cannot change. A `handler_module` is fixed when the agent is created, because the running agent’s state belongs to the old bundle. If the manifest declares a different `handler_module` for an id that already exists, `boot` fails with “a handler_module is fixed at create; delete the agent to re-declare it”.
+
+This is also why every entry needs an explicit `id`. The roster is matched by id, so an entry without one could never match the agent the last boot made. Each restart would create another agent and persist it. The loader refuses the entry instead.
+
+#### What the loader refuses, and why the roster is closed
+
+The loader hydrates only on the kernel’s own boot: the cold start, or the `create_agent` that makes the loader. A `boot` sent by an agent is refused with `reason: "unauthorized"` before the manifest is read. The reason is that hydration is ungated. Any agent that could reach the loader could otherwise restore a grant the operator revoked or recreate an agent the operator deleted.
+
+the refusal text:
+
+```
+static_loader: an agent-sent boot is refused — hydrating the roster is the kernel's own bookkeeping, so only the kernel's own boot (cold boot, create_agent) runs it
+```
+
+The hint says to change an agent’s record with `update_agent`, and that the operator re-boots the loader. [Refusals](/fantastic/foundations/protocol/refusals/) describes the shape.
+
+After boot, the roster agents are deny-all like any other agent. One creates agents only if it is granted `create_agent` on the root, at both ends. The manifest does not grant that, so the set of agents is fixed by the file. The closure comes from the default rule.
+
+*Animation: An agent-sent boot is refused* (https://aisixteen.com/fantastic/foundations/agents/static-loader/closed.mp4). An agent that has been granted boot on the static_loader sends it, and the loader refuses with reason unauthorized before the manifest is read, even though the gate allows the call. Then worker tries create_agent on the root and is refused too, because deny-all grants it nothing. The roster stays what the file declared.
+
+Sources: lib.rs: the static loader bundle (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-static-loader/src/lib.rs#L120); lib.rs: reading and checking the manifest (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-static-loader/src/lib.rs#L68); readme.md: manifest and init (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-static-loader/src/readme.md#L1); tools.py: the Python loader, boot and re-apply (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/loader/static_loader/src/static_loader/tools.py#L102); tools.py: _load_manifest and validate_meta (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/loader/static_loader/src/static_loader/tools.py#L65); main.rs: the init command (Rust CLI) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-cli/src/main.rs#L472); dispatch.py: the init command (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/modes/dispatch.py#L100)
+
+### Foundations › Agents › Agentic resources and tasks
+
+URL: https://aisixteen.com/fantastic/foundations/agents/agentic-resources/
+
+Two bundles let a lead agent grow a team and keep track of its work. `agentic_resources` holds **role cards** and creates agents from them with `spawn`, under limits. `task_registry` records which agent, or which subtree, holds each task.
+
+Neither bundle is on by default. This page covers how to turn them on, what a card is, how `spawn` counts and caps agents, how a worker reports, and how tasks are added, assigned and reassigned. The Rust and Python runtimes implement the same verbs.
+
+#### Off until the host turns them on
+
+A Rust host registers `agentic_resources` only when the environment variable `FANTASTIC_AGENTIC_RESOURCES` is truthy, and `task_registry` only when `FANTASTIC_TASK_REGISTRY` is. Truthy means `1`, `true`, `yes` or `on`, in any case. A Python host resolves the two modules under the same variables; with the variable unset, a create of the module is an unknown handler.
+
+A second switch is in the record. An `agentic_resources` agent with no `role_dirs` refuses every verb except `reflect`, with `{"error": "agentic_resources is disabled"}`. A `task_registry` agent with no `task_store_id` does the same, with the error `disabled`. `reflect` still answers, and reports `enabled: false`.
+
+#### Role cards
+
+A **role card** is one `*.md` file. A `---` header holds `name`, `purpose`, `tier` and `grants`. The text after the header is the directive, and it becomes the new agent’s system prompt. A role is any kind of agent, not only a code agent.
+
+- `tier` is a key, never a model. The registry’s own `tiers` map, `{tier: backend fields}`, turns the key into the fields of the new agent. A key that is not in the map is refused with `unknown_tier`; a tier with no `handler_module` is refused with `bad_tier`.
+- `grants` is the child’s `can_call`. The key `$registry` stands for the registry itself, and every child also gets `report` on it.
+- `name`, `purpose` and `tier` are required. A card whose `grants` is not a map of `"*"` or verb lists is rejected.
+
+The registry reads the folders in its `role_dirs` on every call, so adding a file adds a role. `roles` lists each card’s `name` and `purpose`, plus an `errors` list. A bad card is named there and skipped. `role {name}` returns one whole card, and an unknown name is `not_found`.
+
+A generic `project_lead` card ships with the bundle, and `roles` always lists it. A card of the same name in a folder replaces it. A second folder card with a name already read is refused as a duplicate.
+
+*Animation: A role card becomes an agent* (https://aisixteen.com/fantastic/foundations/agents/agentic-resources/cards.mp4). The card reviewer names tier fast and grants report on the registry. The registry’s tiers map turns fast into backend fields. lead sends spawn {role: "reviewer"}, and reviewer-1 appears as lead’s child, with pause, resume and stop granted to lead.
+
+#### Spawn
+
+`spawn {role, task?, name?, limits?}` creates an agent from the card and makes it a child of the caller. An operator spawn has no caller, so the child sits under the registry. The new record carries `spawned_by`, the registry’s id, and `role`. These two fields are how the registry finds its agents later.
+
+The caller gets `pause`, `resume` and `stop` on the child. The grant is written on both ends: into the child’s `callable_by` and into the caller’s `can_call`. A lead therefore controls its own subtree without anyone writing grants by hand.
+
+A `task` that is a string is sent to the child as its first message. The registry sends it detached, so `spawn` answers at once and does not wait for the child’s turn. Any other `task` is `bad_arg`. The reply is `{id, role, tier}`.
+
+The card’s grants on tools are written on both ends of each edge, and a spawn never hands out more than the spawner holds. [Call gate and grants](/fantastic/foundations/protocol/call-gate/#spawn) covers that check, `not_allowed` and `grant_failed`. [Forking and marks](/fantastic/foundations/agents/ai-agent/forking/) covers `spawn` with `from`, which branches the new agent off an existing one.
+
+#### Limits count every agent
+
+The registry’s `limits` are `{total?, per_role?: {role: n}}`. `set_limit {role?, max}` writes them to the registry’s record. Without `role` it caps all spawned agents together; with `role` it caps that role. `max: null` clears the cap, and `max` must be a non-negative integer.
+
+limits in the registry record (illustrative):
+
+```
+{"total": 5, "per_role": {"worker": 3}}
+```
+
+Nothing is counted in memory. Every spawned agent carries `spawned_by` and `role`, so `get_count {role?}` scans the records and returns `{running, max}`. `running` counts **every** agent this registry spawned that still exists, whatever it is doing. `max` is `null` when there is no cap. Because the count is read off the records, a delete lowers it and a restart rebuilds it.
+
+A slot frees only on `delete_agent`. A worker that reports `done` still holds its slot. `fleet` lists the same agents, grouped by role, as `{roles: {role: [{id}]}}`.
+
+At the start of a `spawn` the registry checks the role cap, then the total. A spawn at the cap is refused and creates nothing:
+
+the refusal (illustrative values):
+
+```
+{"error": "limit", "scope": "total", "role": "worker", "running": 2, "max": 2,
+ "reason": "all roles together are at the limit (2 running, max 2)"}
+```
+
+`scope` is `role` or `total` for the registry’s caps; `running` and `max` give the count and the cap that stopped the spawn. [Refusals](/fantastic/foundations/protocol/refusals/) covers the shape refusals share.
+
+*Animation: Limits count every agent* (https://aisixteen.com/fantastic/foundations/agents/agentic-resources/limits.mp4). The total limit is 2. Two spawns create w1 and w2. A third spawn is refused with limit, scope total, 2 running, max 2. w1 reports done, and the third spawn is still refused. After delete_agent on w1, the count drops to 1 and the spawn creates w3.
+
+#### Handing a quota to a sub-lead
+
+`spawn` takes `limits: {total?, per_role?}`. The registry stores it on the child’s record, and it is the child’s own subtree cap. A sub-lead can then spawn only inside what it was given.
+
+A lead’s **subtree** is every spawned agent below it in the tree, plus any agent whose `lead` field names it. A fork spawned `from` another agent sits beside its source, and `lead` keeps it in the right quota. For the caller and every ancestor that the registry spawned and that has `limits`, `spawn` checks the subtree total (`subtree_total`) and the subtree’s per-role count (`subtree_role`). In a delegated quota `per_role` is one number that applies to each role.
+
+A caller cannot hand on more than it has left. When a spawned lead asks for `total`, the request must fit its cap, minus what its subtree already uses, minus one slot for the sub-lead itself. A larger request is refused with scope `request`. A `per_role` request cannot exceed the lead’s own `per_role`.
+
+#### Report, and no cleanup
+
+A spawned agent tells its parent with `report {state, result?}`, when that parent is not the registry itself. `state` is one of `waiting`, `running`, `blocked`, `done`, `failed` and `paused`. The parent, if it is not the registry, receives a message `{type: "report", from, state, result}`. The reply is `{ok: true}` either way, and nothing is stored on any record. A child spawned by an operator sits directly under the registry, so no one receives its message. Any other caller is refused with `not_spawned`.
+
+The registry never cleans up. A `report` of `done` retires nothing and deletes nothing. `delete_agent` ([Lifecycle](/fantastic/foundations/kernel/lifecycle/)) is the only way out, and it is the only thing that frees a slot.
+
+#### The task registry
+
+`task_registry` keeps the **task tree** of a team: which agent, or which subtree, holds each task, and where the task came from. It makes no outbound call. `source` and `update_to` are opaque strings such as `gh:owner/repo#12`. An agent reads them to see where a task came from and pushes updates itself, through that source’s own agent. Nothing is synced automatically.
+
+This is not the kernel’s task table. The registry’s tasks are records of work. [Tasks and waiting](/fantastic/foundations/kernel/tasks/) covers `ps`, `cancel` and `await_set`, which track running jobs in the kernel. The registry holds the task tree.
+
+An entry has `id`, `parent`, `source`, `update_to`, `holder`, `history`, `status`, `report`, `versions`, `source_version`, `fork_from` and `usage`. `parent` is another task id or `null`. `status` is one of the six states, and defaults to `waiting`.
+
+The `holder` is an agent id, `{subtree: <root agent id>}`, or `null`. It must name an existing agent.
+
+- `add {id, source, parent?, update_to?, holder?, status?}` creates a task. A taken id is `exists`, and an unknown parent or holder is `not_found`. `update_to` defaults to `source`.
+- `assign {id, holder}` gives a task nobody holds to a holder. A task that is already held is refused `already_held`.
+- `reassign {id, holder}` moves a held task. A task nobody holds is refused `not_held`. A move from agent to agent, agent to subtree and subtree to agent are all allowed.
+- `status {id, status}` changes the state; it can also set `versions`, `source_version` and `fork_from`, and then `status` may be left out. `report {id, from?, state?, result?, usage?}` records the last report on the task. `list` and `get` read tasks; `get` also returns the ids of the task’s children.
+
+Every change of holder, including the one given at `add`, appends `{from, to, by, at}` to `history`. `by` is the caller, or `null` for the operator. The history is the audit of who held the task and when.
+
+one history step (illustrative values):
+
+```
+{"from": "lead-a", "to": {"subtree": "team-b"}, "by": "lead-a", "at": 1.7e9}
+```
+
+*Animation: Who holds the task* (https://aisixteen.com/fantastic/foundations/agents/agentic-resources/tasks.mp4). add creates t1 with source gh:o/r#12 and no holder. assign gives it to lead-a, and a second assign is refused with already_held. reassign moves it to the subtree of team-b. The history lists both steps as from, to, by and at.
+
+#### Who writes, and where it is stored
+
+The registry has one rule of its own: in `report`, `from` defaults to the caller and must be the caller or one of its descendants, else `not_in_subtree`. Everything else is the [call gate](/fantastic/foundations/protocol/call-gate/). Only a branch lead is granted the write verbs `add`, `assign`, `reassign`, `status` and `report` on the registry. A worker sends its lead the `agentic_resources` `report` message, and the lead writes the registry.
+
+The registry keeps no tasks in memory. Its record names a store agent in `task_store_id`, and each write appends one snapshot row `{kind: "task", task_id, content: <entry>}` to it. Every read takes the latest row per `task_id`, so a restart rebuilds the tasks from the store. A store that refuses or cannot be reached gives `store_refused`, and nothing falls back to RAM.
+
+The store may be volatile (`ram_store`) or a durable one. The wiring is explicit, as for agent memory: the registry’s `can_call` reaches the store, and the store’s `callable_by` lists the registry. The registry serializes the writes of one registry agent, so two leads cannot race. [State and durability](/fantastic/foundations/kernel/state/) covers what survives a restart.
+
+Sources: agentic_resources: spawn, limits, report (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-agentic-resources/src/lib.rs#L348); agentic_resources: role cards (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-agentic-resources/src/cards.rs#L52); agentic_resources readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-agentic-resources/src/readme.md#L1); agentic_resources: the same verbs in Python (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/agentic_resources/src/agentic_resources/tools.py#L197); task_registry: assign, reassign, report (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-task-registry/src/lib.rs#L555); task_registry readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-task-registry/src/readme.md#L1); task_registry: the same verbs in Python (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/task_registry/src/task_registry/tools.py#L1); where the host registers both (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-cli/src/main.rs#L116)
 
 ### Foundations › Canvas: an app built on fantastic
 

@@ -41,6 +41,15 @@
   <url><loc>https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/agents/memory-stores/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/agents/credential-store/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/exec-bridge/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/file/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/mcp-client/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/web/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/bridge/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/scheduler/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/program-agents/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/static-loader/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/agentic-resources/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/canvas/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/build/</loc></url>
 </urlset>

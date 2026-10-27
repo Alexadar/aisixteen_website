@@ -1,0 +1,32 @@
+{
+  "call": {
+    "duration": 11.4,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 132666,
+      "webm": 121307,
+      "webp": 24586
+    }
+  },
+  "tools": {
+    "duration": 10.43,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 127069,
+      "webm": 100179,
+      "webp": 30320
+    }
+  },
+  "wire": {
+    "duration": 11.17,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 137647,
+      "webm": 119644,
+      "webp": 30378
+    }
+  }
+}
