@@ -312,7 +312,7 @@ const folding = {
       id: 'cache',
       title: 'Why the prefix stays byte-identical',
       blocks: [
-        'Model servers cache the work done on a prompt’s prefix and compare it **byte for byte**: an append after the cached prefix reuses it, an edit inside it does not. The `ai_core` code records one measurement on its own stack (a vLLM prefix cache): an append reused the prefix in full, 4752 of 6559 tokens (72.3%), while “any edit inside it — or a cut taken from the front of it — reuses nothing and recomputes everything.”',
+        'Model servers cache the work done on a prompt’s prefix and compare it **byte for byte**: an append after the cached prefix reuses it, an edit inside it does not. The `ai_core` code records one measurement on its own stack (a vLLM prefix cache): an append reused the whole 4752-token prefix out of a 6559-token prompt, while “any edit inside it — or a cut taken from the front of it — reuses nothing and recomputes everything.”',
         'So Fantastic only appends. Rows are never edited, a fold is a new row placed at its anchor, the view is persisted, and `context_fold` keeps the rows before its range exactly as they were rendered. The Rust tests assert that “the messages before the fold are byte-identical,” and the E125 end-to-end probe checks the same across a kernel restart.',
         { video: 'cf3_cache' },
         'To be precise about the claim: a fold replaces its members, so the prompt does change from the fold on. What stays byte-identical is everything before the folded range, and after the fold lands, the next turns append after it again. Whether a provider actually hits its cache depends on the provider; the code only keeps the bytes stable and places markers.',
