@@ -29,7 +29,7 @@ export default {
       blocks: [
         'A Rust bundle is a crate that implements the `Bundle` trait. The file that defines the trait states it plainly: “Bundles aren’t dynamically loaded — every Rust bundle is a crate linked into the binary at compile time.”',
         'The `fantastic` binary builds a `BundleRegistry` in `register_default_bundles()` and calls `register("file_bridge.tools", …)` for each bundle it ships. To add a bundle to a build, add its crate to the workspace and register it there. The `exec_bridge` and `py_agent` bundles register only when the `full` feature is on, and the CLI builds with `full` by default.',
-        'A name that no registered bundle answers is refused with Python’s own text, `No module named \'absent_bundle\'` for the handler module `absent_bundle.tools`. A caller sees one message from both kernels.',
+        'A `create_agent` that names an unregistered bundle still makes the record ([Lifecycle](/fantastic/foundations/kernel/lifecycle/)). A domain verb sent to that agent is refused as `unhandled`, with Python’s own text, `No module named \'absent_bundle\'` for the handler module `absent_bundle.tools`. A caller sees one message from both kernels.',
         { video: 'resolve' },
       ],
     },

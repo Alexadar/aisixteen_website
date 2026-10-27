@@ -62,7 +62,7 @@ export default {
       id: 'writing',
       title: 'Where grants come from',
       blocks: [
-        'The refusal’s hint says it: “grants come from above — an ancestor (update_agent on an agent in its subtree) or the operator writes can_call and callable_by; an agent never raises its own.” The tree verbs `create_agent`, `update_agent` and `delete_agent` take the same gate against the root, so whoever holds the verb on the root can write grants for the agents it names.',
+        'The refusal’s hint says it: “grants come from above — an ancestor (update_agent on an agent in its subtree) or the operator writes can_call and callable_by; an agent never raises its own.” The tree verbs `create_agent`, `update_agent` and `delete_agent` ([Lifecycle](/fantastic/foundations/kernel/lifecycle/)) take the same gate against the root, so whoever holds the verb on the root can write grants for the agents it names.',
         'The kernel checks a grant map when it is written. A map that is not an object, a key that is not legal for that field, or a value that is neither `"*"` nor a list of strings is refused with `invalid_meta`. A grant that can never match is not stored.',
         'When an agent is deleted, its id is removed from every grant that named it. A new agent that reuses the id does not inherit an old edge.',
       ],

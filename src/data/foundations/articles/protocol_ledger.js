@@ -21,7 +21,7 @@ export default {
       blocks: [
         'Every send that the kernel dispatches is an **execution**. It writes a `call` row when it starts, with the verb, the caller and the payload as sent. When it ends, it writes a `settle` row that names the call and holds the outcome.',
         'The rows start in the kernel’s RAM. A flusher waits 150 ms after a new row, then writes everything waiting as one batch into the **memory store**: the agent that the root record names in `memory_store_id`. The batch ends with a `flush` row that lists the ids it covers. If the store refuses the batch, the rows stay in RAM for the next flush. A flushed, settled execution leaves RAM.',
-        'The kernel does not start without a memory store. `kernel_start` refuses when the root names none.',
+        'The kernel does not start without a memory store. `kernel_start` refuses when the root names none ([Lifecycle](/fantastic/foundations/kernel/lifecycle/)).',
         { h3: 'What a settle row keeps' },
         'A settle row does not keep every reply. It keeps the whole result of a **named** call, the error fields of a dead letter (each cut at 500 characters), and for everything else only `{status, bytes}`. The kernel’s own store reads are executions too, so keeping their bodies would record the store inside the store.',
         { h3: 'Named calls run once' },
@@ -54,11 +54,11 @@ export default {
       id: 'stop',
       title: 'Graceful stop and crash',
       blocks: [
-        'On a graceful stop (`kernel_stop`), the kernel first drains: it refuses new root calls and tells every agent that advertises `shutdown`. It waits up to 10 seconds for in-flight calls and cancels those that remain. It then waits up to 2 seconds for each cancelled call to record its ending.',
+        'On a graceful stop (`kernel_stop`, step by step on [Lifecycle](/fantastic/foundations/kernel/lifecycle/)), the kernel first drains: it refuses new root calls and tells every agent that advertises `shutdown`. It waits up to 10 seconds for in-flight calls and cancels those that remain. It then waits up to 2 seconds for each cancelled call to record its ending.',
         'Only after that does the final flush run, while the store is still alive. Every call that the drain cancelled lands as a `cancelled` settle row, so it is a dead letter that the ledger lists. Rust and Python do the same.',
         { video: 'stop' },
         'A crash gives the kernel none of this. No drain runs and no final flush runs. Rows that are still in RAM never reach the store. A call that was in flight has no settle row, so it is not a dead letter. The kernel rebuilds nothing for it: re-sending its name runs it again.',
-        'The kernel does reserve ids ahead of use, in blocks written to the root record, so a restart after a crash skips ids and does not reuse them.',
+        'The kernel does reserve ids ahead of use, in blocks written to the root record, so a restart after a crash skips ids and does not reuse them ([State and durability](/fantastic/foundations/kernel/state/)).',
         { note: 'Not built: replaying an interrupted turn to where it stopped. After a graceful stop the interrupted call is a dead letter; after a crash it leaves no record of the interruption.' },
       ],
     },

@@ -27,8 +27,8 @@ export default {
       title: 'One node type: the agent',
       blocks: [
         'The code has a single kind of node. The Rust source calls the `Agent` “the substrate’s only node type”, and the Python source begins “Every entity in the system is an Agent.”',
-        'An **agent** has an `id`, a `handler_module` and a `parent_id`, plus any other fields its bundle needs. The `handler_module` names the **bundle** (a handler module) that answers its calls. The root and other bare agents have none by default. The record is saved as `agent.yaml`.',
-        { code: '{"id": "notes", "handler_module": "file_bridge.tools", "parent_id": "kernel"}', label: 'an agent record (illustrative id)' },
+        'An **agent** has an `id`, a `handler_module` and a `parent_id`, plus any other fields its bundle needs. The `handler_module` names the **bundle** (a handler module) that answers its calls; a bare agent has none. The root runs `kernel_state.tools`. The record is saved as `agent.yaml`. [Agents as records](/fantastic/foundations/kernel/records/) covers the record in full.',
+        { code: '{"id": "notes", "handler_module": "file_bridge.tools", "parent_id": "kernel_state"}', label: 'an agent record (illustrative id)' },
         'Agents form a tree, and each agent can create children under itself. The tree is for ownership and lifetime. It plays no part in routing.',
       ],
     },
@@ -39,7 +39,7 @@ export default {
         'Every call goes through the kernel. In the Rust source, “the kernel’s `agents` map is the only routing table”, and `send` resolves the target id there directly. The Python kernel does the same with its flat `ctx.agents` dict, and bundles never call each other’s handler functions.',
         'A call to an agent three levels deep is resolved the same way as a call to one at the top: by its id, with no walk through the agents in between. Agents address each other by id and hold no references to one another.',
         { video: 'table' },
-        'The kernel also does the bookkeeping that makes the exchange safe. Every call is checked by the two-sided call gate, and every call runs as a task you can list with `ps` and stop with `cancel`. [Call gate and grants](/fantastic/foundations/protocol/call-gate/) covers the first, and [Messages and verbs](/fantastic/foundations/protocol/messages/) covers tasks, `ps` and `cancel`.',
+        'The kernel also does the bookkeeping that makes the exchange safe. Every call is checked by the two-sided call gate, and every call runs as a task you can list with `ps` and stop with `cancel`. [Call gate and grants](/fantastic/foundations/protocol/call-gate/) covers the first, and [Tasks and waiting](/fantastic/foundations/kernel/tasks/) covers tasks, `ps` and `cancel`.',
       ],
     },
     {

@@ -55,14 +55,14 @@ export default {
       title: 'Rows live in a memory store',
       blocks: [
         'The kernel keeps no conversation and no message log in the tree. Its execution rows (`call`, `settle`, `task`, `ack`, and the rows of an `await_set` wait) are minted in RAM and flushed, 150 ms after a change, into the **memory store** that the root record names in `memory_store_id`. Each AI agent names its own store for its turns, folds and views.',
-        '`kernel_start` refuses when the root names no store, and there is no default. The start sequence boots the root first, which supplies the guid, then the store, which is probed to confirm that it serves the operator. Then it writes the id bound, starts the flusher, rebuilds the open waits, and boots every other agent in registration order.',
+        '`kernel_start` refuses when the root names no store, and there is no default. The start sequence, step by step on [Lifecycle](/fantastic/foundations/kernel/lifecycle/), boots the root first, which supplies the guid, then the store, which is probed to confirm that it serves the operator. Then it writes the id bound, starts the flusher, rebuilds the open waits, and boots every other agent in registration order.',
         'Every row in a store is keyed `<kernel guid>|<agent id>`, and `<guid>|kernel` is the operator and the kernel’s own bookkeeping. Two stores ship with the kernel, and they answer the same verbs:',
         { table: { head: ['store', 'durable', 'after a restart'], rows: [
           ['`ram_store`', 'no', 'empty: everything it holds ends with the process'],
           ['`sqlite_store`', 'yes', 'one SQLite file; the rows are read back'],
         ] } },
         'The same store holds the data that gives a restart its meaning: the ledger, dead letters, named-call dedup and every AI agent’s memory. A reply’s body is not stored, only a one-line `origin` that says what to re-read.',
-        'The ledger is trimmed once it passes `ledger_cap` (1,000,000 rows by default in Python), oldest settled executions first. A dead letter that nobody has acknowledged is kept.',
+        'The ledger is trimmed once it passes `ledger_cap` (1,000,000 rows by default in Python), oldest settled executions first, unnamed before named. A dead letter that nobody has acknowledged is kept ([Ledger and dead letters](/fantastic/foundations/protocol/ledger/)).',
       ],
     },
     {

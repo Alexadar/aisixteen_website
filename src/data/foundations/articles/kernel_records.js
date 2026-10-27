@@ -17,7 +17,7 @@ export default {
       title: 'The record',
       blocks: [
         'An agent is a **record** plus the **bundle** that answers its verbs. The record has an `id`, unique across the whole tree, and a `handler_module` that names the bundle. Every other field sits flat at the top level of the record. A `parent_id` says who owns the agent; the root has none.',
-        'Those flat fields are how a bundle is configured: a `display_name`, a `description`, a port, a root folder. The kernel does not nest them under a `meta` key. In the Rust kernel the record is a struct with `id`, `handler_module`, `parent_id` and a map for everything else.',
+        'Those flat fields are how a bundle is configured: a `display_name`, a `description`, a port, a root folder. The code calls them the record’s **meta**, but it does not nest them under a `meta` key. In the Rust kernel the record is a struct with `id`, `handler_module`, `parent_id` and a map for everything else.',
         { code: 'id              file_bridge_3f9a1c\nhandler_module  file_bridge.tools\ndisplay_name    files\ncan_call        {"$self": "*"}\ncallable_by     {"$self": "*"}\nparent_id       kernel_state', label: 'a record (illustrative id)' },
         'The key order is part of the record. Both runtimes write `id`, `handler_module`, the other fields and then `parent_id`. The parent comes last because the tree decides where an agent sits: a `parent_id` that leaked into the flat fields must not shadow it.',
         { video: 'record' },
@@ -43,7 +43,7 @@ export default {
         'The tree does not carry messages. The kernel keeps one flat map from id to agent, which the Rust kernel calls its only routing table. A send looks its target id up in that map and does not walk from parent to child.',
         'The tree answers a different question: who owns what. It decides what `delete_agent` takes with it, because a delete cascades depth first through the subtree. It decides what the `$parent` and `$subtree` keys of a grant mean, because `$subtree` is every agent below the holder. And it decides what `reflect` shows. The root cannot be deleted.',
         { video: 'tree' },
-        'On disk the tree mirrors the ownership. Each agent is an `agent.yaml` in its own folder, and its children are folders below it, in a container named by the root record’s `children_dir` field, `agents` by default, the same for every agent in the tree. The kernel the `fantastic` command starts keeps all of this in `.fantastic/` of the folder it runs in. The root loader writes the records, not `create_agent` itself, so a kernel with no loader keeps its records in memory only.',
+        'On disk the tree mirrors the ownership. Each agent is an `agent.yaml` in its own folder, and its children are folders below it, in a container named by the root record’s `children_dir` field, `agents` by default, the same for every agent in the tree. The tree lives in `.fantastic/` of the folder the kernel runs in. The `kernel_state` root writes the records, not `create_agent` itself, and only through a `file_bridge` rooted at `.fantastic`; with none, the records stay in memory. [State and durability](/fantastic/foundations/kernel/state/) covers that wiring.',
       ],
     },
     {

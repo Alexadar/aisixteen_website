@@ -29,7 +29,7 @@ export default {
       blocks: [
         '`create_agent` needs two arguments, `handler_module` and `parent_id`. There is no default parent: the call does not guess from who sent it. A missing `parent_id` is refused with `reason: "missing_arg"` and a hint to name the agent that will own the new one, “your own id for a tool you keep, or the root (‘kernel_state’) for a top-level agent”. The reserved name `kernel` also works for the root.',
         { code: '[{"target": "kernel", "payload": {"type": "create_agent",\n  "handler_module": "ram_store.tools", "parent_id": "lead"}}]', label: 'create a child of lead (illustrative ids)' },
-        'The `id` is optional. Without one, the kernel mints `<bundle>_<6 hex digits>` from the handler module’s second-to-last dotted segment, for example `ram_store_a3f9c1`. An id that is already in use is refused with `reason: "exists"`. Every other field in the payload becomes the new record’s meta, and the keys the substrate owns (`root_path`, `ctx`, `parent`) are refused.',
+        'The `id` is optional. Without one, the kernel mints `<bundle>_<6 hex digits>` from the handler module’s second-to-last dotted segment, for example `ram_store_a3f9c1`. An id that is already in use is refused with `reason: "exists"`. Every other field in the payload becomes a flat field of the new record, its **meta**, and the keys the substrate owns (`root_path`, `ctx`, `parent`) are refused.',
         { video: 'create' },
         'The kernel checks the meta before it creates anything: a grant map of the wrong shape, or a value the bundle’s own check rejects, is refused with `invalid_meta`. A `handler_module` that no installed bundle provides is not refused; the record is made and it answers no domain verbs until the bundle exists.',
         'The new agent is registered under its parent, then booted at once. The kernel runs the child’s `boot` itself, as the child and without the call gate, before the reply. If the boot fails, the kernel prints the failure and the agent still exists. The reply is the new record, and the parent gets an `agent_created` message.',
@@ -66,7 +66,7 @@ export default {
       title: 'kernel_start: the order of boot',
       blocks: [
         'Loading a tree and booting it are two steps. The loader builds the agents from their records, and `kernel_start` runs the start sequence. The daemon runs the sequence once its tree is loaded, and it is also a verb an operator can send.',
-        'The sequence needs a **memory store**: the root’s `memory_store_id` must name an agent. The kernel keeps its execution rows there (the [ledger](/fantastic/foundations/protocol/ledger/), dead letters and named-call dedup), and there is no built-in default. Without one, the verb fails loud, and the hint is the fix:',
+        'The sequence needs a **memory store**: the root’s `memory_store_id` must name an agent. The kernel keeps its execution rows there (the [ledger](/fantastic/foundations/protocol/ledger/), dead letters and named-call dedup), and there is no built-in default. Without one, the verb is refused with `reason: "missing_arg"` and `arg: "memory_store_id"`, and the hint is the fix:',
         { code: 'create_agent parent_id=<root> handler_module=ram_store.tools id=memory\nupdate_agent id=<root> memory_store_id=memory', label: 'the hint, verbatim' },
         { video: 'start' },
         { ol: [
@@ -105,7 +105,7 @@ export default {
           'Validate the records first. A bad id, a reserved key, a duplicate or an orphan refuses the boot. A record whose `handler_module` is not installed in this runtime is logged and skipped, together with its subtree.',
           'Build the tree, then run `kernel_start` as above. With no `memory_store_id` on the root, the daemon tears down, releases the lock and exits with an error.',
         ] },
-        'Records come back because the root’s loader writes them to disk as agents are created and updated. The memory store is a separate matter: a `ram_store`, as in the example above, holds its rows in RAM and loses them with the process. What a store keeps across a restart is the subject of [State and durability](/fantastic/foundations/kernel/state/).',
+        'Records come back when the root writes them to disk as agents are created and updated, which it does only through a `file_bridge` rooted at `.fantastic`. The memory store is a separate matter: a `ram_store`, as in the example above, holds its rows in RAM and loses them with the process. What a store keeps across a restart is the subject of [State and durability](/fantastic/foundations/kernel/state/).',
         { note: 'The headless Rust daemon starts only when the tree contains a `web.tools` agent. With nothing to serve, it exits quietly with code 0 and takes no lock.' },
       ],
     },

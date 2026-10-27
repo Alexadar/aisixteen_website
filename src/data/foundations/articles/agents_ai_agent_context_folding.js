@@ -19,7 +19,7 @@ export default {
       title: 'Memory is rows in a store',
       blocks: [
         'An AI agent’s conversation lives in a **memory store** agent, one row per message. Two store bundles ship, each in Rust and in Python with identical readmes: `ram_store`, where everything is lost when the process exits, and `sqlite_store`, one SQLite file that survives it. They answer “the SAME verbs, arguments, replies and refusals”; the only difference a caller sees is `durable: true`.',
-        'Rows are keyed `(owner, id)`. The owner is the caller, `<kernel guid>|<agent id>`, set by the store from who is calling: “there is no `owner` field to forge.” Row ids are the kernel’s own counter, the same one that numbers calls and tasks, which is why an id also orders rows in time.',
+        'Rows are keyed `(owner, id)`. The owner is the caller, `<kernel guid>|<agent id>`, set by the store from who is calling: “there is no `owner` field to forge.” Row ids are the kernel’s own counter, the same one that numbers calls and tasks ([State and durability](/fantastic/foundations/kernel/state/)), which is why an id also orders rows in time.',
         { table: { head: ['verb', 'what'], rows: [
           ['`append {rows}`', 'add rows under your key, all or none'],
           ['`read {after?, limit?, kinds?, match?, ...}`', 'your rows'],
