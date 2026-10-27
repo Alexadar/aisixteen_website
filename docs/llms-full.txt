@@ -152,7 +152,7 @@ send:
 
 Who may call whom is decided by the **call gate**. It is deny-all and two-sided: a call passes only when the caller’s `can_call` and the target’s `callable_by` both grant it.
 
-*Animation: The call gate: both ends must grant* (https://aisixteen.com/fantastic/foundations/protocol/call-gate/gate.mp4). Agent a sends reflect to b. The send is refused at egress until a’s can_call names b, then at ingress until b’s callable_by names a. With both grants it passes, one way, for that verb only. Operator sends skip the gate.
+*Animation: The call gate: both ends must grant* (https://aisixteen.com/fantastic/foundations/protocol/call-gate/gate.webm). Agent a sends reflect to b. The send is refused at egress until a’s can_call names b, then at ingress until b’s callable_by names a. With both grants it passes, one way, for that verb only. Operator sends skip the gate.
 
 What the protocol promises is written down once, as data. The `contract/` folder holds cases that every runtime replays with its own runner, “instead of being written four times in four languages and drifting.”
 
@@ -176,7 +176,7 @@ This page explains that sentence in terms of the code. It shows what an agent is
 
 The README states the same thing as a rule. A model, a program, a file tree, a shell, a browser canvas and the human at the keyboard are all agents in one tree, addressed by id and reached the same way: one call, `send`.
 
-*Animation: Three peers, one mediator* (https://aisixteen.com/fantastic/foundations/protocol/idea/peers.mp4). A human (user), a model (ai) and a program (tool) sit around the kernel as equals. The human’s send goes to the kernel, which routes it to ai. ai then sends to tool through the kernel as well. No peer calls another directly.
+*Animation: Three peers, one mediator* (https://aisixteen.com/fantastic/foundations/protocol/idea/peers.webm). A human (user), a model (ai) and a program (tool) sit around the kernel as equals. The human’s send goes to the kernel, which routes it to ai. ai then sends to tool through the kernel as well. No peer calls another directly.
 
 #### One node type: the agent
 
@@ -198,7 +198,7 @@ Every call goes through the kernel. In the Rust source, “the kernel’s `agent
 
 A call to an agent three levels deep is resolved the same way as a call to one at the top: by its id, with no walk through the agents in between. Agents address each other by id and hold no references to one another.
 
-*Animation: Routing by id, not by tree* (https://aisixteen.com/fantastic/foundations/protocol/idea/table.mp4). The tree on the left has kernel, notes and, under notes, a worker. The table on the right lists every agent id once. A send to worker is looked up in the table and delivered directly, without passing through notes.
+*Animation: Routing by id, not by tree* (https://aisixteen.com/fantastic/foundations/protocol/idea/table.webm). The tree on the left has kernel, notes and, under notes, a worker. The table on the right lists every agent id once. A send to worker is looked up in the table and delivered directly, without passing through notes.
 
 The kernel also does the bookkeeping that makes the exchange safe. Every call is checked by the two-sided call gate, and every call runs as a task you can list with `ps` and stop with `cancel`. [Call gate and grants](/fantastic/foundations/protocol/call-gate/) covers the first, and [Tasks and waiting](/fantastic/foundations/kernel/tasks/) covers tasks, `ps` and `cancel`.
 
@@ -232,7 +232,7 @@ one call: send to the kernel:
 
 Every call is a batch: a list of items, each `{target, payload}`. The kernel runs them concurrently and answers a list of `{pid, status, result}` in input order. There is deliberately no single-call form, so one call is a batch of one.
 
-*Animation: Every agent answers reflect* (https://aisixteen.com/fantastic/foundations/protocol/idea/reflect.mp4). The same send, {"type": "reflect"}, goes to kernel, user and ai in one batch. Each answers with its id and a sentence, and the replies come back in input order. The sentences shown are illustrative, and the kernel’s is shortened.
+*Animation: Every agent answers reflect* (https://aisixteen.com/fantastic/foundations/protocol/idea/reflect.webm). The same send, {"type": "reflect"}, goes to kernel, user and ai in one batch. Each answers with its id and a sentence, and the replies come back in input order. The sentences shown are illustrative, and the kernel’s is shortened.
 
 The two runtimes keep this the same. The Rust kernel (`fantastic-kernel`) and the Python kernel (`kernel/`) both implement the agent record, the one routing table and the `reflect` and `docs` verbs. [Messages and verbs](/fantastic/foundations/protocol/messages/) covers the batch, its statuses and both verbs in full.
 
@@ -261,7 +261,7 @@ There is deliberately no single-call form. One shape prevents drift between the 
 
 The kernel first checks and registers every item. It then runs them concurrently, and the reply array keeps the input order. Both the Rust and the Python kernel work this way.
 
-*Animation: One send, a batch of calls* (https://aisixteen.com/fantastic/foundations/protocol/messages/batch.mp4). A model turn sends three items in one batch. The kernel registers all three as tasks in ps before any reply; they run concurrently and finish in any order, and the reply array keeps the input order: one {pid, status, result} per item.
+*Animation: One send, a batch of calls* (https://aisixteen.com/fantastic/foundations/protocol/messages/batch.webm). A model turn sends three items in one batch. The kernel registers all three as tasks in ps before any reply; they run concurrently and finish in any order, and the reply array keeps the input order: one {pid, status, result} per item.
 
 Each registered item is a task with its own integer `pid`. The kernel mints every pid before it awaits anything, so the whole batch shows in `ps` at once and each item can be cancelled by its pid ([Tasks and waiting](/fantastic/foundations/kernel/tasks/)). An item that never reaches the task table, such as a refused one, has `pid: null`.
 
@@ -295,7 +295,7 @@ The code calls the status strings the contract. Every item settles in exactly on
 | `cancelled` | killed by `cancel`; the result is `{"cancelled": true}` |
 | `timed_out` | the item’s own deadline expired; the result is a refusal with reason `timeout` |
 
-*Animation: Five statuses* (https://aisixteen.com/fantastic/foundations/protocol/messages/statuses.mp4). One send of five illustrative items. The first completes with the handler’s reply. The second errored: the handler returned a map with an error. The third failed with pid null because it names no agent. The fourth was cancelled, and the fifth timed out. Each row shows its pid, status and result; the pids and results are illustrative.
+*Animation: Five statuses* (https://aisixteen.com/fantastic/foundations/protocol/messages/statuses.webm). One send of five illustrative items. The first completes with the handler’s reply. The second errored: the handler returned a map with an error. The third failed with pid null because it names no agent. The fourth was cancelled, and the fifth timed out. Each row shows its pid, status and result; the pids and results are illustrative.
 
 Failure is a status, so a caller reads `status` instead of parsing `result`. Truthiness follows Python: `error: 0`, `[]`, `{}` and `""` are falsy, so a reply carrying one of them settles `completed`.
 
@@ -323,7 +323,7 @@ Three flags shape the reply. `tree` is `all` (the default) or `ids`; any other v
 
 Like every kernel verb, `docs` is gated: the caller needs a `docs` grant in its `can_call`, and the root needs one in its `callable_by`.
 
-*Animation: reflect, docs, then the verb* (https://aisixteen.com/fantastic/foundations/protocol/messages/reflect.mp4). A reflect of agent notes returns what it is: identity, its can_call and callable_by, and optional tree, bundles and readme. A docs sent to the kernel with of notes returns how to call it: one signature per verb, with a detailed tier. The caller then sends the verb itself.
+*Animation: reflect, docs, then the verb* (https://aisixteen.com/fantastic/foundations/protocol/messages/reflect.webm). A reflect of agent notes returns what it is: identity, its can_call and callable_by, and optional tree, bundles and readme. A docs sent to the kernel with of notes returns how to call it: one signature per verb, with a detailed tier. The caller then sends the verb itself.
 
 A model or a person can start from one reflect, read the docs of the one kind of agent it needs, and send that agent a verb. Nothing else is needed.
 
@@ -355,7 +355,7 @@ b.callable_by  {"$self": "*", "a": ["reflect"]}
 
 The edge is one-way. These two lines let `a` call `b`, and nothing lets `b` call `a`. For that, `b` needs its own `can_call` and `a` its own `callable_by`.
 
-*Animation: The call gate: both ends must grant* (https://aisixteen.com/fantastic/foundations/protocol/call-gate/gate.mp4). Agent a sends reflect to b. The send is refused at egress until a’s can_call names b, then at ingress until b’s callable_by names a. With both grants it passes, one way, for that verb only. Operator sends skip the gate.
+*Animation: The call gate: both ends must grant* (https://aisixteen.com/fantastic/foundations/protocol/call-gate/gate.webm). Agent a sends reflect to b. The send is refused at egress until a’s can_call names b, then at ingress until b’s callable_by names a. With both grants it passes, one way, for that verb only. Operator sends skip the gate.
 
 The gate judges agent sends. A send made outside every dispatch, such as the CLI, the cold bootstrap, a test driver or a transport handing in an inbound frame, is an **operator send** and skips the gate. A wire leg that receives a frame then sends the item onward as itself, so the gate judges the leg ([Transports](/fantastic/foundations/protocol/transports/)). The kernel’s own bookkeeping does too. Identity comes only from dispatch: a send made inside an agent’s handler, or in a task that handler spawned, is that agent’s.
 
@@ -383,7 +383,7 @@ A key grants the verbs in its list and no others. With `["reflect"]` on both end
 
 Each end keeps its own list. If `a` holds `"*"` on `b` but `b` lists only `reflect`, a `ps` from `a` passes egress and is refused at ingress.
 
-*Animation: Grants are per verb, on both ends* (https://aisixteen.com/fantastic/foundations/protocol/call-gate/verbs.mp4). a and b both list only reflect: a reflect passes, a ps is refused at egress. a’s can_call is widened to "*", and ps now passes egress but is refused at ingress. Once b’s callable_by also holds "*", ps passes.
+*Animation: Grants are per verb, on both ends* (https://aisixteen.com/fantastic/foundations/protocol/call-gate/verbs.webm). a and b both list only reflect: a reflect passes, a ps is refused at egress. a’s can_call is widened to "*", and ps now passes egress but is refused at ingress. Once b’s callable_by also holds "*", ps passes.
 
 the two refusals (hint shortened):
 
@@ -408,7 +408,7 @@ The `spawn` verb of the `agentic_resources` bundle ([Agentic resources and tasks
 
 A spawn cannot hand out more than the spawner holds. Before anything is created, `spawn` checks every verb the card lists on a tool against the spawner’s own `can_call`, with the same matching the gate uses. The grant `"*"` needs the spawner to hold `"*"`. If a verb is missing, the spawn is refused with `not_allowed`, and nothing is created. An operator spawn has no spawner, so there is nothing to check. Plain `create_agent` makes no such check; [Security](/fantastic/foundations/protocol/security/) explains what that means.
 
-*Animation: Spawn grants stay within the spawner* (https://aisixteen.com/fantastic/foundations/protocol/call-gate/spawn.mp4). lead holds only read on files. A card that grants read and write is refused with not_allowed and creates nothing. A card that grants read creates worker as lead’s child, and writes worker’s can_call and files’ callable_by.
+*Animation: Spawn grants stay within the spawner* (https://aisixteen.com/fantastic/foundations/protocol/call-gate/spawn.webm). lead holds only read on files. A card that grants read and write is refused with not_allowed and creates nothing. A card that grants read creates worker as lead’s child, and writes worker’s can_call and files’ callable_by.
 
 the not_allowed reason (role elided):
 
@@ -445,7 +445,7 @@ The refusal teaches where grants come from: “grants come from above — an anc
 
 Sends made by the operator (the CLI, a transport handing in a frame) skip the gate. Identity inside the kernel comes only from dispatch: the sends a handler makes, and the tasks it spawns, are that agent’s. A wire leg sends what it receives onward as itself, so the gate judges the leg ([Transports](/fantastic/foundations/protocol/transports/)).
 
-*Animation: No grant, no reach* (https://aisixteen.com/fantastic/foundations/protocol/security/reach.mp4). Agent worker starts with only itself in can_call. Its get to store is refused. The operator writes both ends of the edge: worker.can_call names store, and store.callable_by names worker. The same send now passes, for get only. A third agent, other, was never named, and stays out of reach.
+*Animation: No grant, no reach* (https://aisixteen.com/fantastic/foundations/protocol/security/reach.webm). Agent worker starts with only itself in can_call. Its get to store is refused. The operator writes both ends of the edge: worker.can_call names store, and store.callable_by names worker. The same send now passes, for get only. A third agent, other, was never named, and stays out of reach.
 
 #### A new agent inherits nothing
 
@@ -479,7 +479,7 @@ The value rides the call, so the kernel records it as `[secret]`. A `set` payloa
 
 The store’s own guidance is not to give a credential to an AI agent’s prompt, and instead to give it to a bundle that sends it. A store has no per-ref access lists: any caller the call gate admits may `set`, `get` or `forget` a declared ref, so the gate decides who is admitted.
 
-*Animation: A key by reference, for one host* (https://aisixteen.com/fantastic/foundations/protocol/security/credential.mp4). The record of an AI agent holds credentials: store and ref, not a key. Before a request it sends the store get with the ref and the host it is about to call. The store returns the key only for the host the ref is bound to. A get for another host is refused, and the ledger shows the value as [secret].
+*Animation: A key by reference, for one host* (https://aisixteen.com/fantastic/foundations/protocol/security/credential.webm). The record of an AI agent holds credentials: store and ref, not a key. Before a request it sends the store get with the ref and the host it is about to call. The store returns the key only for the host the ref is bound to. A get for another host is refused, and the ledger shows the value as [secret].
 
 [Credential store](/fantastic/foundations/agents/credential-store/) follows one key through the store: how a ref is declared, how it is read on every request, and each backend in detail.
 
@@ -521,7 +521,7 @@ Both the path as asked and the file it lands on, with symlinks followed, must be
 
 A file or a folder given to an agent is a **view** of the bridge. A file view’s `can_call` on the bridge names exactly `read`, `write`, `watch_path` and `unwatch_path`, and the bridge’s `callable_by` entry for it carries its path. A verb that names another path is refused.
 
-*Animation: Sealed edges and allowlists* (https://aisixteen.com/fantastic/foundations/protocol/security/edges.mp4). A new exec_bridge refuses start as unauthorized. Opened, it still refuses a line that matches nothing in allowed. A listed line runs. A file_bridge exposes only the paths in its allow list: docs/a.txt is read, an unlisted file answers not_found, and ../secret is refused by the clamp.
+*Animation: Sealed edges and allowlists* (https://aisixteen.com/fantastic/foundations/protocol/security/edges.webm). A new exec_bridge refuses start as unauthorized. Opened, it still refuses a line that matches nothing in allowed. A listed line runs. A file_bridge exposes only the paths in its allow list: docs/a.txt is read, an unlisted file answers not_found, and ../secret is refused by the clamp.
 
 #### What an agent can and cannot reach
 
@@ -559,7 +559,7 @@ a refusal (create_agent with a taken id):
  "hint": "pick another id, or update the existing agent", "id": "dup"}
 ```
 
-*Animation: One shape for every refusal* (https://aisixteen.com/fantastic/foundations/protocol/refusals/shape.mp4). Agent lead sends create_agent with an id that is already taken. The kernel answers with four fields in order: error, a line a person reads; reason, exists, the code a machine branches on; hint, what to do instead; and id, the id that is taken.
+*Animation: One shape for every refusal* (https://aisixteen.com/fantastic/foundations/protocol/refusals/shape.webm). Agent lead sends create_agent with an id that is already taken. The kernel answers with four fields in order: error, a line a person reads; reason, exists, the code a machine branches on; hint, what to do instead; and id, the id that is taken.
 
 Before this shape existed, refusals came in about eighteen forms (the Python source counts them). A caller had to know which verb it had called to know which shape came back, and a machine could not branch on a failure without matching the prose. The code keeps `reason` as the machine field because the call gate already used it, so nothing was renamed.
 
@@ -583,7 +583,7 @@ The codes are a **closed set**. A new code is a deliberate addition to one list,
 | `not_found` | the named path, job or key is absent |  |
 | `timeout` | the call outlived its deadline | `task_id` |
 
-*Animation: Branch on reason* (https://aisixteen.com/fantastic/foundations/protocol/refusals/branch.mp4). Five reason codes with the fact each carries and the caller’s next step: unauthorized carries side, so read egress or ingress; unknown_agent carries agents, so pick one; missing_arg carries arg, so add it; locked carries id, so clear delete_lock and send again; not_here carries verb, so address the kernel root.
+*Animation: Branch on reason* (https://aisixteen.com/fantastic/foundations/protocol/refusals/branch.webm). Five reason codes with the fact each carries and the caller’s next step: unauthorized carries side, so read egress or ingress; unknown_agent carries agents, so pick one; missing_arg carries arg, so add it; locked carries id, so clear delete_lock and send again; not_here carries verb, so address the kernel root.
 
 The set also holds `draining` (the kernel is stopping and accepts no new roots), `no_consumer` (a `watch` whose watcher has no inbox) and the transport codes `not_connected`, `transport_error` and `transport_closed`, for a connection that could not carry the call. The Python runtime has five more: `secret_found`, `failed`, `unbound_ports`, `bad_binding` and `code_not_allowed`. The Rust runtime lists 16 codes and Python 21.
 
@@ -628,7 +628,7 @@ unknown_agent (illustrative ids):
  "hint": "'<id>' is a PLACEHOLDER from an example, not an id — substitute one of `agents`."}
 ```
 
-*Animation: Recover from a refusal* (https://aisixteen.com/fantastic/foundations/protocol/refusals/recover.mp4). A model sends reflect to the placeholder id <id>. The refusal is unknown_agent, lists the live ids fetcher, lead and notes, and says the id is a placeholder. The model sends reflect to fetcher, and the call completes.
+*Animation: Recover from a refusal* (https://aisixteen.com/fantastic/foundations/protocol/refusals/recover.webm). A model sends reflect to the placeholder id <id>. The refusal is unknown_agent, lists the live ids fetcher, lead and notes, and says the id is a placeholder. The model sends reflect to fetcher, and the call completes.
 
 The code states why: a model that copies `<id>` from an example and gets back only “no agent '<id>'” states what went wrong and none of the values that would repair it, so it repeats the call. “A refusal that cannot be acted on costs the same as no reply.” A person reading the same refusal gets the same help from `error` and `hint`.
 
@@ -662,7 +662,7 @@ A send can give an item a string `id`, which names the execution. A new name dis
 
 Before it dispatches an item with an `id`, the kernel reads the store for it. So a name still works after its rows were flushed and after a restart. An integer `id` joins an execution that already exists and never creates one.
 
-*Animation: Every call is an execution* (https://aisixteen.com/fantastic/foundations/protocol/ledger/ledger.mp4). A named call (ingest-42) writes a call row and a settle row in RAM, which flush into the memory store. A call that settles failed (fetch-7) is a dead letter, and its caller gets an on_deadletter event. After a restart RAM is empty, and re-sending ingest-42 returns the recorded outcome without running the handler. ack_deadletter retires fetch-7.
+*Animation: Every call is an execution* (https://aisixteen.com/fantastic/foundations/protocol/ledger/ledger.webm). A named call (ingest-42) writes a call row and a settle row in RAM, which flush into the memory store. A call that settles failed (fetch-7) is a dead letter, and its caller gets an on_deadletter event. After a restart RAM is empty, and re-sending ingest-42 returns the recorded outcome without running the handler. ack_deadletter retires fetch-7.
 
 #### Reading the ledger
 
@@ -696,7 +696,7 @@ Nothing retries a dead letter afterwards. The `ledger` rows with one of the thre
 
 The ack decides what pruning may remove. When the ledger grows past `ledger_cap`, the kernel prunes the oldest settled executions from the store, unnamed ones first. A dead letter that nobody acknowledged stays, because it waits for a person. An acknowledged one may go.
 
-*Animation: Dead letters* (https://aisixteen.com/fantastic/foundations/protocol/ledger/deadletter.mp4). Five illustrative executions end in five statuses. 61 completed and 62 errored are not dead letters. 63 failed, 64 timed_out and 65 cancelled are, and the caller lead receives on_deadletter. Pruning removes the oldest settled executions, 61 and 62, but keeps the unacknowledged dead letters. ack_deadletter marks 63 as acked, so it may be pruned later.
+*Animation: Dead letters* (https://aisixteen.com/fantastic/foundations/protocol/ledger/deadletter.webm). Five illustrative executions end in five statuses. 61 completed and 62 errored are not dead letters. 63 failed, 64 timed_out and 65 cancelled are, and the caller lead receives on_deadletter. Pruning removes the oldest settled executions, 61 and 62, but keeps the unacknowledged dead letters. ack_deadletter marks 63 as acked, so it may be pruned later.
 
 #### Graceful stop and crash
 
@@ -704,7 +704,7 @@ On a graceful stop (`kernel_stop`, step by step on [Lifecycle](/fantastic/founda
 
 Only after that does the final flush run, while the store is still alive. Every call that the drain cancelled lands as a `cancelled` settle row, so it is a dead letter that the ledger lists. Rust and Python do the same.
 
-*Animation: Graceful stop and crash* (https://aisixteen.com/fantastic/foundations/protocol/ledger/stop.mp4). Top: kernel_stop cancels call 71, the settle row is flushed, and 71 is a dead letter. Bottom: the process is killed while call 72 is in flight. 72 has no settle row, so it is not a dead letter, and re-sending it runs it again.
+*Animation: Graceful stop and crash* (https://aisixteen.com/fantastic/foundations/protocol/ledger/stop.webm). Top: kernel_stop cancels call 71, the settle row is flushed, and 71 is a dead letter. Bottom: the process is killed while call 72 is in flight. 72 has no settle row, so it is not a dead letter, and re-sending it runs it again.
 
 A crash gives the kernel none of this. No drain runs and no final flush runs. Rows that are still in RAM never reach the store. A call that was in flight has no settle row, so it is not a dead letter. The kernel rebuilds nothing for it: re-sending its name runs it again.
 
@@ -734,7 +734,7 @@ Take the smallest useful message, a `reflect` of the root. Each carrier below wr
 | bridge | `{"type": "forward", "target": "kernel", "payload": {"type": "reflect"}}`, sent to the bridge agent | the remote reply, unwrapped |
 | MCP | the `send` tool with `{"items": [{"target": "kernel", "payload": {"type": "reflect"}}]}` | one `{pid, status, result}` per item |
 
-*Animation: One message, five carriers* (https://aisixteen.com/fantastic/foundations/protocol/transports/carriers.mp4). The payload {"type": "reflect"} stays fixed while the carrier changes. In process it is send([{target, payload}]); on a WebSocket a call frame with an id; on REST a POST whose body is the payload; through a bridge a forward item; over MCP the send tool. Each ends in the same send on the kernel.
+*Animation: One message, five carriers* (https://aisixteen.com/fantastic/foundations/protocol/transports/carriers.webm). The payload {"type": "reflect"} stays fixed while the carrier changes. In process it is send([{target, payload}]); on a WebSocket a call frame with an id; on REST a POST whose body is the payload; through a bridge a forward item; over MCP the send tool. Each ends in the same send on the kernel.
 
 The in-process form and MCP return the full outcome with its `status`. The WebSocket, REST and bridge forms return the result of the call; the `status` word is not a field of the WebSocket reply frame.
 
@@ -760,7 +760,7 @@ opening a leg (the readme’s repair):
 update_agent <leg id> ingress_rule=allow_all_ingress
 ```
 
-*Animation: A wire leg is the caller* (https://aisixteen.com/fantastic/foundations/protocol/transports/legs.mp4). A client sends a call frame to a sealed web_ws leg and gets the refusal "edge sealed by policy". After update_agent sets ingress_rule=allow_all_ingress the frame is admitted. The leg then sends the item onward as itself, and the target answers only because the leg’s can_call and the target’s callable_by grant the verb (illustrative grants).
+*Animation: A wire leg is the caller* (https://aisixteen.com/fantastic/foundations/protocol/transports/legs.webm). A client sends a call frame to a sealed web_ws leg and gets the refusal "edge sealed by policy". After update_agent sets ingress_rule=allow_all_ingress the frame is admitted. The leg then sends the item onward as itself, and the target answers only because the leg’s can_call and the target’s callable_by grant the verb (illustrative grants).
 
 #### Where the carrier writes its fields
 
@@ -778,7 +778,7 @@ A `ws_bridge` agent dials another kernel’s `web_ws` leg at `ws://<host>:<port>
 
 The far side needs no bridge. It sees the same frame a browser would send, so its leg judges the call: its ingress rule, its `can_call` and the target’s `callable_by`. A bridge is sealed by default like any leg, and an inbound call over it is served as the bridge leg.
 
-*Animation: Kernel to kernel with forward* (https://aisixteen.com/fantastic/foundations/protocol/transports/bridge.mp4). On kernel A, agent a sends the bridge a forward item for target src on the other kernel. The bridge ships a call frame with an illustrative id (bridge-1-1) to kernel B’s web_ws leg. B’s leg judges the call and answers with a reply frame. The bridge returns the data to a, which settles completed.
+*Animation: Kernel to kernel with forward* (https://aisixteen.com/fantastic/foundations/protocol/transports/bridge.webm). On kernel A, agent a sends the bridge a forward item for target src on the other kernel. The bridge ships a call frame with an illustrative id (bridge-1-1) to kernel B’s web_ws leg. B’s leg judges the call and answers with a reply frame. The bridge returns the data to a, which settles completed.
 
 Frame ids are `<leg id>-<boot nonce>-<n>`, fresh at each boot, so a restarted bridge never reuses an id the peer already settled. `watch_remote` also streams a remote agent’s events onto the bridge’s inbox ([Bridge](/fantastic/foundations/agents/bridge/) follows the frames). A `relay_connector` does the same work through a relay router, reaching the partner by its GUID instead of a host and port.
 
@@ -838,7 +838,7 @@ one case, as written in cases.json:
 
 Each driver builds the same small fixture: an agent `c21_probe` that answers `poke` with `{poked: value}`, and an id `c21_nobody` that never exists. The cases then reach past the happy path. Sending `reflect` to `c21_nobody` must answer `reason: unknown_agent`. An empty payload must answer `missing_arg` with `arg: payload.type`. A kernel verb such as `ps` sent to a non-root agent must answer `not_here` and name the verb.
 
-*Animation: One file of cases, every runtime* (https://aisixteen.com/fantastic/foundations/protocol/contract/replay.mp4). A case from cases.json is shown: send {"type": "poke", "value": 41}, expect {"poked": 41}. Python, Rust and TS each send it to their own kernel, and each reply holds {"poked": 41}. A second case sends reflect to c21_nobody and expects reason unknown_agent, and all three answer it.
+*Animation: One file of cases, every runtime* (https://aisixteen.com/fantastic/foundations/protocol/contract/replay.webm). A case from cases.json is shown: send {"type": "poke", "value": 41}, expect {"poked": 41}. Python, Rust and TS each send it to their own kernel, and each reply holds {"poked": 41}. A second case sends reflect to c21_nobody and expects reason unknown_agent, and all three answer it.
 
 The checks use `reason`, the machine field of every [refusal](/fantastic/foundations/protocol/refusals/), not the prose of `error`. So two runtimes may word an error differently and still pass.
 
@@ -858,7 +858,7 @@ All three hold the reply to the same rule: every key in `expect` must be in the 
 
 The Python driver sends the same cases down five **legs** of one kernel: in-process, a websocket bridge, a REST route, an `exec` guest and a relay tunnel. It turns every reply into JSON with sorted keys, so a wire reply and an in-process object compare on equal terms. Each leg’s reply must equal the in-process reply.
 
-*Animation: Five transports, one answer* (https://aisixteen.com/fantastic/foundations/protocol/contract/legs.mp4). Python sends the poke case on five legs: in-proc, ws-bridge, web-rest, exec-guest and relay-tunnel. Each reply equals the in-proc reference. For the ledger case, marked pairwise: false, the legs are checked for shape only, because ledger is scoped to the sender.
+*Animation: Five transports, one answer* (https://aisixteen.com/fantastic/foundations/protocol/contract/legs.webm). Python sends the poke case on five legs: in-proc, ws-bridge, web-rest, exec-guest and relay-tunnel. Each reply equals the in-proc reference. For the ledger case, marked pairwise: false, the legs are checked for shape only, because ledger is scoped to the sender.
 
 Attribution differs by design. In-process the sender is the operator, and each other leg dispatches as its own agent. So the fixture grants every leg the same reach on both halves of the [call gate](/fantastic/foundations/protocol/call-gate/), and the cases avoid testing the gate itself. What must be identical is the reply.
 
@@ -872,7 +872,7 @@ contract/README.md says the Rust root is `core`. The Rust driver and its `DEFAUL
 
 The second is a verb a runtime does not own. The browser kernel does not own the tree verbs (`create_agent`, `update_agent`, `list_agents`), so its driver skips the `list_agents` case by name and records the reason in the driver. Anything not named must pass. A skip is a visible, reviewed line, not a quiet gap.
 
-*Animation: Differences are named* (https://aisixteen.com/fantastic/foundations/protocol/contract/named.mp4). The reflect-kernel case expects {"id": "$root"}. Each runtime swaps in its own root id, kernel_state, and passes. For list-agents-limited, Python and Rust pass and the TS driver skips the case by name, with its reason recorded in the driver.
+*Animation: Differences are named* (https://aisixteen.com/fantastic/foundations/protocol/contract/named.webm). The reflect-kernel case expects {"id": "$root"}. Each runtime swaps in its own root id, kernel_state, and passes. For list-agents-limited, Python and Rust pass and the TS driver skips the case by name, with its reason recorded in the driver.
 
 #### Steps with a cause: the agentic corpus
 
@@ -908,7 +908,7 @@ A set of fourteen verbs belongs to the kernel itself and only the root answers t
 
 Every item of a send that reaches its target runs as a kernel task. The task table works like Unix: `ps` lists what is in flight, `cancel` stops a task and its subtree, and `await_set` wakes a lead once for a set of reports ([Tasks and waiting](/fantastic/foundations/kernel/tasks/)).
 
-*Animation: One send, a batch of calls* (https://aisixteen.com/fantastic/foundations/protocol/messages/batch.mp4). A model turn sends three items in one batch. The kernel registers all three as tasks in ps before any reply; they run concurrently and finish in any order, and the reply array keeps the input order: one {pid, status, result} per item.
+*Animation: One send, a batch of calls* (https://aisixteen.com/fantastic/foundations/protocol/messages/batch.webm). A model turn sends three items in one batch. The kernel registers all three as tasks in ps before any reply; they run concurrently and finish in any order, and the reply array keeps the input order: one {pid, status, result} per item.
 
 There are two host kernels, Rust and Python, and they answer the same verbs. The Rust kernel’s files describe themselves as rule-for-rule ports of the Python kernel, “which is canonical.” The main difference is how bundles load: Rust crates implement a `Bundle` trait, Python finds handler modules through entry points, and both load folder bundles ([Bundles and twin runtimes](/fantastic/foundations/kernel/bundles/)).
 
@@ -945,7 +945,7 @@ parent_id       kernel_state
 
 The key order is part of the record. Both runtimes write `id`, `handler_module`, the other fields and then `parent_id`. The parent comes last because the tree decides where an agent sits: a `parent_id` that leaked into the flat fields must not shadow it.
 
-*Animation: An agent is a record* (https://aisixteen.com/fantastic/foundations/kernel/records/record.mp4). create_agent names the bundle file_bridge.tools and the owner kernel_state, and sends no id. The kernel mints file_bridge_3f9a1c, copies display_name from the payload, stamps can_call and callable_by, and writes parent_id last.
+*Animation: An agent is a record* (https://aisixteen.com/fantastic/foundations/kernel/records/record.webm). create_agent names the bundle file_bridge.tools and the owner kernel_state, and sends no id. The kernel mints file_bridge_3f9a1c, copies display_name from the payload, stamps can_call and callable_by, and writes parent_id last.
 
 #### Where a record comes from
 
@@ -975,7 +975,7 @@ The tree does not carry messages. The kernel keeps one flat map from id to agent
 
 The tree answers a different question: who owns what. It decides what `delete_agent` takes with it, because a delete cascades depth first through the subtree. It decides what the `$parent` and `$subtree` keys of a grant mean, because `$subtree` is every agent below the holder. And it decides what `reflect` shows. The root cannot be deleted.
 
-*Animation: One tree, one flat map* (https://aisixteen.com/fantastic/foundations/kernel/records/tree.mp4). Five agents sit in one tree under kernel_state. The kernel also keeps a flat map from id to agent. A send from writer to files is resolved in that map, not by walking the tree. The tree shows ownership: team’s subtree is team, writer and reviewer.
+*Animation: One tree, one flat map* (https://aisixteen.com/fantastic/foundations/kernel/records/tree.webm). Five agents sit in one tree under kernel_state. The kernel also keeps a flat map from id to agent. A send from writer to files is resolved in that map, not by walking the tree. The tree shows ownership: team’s subtree is team, writer and reviewer.
 
 On disk the tree mirrors the ownership. Each agent is an `agent.yaml` in its own folder, and its children are folders below it, in a container named by the root record’s `children_dir` field, `agents` by default, the same for every agent in the tree. The tree lives in `.fantastic/` of the folder the kernel runs in. The `kernel_state` root writes the records, not `create_agent` itself, and only through a `file_bridge` rooted at `.fantastic`. The `fantastic` CLI wires one on its first start: its seed writes a `store` agent (`file_bridge.tools`, `root: .fantastic`, `allow: ["."]`), so by default the tree and its records are saved under `.fantastic/`. Only when no such store exists do the records stay in memory, and the terminal then warns that nothing survives a restart. [State and durability](/fantastic/foundations/kernel/state/) covers that wiring.
 
@@ -1006,7 +1006,7 @@ reflect with a pruned branch (illustrative id):
   "tree": "all", "ignore_subtrees": ["team"]}}]
 ```
 
-*Animation: reflect: look without flooding* (https://aisixteen.com/fantastic/foundations/kernel/records/reflect.mp4). tree=ids returns every id below, depth first. ignore_subtrees=["team"] folds that branch to {id: "team", pruned: 3}. bundles=ids lists the kinds of agent that can be created. show_subtrees=["team"] answers with only the team branch.
+*Animation: reflect: look without flooding* (https://aisixteen.com/fantastic/foundations/kernel/records/reflect.webm). tree=ids returns every id below, depth first. ignore_subtrees=["team"] folds that branch to {id: "team", pruned: 3}. bundles=ids lists the kinds of agent that can be created. show_subtrees=["team"] answers with only the team branch.
 
 #### The bundles flag
 
@@ -1045,7 +1045,7 @@ create a child of lead (illustrative ids):
 
 The `id` is optional. Without one, the kernel mints `<bundle>_<6 hex digits>` from the handler module’s second-to-last dotted segment, for example `ram_store_a3f9c1`. An id that is already in use is refused with `reason: "exists"`. Every other field in the payload becomes a flat field of the new record, its **meta**, and the keys the substrate owns (`root_path`, `ctx`, `parent`) are refused.
 
-*Animation: create_agent: placement is stated* (https://aisixteen.com/fantastic/foundations/kernel/lifecycle/create.mp4). A create_agent with no parent_id is refused with missing_arg. With parent_id "lead" the child is registered under lead with a minted id, ram_store_a3f9c1, booted by the kernel before the reply, and the reply is its record. The ids are illustrative.
+*Animation: create_agent: placement is stated* (https://aisixteen.com/fantastic/foundations/kernel/lifecycle/create.webm). A create_agent with no parent_id is refused with missing_arg. With parent_id "lead" the child is registered under lead with a minted id, ram_store_a3f9c1, booted by the kernel before the reply, and the reply is its record. The ids are illustrative.
 
 The kernel checks the meta before it creates anything: a grant map of the wrong shape, or a value the bundle’s own check rejects, is refused with `invalid_meta`. A `handler_module` that no installed bundle provides is not refused; the record is made and it answers no domain verbs until the bundle exists.
 
@@ -1075,7 +1075,7 @@ The kernel checks grant maps and the bundle’s own rules for the new values, an
 
 Before it deletes anything, the kernel walks the subtree for `delete_lock`. If the target or any descendant carries `delete_lock: true`, the whole delete is refused with `reason: "locked"`. The refusal names the first blocker in `blocked_by`, and its hint is “clear the lock with update_agent, then delete again”. Nothing has changed at that point.
 
-*Animation: delete_agent: the whole subtree* (https://aisixteen.com/fantastic/foundations/kernel/lifecycle/delete.mp4). delete_agent on team is refused because reviewer carries delete_lock. After update_agent clears it, the delete cascades deepest first, each agent running its on_delete hook, and the deleted ids are pruned from x’s can_call.
+*Animation: delete_agent: the whole subtree* (https://aisixteen.com/fantastic/foundations/kernel/lifecycle/delete.webm). delete_agent on team is refused because reviewer carries delete_lock. After update_agent clears it, the delete cascades deepest first, each agent running its on_delete hook, and the deleted ids are pruned from x’s can_call.
 
 The cascade then runs per node, children first. For each agent the kernel runs the bundle’s `on_delete` hook, as that agent, then detaches the agent from its parent and drops it from the tree. A hook that raises is printed and the cascade goes on, so a delete cannot be blocked from inside.
 
@@ -1096,7 +1096,7 @@ create_agent parent_id=<root> handler_module=ram_store.tools id=memory
 update_agent id=<root> memory_store_id=memory
 ```
 
-*Animation: kernel_start: the order of boot* (https://aisixteen.com/fantastic/foundations/kernel/lifecycle/start.mp4). kernel_start on a root with no memory_store_id is refused. After update_agent names memory, the root boots (1), then memory (2), the kernel probes the store (3) and starts the flusher, then lead (4) and web (5) boot in registration order. The reply lists booted in that order.
+*Animation: kernel_start: the order of boot* (https://aisixteen.com/fantastic/foundations/kernel/lifecycle/start.webm). kernel_start on a root with no memory_store_id is refused. After update_agent names memory, the root boots (1), then memory (2), the kernel probes the store (3) and starts the flusher, then lead (4) and web (5) boot in registration order. The reply lists booted in that order.
 
 1. Boot the root. Its boot gives the kernel a `guid` when the record has none.
 2. Boot the memory store, before anyone who might call it.
@@ -1116,7 +1116,7 @@ Two verbs stop things, and both are root-only. `shutdown_agents` stops the agent
 
 The reply is `drained: true`, `shut` (the ids told) and `cancelled`. The kernel keeps serving afterwards, so reads and `ledger` still work, until the process exits. A second call answers the same shape and shuts nothing new.
 
-*Animation: shutdown_agents and kernel_stop* (https://aisixteen.com/fantastic/foundations/kernel/lifecycle/stop.mp4). shutdown_agents drains the kernel, sends shutdown to lead and web, and cancels task 7 that is still in flight. The reply lists shut and cancelled. kernel_stop then acknowledges, and about 100 ms later calls settle, the last rows flush, hooks run, the lock is released and the process exits 0. The ids are illustrative.
+*Animation: shutdown_agents and kernel_stop* (https://aisixteen.com/fantastic/foundations/kernel/lifecycle/stop.webm). shutdown_agents drains the kernel, sends shutdown to lead and web, and cancels task 7 that is still in flight. The reply lists shut and cancelled. kernel_stop then acknowledges, and about 100 ms later calls settle, the last rows flush, hooks run, the lock is released and the process exits 0. The ids are illustrative.
 
 `kernel_stop` acknowledges first with `{"type": "kernel_stop", "ok": true}`. About 100 ms later, after the reply is on the wire, it asks the daemon to stop. The daemon then does the full teardown: drain, let every call settle (done, or cancelled into the dead letters), flush the last rows into the store, run each agent’s shutdown hook, release `.fantastic/lock.yaml` and exit 0. SIGINT and SIGTERM take the same path. Without a running serve loop, such as a one-shot CLI call, there is nothing to stop and the verb only acknowledges.
 
@@ -1167,7 +1167,7 @@ The `fantastic` binary builds a `BundleRegistry` in `register_default_bundles()`
 
 A `create_agent` that names an unregistered bundle still makes the record ([Lifecycle](/fantastic/foundations/kernel/lifecycle/)). A domain verb sent to that agent is refused as `unhandled`, with Python’s own text, `No module named 'absent_bundle'` for the handler module `absent_bundle.tools`. A caller sees one message from both kernels.
 
-*Animation: From handler_module to code* (https://aisixteen.com/fantastic/foundations/kernel/bundles/resolve.mp4). A send reaches an agent whose record says handler_module file_bridge.tools. In the Rust kernel the registry holds a crate linked at build time under that string. In the Python kernel the fantastic.bundles entry-point catalog names the module. Both reach the bundle. A name absent_bundle.tools is in neither, and both answer No module named absent_bundle.
+*Animation: From handler_module to code* (https://aisixteen.com/fantastic/foundations/kernel/bundles/resolve.webm). A send reaches an agent whose record says handler_module file_bridge.tools. In the Rust kernel the registry holds a crate linked at build time under that string. In the Python kernel the fantastic.bundles entry-point catalog names the module. Both reach the bundle. A name absent_bundle.tools is in neither, and both answer No module named absent_bundle.
 
 #### Python: found by entry point
 
@@ -1205,7 +1205,7 @@ Folders are read at boot, before the agent tree loads, so an instance’s handle
 6. `base` names a bundled agent that a folder can extend.
 7. The base accepts the rest: for `py_agent`, a `command` (the program’s argv, run with the folder as its working directory) and a `verbs` map from verb to doc. `reflect`, `boot` and `shutdown` are reserved.
 
-*Animation: A folder bundle loads at boot* (https://aisixteen.com/fantastic/foundations/kernel/bundles/folder.mp4). At boot the kernel reads bundles/notes/bundle.yaml. It checks the folder name, that notes is not a built-in bundle, and that base py_agent and a sentence are present; the bundle registers. create_agent with handler_module notes makes an instance. The kernel starts the program, which says hello with its verbs, and the verbs match bundle.yaml.
+*Animation: A folder bundle loads at boot* (https://aisixteen.com/fantastic/foundations/kernel/bundles/folder.webm). At boot the kernel reads bundles/notes/bundle.yaml. It checks the folder name, that notes is not a built-in bundle, and that base py_agent and a sentence are present; the bundle registers. create_agent with handler_module notes makes an instance. The kernel starts the program, which says hello with its verbs, and the verbs match bundle.yaml.
 
 Each instance, made with `create_agent handler_module=notes`, is a full agent. The kernel starts the program when the instance boots and kills it when the instance is deleted or the kernel stops. The program first says `{"op": "hello", "verbs": [...]}`; those verbs must equal the `verbs` in `bundle.yaml`, or the instance stops and says why. After that the kernel sends it `{"op": "call", ...}` and the program answers `{"op": "result", ...}`.
 
@@ -1226,7 +1226,7 @@ The Rust and Python kernels answer the same fourteen kernel verbs, and Rust’s 
 | kernel verbs | the same 14 | the same 14 |
 | root `reflect` reports `runtime` | `"rust"` | `"python"` |
 
-*Animation: Rust and Python, one set of verbs* (https://aisixteen.com/fantastic/foundations/kernel/bundles/twin.mp4). The same reflect is sent to a Rust kernel and a Python kernel. The root reflect reports a runtime field with the same field names and order in both, and only its value differs: rust in one and python in the other. This clip shows the Rust and Python kernels; a TypeScript kernel also exists. Below them sit the same fourteen kernel verbs.
+*Animation: Rust and Python, one set of verbs* (https://aisixteen.com/fantastic/foundations/kernel/bundles/twin.webm). The same reflect is sent to a Rust kernel and a Python kernel. The root reflect reports a runtime field with the same field names and order in both, and only its value differs: rust in one and python in the other. This clip shows the Rust and Python kernels; a TypeScript kernel also exists. Below them sit the same fourteen kernel verbs.
 
 Sources: Rust: the Bundle trait and registry (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/bundle.rs#L1); Rust: register_default_bundles() (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-cli/src/main.rs#L45); Python: bundle discovery (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_bundles.py#L1); Python: the system verbs (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_agent.py#L129); Rust: folder bundle loader (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-core/src/folders.rs#L31); Python: folder bundle loader (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/loader/kernel_state/src/kernel_state/tools.py#L123); Rust: reload_bundle on the root agent (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-core/src/lib.rs#L618); Python: reload_bundle in kernel_state (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/loader/kernel_state/src/kernel_state/tools.py#L1109); py_agent, the folder base (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/io/py_agent/src/py_agent/tools.py#L1); py_agent, the folder base (Rust) (https://github.com/aisixteen/fantastic/tree/main/src/lib/rust/crates/bundles/fantastic-py-agent)
 
@@ -1264,7 +1264,7 @@ ps (shape, illustrative values):
 | `verb` | the verb being handled |
 | `started_at` | seconds since the epoch |
 
-*Animation: ps: the task table* (https://aisixteen.com/fantastic/foundations/kernel/tasks/ps.mp4). Five tasks run: 41 lead, its children 42 planner and 45 notes, and below 42 the tasks 43 exec_bridge and 44 model. The operator sends ps to kernel. The reply lists one row per task, oldest first, with id, agent, parent and verb. The last row, 46, is the ps dispatch itself. The parent column ties each row back to its place in the tree. Ids, agents and verbs are illustrative.
+*Animation: ps: the task table* (https://aisixteen.com/fantastic/foundations/kernel/tasks/ps.webm). Five tasks run: 41 lead, its children 42 planner and 45 notes, and below 42 the tasks 43 exec_bridge and 44 model. The operator sends ps to kernel. The reply lists one row per task, oldest first, with id, agent, parent and verb. The last row, 46, is the ps dispatch itself. The parent column ties each row back to its place in the tree. Ids, agents and verbs are illustrative.
 
 `ps` lists its own row, because it is a dispatch like any other. A reply can be paged: `limit` and an `after` cursor work as in `list_agents`, and `next` is `null` when no further page exists. The table is live, so a row that finishes while you page may be missed.
 
@@ -1292,7 +1292,7 @@ Dropping a task frees no operating-system resource: a child process or a socket 
 1. **Hooks.** The kernel marks every task in the subtree as dying. It then awaits each agent’s bundle `on_cancel` hook, with all tasks still alive, so no handler sees a half-killed group. A hook runs as its own agent. If a hook fails, the error is logged and the kill goes on: cancel cannot be refused by a bundle.
 2. **Abort.** The kernel stops the tasks leaves first, with no wait in between, so a parent cannot resume between its child’s death and its own.
 
-*Animation: cancel: a task and its subtree* (https://aisixteen.com/fantastic/foundations/kernel/tasks/cancel.mp4). cancel on task 42 first runs every on_cancel hook in its subtree while the tasks are alive: a child process is killed and a generation is closed. Then the tasks abort, leaves first. The sibling 45 and the parent 41 keep running. cancel answers cancelled true with the killed ids, and the waiting send settles as cancelled.
+*Animation: cancel: a task and its subtree* (https://aisixteen.com/fantastic/foundations/kernel/tasks/cancel.webm). cancel on task 42 first runs every on_cancel hook in its subtree while the tasks are alive: a child process is killed and a generation is closed. Then the tasks abort, leaves first. The sibling 45 and the parent 41 keep running. cancel answers cancelled true with the killed ids, and the waiting send settles as cancelled.
 
 The hooks are where real resources go. An [`exec_bridge`](/fantastic/foundations/agents/exec-bridge/#jobs) job’s `on_cancel` kills the job’s child process. An AI backend’s `on_cancel` closes the stopped turn: its open parts abort and its status goes to `done` with reason `cancelled`.
 
@@ -1316,7 +1316,7 @@ The `wait_id` is another number from the kernel’s id counter. `label` is an op
 
 The signal each worker sends is a plain message, `{"type": "report", "state": ..., "result": ...}`, sent to the lead. No `report` verb is involved. While the wait is open, a report from a named agent is held instead of delivered, and the reporter is answered at once with `{"held": true, "wait_id": 50}`, so it never blocks on the lead. A second report from the same agent replaces its first.
 
-*Animation: await_set: one wake for a set* (https://aisixteen.com/fantastic/foundations/kernel/tasks/await.mp4). A lead sends await_set for w1, w2 and w3 with a timeout of 60 seconds and gets wait_id 50 back at once. Each worker then sends a report. The kernel holds each one and answers the worker held, and the count at the lead goes from 0 to 3 of 3. With all three in, the lead receives one message with wait_id 50, a done entry per worker, an empty missing list and timed_out false. Ids are illustrative.
+*Animation: await_set: one wake for a set* (https://aisixteen.com/fantastic/foundations/kernel/tasks/await.webm). A lead sends await_set for w1, w2 and w3 with a timeout of 60 seconds and gets wait_id 50 back at once. Each worker then sends a report. The kernel holds each one and answers the worker held, and the count at the lead goes from 0 to 3 of 3. With all three in, the lead receives one message with wait_id 50, a done entry per worker, an empty missing list and timed_out false. Ids are illustrative.
 
 When every named agent has reported, or `timeout_s` passes, the lead receives one message:
 
@@ -1376,7 +1376,7 @@ A call, a forked task, a settle row, a wait and an AI agent’s conversation row
 
 The counter is kernel-wide and only goes up. If id `a` is smaller than id `b`, `a` was created first, across all agents. An id is never reused, so a stale `cancel` on an old id kills nothing.
 
-*Animation: One counter names everything* (https://aisixteen.com/fantastic/foundations/kernel/state/ids.mp4). A call takes id 41, a forked task 42 and its settle row 43, all from the same counter. Each id is larger than the one before, across agents, and none is reused. The root record holds only the reserved bound, next_id: 1001.
+*Animation: One counter names everything* (https://aisixteen.com/fantastic/foundations/kernel/state/ids.webm). A call takes id 41, a forked task 42 and its settle row 43, all from the same counter. Each id is larger than the one before, across agents, and none is reused. The root record holds only the reserved bound, next_id: 1001.
 
 #### Reserved in blocks of 1000
 
@@ -1395,7 +1395,7 @@ next_id: 2001     # written when id 1001 is minted
 
 So a restart begins at the stored bound, and ids below it are not issued again. The bound reaches disk through the same debounced write (150 ms) as any other record change. After a crash, up to one block of ids is skipped. The gaps are harmless because ids are opaque.
 
-*Animation: Ids reserved in blocks* (https://aisixteen.com/fantastic/foundations/kernel/state/reserve.mp4). The root record holds next_id: 1001. When the kernel mints id 1001 it reserves the next block and writes next_id: 2001. The process crashes after id 1500. On restart the counter resumes at 2001, so ids 1501 to 2000 are skipped and none is issued twice.
+*Animation: Ids reserved in blocks* (https://aisixteen.com/fantastic/foundations/kernel/state/reserve.webm). The root record holds next_id: 1001. When the kernel mints id 1001 it reserves the next block and writes next_id: 2001. The process crashes after id 1500. On restart the counter resumes at 2001, so ids 1501 to 2000 are skipped and none is issued twice.
 
 The guid and the counter persist together. A root that is not durable mints a new guid on its next boot. Every store key starts with the guid, so the new keys cannot collide with the ids that restart from 1. The one case the kernel cannot defend is an old `agent.yaml` restored under the same guid, which moves the counter backwards. That is for the administrator to prevent.
 
@@ -1430,7 +1430,7 @@ The `fantastic` CLI wires the first one for you. Its first-start seed writes a `
 | Open `await_set` waits | the memory store is durable | gone with the process |
 | An AI agent’s conversation | its memory store is durable | gone with the process |
 
-*Animation: What survives a restart* (https://aisixteen.com/fantastic/foundations/kernel/state/restart.mp4). Before the restart, the kernel has an agent tree on disk through a file_bridge, a ram_store and a sqlite_store. After the restart the tree is back and so are the rows in sqlite_store. The rows in ram_store are gone.
+*Animation: What survives a restart* (https://aisixteen.com/fantastic/foundations/kernel/state/restart.webm). Before the restart, the kernel has an agent tree on disk through a file_bridge, a ram_store and a sqlite_store. After the restart the tree is back and so are the rows in sqlite_store. The rows in ram_store are gone.
 
 A durable store alone is not enough. Its rows are keyed by the guid, so a kernel with a `sqlite_store` but no `file_bridge` gets a new guid on every boot and never finds its old rows. Wire both.
 
@@ -1459,7 +1459,7 @@ Everything in Fantastic is an agent, so what it can do is the set of agents it s
 
 The AI agent keeps a long conversation in a finite window by folding it: a finished stretch of work becomes one appended row that names what it hides.
 
-*Animation: A fold is a new row* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/fold.mp4). context_fold over rows 3 to 8 appends one fold row (13) to the store, with refs to its members; nothing is deleted. In the view the fold sits at its anchor, row 3, in place of its members, and everything before the range keeps its exact bytes.
+*Animation: A fold is a new row* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/fold.webm). context_fold over rows 3 to 8 appends one fold row (13) to the store, with refs to its members; nothing is deleted. In the view the fold sits at its anchor, row 3, in place of its members, and everything before the range keeps its exact bytes.
 
 In this part: AI agent (https://aisixteen.com/fantastic/foundations/agents/ai-agent/); Memory stores (https://aisixteen.com/fantastic/foundations/agents/memory-stores/); Credential store (https://aisixteen.com/fantastic/foundations/agents/credential-store/); Exec bridge (https://aisixteen.com/fantastic/foundations/agents/exec-bridge/); File agent (https://aisixteen.com/fantastic/foundations/agents/file/); MCP client (https://aisixteen.com/fantastic/foundations/agents/mcp-client/); Web agents (https://aisixteen.com/fantastic/foundations/agents/web/); Bridge (https://aisixteen.com/fantastic/foundations/agents/bridge/); Scheduler (https://aisixteen.com/fantastic/foundations/agents/scheduler/); Program agents (https://aisixteen.com/fantastic/foundations/agents/program-agents/); Static loader (https://aisixteen.com/fantastic/foundations/agents/static-loader/); Agentic resources and tasks (https://aisixteen.com/fantastic/foundations/agents/agentic-resources/)
 
@@ -1486,7 +1486,7 @@ The **provider** is the only part that knows a vendor. It takes plain chat messa
 
 A pass runs its steps in a fixed order: the provider’s `ready()` check, the caching-mode check, any recall owed from the last fold, prompt assembly, context projection, and only then `chat`. A failure at any step ends the turn with a reason instead of a half answer. The two runtimes agree on this contract; the Rust crate is a port of the Python `ai_core`, which its comments call canonical.
 
-*Animation: One pass: rows and a prompt in, a stream out* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/pass.mp4). A send reaches the AI agent. The system block (tree, self, how-to) and the rows from its memory store go to the provider. Tokens stream back. The agent appends two rows, the incoming message and the answer.
+*Animation: One pass: rows and a prompt in, a stream out* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/pass.webm). A send reaches the AI agent. The system block (tree, self, how-to) and the rows from its memory store go to the provider. Tokens stream back. The agent appends two rows, the incoming message and the answer.
 
 #### The prompt is built from the live tree
 
@@ -1533,7 +1533,7 @@ a reply batch, abridged (illustrative pids and batch token):
 
 The model never sees half a batch. `reply_to` decides where a reply goes: back to the caller by default, another agent’s id, or `null` to discard it. When the batch lands on the agent itself, that is the next pass, and the chain goes on when a reply batch lands on the agent, or when the router sends a reminder (below).
 
-*Animation: A chain is passes joined by replies* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/chain.mp4). Pass 1 writes two calls. They run concurrently and come back as one reply batch addressed to the agent. That starts pass 2, which writes done, and the chain ends.
+*Animation: A chain is passes joined by replies* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/chain.webm). Pass 1 writes two calls. They run concurrently and come back as one reply batch addressed to the agent. That starts pass 2, which writes done, and the chain ends.
 
 #### How a chain ends
 
@@ -1545,7 +1545,7 @@ A turn that dispatches no call at all is not the end. The router stores a remind
 
 Ten silent turns in a row end the chain with status `done`, `reason: gave_up`. The record field `misfire_limit` replaces the ten. Any call resets the count, `done` and `await` included.
 
-*Animation: A turn with no call is reminded* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/nudge.mp4). The agent answers with prose and no call. The router stores a reminder and the agent runs again. Ten silent turns in a row end the chain with gave_up; a done call ends it at once.
+*Animation: A turn with no call is reminded* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/nudge.webm). The agent answers with prose and no call. The router stores a reminder and the agent runs again. Ten silent turns in a row end the chain with gave_up; a done call ends it at once.
 
 `cancel` ends a runaway chain like any other task ([Tasks and waiting](/fantastic/foundations/kernel/tasks/)).
 
@@ -1567,7 +1567,7 @@ While the agent is paused, each `send` is appended as a `held` row and answers `
 
 `resume {note?}` writes one `resume` row, `[resumed after a pause of 42s]` plus the note, then releases the held messages as a kernel task, one after another, each as a fresh turn in arrival order. It returns `{resumed: true, released: <n>}`; when the agent is not paused it returns `{resumed: false, released: 0}`.
 
-*Animation: pause holds, resume releases in order* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/pause.mp4). pause stops the generation and writes a pause row. Two sends arrive and become held rows. resume writes a resume row and releases both, in order, each as a fresh turn.
+*Animation: pause holds, resume releases in order* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/pause.webm). pause stops the generation and writes a pause row. Two sends arrive and become held rows. resume writes a resume row and releases both, in order, each as a fresh turn.
 
 The pause state is rows too. The last `pause` or `resume` row decides, and the `held` rows after the last `resume` are the queue. A restart reads them back from the head, so a paused agent stays paused with its queue intact.
 
@@ -1622,7 +1622,7 @@ OPEN: none
 
 The `anchor` is the smallest non-fold row id the fold covers (a member fold contributes its own anchor). Because row ids order rows in time, the view can place a fold at its anchor without loading the rows it hides. Rendering is deterministic, “so a view renders the same bytes until a new fold lands.” If the summarizer fails, the fold is still written, with its refs and the members’ titles, and says so on its header line: “Degraded, loud, never silent.”
 
-*Animation: A fold is a new row* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/fold.mp4). context_fold over rows 3 to 8 appends one fold row (13) to the store, with refs to its members; nothing is deleted. In the view the fold sits at its anchor, row 3, in place of its members, and everything before the range keeps its exact bytes.
+*Animation: A fold is a new row* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/fold.webm). context_fold over rows 3 to 8 appends one fold row (13) to the store, with refs to its members; nothing is deleted. In the view the fold sits at its anchor, row 3, in place of its members, and everything before the range keeps its exact bytes.
 
 #### Folding by hand: context_fold
 
@@ -1639,7 +1639,7 @@ context_fold {"from": 12, "to": 18, "summary": "printer fixed; queue cleared"}
 
 Folds nest. A fold’s level is one more than the highest level among the folds it contains: 1 for a fold of rows, 2 for a fold of folds, and so on. The automatic fold normally skips the folds at the head of the view and takes the oldest ordinary rows, because wrapping the previous fold every time would build a linked list of summaries of summaries. Only when three adjacent folds sit at the head do they fold as a group. The constant is `FOLD_RUN = 3`, and its comment explains the choice: “THREE, not four ... depth grows as log3 of the history rather than one level per cut.”
 
-*Animation: Folds of folds* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/levels.mp4). The oldest rows fold into level-1 folds, one fold row each. Three adjacent folds at the head fold again into one level-2 fold, and so on, so depth grows like log3 of the history. history {fold} opens any fold one level down.
+*Animation: Folds of folds* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/levels.webm). The oldest rows fold into level-1 folds, one fold row each. Three adjacent folds at the head fold again into one level-2 fold, and so on, so depth grows like log3 of the history. history {fold} opens any fold one level down.
 
 The summary format is fixed. The model writes a one-sentence title, then five sections, “omitting none (write `none`)”: ASKED, DONE (and why), BINDING (rules and choices that still bind), ERRORS (quoted verbatim) and OPEN. When a fold contains earlier summaries, they are merged: “the newer statement wins, and unfinished work is carried forward.” The summary budget is 1024 tokens; a summary still over it after three re-summarizes fails the turn loudly.
 
@@ -1682,7 +1682,7 @@ Model servers cache the work done on a prompt’s prefix and compare it **byte f
 
 So Fantastic only appends. Rows are never edited, a fold is a new row placed at its anchor, the view is persisted, and `context_fold` keeps the rows before its range exactly as they were rendered. The Rust tests assert that “the messages before the fold are byte-identical,” and the E125 end-to-end probe, which runs against the Python runtime, checks the same for stored rows, the next prompt, a refused range and a kernel restart.
 
-*Animation: Why folds append, never edit* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/cache.mp4). A prompt cache compares bytes from the start. Appending a row keeps the whole old prompt as a cached prefix; cutting rows from the front moves everything after the cut; a fold misses from its anchor on but keeps the rows before it, and because the fold row persists, the next turn appends after the same bytes again.
+*Animation: Why folds append, never edit* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/cache.webm). A prompt cache compares bytes from the start. Appending a row keeps the whole old prompt as a cached prefix; cutting rows from the front moves everything after the cut; a fold misses from its anchor on but keeps the rows before it, and because the fold row persists, the next turn appends after the same bytes again.
 
 To be precise about the claim: a fold replaces its members, so the prompt does change from the fold on. What stays byte-identical is everything before the folded range, and after the fold lands, the next turns append after it again. Whether a provider actually hits its cache depends on the provider; the code only keeps the bytes stable and places markers.
 
@@ -1714,7 +1714,7 @@ Nothing is deleted: `grep`, `recall` and `history {fold: <id>}` still reach ever
 
 `context_forget {include_cleared?}` is the verb that deletes. In one `prune` it removes every ordinary row covered by a fold whose place is known (rows of an open chain are spared) and all but the newest view row; with `include_cleared` it also removes every row before the last clear, which stays. It keeps every fold at every level, every row no fold covers, and the anchors a kept fold needs. It answers `{pruned, kept_folds, unanchored}`. The verb’s own promise: “The next prompt is the same before and after.” It waits for a running turn. Afterwards, a pruned id is gone from `grep`, `recall` and `history`, while `history {fold}` still returns the fold’s title and summary.
 
-*Animation: clear starts over; forget deletes* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/forget.mp4). context_clear appends one clear row and the view starts at its line; nothing is deleted and grep still finds old rows. context_forget then deletes the rows a fold covers, keeps every fold, and the next prompt is the same before and after.
+*Animation: clear starts over; forget deletes* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/forget.webm). context_clear appends one clear row and the view starts at its line; nothing is deleted and grep still finds old rows. context_forget then deletes the rows a fold covers, keeps every fold, and the next prompt is the same before and after.
 
 `context_status` reports the posture: `{context_window, output_reserve, budget, trigger, calibration, reported_prompt_tokens, strategy, last_projection, last_reaction, view_source}`, where the projection record lists the ids the model actually saw that turn, measured from the view rather than self-reported.
 
@@ -1755,7 +1755,7 @@ The memory store is shared, but the rows are not. A store keys every row by the 
 
 The copy is one `append`, all or nothing. If the store refuses it, the half-made agent is deleted and its grant removed, and the refusal is `store_refused`: nothing is left behind.
 
-*Animation: fork: a new agent on the same prefix* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/forking/fork.mp4). mark labels a turn boundary. fork at row 5 is refused with cuts_turn; fork at 6 starts a new agent with a copy of rows 1 to 6 under its own key, with the same ids, so its first prompt has the parent’s bytes. After that the two histories diverge.
+*Animation: fork: a new agent on the same prefix* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/forking/fork.webm). mark labels a turn boundary. fork at row 5 is refused with cuts_turn; fork at 6 starts a new agent with a copy of rows 1 to 6 under its own key, with the same ids, so its first prompt has the parent’s bytes. After that the two histories diverge.
 
 After the copy the two agents are separate. Later rows, folds and forgets on either side never reach the other, and each new row takes a fresh id from the kernel’s counter ([State and durability](/fantastic/foundations/kernel/state/)).
 
@@ -1777,7 +1777,7 @@ The check on folds follows nested folds down to their leaf rows. A fold whose me
 
 The fork gets every conversation row with id at or below `at`, and every fold whose members all sit at or below it. It also gets the newest `view` row and the newest `anchors` row at or before `at`, because the prompt is assembled from them, so the fork’s next prompt equals its source’s for the same prefix. It does not get `pause`, `held`, `late` or `mark` rows, which are the live state of one agent: each fork writes its own marks.
 
-*Animation: fork and folds: whole or refused* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/forking/folds.mp4). The parent has rows 1 to 8, a fold 9 over rows 2 and 3, and a fold 10 over rows 6 and 7. fork at 6 is refused with cuts_fold, because fold 10 has members 6 and 7, one at or before row 6 and one after it. fork at 4 copies rows 1 to 4 and fold 9 whole, and leaves fold 10 behind.
+*Animation: fork and folds: whole or refused* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/forking/folds.webm). The parent has rows 1 to 8, a fold 9 over rows 2 and 3, and a fold 10 over rows 6 and 7. fork at 6 is refused with cuts_fold, because fold 10 has members 6 and 7, one at or before row 6 and one after it. fork at 4 copies rows 1 to 4 and fold 9 whole, and leaves fold 10 behind.
 
 #### mark and fork_points
 
@@ -1804,7 +1804,7 @@ The timestamp lives in memory. A freshly forked agent has not sent anything, so 
 
 To fan out, fork the same mark several times while `warm` is true, and each fork starts from the same rows, with the same ids and content, that the model server has, by the code’s assumption, just processed. A test forks one mark twice and compares the two stores row for row.
 
-*Animation: warm: fork while the prefix is cached* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/forking/warm.mp4). A send ends and fork_points reports warm: true for the mark at row 6. Three forks of that mark start from the same rows 1 to 6 within the window. After 300 seconds without a send, fork_points reports warm: false.
+*Animation: warm: fork while the prefix is cached* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/forking/warm.webm). A send ends and fork_points reports warm: true for the mark at row 6. Three forks of that mark start from the same rows 1 to 6 within the window. After 300 seconds without a send, fork_points reports warm: false.
 
 The branches can come from another agent. `fork {from: {agent, at}}` sends the same verb to that agent as a gated send ([send](/fantastic/foundations/protocol/messages/)). In the `agentic_resources` bundle, `spawn {role, from: {agent, at}}` forks `agent` at `at` and applies a role card over the copy. The caller must hold `fork` on the source or the spawn is refused `not_allowed`.
 
@@ -1830,7 +1830,7 @@ The shared code is `ai_core`, the crate the [AI agent](/fantastic/foundations/ag
 
 No backend uses a provider’s native tool API. The model writes its `<call name=…>` envelope as plain text, the provider streams that text through without reading it, and `ai_core` parses and routes it. Adding a provider therefore teaches it nothing about tools. A provider holds no agent state; its one protocol duty is to wrap the model’s reasoning channel in `<think>…</think>` once per turn, so a reasoning model’s turn does not read as empty.
 
-*Animation: Five backends, one agent surface* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/surface.mp4). An agent sends send to ai_core. ai_core hands the messages to the agent’s backend: anthropic, vllm, ollama, responses or foundation_models, each with its own wire (/v1/messages, /chat/completions, /api/chat, /v1/responses, or on-device). The backend streams raw text back, a <call> in it is parsed by ai_core, and the call is routed the same way for every provider.
+*Animation: Five backends, one agent surface* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/surface.webm). An agent sends send to ai_core. ai_core hands the messages to the agent’s backend: anthropic, vllm, ollama, responses or foundation_models, each with its own wire (/v1/messages, /chat/completions, /api/chat, /v1/responses, or on-device). The backend streams raw text back, a <call> in it is parsed by ai_core, and the call is routed the same way for every provider.
 
 Every backend answers the same verbs because each one’s verb list starts from `ai_core`’s (Anthropic and vLLM add `usage`; Anthropic also adds `usage_reset` and `models`). `send` runs one turn on `text` and returns `{response, final, client_id}`. The call gate, refusals and ledger work as on any other agent; see [The call gate](/fantastic/foundations/protocol/call-gate/).
 
@@ -1882,7 +1882,7 @@ The `caching` field decides how the model’s view of the history is built. `cle
 
 `ai_core` only flags the two messages. The backend turns the flags into its own markers, and only in `provider_cache`. Anthropic is the only backend that declares it. It sends ephemeral `cache_control` markers on the system block, on the block that ends the primer row, on the block that ends the last fold, and one top-level automatic marker: at most four. In every other mode the body carries none.
 
-*Animation: caching: one history, three views* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/caching.mp4). Rows 1 to 6 are stored, and row 5 is a fold. none sends all six. cleanup drops rows 3 and 4 from the view. provider_cache sends all six with a marker after the primer row (2) and one at the last fold (5). Only anthropic turns the markers into cache_control; vllm, ollama, responses and foundation_models refuse the mode.
+*Animation: caching: one history, three views* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/caching.webm). Rows 1 to 6 are stored, and row 5 is a fold. none sends all six. cleanup drops rows 3 and 4 from the view. provider_cache sends all six with a marker after the primer row (2) and one at the last fold (5). Only anthropic turns the markers into cache_control; vllm, ollama, responses and foundation_models refuse the mode.
 
 A backend that cannot cache refuses the mode, at the write and again at the turn.
 
@@ -1907,7 +1907,7 @@ what each retry leaves (message illustrative):
 status: {phase: "retrying", detail: {attempt: 1, of: 2, error: "<message>"}}
 ```
 
-*Animation: transport_retries: a visible retry* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/retries.mp4). With transport_retries: 2, pass 1 fails with HTTP 503. A notice row “[retry 1/2] the link dropped” is stored, a retrying status goes out, and after 2 s pass 2 runs. It fails too: notice row 2 of 2, a 4 s wait, and pass 3 succeeds. With the budget spent, the next failure would end the turn.
+*Animation: transport_retries: a visible retry* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/retries.webm). With transport_retries: 2, pass 1 fails with HTTP 503. A notice row “[retry 1/2] the link dropped” is stored, a retrying status goes out, and after 2 s pass 2 runs. It fails too: notice row 2 of 2, a 4 s wait, and pass 3 succeeds. With the budget spent, the next failure would end the turn.
 
 The wait doubles: 2 s, 4 s, 8 s and so on. The notice row is stored in the history, so the model reads it on the next pass and the operator sees it. A `cancel` that lands during the wait ends the turn. A failure that is not a transport failure, or a transport failure after the last retry, ends the turn with the error as usual. Rust and Python do the same.
 
@@ -1963,7 +1963,7 @@ The shared cases show it. `alice` and `bob` each append row `101` and both succe
 
 A store that is asked before the kernel has a guid refuses with `not_found` and the hint “boot the kernel root first (it mints the guid)”.
 
-*Animation: Rows are keyed by who wrote them* (https://aisixteen.com/fantastic/foundations/agents/memory-stores/owners.mp4). alice appends row 101 and it lands under g1|alice. bob appends 101 too and it lands under g1|bob, with no clash. alice then sends an append that carries owner "g1|bob" and row 5; the field is ignored and 5 lands under g1|alice. Each caller reads only its own rows.
+*Animation: Rows are keyed by who wrote them* (https://aisixteen.com/fantastic/foundations/agents/memory-stores/owners.webm). alice appends row 101 and it lands under g1|alice. bob appends 101 too and it lands under g1|bob, with no clash. alice then sends an append that carries owner "g1|bob" and row 5; the field is ignored and 5 lands under g1|alice. Each caller reads only its own rows.
 
 #### Fold refs cascade
 
@@ -1982,7 +1982,7 @@ prune {ids: [2]}       →  {pruned: 1}   fold 3: refs []
 
 `keep` lists row kinds that survive a prune. `sqlite_store` has one more table, `ref_lists`, so that a fold whose members are all gone (`refs: []`) is distinguishable from a row with no list at all.
 
-*Animation: Prune cascades to fold refs* (https://aisixteen.com/fantastic/foundations/agents/memory-stores/cascade.mp4). Fold row 3 names rows 1 and 2 in refs. prune before_id 2 deletes row 1 and the fold now reads refs [2]. prune ids [2] deletes row 2 and the fold stays with refs []. Row 4, a note, is untouched.
+*Animation: Prune cascades to fold refs* (https://aisixteen.com/fantastic/foundations/agents/memory-stores/cascade.webm). Fold row 3 names rows 1 and 2 in refs. prune before_id 2 deletes row 1 and the fold now reads refs [2]. prune ids [2] deletes row 2 and the fold stays with refs []. Row 4, a note, is untouched.
 
 #### One file per store
 
@@ -1994,7 +1994,7 @@ On first use the store creates the directory and the file, sets WAL mode, `synch
 
 A kernel stop keeps the file. The host closes each store after the kernel’s last flush and checkpoints the WAL into it. `delete_agent` on the store is different: it deletes the file together with its `-wal` and `-shm`, as a `ram_store`’s tables do.
 
-*Animation: One file per store* (https://aisixteen.com/fantastic/foundations/agents/memory-stores/file.mp4). An open sqlite_store is the file at its path, memory.db, with memory.db-wal and memory.db-shm beside it. A kernel stop folds the WAL into the file and keeps memory.db. delete_agent removes memory.db and both siblings.
+*Animation: One file per store* (https://aisixteen.com/fantastic/foundations/agents/memory-stores/file.webm). An open sqlite_store is the file at its path, memory.db, with memory.db-wal and memory.db-shm beside it. A kernel stop folds the WAL into the file and keeps memory.db. delete_agent removes memory.db and both siblings.
 
 #### What survives a restart
 
@@ -2022,7 +2022,7 @@ the CLI blueprint, abridged:
 
 So in the shipped CLI, a restart loses the kernel’s ledger history and its dead letters from a stop, but not an AI agent’s conversation. Pointing the root’s `memory_store_id` at a `sqlite_store` changes that.
 
-*Animation: Which store is configuration* (https://aisixteen.com/fantastic/foundations/agents/memory-stores/choose.mp4). The root’s memory_store_id names kernel_memory, a ram_store. An AI agent’s memory_store_id names memory, a sqlite_store. The verbs are the same on both. After a restart the RAM store is empty and the SQLite store’s rows are read back from its file.
+*Animation: Which store is configuration* (https://aisixteen.com/fantastic/foundations/agents/memory-stores/choose.webm). The root’s memory_store_id names kernel_memory, a ram_store. An AI agent’s memory_store_id names memory, a sqlite_store. The verbs are the same on both. After a restart the RAM store is empty and the SQLite store’s rows are read back from its file.
 
 Sources: sqlite_store (Rust): schema, path, pragmas, delete (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-sqlite-store/src/lib.rs#L64); ram_store (Rust): owner key, verbs, cascade (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ram-store/src/lib.rs#L1); sqlite_store readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/memory/sqlite_store/src/sqlite_store/readme.md#L1); ram_store readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/memory/ram_store/src/ram_store/readme.md#L1); shared cases for every store (https://github.com/aisixteen/fantastic/blob/main/contract/memory_store/cases.json#L46); the CLI blueprint: both stores (https://github.com/aisixteen/fantastic/blob/main/src/tui/blueprint.yaml#L35); ai_core: the store an AI agent names (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core/core.py#L586)
 
@@ -2057,7 +2057,7 @@ set {"ref": "openai/main", "fields": {"api_key": "…"}}
 → {"ref": "openai/main", "host": "api.openai.com", "fields": ["api_key"], "stored": true}
 ```
 
-*Animation: Declare, then set* (https://aisixteen.com/fantastic/foundations/agents/credential-store/declare.mp4). The store creds starts with an empty record. update_agent declares the ref openai/main with the host api.openai.com. A set that names a host is refused with bad_arg: set takes no host. A set with fields stores the value at rest beside the declared host, and the record gains only the field name api_key.
+*Animation: Declare, then set* (https://aisixteen.com/fantastic/foundations/agents/credential-store/declare.webm). The store creds starts with an empty record. update_agent declares the ref openai/main with the host api.openai.com. A set that names a host is refused with bad_arg: set takes no host. A set with fields stores the value at rest beside the declared host, and the record gains only the field name api_key.
 
 A host is compared after normalising: a URL is cut to its `host[:port]` and the text is lowercased. A `get` may therefore pass the full endpoint URL, not just a bare host.
 
@@ -2077,7 +2077,7 @@ get {"ref": "openai/main", "host": "https://evil.example/v1"}
 
 A `forget` drops the value and leaves the ref declared, so the next `get` answers `not_found`: the ref “has no value in the backend”. A `set` stores a value again. A ref is declared and removed through `update_agent` on the store’s record, which writes the whole refs map.
 
-*Animation: Read on every request* (https://aisixteen.com/fantastic/foundations/agents/credential-store/rotate.mp4). An AI agent sends get with the ref and the host it is about to call, and the store answers key-A, which is sent to api.openai.com. One set stores key-B, and the next request carries key-B with no restart. forget drops the value and keeps the ref declared, so the next get answers not_found.
+*Animation: Read on every request* (https://aisixteen.com/fantastic/foundations/agents/credential-store/rotate.webm). An AI agent sends get with the ref and the host it is about to call, and the store answers key-A, which is sent to api.openai.com. One set stores key-B, and the next request carries key-B with no restart. forget drops the value and keeps the ref declared, so the next get answers not_found.
 
 A record with no `credentials` has no key. That suits a local server that needs none. A backend that cannot run without a key marks the field required and refuses a record that lacks it. A key that cannot be sent as an HTTP header (a control or non-ASCII character, or whitespace at an edge) is refused too, and the refusal names the ref, not the value.
 
@@ -2105,7 +2105,7 @@ The Python runtime reaches the keychain through the `keyring` package. The Rust 
 
 The `env` backend keeps no value at rest, so `set` and `forget` are refused as read-only. A `get` reads the variables the ref names, and fails if one is unset or empty. The ref’s declared host still pins every read.
 
-*Animation: Where the value rests* (https://aisixteen.com/fantastic/foundations/agents/credential-store/backends.mp4). The file backend holds a YAML file at <home>/user/credentials/<id>.yaml, mode 0600. The keychain backend holds one item per ref, service fantastic, account <id>/<ref>. The env backend holds nothing: the ref names a variable. File and keychain take set, get, list and forget; env takes get and list.
+*Animation: Where the value rests* (https://aisixteen.com/fantastic/foundations/agents/credential-store/backends.webm). The file backend holds a YAML file at <home>/user/credentials/<id>.yaml, mode 0600. The keychain backend holds one item per ref, service fantastic, account <id>/<ref>. The env backend holds nothing: the ref names a variable. File and keychain take set, get, list and forget; env takes get and list.
 
 File and keychain store the host beside the value. A stored value whose host differs from the declaration, or that has none, is refused with the same host-mismatch answer. A store elsewhere that declares the same id and ref with another host therefore reads nothing from it.
 
@@ -2159,7 +2159,7 @@ To read output later, `tail` returns the last lines of any job and `grep` return
 
 Nothing restarts a job. `boot` does nothing, because a caller starts a command, not the record. A `monitor` verb can watch a running job and send the lines that match a regex to another agent, so a long run can be stopped early.
 
-*Animation: A start is a job* (https://aisixteen.com/fantastic/foundations/agents/exec-bridge/jobs.mp4). Agent runner is sent start for ffmpeg. The reply returns job 41 as running at once. Lines arrive as progress events, then job_done with exit_code 0. A second job, 42, is stopped: stop sends SIGKILL to its whole session, and its status becomes stopped.
+*Animation: A start is a job* (https://aisixteen.com/fantastic/foundations/agents/exec-bridge/jobs.webm). Agent runner is sent start for ffmpeg. The reply returns job 41 as running at once. Lines arrive as progress events, then job_done with exit_code 0. A second job, 42, is stopped: stop sends SIGKILL to its whole session, and its status becomes stopped.
 
 #### A terminal is a job on a pseudo-terminal
 
@@ -2180,7 +2180,7 @@ The `ack` verb is flow control. When more than 100,000 characters are unacknowle
 
 Each of these is a separate verb at the call gate, so a viewer granted only `status`, `output` and `ack` can watch a terminal but cannot type. Any caller the gate admits to a verb may use it on any job of this agent. `paste_image` saves an image of up to 5 MiB and types its path into the terminal.
 
-*Animation: A terminal on a pseudo-terminal* (https://aisixteen.com/fantastic/foundations/agents/exec-bridge/terminal.mp4). A start with pty cols 80 and rows 24 and no command runs the child’s own $SHELL as job 7. Keystrokes go in with write, and output events come back. When more than 100,000 characters are unacked, the reader pauses. After ack brings the backlog under 5,000, it resumes.
+*Animation: A terminal on a pseudo-terminal* (https://aisixteen.com/fantastic/foundations/agents/exec-bridge/terminal.webm). A start with pty cols 80 and rows 24 and no command runs the child’s own $SHELL as job 7. Keystrokes go in with write, and output events come back. When more than 100,000 characters are unacked, the reader pauses. After ack brings the backlog under 5,000, it resumes.
 
 #### The wire back to the kernel
 
@@ -2201,7 +2201,7 @@ A frame is at most 16 MiB in both runtimes. A longer length prefix is a wire vio
 
 A program that never reads the fd runs like any other OS process. One that wants a `kernel` object can send the bridge `connector`. That verb works even on a sealed bridge, and its reply is the source of a reference client in Python. The program pastes it at the top of its own file, and it gives `kernel.send`, `emit`, `reflect`, `watch` and `on_message`.
 
-*Animation: The control wire* (https://aisixteen.com/fantastic/foundations/agents/exec-bridge/wire.mp4). The child inherits FANTASTIC_CTRL_FD. It writes a send frame for target store with rid 7. The relay forwards it as the runner. The call gate admits it only if the runner’s can_call names store, and then the reply with rid 7 comes back on the same fd. Without that grant the reply is a refusal.
+*Animation: The control wire* (https://aisixteen.com/fantastic/foundations/agents/exec-bridge/wire.webm). The child inherits FANTASTIC_CTRL_FD. It writes a send frame for target store with rid 7. The relay forwards it as the runner. The call gate admits it only if the runner’s can_call names store, and then the reply with rid 7 comes back on the same fd. Without that grant the reply is a refusal.
 
 #### Mail for a running program
 
@@ -2263,7 +2263,7 @@ the refusal (illustrative versions):
  "expected": "5e0b94a1c2d7f3a8", "actual": "c41d02e7b9a6f358"}
 ```
 
-*Animation: read, then write only if unchanged* (https://aisixteen.com/fantastic/foundations/agents/file/text.mp4). read returns notes.md as numbered lines with version 5e0b94a1c2d7f3a8. Another writer changes line 2, so the version becomes c41d02e7b9a6f358. A write with if_match 5e0b… is refused with version_mismatch and nothing is written. After a new read, a write with if_match c41d… lands and the reply holds the new version.
+*Animation: read, then write only if unchanged* (https://aisixteen.com/fantastic/foundations/agents/file/text.webm). read returns notes.md as numbered lines with version 5e0b94a1c2d7f3a8. Another writer changes line 2, so the version becomes c41d02e7b9a6f358. A write with if_match 5e0b… is refused with version_mismatch and nothing is written. After a new read, a write with if_match c41d… lands and the reply holds the new version.
 
 `append {path, bytes}` adds one chunk at the end and creates the file when it is absent. For all three content verbs, the document travels in `bytes`. On a binary transport it is the raw body. On a JSON-only channel a string is encoded as UTF-8.
 
@@ -2275,7 +2275,7 @@ The bridge verifies every hunk of every file before it writes anything. A SEARCH
 
 If the writes themselves fail part way, the files already written are put back from the copies the bridge holds. Text that itself contains conflict markers takes the 8-character fence: `<<<<<<<< SEARCH`, `========` and `>>>>>>>> REPLACE`. A successful edit replies `{edited: true, edits: [{path, hunks, size, version}]}`.
 
-*Animation: edit: every hunk, or nothing* (https://aisixteen.com/fantastic/foundations/agents/file/edit.mp4). An edit lists a.py and b.py with one hunk each. The hunk for a.py matches once, but the SEARCH text for b.py is not found: no_match. The bridge writes nothing, so both files are unchanged. With the search text fixed, both files are written together and the reply is edited: true.
+*Animation: edit: every hunk, or nothing* (https://aisixteen.com/fantastic/foundations/agents/file/edit.webm). An edit lists a.py and b.py with one hunk each. The hunk for a.py matches once, but the SEARCH text for b.py is not found: no_match. The bridge writes nothing, so both files are unchanged. With the search text fixed, both files are written together and the reply is edited: true.
 
 #### undo
 
@@ -2314,7 +2314,7 @@ The `kind` is not the platform’s event name. The bridge keeps a stamp for each
 
 A file is watched through its parent folder, so such a save is seen. A folder reports its entries, not its subfolders. A burst of events within 50 ms for one path becomes one `changed`. The `allow` list is read live: a path the bridge stops exposing reports nothing more.
 
-*Animation: watch_path: changes arrive as events* (https://aisixteen.com/fantastic/foundations/agents/file/watch.mp4). watch_path puts docs/ under a disk watcher. A change to a.md arrives in the bridge’s inbox as changed with kind modified. A new c.md arrives as added, and the removal of b.md arrives as deleted. Each event carries the path and the kind.
+*Animation: watch_path: changes arrive as events* (https://aisixteen.com/fantastic/foundations/agents/file/watch.webm). watch_path puts docs/ under a disk watcher. A change to a.md arrives in the bridge’s inbox as changed with kind modified. A new c.md arrives as added, and the removal of b.md arrives as deleted. Each event carries the path and the kind.
 
 A path that does not exist yet is accepted, and the reply carries `pending: true`. The bridge watches the nearest folder that exists, moves down as folders appear, and reports `added` when the path itself appears. A watch that cannot be armed, such as an unreadable folder, is refused with `transport_error` and holds nothing.
 
@@ -2360,7 +2360,7 @@ The agent keeps what the server said in memory, per instance. `reflect` answers 
 
 After `boot`, `docs of=<agent>` lists the server’s tools as the agent’s own verbs. Each entry is built from the tool’s `inputSchema` and `description`: a signature such as `args: title:str (req), body:str?.` followed by the description, or `No args.` when the schema has no properties.
 
-*Animation: Tools become verbs* (https://aisixteen.com/fantastic/foundations/agents/mcp-client/tools.mp4). The agent gh holds the url of a remote MCP server. boot sends server/discover, and the server answers. boot then sends tools/list and gets four tool names. docs of=gh lists three as verbs with their signatures (create_issue, list_issues, add_label); reflect is skipped, because the agent answers that verb itself.
+*Animation: Tools become verbs* (https://aisixteen.com/fantastic/foundations/agents/mcp-client/tools.webm). The agent gh holds the url of a remote MCP server. boot sends server/discover, and the server answers. boot then sends tools/list and gets four tool names. docs of=gh lists three as verbs with their signatures (create_issue, list_issues, add_label); reflect is skipped, because the agent answers that verb itself.
 
 A grant names tools like any other verb, for example `can_call {gh: ["create_issue"]}`. The [call gate](/fantastic/foundations/protocol/call-gate/) therefore decides, per tool, who may run it. The agent’s notes say it plainly: a tool runs on the remote server with the key’s rights, so the grant on each tool is the consent.
 
@@ -2391,7 +2391,7 @@ A server may send notifications during a call. The agent re-emits `notifications
 
 A tool that needs input in the middle of a call answers `{error, input_required: {inputRequests, requestState}}`. This client cannot give that input yet, and the call does not continue.
 
-*Animation: A send is a tools/call* (https://aisixteen.com/fantastic/foundations/agents/mcp-client/call.mp4). Agent a sends gh {"type": "create_issue", "title": "Bug"}. gh makes a tools/call to the server and answers content and structured. A second call, add_label, comes back with isError, so the reply has error: label not found. A send named delete_repo, which the server never listed, is refused unhandled and nothing goes to the server.
+*Animation: A send is a tools/call* (https://aisixteen.com/fantastic/foundations/agents/mcp-client/call.webm). Agent a sends gh {"type": "create_issue", "title": "Bug"}. gh makes a tools/call to the server and answers content and structured. A second call, add_label, comes back with isError, so the reply has error: label not found. A send named delete_repo, which the server never listed, is refused unhandled and nothing goes to the server.
 
 #### The key
 
@@ -2410,7 +2410,7 @@ The transport is Streamable HTTP: each request is a POST to the one endpoint, wi
 
 The agent tries the modern era first by sending `server/discover`. If the answer names `2026-07-28`, the server is modern. If it lists only legacy versions, or answers with another 4xx or an error that is not a modern one (`-32601` included), the agent falls back to `initialize` in `2025-11-25`. A server that speaks none of these versions is refused with “the server speaks … this client speaks …”.
 
-*Animation: The key and the wire* (https://aisixteen.com/fantastic/foundations/agents/mcp-client/wire.mp4). Before a request, gh sends get {ref, host} to the store creds and receives the api_key. It goes to the server as Authorization: Bearer. The agent first sends server/discover; a server that answers 2026-07-28 is spoken to with one POST per request and no session. A server that refuses discover gets initialize, and every later POST carries MCP-Session-Id.
+*Animation: The key and the wire* (https://aisixteen.com/fantastic/foundations/agents/mcp-client/wire.webm). Before a request, gh sends get {ref, host} to the store creds and receives the api_key. It goes to the server as Authorization: Bearer. The agent first sends server/discover; a server that answers 2026-07-28 is spoken to with one POST per request and no session. A server that refuses discover gets initialize, and every later POST carries MCP-Session-Id.
 
 In the legacy era a 404 on a request that carries a session id means the session expired: the agent runs one new `initialize` and repeats the request. A new session ends the old one with an HTTP DELETE, and a 405 is accepted. If the server sends a request on the stream, `ping` is answered with `{}` and anything else with `-32601`.
 
@@ -2458,7 +2458,7 @@ get_routes answered by a web_ws leg:
 {"routes": [{"kind": "websocket", "path": "/{host_id}/ws"}]}
 ```
 
-*Animation: Boot: ask the children, then listen* (https://aisixteen.com/fantastic/foundations/agents/web/mount.mp4). The web agent starts with its two baked routes, the favicon and the file route. It sends get_routes to its children, a web_ws leg and a web_rest leg, and each answers with the routes it declares (the drawn table shows only some of them). Their paths join the table, with the literal paths before the {host_id} pattern. Only then does the host bind its port and listen (illustrative ids).
+*Animation: Boot: ask the children, then listen* (https://aisixteen.com/fantastic/foundations/agents/web/mount.webm). The web agent starts with its two baked routes, the favicon and the file route. It sends get_routes to its children, a web_ws leg and a web_rest leg, and each answers with the routes it declares (the drawn table shows only some of them). Their paths join the table, with the literal paths before the {host_id} pattern. Only then does the host bind its port and listen (illustrative ids).
 
 The listener binds the record’s `bind` if it has one, else its `host`, else `127.0.0.1`. A bind that fails, for example a port already in use, is logged and not raised, so one bad web agent does not stop the kernel.
 
@@ -2482,7 +2482,7 @@ At `boot` the refusal fails the boot before the listener binds. A later `mount` 
 
 Patterns are shared on purpose. Two `web_ws` legs may both declare `/{host_id}/ws`. A WebSocket route and an HTTP route on one path, or two methods on one path, never conflict either.
 
-*Animation: Two legs, one literal route* (https://aisixteen.com/fantastic/foundations/agents/web/duplicates.mp4). Leg ws_a declares the literal route /app/ws and is mounted. Leg ws_b declares /{host_id}/ws, a pattern, which is shared and mounts. When leg ws_c also declares /app/ws, the host refuses it with a message naming ws_c and ws_a, and the table keeps the first (illustrative ids).
+*Animation: Two legs, one literal route* (https://aisixteen.com/fantastic/foundations/agents/web/duplicates.webm). Leg ws_a declares the literal route /app/ws and is mounted. Leg ws_b declares /{host_id}/ws, a pattern, which is shared and mounts. When leg ws_c also declares /app/ws, the host refuses it with a message naming ws_c and ws_a, and the table keeps the first (illustrative ids).
 
 With two web_ws legs the one mounted first is the first match, so it answers every `/<segment>/ws` upgrade. The segment in the URL is not a leg selector. It names the agent whose events the socket watches, as the WebSocket section shows.
 
@@ -2512,7 +2512,7 @@ a refused HTTP request (illustrative origin):
 
 A refused WebSocket upgrade is a 403 with no body. Both kinds are logged on the kernel’s output.
 
-*Animation: The guard in front of every route* (https://aisixteen.com/fantastic/foundations/agents/web/guard.mp4). Three requests reach a host bound to localhost:8000. A GET whose Host is evil.example is refused with 403. A POST with a foreign Origin is refused with 403. A POST with no Origin passes the guard and reaches the leg, whose ingress rule still decides (illustrative names).
+*Animation: The guard in front of every route* (https://aisixteen.com/fantastic/foundations/agents/web/guard.webm). Three requests reach a host bound to localhost:8000. A GET whose Host is evil.example is refused with 403. A POST with a foreign Origin is refused with 403. A POST with no Origin passes the guard and reaches the leg, whose ingress rule still decides (illustrative names).
 
 The binding is separate from the identity. `bind: 0.0.0.0` publishes the listener, for a container, while the guard keeps judging by `host`. A `host` of `0.0.0.0` answers only `Host: 0.0.0.0:<port>`.
 
@@ -2530,7 +2530,7 @@ So the read passes the same [call gate](/fantastic/foundations/protocol/call-gat
 
 If any one is missing, the browser gets a 404. A gate denial (`reason` `unauthorized`) carries a JSON body with `error`, `reason`, `side` and `hint` (`side` is null when the leg itself is sealed), so a person curling the URL learns which half is missing. A missing file, an unknown agent id or an agent that is not a file server is a bare 404 with no body, so the route does not reveal what exists.
 
-*Animation: Serving a file as the web agent* (https://aisixteen.com/fantastic/foundations/agents/web/file.mp4). A browser asks GET /files/file/logo.png. The route sends the web agent fetch_file, and the web agent sends read_stream to the file agent as itself. With can_call and callable_by both granting, 256 KiB chunks stream back as 200. With the file agent’s callable_by empty, the call gate refuses and the browser gets a 404 whose body names the missing side (illustrative ids).
+*Animation: Serving a file as the web agent* (https://aisixteen.com/fantastic/foundations/agents/web/file.webm). A browser asks GET /files/file/logo.png. The route sends the web agent fetch_file, and the web agent sends read_stream to the file agent as itself. With can_call and callable_by both granting, 256 KiB chunks stream back as 200. With the file agent’s callable_by empty, the call gate refuses and the browser gets a 404 whose body names the missing side (illustrative ids).
 
 `reflect` on the web agent computes this instead of describing it. Its `browser_reachable` field lists the agent ids a browser could fetch through this host right now, using the real gate and the leg’s resolved ingress rule. The same reply carries `port`, `host`, `allowed_origins`, `running`, `surfaces` (each child with its mounted paths) and the file route’s contract.
 
@@ -2600,7 +2600,7 @@ The bridge never wraps a call in a `forward` envelope. `forward` is only the ver
 
 A frame is a text WebSocket message of JSON, or a binary message of the form `[4B len|header|body]` when it carries raw bytes, such as a `read_stream` chunk. Bytes are never base64-encoded. A frame that does not decode, or decodes to something other than an object, is skipped with a warning on stderr and the reader keeps going. A frame of an unknown `type` is ignored.
 
-*Animation: A forward becomes a call frame* (https://aisixteen.com/fantastic/foundations/agents/bridge/frames.mp4). On kernel A, a local agent sends the bridge a `forward` with target src and a payload. The bridge writes a call frame with an illustrative id, br-ab12-1, and ships it to the web_ws leg of kernel B. A reply frame with the same id returns, and the bridge returns the data unwrapped to the caller. A second forward, br-ab12-2, gets an error frame, which comes back as “remote error: …”.
+*Animation: A forward becomes a call frame* (https://aisixteen.com/fantastic/foundations/agents/bridge/frames.webm). On kernel A, a local agent sends the bridge a `forward` with target src and a payload. The bridge writes a call frame with an illustrative id, br-ab12-1, and ships it to the web_ws leg of kernel B. A reply frame with the same id returns, and the bridge returns the data unwrapped to the caller. A second forward, br-ab12-2, gets an error frame, which comes back as “remote error: …”.
 
 #### One forward, start to finish
 
@@ -2629,7 +2629,7 @@ Large messages have a limit. A frame and a whole WebSocket message are each at m
 
 The bridge re-emits an event on its own inbox, as the payload plus `src`, only when `src` is on the watch list. An event for anything else is dropped, and `unwatch_remote` takes the name off the list. A local agent that wants those events watches the bridge with `kernel.watch(<bridge id>, …)`.
 
-*Animation: Watching a remote agent* (https://aisixteen.com/fantastic/foundations/agents/bridge/watch.mp4). The bridge sends a watch frame for the remote agent src1 and adds it to its watch list. An event frame with src src1 arrives and is re-emitted on the bridge’s inbox as the payload plus src. An event frame for src2, which is not on the list, is dropped. Ids are illustrative.
+*Animation: Watching a remote agent* (https://aisixteen.com/fantastic/foundations/agents/bridge/watch.webm). The bridge sends a watch frame for the remote agent src1 and adds it to its watch list. An event frame with src src1 arrives and is re-emitted on the bridge’s inbox as the payload plus src. An event frame for src2, which is not on the list, is dropped. Ids are illustrative.
 
 #### A leg’s lifetime
 
@@ -2639,7 +2639,7 @@ The bridge does not reconnect on its own. `reconnect` is an explicit verb that s
 
 The leg’s rules are read from its record on every frame. Sealing or opening a live leg with `update_agent` takes effect on the next frame, with no reboot, as [Security](/fantastic/foundations/protocol/security/) describes for every edge. `reflect` shows `connected`, `pending_count` and the rules.
 
-*Animation: A leg’s lifetime* (https://aisixteen.com/fantastic/foundations/agents/bridge/lifetime.mp4). boot dials the peer and emits bridge_up. A forward, br-ab12-1, is waiting when the peer drops. The bridge emits bridge_down once and the forward fails with “bridge transport closed”. Nothing redials by itself. reconnect boots again with a new nonce, so the next forward is br-cd34-1. Ids are illustrative.
+*Animation: A leg’s lifetime* (https://aisixteen.com/fantastic/foundations/agents/bridge/lifetime.webm). boot dials the peer and emits bridge_up. A forward, br-ab12-1, is waiting when the peer drops. The bridge emits bridge_down once and the forward fails with “bridge transport closed”. Nothing redials by itself. reconnect boots again with a new nonce, so the next forward is br-cd34-1. Ids are illustrative.
 
 Rust and Python run the same design. Python’s engine lives in `io_bridge` and `ws_bridge` only adds the WebSocket transport; Rust keeps both in one crate that also registers `relay_connector.tools`.
 
@@ -2671,7 +2671,7 @@ The scheduler stores a record: `id` (`sch_` and six hex digits), `target`, `payl
 
 A missing `target` or a payload without a `type` is refused with an error. A value that is present but wrong is refused as `bad_arg`: `interval_seconds: "60"`, `true` or a float, and a `fire_timeout` that is not a positive number. The scheduler does not guess what the caller meant.
 
-*Animation: Add a schedule* (https://aisixteen.com/fantastic/foundations/agents/scheduler/add.mp4). A caller sends schedule with target monitor, a reflect payload and interval_seconds 30. The scheduler stores a record with next_run set to now plus 30 and run_count 0, and answers the schedule_id. A second send with interval_seconds "60" is refused as bad_arg.
+*Animation: Add a schedule* (https://aisixteen.com/fantastic/foundations/agents/scheduler/add.webm). A caller sends schedule with target monitor, a reflect payload and interval_seconds 30. The scheduler stores a record with next_run set to now plus 30 and run_count 0, and answers the schedule_id. A second send with interval_seconds "60" is refused as bad_arg.
 
 There is no verb that changes an interval. To change a cadence, `unschedule {schedule_id}` and `schedule` again. If the record cannot be saved, `schedule` answers an error and keeps no schedule.
 
@@ -2694,7 +2694,7 @@ After the send, the scheduler records one `schedule_fired` event per fire. It ho
 
 The event goes to the scheduler’s own inbox and is appended to its history. It does not go to the target. The target gets the payload and nothing else, once per tick. The `history` verb returns at most the newest 500 fires of all the scheduler’s schedules; the history file itself is trimmed back to 500 once it passes 1000.
 
-*Animation: A fire goes out as the scheduler* (https://aisixteen.com/fantastic/foundations/agents/scheduler/fire.mp4). The schedule is due. The loop adds 1 to run_count, sets next_run and saves, then sends the payload to monitor as the scheduler; the gate checks the scheduler’s can_call and monitor’s callable_by. monitor receives the payload once. The schedule_fired event, with the result, goes to the scheduler’s own inbox and its history.
+*Animation: A fire goes out as the scheduler* (https://aisixteen.com/fantastic/foundations/agents/scheduler/fire.webm). The schedule is due. The loop adds 1 to run_count, sets next_run and saves, then sends the payload to monitor as the scheduler; the gate checks the scheduler’s can_call and monitor’s callable_by. monitor receives the payload once. The schedule_fired event, with the result, goes to the scheduler’s own inbox and its history.
 
 #### Sleeping until the next fire
 
@@ -2713,7 +2713,7 @@ There are two kinds of pause. `pause {schedule_id}` stops one schedule and keeps
 
 `tick_now` answers with the fire’s outcome, not only the fact that it fired. A target that refuses every fire, because the payload’s verb does not exist there, shows up at once in the `error` field. The scheduler gives its verbs to every caller the gate admits: such a caller sees, ticks, pauses and removes every schedule, and reads all the history.
 
-*Animation: Sleeping until the next fire* (https://aisixteen.com/fantastic/foundations/agents/scheduler/wake.mp4). Two schedules, one every 5 seconds and one every 600, share one scheduler. The loop sleeps until the earlier next_run, fires it and sleeps again. Pausing a schedule takes it out of the wait; resuming it fires it at once only if its old next_run has passed. An idle scheduler sleeps with no wakeups.
+*Animation: Sleeping until the next fire* (https://aisixteen.com/fantastic/foundations/agents/scheduler/wake.webm). Two schedules, one every 5 seconds and one every 600, share one scheduler. The loop sleeps until the earlier next_run, fires it and sleeps again. Pausing a schedule takes it out of the wait; resuming it fires it at once only if its old next_run has passed. An idle scheduler sleeps with no wakeups.
 
 #### What a schedule can send
 
@@ -2747,7 +2747,7 @@ the reason a mismatch leaves (illustrative verbs):
 
 A call that arrives before `hello` waits for it. If the program never says hello, the caller’s own timeout is what ends the wait.
 
-*Animation: hello: the program names its verbs* (https://aisixteen.com/fantastic/foundations/agents/program-agents/hello.mp4). The kernel starts the program for agent tool with FANTASTIC_CTRL_FD. The program writes hello with [echo]. They match bundle.yaml, so the instance is running. A second program writes hello with [echo, shout] against a bundle that declares only echo, and the instance stops with “they must match”.
+*Animation: hello: the program names its verbs* (https://aisixteen.com/fantastic/foundations/agents/program-agents/hello.webm). The kernel starts the program for agent tool with FANTASTIC_CTRL_FD. The program writes hello with [echo]. They match bundle.yaml, so the instance is running. A second program writes hello with [echo, shout] against a bundle that declares only echo, and the instance stops with “they must match”.
 
 #### The wire
 
@@ -2784,7 +2784,7 @@ fa.serve({"search": search})   # hello, then answer calls
 
 If a handler raises, the helper prints the traceback to stderr and answers `{"error": "<verb> raised <ExceptionName>: <message>"}`. The program keeps running. When the kernel closes the socket, the helper exits the process.
 
-*Animation: A call, a result, a raise* (https://aisixteen.com/fantastic/foundations/agents/program-agents/call.mp4). A caller sends {type: echo} to tool. The kernel forwards call rid 1 with the whole payload. The handler returns {echo: "hi"}, which goes back as result rid 1, and the caller receives it. A handler that raises answers {error: "echo raised ValueError"} and the program keeps running.
+*Animation: A call, a result, a raise* (https://aisixteen.com/fantastic/foundations/agents/program-agents/call.webm). A caller sends {type: echo} to tool. The kernel forwards call rid 1 with the whole payload. The handler returns {echo: "hi"}, which goes back as result rid 1, and the caller receives it. A handler that raises answers {error: "echo raised ValueError"} and the program keeps running.
 
 #### Calling out and emitting
 
@@ -2794,7 +2794,7 @@ Because calls run on a worker thread while the main thread keeps reading, a hand
 
 `fa.emit(payload)` writes an `emit` message. The payload becomes an event in the inbox of the program’s agent, where anything that watches the agent sees it. It is how a program reports progress while a call is still open.
 
-*Animation: send and emit from inside a handler* (https://aisixteen.com/fantastic/foundations/agents/program-agents/out.mp4). While answering call rid 2, the handler writes send to agent store. The kernel sends it as tool, checks the gate, and returns reply rid 1 with the data. The handler then writes emit progress, which a watcher of tool sees, and finishes with result rid 2.
+*Animation: send and emit from inside a handler* (https://aisixteen.com/fantastic/foundations/agents/program-agents/out.webm). While answering call rid 2, the handler writes send to agent store. The kernel sends it as tool, checks the gate, and returns reply rid 1 with the data. The handler then writes emit progress, which a watcher of tool sees, and finishes with result rid 2.
 
 The program is still a process with the user’s OS rights. What it does with its own files, subprocesses and network never passes a gate; only the verbs that reach it, and the sends it makes through the socket, do. [Security](/fantastic/foundations/protocol/security/) draws that line.
 
@@ -2814,7 +2814,7 @@ When the process exits by itself, the reason is `<id>: its program exited (code 
 
 `reflect` on an instance shows the state: `id`, `sentence`, `base`, `bundle`, `folder`, `program` (`not started`, `starting`, `running` or `stopped`) and `security`. When they exist it adds `exit_code`, `program_error` (the stop reason) and `stderr_tail`, which is usually where a crash’s traceback is.
 
-*Animation: When the process stops* (https://aisixteen.com/fantastic/foundations/agents/program-agents/stop.mp4). A call rid 3 is in flight. The program exits with code 1. The in-flight call settles as transport_closed with “its program exited (code 1)”, the instance emits status stopped, and the next call is refused with the hint to use reload_bundle. Nothing respawns.
+*Animation: When the process stops* (https://aisixteen.com/fantastic/foundations/agents/program-agents/stop.webm). A call rid 3 is in flight. The program exits with code 1. The in-flight call settles as transport_closed with “its program exited (code 1)”, the instance emits status stopped, and the next call is refused with the hint to use reload_bundle. Nothing respawns.
 
 #### Rust and Python
 
@@ -2862,7 +2862,7 @@ The loader does not send these calls through the [call gate](/fantastic/foundati
 
 Every created agent has the baseline grant `{"$self": "*"}` on both `can_call` and `callable_by`. A `can_call` or `callable_by` in the manifest is merged on top. Nothing else is granted: an edge between two roster agents needs both halves written in the manifest.
 
-*Animation: Boot: each entry becomes a child* (https://aisixteen.com/fantastic/foundations/agents/static-loader/hydrate.mp4). The static_loader reads fantastic.yaml, which lists memory and worker. It creates memory first, then worker, each as its own child with the baseline $self grant, and worker’s can_call names memory. The reply lists both ids under created.
+*Animation: Boot: each entry becomes a child* (https://aisixteen.com/fantastic/foundations/agents/static-loader/hydrate.webm). The static_loader reads fantastic.yaml, which lists memory and worker. It creates memory first, then worker, each as its own child with the baseline $self grant, and worker’s can_call names memory. The reply lists both ids under created.
 
 The reply lists what happened: `{"booted": true, "created": [...], "reapplied": [...]}`. Any failure while reading the manifest or applying an entry returns `{"error": "...", "booted": false}` and stops. Entries before the failing one are already applied, and the rest are not read.
 
@@ -2874,7 +2874,7 @@ Editing a grant in the YAML therefore changes the agent on the next boot, and th
 
 `update_agent` replaces a named field whole, and a bare `can_call` would delete the `$self` baseline. The loader merges the declared `can_call` and `callable_by` over the baseline first, as `create_agent` does, so `$self` survives.
 
-*Animation: Reboot: the manifest is re-applied* (https://aisixteen.com/fantastic/foundations/agents/static-loader/reapply.mp4). After a restart memory and worker already exist. The loader re-applies each entry with update_agent instead of creating it again, and merges the declared can_call over the $self baseline. The reply lists both ids under reapplied. Had the file changed worker’s handler_module, the boot would fail instead.
+*Animation: Reboot: the manifest is re-applied* (https://aisixteen.com/fantastic/foundations/agents/static-loader/reapply.webm). After a restart memory and worker already exist. The loader re-applies each entry with update_agent instead of creating it again, and merges the declared can_call over the $self baseline. The reply lists both ids under reapplied. Had the file changed worker’s handler_module, the boot would fail instead.
 
 One field cannot change. A `handler_module` is fixed when the agent is created, because the running agent’s state belongs to the old bundle. If the manifest declares a different `handler_module` for an id that already exists, `boot` fails with “a handler_module is fixed at create; delete the agent to re-declare it”.
 
@@ -2894,7 +2894,7 @@ The hint says to change an agent’s record with `update_agent`, and that the op
 
 After boot, the roster agents are deny-all like any other agent. One creates agents only if it is granted `create_agent` on the root, at both ends. The manifest does not grant that, so the set of agents is fixed by the file. The closure comes from the default rule.
 
-*Animation: An agent-sent boot is refused* (https://aisixteen.com/fantastic/foundations/agents/static-loader/closed.mp4). An agent that has been granted boot on the static_loader sends it, and the loader refuses with reason unauthorized before the manifest is read, even though the gate allows the call. Then worker tries create_agent on the root and is refused too, because deny-all grants it nothing. The roster stays what the file declared.
+*Animation: An agent-sent boot is refused* (https://aisixteen.com/fantastic/foundations/agents/static-loader/closed.webm). An agent that has been granted boot on the static_loader sends it, and the loader refuses with reason unauthorized before the manifest is read, even though the gate allows the call. Then worker tries create_agent on the root and is refused too, because deny-all grants it nothing. The roster stays what the file declared.
 
 Sources: lib.rs: the static loader bundle (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-static-loader/src/lib.rs#L120); lib.rs: reading and checking the manifest (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-static-loader/src/lib.rs#L68); readme.md: manifest and init (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-static-loader/src/readme.md#L1); tools.py: the Python loader, boot and re-apply (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/loader/static_loader/src/static_loader/tools.py#L102); tools.py: _load_manifest and validate_meta (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/loader/static_loader/src/static_loader/tools.py#L65); main.rs: the init command (Rust CLI) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-cli/src/main.rs#L472); dispatch.py: the init command (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/modes/dispatch.py#L100)
 
@@ -2924,7 +2924,7 @@ The registry reads the folders in its `role_dirs` on every call, so adding a fil
 
 A generic `project_lead` card ships with the bundle, and `roles` always lists it. A card of the same name in a folder replaces it. A second folder card with a name already read is refused as a duplicate.
 
-*Animation: A role card becomes an agent* (https://aisixteen.com/fantastic/foundations/agents/agentic-resources/cards.mp4). The card reviewer names tier fast and grants report on the registry. The registry’s tiers map turns fast into backend fields. lead sends spawn {role: "reviewer"}, and reviewer-1 appears as lead’s child, with pause, resume and stop granted to lead.
+*Animation: A role card becomes an agent* (https://aisixteen.com/fantastic/foundations/agents/agentic-resources/cards.webm). The card reviewer names tier fast and grants report on the registry. The registry’s tiers map turns fast into backend fields. lead sends spawn {role: "reviewer"}, and reviewer-1 appears as lead’s child, with pause, resume and stop granted to lead.
 
 #### Spawn
 
@@ -2961,7 +2961,7 @@ the refusal (illustrative values):
 
 `scope` is `role` or `total` for the registry’s caps; `running` and `max` give the count and the cap that stopped the spawn. Both bundles refuse in a shape of their own: `error` is a short code such as `limit`, `unknown_tier` or `already_held`, and `reason` is a sentence. The kernel’s [common refusal shape](/fantastic/foundations/protocol/refusals/) is the other way round, with the code in `reason`.
 
-*Animation: Limits count every agent* (https://aisixteen.com/fantastic/foundations/agents/agentic-resources/limits.mp4). The total limit is 2. Two spawns create w1 and w2. A third spawn is refused with limit, scope total, 2 running, max 2. w1 reports done, and the third spawn is still refused. After delete_agent on w1, the count drops to 1 and the spawn creates w3.
+*Animation: Limits count every agent* (https://aisixteen.com/fantastic/foundations/agents/agentic-resources/limits.webm). The total limit is 2. Two spawns create w1 and w2. A third spawn is refused with limit, scope total, 2 running, max 2. w1 reports done, and the third spawn is still refused. After delete_agent on w1, the count drops to 1 and the spawn creates w3.
 
 #### Handing a quota to a sub-lead
 
@@ -3000,7 +3000,7 @@ one history step (illustrative values):
 {"from": "lead-a", "to": {"subtree": "team-b"}, "by": "lead-a", "at": 1.7e9}
 ```
 
-*Animation: Who holds the task* (https://aisixteen.com/fantastic/foundations/agents/agentic-resources/tasks.mp4). add creates t1 with source gh:o/r#12 and no holder. assign gives it to lead-a, and a second assign is refused with already_held. reassign moves it to the subtree of team-b. The history lists both steps as from, to, by and at.
+*Animation: Who holds the task* (https://aisixteen.com/fantastic/foundations/agents/agentic-resources/tasks.webm). add creates t1 with source gh:o/r#12 and no holder. assign gives it to lead-a, and a second assign is refused with already_held. reassign moves it to the subtree of team-b. The history lists both steps as from, to, by and at.
 
 #### Who writes, and where it is stored
 
@@ -3022,7 +3022,7 @@ The canvas is an example of building on the kernel. `fantastic canvas` serves a 
 
 The page is its own kernel in the browser, bridged to the host kernel through the `canvas_ws` leg. It holds no memory and no AI. Every cell is a **view** of a host agent, such as a terminal, an AI chat, a python agent or an MCP server, or page-side content (`html`, `gl`).
 
-*Animation: Every cell is a view of an agent* (https://aisixteen.com/fantastic/foundations/canvas/cells.mp4). The canvas page is its own kernel in the browser, bridged to the host kernel through canvas_ws. Each cell on the page is a view of a host agent: a terminal shows an exec_bridge job, a chat shows an AI agent. The page holds no memory and no AI.
+*Animation: Every cell is a view of an agent* (https://aisixteen.com/fantastic/foundations/canvas/cells.webm). The canvas page is its own kernel in the browser, bridged to the host kernel through canvas_ws. Each cell on the page is a view of a host agent: a terminal shows an exec_bridge job, a chat shows an AI agent. The page holds no memory and no AI.
 
 Double-clicking opens the selector, which lists everything that can be placed there. In the README’s words: “Nothing floats on the canvas; every surface is a cell.”
 
@@ -3078,7 +3078,7 @@ There is no default timeout. The call lasts as long as the target takes, which m
 
 `forward` adds no secret marks of its own, so values travel and are recorded as they are. A secret mark the caller put under `payload` is carried onto the onward send, so [records](/fantastic/foundations/kernel/records/) mask it the same way. Who may call `forward` is `user`’s `callable_by` and nothing else.
 
-*Animation: Every call goes out as user* (https://aisixteen.com/fantastic/foundations/canvas/user/forward.mp4). A canvas tab wraps its call as forward {target: "notes", payload: {type: "reflect"}} and sends it to user. user sends the payload to notes with its own id as the sender. notes replies, and the reply comes back to the tab verbatim, with no default timeout.
+*Animation: Every call goes out as user* (https://aisixteen.com/fantastic/foundations/canvas/user/forward.webm). A canvas tab wraps its call as forward {target: "notes", payload: {type: "reflect"}} and sends it to user. user sends the payload to notes with its own id as the sender. notes replies, and the reply comes back to the tab verbatim, with no default timeout.
 
 A tab checks at start that it is admitted. It sends `user.forward` of `reflect` to `kernel`, and if the answer’s reason is `unauthorized` the page shows the refusal and runs nothing else.
 
@@ -3094,7 +3094,7 @@ Every agent except stores and a cabinet’s agents may also `send` to `user`, on
 
 The reverse is refused. `send` is not a verb of the human, and `user` answers it with reason `unhandled` and the text “use `forward`”.
 
-*Animation: The gate judges user’s grants* (https://aisixteen.com/fantastic/foundations/canvas/user/gate.mp4). With user.can_call and notes.callable_by both granting, a forward gets its reply. The person narrows user.can_call with update_agent and the next forward is refused at egress. A send to user itself is refused with reason unhandled: send is not a verb of the human.
+*Animation: The gate judges user’s grants* (https://aisixteen.com/fantastic/foundations/canvas/user/gate.webm). With user.can_call and notes.callable_by both granting, a forward gets its reply. The person narrows user.can_call with update_agent and the next forward is refused at egress. A send to user itself is refused with reason unhandled: send is not a verb of the human.
 
 #### around and path
 
@@ -3139,7 +3139,7 @@ what the asker reads (illustrative pid):
 
 Open inquiries live in RAM only. A host restart forgets them, and the asker’s own history keeps the question. The `mcp` leg holds its own inquiries, with `answer` and on its record, so they survive a restart ([Web MCP](/fantastic/foundations/canvas/web-mcp/#inquiries)).
 
-*Animation: An inquiry is held, then answered* (https://aisixteen.com/fantastic/foundations/canvas/user/inquiry.mp4). The agent ai_1 sends user an inquiry of kind confirm. user answers {accepted: true, re: 4655} at once and holds it in RAM. The person calls answer_inquiry with re 4655 and yes, and ai_1 receives “[reply to 4655 · user inquiry]” with yes on its own thread.
+*Animation: An inquiry is held, then answered* (https://aisixteen.com/fantastic/foundations/canvas/user/inquiry.webm). The agent ai_1 sends user an inquiry of kind confirm. user answers {accepted: true, re: 4655} at once and holds it in RAM. The person calls answer_inquiry with re 4655 and yes, and ai_1 receives “[reply to 4655 · user inquiry]” with yes on its own thread.
 
 #### The rest, and the Python twin
 
@@ -3179,7 +3179,7 @@ place an html cell (illustrative guid):
 
 The body of an `html` or `gl` cell is `bytes`, taken verbatim. An html body that is empty, a placeholder or truncated is refused with the reason. `place` and `update` set only `display_name`, `html`, `gl_source`, `trusted`, `readme`, `can_call` and `callable_by`, and a field `place` does not take comes back in `ignored`. If the html calls an agent that the cell’s `can_call` lacks, the reply names the missing grants.
 
-*Animation: Place and move a cell* (https://aisixteen.com/fantastic/foundations/canvas/canvas/place.mp4). A send of place {kind: html, x: 80, y: 60} goes to view_root. The cell appears at 480 by 320, and its rectangle is written to layout_canvas. A move {id, x: 400} then rewrites only that rectangle. The cell itself is untouched.
+*Animation: Place and move a cell* (https://aisixteen.com/fantastic/foundations/canvas/canvas/place.webm). A send of place {kind: html, x: 80, y: 60} goes to view_root. The cell appears at 480 by 320, and its rectangle is written to layout_canvas. A move {id, x: 400} then rewrites only that rectangle. The cell itself is untouched.
 
 #### Move: a position lives in the layout
 
@@ -3209,7 +3209,7 @@ wire (illustrative ids):
 [{"target": "<page guid>|view_root", "payload": {"type": "wire", "sender": "chart_1", "receiver": "feed_1", "verbs": ["watch"]}}]
 ```
 
-*Animation: Wire, hide and show* (https://aisixteen.com/fantastic/foundations/canvas/canvas/wire.mp4). Cells chart_1 and feed_1 sit on the view. wire {sender: chart_1, receiver: feed_1, verbs: [watch]} adds watch to chart_1’s can_call and to feed_1’s callable_by. hide {id: feed_1} then takes feed_1 off the view and its agent keeps running, and show brings it back at the same place.
+*Animation: Wire, hide and show* (https://aisixteen.com/fantastic/foundations/canvas/canvas/wire.webm). Cells chart_1 and feed_1 sit on the view. wire {sender: chart_1, receiver: feed_1, verbs: [watch]} adds watch to chart_1’s can_call and to feed_1’s callable_by. hide {id: feed_1} then takes feed_1 off the view and its agent keeps running, and show brings it back at the same place.
 
 #### Hide, show and remove
 
@@ -3227,7 +3227,7 @@ The selector’s `boot` opens the popup on top of everything. When you pick a ti
 
 While it exists, anyone with the grant can send it `tiles {typed?}`. The reply is `{tiles: [{label, kind, section, hint}]}`, the kinds a cell can be made of here for that text. The tiles come in sections: `host`, `coding`, `bundles`, `page`, `page_bundles` and `chats`. The built-in ones are `terminal`, `python agent`, `mcp connector`, `user store`, `html`, `stream`, `file tree`, `preview`, `canvas theme` and `tips`, plus the AI agent tile. The `coding` section lists `fantastic`, `claude`, `codex`, `aider` and `opencode` when they are on your `PATH`.
 
-*Animation: The selector popup* (https://aisixteen.com/fantastic/foundations/canvas/canvas/selector.mp4). A double-click on empty canvas adds selector_3f9a1c20 at that spot and its popup opens. tiles answers with the sections of what can be made. The human picks html, the cell is placed at the spot, and the selector deletes itself.
+*Animation: The selector popup* (https://aisixteen.com/fantastic/foundations/canvas/canvas/selector.webm). A double-click on empty canvas adds selector_3f9a1c20 at that spot and its popup opens. tiles answers with the sections of what can be made. The human picks html, the cell is placed at the spot, and the selector deletes itself.
 
 Sources: canvas_agent.ts: the view and its verbs (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/canvas_agent.ts#L164); canvas_agent.ts: wire (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/canvas_agent.ts#L277); layout.ts: rects per theme, hidden (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/layout.ts#L4); cell_menu.ts: ✕ hides, Shift+✕ deletes (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/cell_menu.ts#L5); selector_agent.ts: the selector (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/selector_agent.ts#L4); action_popup.ts: the tiles (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/action_popup.ts#L96); canvas.md: the view’s verbs (https://github.com/aisixteen/fantastic/blob/main/src/tui/docs/canvas.md#L1)
 
@@ -3262,7 +3262,7 @@ view: {kind: terminal | chat | html | …  OR  handler: <any page bundle>,
 4. The record has a `memory_store_id` and a `handler_module`, which is what makes an AI agent: a chat.
 5. Anything else gets the **stub**: a reflect card.
 
-*Animation: Record, kind, stub* (https://aisixteen.com/fantastic/foundations/canvas/views/choose.mp4). Three host agents. py_ab12 has view {kind: html} in its record, so its own view draws it. runner has no view and is an exec_bridge, so it gets a terminal. notes has neither, so it gets the reflect card.
+*Animation: Record, kind, stub* (https://aisixteen.com/fantastic/foundations/canvas/views/choose.webm). Three host agents. py_ab12 has view {kind: html} in its record, so its own view draws it. runner has no view and is an exec_bridge, so it gets a terminal. notes has neither, so it gets the reflect card.
 
 The stub is `reflect_view`. It shows the agent’s `handler_module`, its sentence, its verbs as the kernel’s `docs` lists them, and the rest of its reflect as JSON. An agent nobody wrote a view for is therefore still visible and documented.
 
@@ -3290,7 +3290,7 @@ Each generic renderer carries its own fixed list. The stub gets `reflect` (and `
 
 The read-only views (resources, tasks, store, scheduler, cabinets, credentials) are granted reads and `watch` and no write verb. The credentials view never gets `get`: it shows a name and a grant, not a value. See the [credential store](/fantastic/foundations/agents/credential-store/).
 
-*Animation: The view’s calls become the cell’s grant* (https://aisixteen.com/fantastic/foundations/canvas/views/grant.mp4). py_ab12 declares calls [hello, count]. The canvas adds watch and writes the cell’s can_call as {py_ab12: [hello, count, watch]}. The panel’s hello passes the call gate as the cell. A stop is not in the grant and is refused.
+*Animation: The view’s calls become the cell’s grant* (https://aisixteen.com/fantastic/foundations/canvas/views/grant.webm). py_ab12 declares calls [hello, count]. The canvas adds watch and writes the cell’s can_call as {py_ab12: [hello, count, watch]}. The panel’s hello passes the call gate as the cell. A stop is not in the grant and is refused.
 
 #### The terminal UI: a panel per handler_module
 
@@ -3308,7 +3308,7 @@ AI agents match by suffix, so a new provider needs no change. A terminal is matc
 
 An unknown module is not an error and not a blank pane. The **generic panel** shows the agent’s id, whether it is open or sealed, its sentence, the last call, its egress (`can_call`) and ingress (`callable_by`), its verbs and its rows, and lets you call any declared verb. Its answer, a refusal included, is shown verbatim. A transport leg has only a reflect, so it lands here too.
 
-*Animation: A panel per handler_module* (https://aisixteen.com/fantastic/foundations/canvas/views/tui.mp4). Four agents selected in the tree. A vllm_backend.tools agent gets the AI panel, the shell’s term gets the terminal, another exec_bridge agent gets the generic panel, and so does a module the shell has never seen.
+*Animation: A panel per handler_module* (https://aisixteen.com/fantastic/foundations/canvas/views/tui.webm). Four agents selected in the tree. A vllm_backend.tools agent gets the AI panel, the shell’s term gets the terminal, another exec_bridge agent gets the generic panel, and so does a module the shell has never seen.
 
 In the public code, `make` in `panel/mod.rs` is a fixed `match` over these kinds. This page therefore claims no plug-in hook for a custom TUI panel: a new handler gets the generic panel.
 
@@ -3330,7 +3330,7 @@ A view creates the cell with `place {kind: "html", …}` and changes it with `up
 
 A **page bundle** is a folder under the canvas’s `bundles/` whose `bundle.yaml` has `base: html_agent`, a `sentence` and an `html:` body. Every instance starts with that body until it gets its own from `set_html`. The page kernel loads these. They are not the host’s [folder bundles](/fantastic/foundations/kernel/bundles/#folder-bundles), which extend only `py_agent`.
 
-*Animation: set_html: refused, then accepted* (https://aisixteen.com/fantastic/foundations/canvas/html-gl/html_set.mp4). The view places cell panel1. A set_html whose body is plain text with no element is refused as bad_arg and the cell keeps its old body. A set_html with a button and a script is stored in meta.html, the agent emits reload_html, and the panel draws the new body.
+*Animation: set_html: refused, then accepted* (https://aisixteen.com/fantastic/foundations/canvas/html-gl/html_set.webm). The view places cell panel1. A set_html whose body is plain text with no element is refused as bad_arg and the cell keeps its old body. A set_html with a button and a script is stored in meta.html, the agent emits reload_html, and the panel draws the new body.
 
 #### What counts as a body
 
@@ -3360,7 +3360,7 @@ The connector defines `fantastic` in the frame, and its only channel to the outs
 
 The page relays each call to the kernel as the cell’s own agent, not as the operator. A `send` reaches the kernel through the cell’s `panel_send`, so the [call gate](/fantastic/foundations/protocol/call-gate/) judges it: the cell’s `can_call` and the target’s `callable_by` must both name the verb. An `emit` needs `emit` in the cell’s `can_call`, and a target on the page’s kernel must also name it in `callable_by`. A `watch` is gated too, and a refused one comes back to the frame as an event holding the refusal, so it does not look like a subscription that works.
 
-*Animation: The frame calls out through the cell* (https://aisixteen.com/fantastic/foundations/canvas/html-gl/connector.mp4). Inside the sandboxed frame of cell panel1, fantastic.send("runner", start) posts a message to the page. The page relays it as panel1 through the call gate. Panel1’s can_call names runner, so the reply returns to the frame. A second send to store is not named, so the gate refuses it.
+*Animation: The frame calls out through the cell* (https://aisixteen.com/fantastic/foundations/canvas/html-gl/connector.webm). Inside the sandboxed frame of cell panel1, fantastic.send("runner", start) posts a message to the page. The page relays it as panel1 through the call gate. Panel1’s can_call names runner, so the reply returns to the frame. A second send to store is not named, so the gate refuses it.
 
 #### The grant hint
 
@@ -3388,7 +3388,7 @@ The host compiles the source with `new Function("THREE", "scene", "t", "onFrame"
 
 When a view is replaced, the host runs its cleanup functions, removes its group and disposes its geometries, materials and textures. It then mounts the new source in the same place. What triggers this is the host’s `updateView`, which refetches `get_gl_view` and swaps that cell’s group; `set_gl_source` only stores the source and emits `reload_html`. Sibling views are untouched. A source that throws while mounting is logged and removed, and the other views keep drawing. With no GL view left, the render loop stops.
 
-*Animation: GL cells share one scene* (https://aisixteen.com/fantastic/foundations/canvas/html-gl/gl_scene.mp4). The canvas calls get_gl_view on cell gl1 and gets a source. The GL host makes a group for gl1 inside the shared scene and runs the source with scene, t, onFrame and cleanup. A second cell gl2 gets its own group. When the host updates gl1, its cleanup runs, its group is replaced, and gl2 keeps drawing.
+*Animation: GL cells share one scene* (https://aisixteen.com/fantastic/foundations/canvas/html-gl/gl_scene.webm). The canvas calls get_gl_view on cell gl1 and gets a source. The GL host makes a group for gl1 inside the shared scene and runs the source with scene, t, onFrame and cleanup. A second cell gl2 gets its own group. When the host updates gl1, its cleanup runs, its group is replaced, and gl2 keeps drawing.
 
 A GL source is not sandboxed. `t` also carries the page’s host link (`call`, `subscribeState`), which is not gated by the cell’s `can_call`. Only `t.emit` and `onMessage` are the cell’s own. Treat a GL source as page code.
 
@@ -3414,7 +3414,7 @@ Each of the three has its own agent on the page, and none of them moves the othe
 
 The docs say it directly: a skin “never moves a cell”. The theme, by contrast, changes the cells’ rectangles and never an agent. The [Canvas](/fantastic/foundations/canvas/canvas/) article covers cell placement.
 
-*Animation: Skin, theme, background* (https://aisixteen.com/fantastic/foundations/canvas/skin/three.mp4). Three cards, three agents. The skin agent holds design tokens and a backdrop. The canvas theme agent holds themes: where the cells sit, free or column. The view’s background agent holds one GL source. A change to one leaves the other two as they were.
+*Animation: Skin, theme, background* (https://aisixteen.com/fantastic/foundations/canvas/skin/three.webm). Three cards, three agents. The skin agent holds design tokens and a backdrop. The canvas theme agent holds themes: where the cells sit, free or column. The view’s background agent holds one GL source. A change to one leaves the other two as they were.
 
 #### The skin: design tokens in a record
 
@@ -3454,7 +3454,7 @@ A colour is `srgb` with `components` in 0 to 1, an optional `alpha`, and an opti
 
 The format refuses `$ref`, `$extends`, `$root`, the types `strokeStyle`, `border`, `transition`, `gradient` and `typography`, and any colour space other than `srgb`.
 
-*Animation: Add a skin, use it* (https://aisixteen.com/fantastic/foundations/canvas/skin/skin.mp4). The skin agent receives add with name ocean, base dark and one accent token. The merged document compiles, so ocean is stored. use ocean sets the web slot, and the single fantastic-skin stylesheet is replaced. A native skin sent to the web slot is refused with bad_arg.
+*Animation: Add a skin, use it* (https://aisixteen.com/fantastic/foundations/canvas/skin/skin.webm). The skin agent receives add with name ocean, base dark and one accent token. The merged document compiles, so ocean is stored. use ocean sets the web slot, and the single fantastic-skin stylesheet is replaced. A native skin sent to the web slot is refused with bad_arg.
 
 #### How the page applies it
 
@@ -3481,7 +3481,7 @@ People and AI cells rarely call that agent directly. The page’s **backgrounds 
 
 Its record keeps `user_bgs`, `hidden_stock`, `current` and `rotate`, so the choice survives a reload. The agent is granted `set_bg`, `clear_bg`, `default_bg` and `get_bg` on the background at both ends, as the [call gate](/fantastic/foundations/protocol/call-gate/) requires.
 
-*Animation: Set a background* (https://aisixteen.com/fantastic/foundations/canvas/skin/background.mp4). The backgrounds agent receives set with the name Isoline. It sends set_bg with the GL source to the view’s background agent, which checks that the source compiles and stores it as bg_source. A source that does not compile is refused with bad_arg. Under a native skin the background is not drawn.
+*Animation: Set a background* (https://aisixteen.com/fantastic/foundations/canvas/skin/background.webm). The backgrounds agent receives set with the name Isoline. It sends set_bg with the GL source to the view’s background agent, which checks that the source compiles and stores it as bg_source. A source that does not compile is refused with bad_arg. Under a native skin the background is not drawn.
 
 Under a `native` skin the page draws no background, because the window’s own material shows through. The background’s record is untouched, so a web skin brings it back. A skin change also redraws the view.
 
@@ -3538,7 +3538,7 @@ the reply of open_cabinet (illustrative values):
 
 The reply does not mean the worker has started. `open_cabinet` does not start the worker. The master sends it the task as its first message, `{type: "send", text: …}`.
 
-*Animation: open_cabinet: a canvas and a worker* (https://aisixteen.com/fantastic/foundations/canvas/cabinet/open.mp4). The master sends open_cabinet {task} to the manager. The manager asks the spawning canvas for new_canvas and gets a child canvas. It then creates the cabinet cell and, under it, the worker. The reply names the ids, and the worker waits for its first message.
+*Animation: open_cabinet: a canvas and a worker* (https://aisixteen.com/fantastic/foundations/canvas/cabinet/open.webm). The master sends open_cabinet {task} to the manager. The manager asks the spawning canvas for new_canvas and gets a child canvas. It then creates the cabinet cell and, under it, the worker. The reply names the ids, and the worker waits for its first message.
 
 #### Where the worker comes from
 
@@ -3569,7 +3569,7 @@ The worker also holds its memory store, and its credential store when the backen
 
 Each live worker’s record carries `cabinet_peers`: the cabinet, worker and task of every other cabinet. Its `post_system_prompt` says it is one of N workers, lists the peers, and shows how to message a peer or the master, how to report `status`, and how to build on its canvas. The text rides after the backend’s own prompt and never replaces it. Both are rewritten on every open and close.
 
-*Animation: Grants between workers* (https://aisixteen.com/fantastic/foundations/canvas/cabinet/wiring.mp4). Two cabinets, alpha and beta, each with a worker. The workers get send and reflect grants both ways. The master calls each worker in full. No worker holds any grant on the root.
+*Animation: Grants between workers* (https://aisixteen.com/fantastic/foundations/canvas/cabinet/wiring.webm). Two cabinets, alpha and beta, each with a worker. The workers get send and reflect grants both ways. The master calls each worker in full. No worker holds any grant on the root.
 
 `open_cabinet`, `close_cabinet` and `conclude` run one at a time per manager. Each reads whole grant maps and writes them back, so two in flight would overwrite each other’s entries. Other verbs are not serialised.
 
@@ -3597,7 +3597,7 @@ The status cell appears on the spawning canvas once the master places it there w
 
 Any other id is refused with `reason: "unknown_keep"` before anything is deleted. A canvas’s page loader is its own records: it is never deleted and never counts as a result.
 
-*Animation: conclude keeps a result* (https://aisixteen.com/fantastic/foundations/canvas/cabinet/conclude.mp4). A worker reports status up to its cabinet. The master sends conclude {keep: ["report"]}, where report sits on a cabinet’s canvas. The canvas and the report stay; the cabinet, the worker and the other equipment are deleted.
+*Animation: conclude keeps a result* (https://aisixteen.com/fantastic/foundations/canvas/cabinet/conclude.webm). A worker reports status up to its cabinet. The master sends conclude {keep: ["report"]}, where report sits on a cabinet’s canvas. The canvas and the report stay; the cabinet, the worker and the other equipment are deleted.
 
 #### What the code leaves open
 
@@ -3624,7 +3624,7 @@ The only carrier on `main` is a stream of JSON lines, over stdio or over the ker
 
 A carrier runs outside every dispatch, so anything it sent itself would count as the operator’s. `McpCore` avoids that. It starts a kernel task owned by the leg, and the task sends the leg an `inbound_send` verb with the batch. The leg then sends each item onward as itself, so the leg’s own grants decide every call, as in [Call gate and grants](/fantastic/foundations/protocol/call-gate/).
 
-*Animation: A tool call becomes the leg’s task* (https://aisixteen.com/fantastic/foundations/canvas/web-mcp/two_layers.mp4). A client sends tools/call send to McpCore. McpCore starts a task owned by the mcp leg (task 7, illustrative), which ps lists. The task hands the batch to the leg’s inbound_send. The leg sends the item to files as itself, so its grants decide. When the task ends, the outcomes return as [{pid, status, result}].
+*Animation: A tool call becomes the leg’s task* (https://aisixteen.com/fantastic/foundations/canvas/web-mcp/two_layers.webm). A client sends tools/call send to McpCore. McpCore starts a task owned by the mcp leg (task 7, illustrative), which ps lists. The task hands the batch to the leg’s inbound_send. The leg sends the item to files as itself, so its grants decide. When the task ends, the outcomes return as [{pid, status, result}].
 
 The task id exists from the first instant, so `ps` lists the call and `cancel` on it kills the subtree. The client’s `notifications/cancelled` does the same, and an item `timeout` cancels just that item. There is no wait bound: the reply is the outcome whenever the task ends. [Tasks](/fantastic/foundations/kernel/tasks/) explains the task table.
 
@@ -3654,7 +3654,7 @@ A coding CLI needs to find this kernel. So the leg keeps a file right: `.fantast
 
 On its boot the leg then reads the file through the bridge, as itself, with `read_stream`. It sets `mcpServers.fantastic` to `{command: <this binary, absolute path>, args: ["mcp"]}`, and writes the file back with `write` only when that entry changed. A missing file counts as `{}`. Every other server and key keeps its place, so a moved or rebuilt binary is corrected on the next start.
 
-*Animation: The leg keeps .mcp.json right* (https://aisixteen.com/fantastic/foundations/canvas/web-mcp/config_file.mp4). At boot the mcp leg reaches .fantastic/.mcp.json through its mcp_config bridge. It reads the file with read_stream and keeps the other servers. It sets mcpServers.fantastic to this binary with args mcp, and writes with write only if the entry changed. A bad file or a missing grant makes the boot answer with reason mcp_config.
+*Animation: The leg keeps .mcp.json right* (https://aisixteen.com/fantastic/foundations/canvas/web-mcp/config_file.webm). At boot the mcp leg reaches .fantastic/.mcp.json through its mcp_config bridge. It reads the file with read_stream and keeps the other servers. It sets mcpServers.fantastic to this binary with args mcp, and writes with write only if the entry changed. A bad file or a missing grant makes the boot answer with reason mcp_config.
 
 A failure is loud and nothing is overwritten. The boot answers `{error, reason: "mcp_config"}` and the leg’s `reflect` carries `mcp_config_error` until a boot succeeds. The causes are a bridge named without a file path, a bridge that does not admit the leg, a file that is not a JSON object, and `mcpServers` that is not an object. To use the file, point the client at it: `claude --mcp-config .fantastic/.mcp.json`.
 
@@ -3664,7 +3664,7 @@ Some decisions belong to the human who drives the kernel through the leg. An age
 
 The person lists the open ones with `inquiries`, oldest first, optionally for one `asker`. They answer with `answer {re, text}`, where `text` is words, a list of picks or a boolean. The leg sends the asker a message shaped `[reply to <re> · <leg> inquiry]`, then closes the inquiry. If that send fails, the question stays open and `answer` returns `reason: "refused"`.
 
-*Animation: An inquiry waits for the person* (https://aisixteen.com/fantastic/foundations/canvas/web-mcp/inquiry.mp4). An agent sends the mcp leg inquiry with kind confirm. The leg accepts at once with re 12 (illustrative pid) and holds it in open_inquiries. The person lists inquiries and sends answer with re 12 and the text yes. The asker receives [reply to 12 · mcp inquiry] and the inquiry closes.
+*Animation: An inquiry waits for the person* (https://aisixteen.com/fantastic/foundations/canvas/web-mcp/inquiry.webm). An agent sends the mcp leg inquiry with kind confirm. The leg accepts at once with re 12 (illustrative pid) and holds it in open_inquiries. The person lists inquiries and sends answer with re 12 and the text yes. The asker receives [reply to 12 · mcp inquiry] and the inquiry closes.
 
 The open list is durable. It lives on the leg’s own record as `open_inquiries`, written through the kernel’s ordinary update, so an unanswered question is still there after a restart. The canvas’s `user` agent holds inquiries the same way with different verbs and in RAM only ([User](/fantastic/foundations/canvas/user/#inquiries)).
 
@@ -3727,7 +3727,7 @@ The refusal is `invalid_meta`, names the fields to drop, and adds the hint that 
 
 The record must also be a record the target bundle would accept. The bundle must be linked into this build. Its record schema decides which fields are required and which values an enumerated field may take. A bundle without a schema is checked by its own `validate_meta`. A record that fails the bundle’s schema is refused when saved, not when used. Other problems, such as a handler that is not an AI backend, appear when the canvas makes an agent from it.
 
-*Animation: A blueprint, not an agent* (https://aisixteen.com/fantastic/foundations/canvas/home-store/blueprint.mp4). With illustrative names, a record with a handler_module and a model also carries id ai_1 and a can_call grant. persist_record opus is refused with invalid_meta, which says to drop id and can_call. Without them the record passes the bundle’s checks, opus.yaml is written with mode 0600, and the store answers {name, version, path}.
+*Animation: A blueprint, not an agent* (https://aisixteen.com/fantastic/foundations/canvas/home-store/blueprint.webm). With illustrative names, a record with a handler_module and a model also carries id ai_1 and a can_call grant. persist_record opus is refused with invalid_meta, which says to drop id and can_call. Without them the record passes the bundle’s checks, opus.yaml is written with mode 0600, and the store answers {name, version, path}.
 
 #### Four verbs
 
@@ -3759,7 +3759,7 @@ persist_record {"name": "opus", "record": {...}, "if_match": "a1b2…"}
   hint: load_tree again, then retry
 ```
 
-*Animation: Two fantastics, one file* (https://aisixteen.com/fantastic/foundations/canvas/home-store/guard.mp4). Fantastics A and B both read opus with load_tree and get version a1b2. B saves first through a temp file and a rename, and the version becomes c3d4. A then saves with if_match a1b2, and the store refuses it with bad_arg: the file changed since A read it. The hint says to load_tree again and retry.
+*Animation: Two fantastics, one file* (https://aisixteen.com/fantastic/foundations/canvas/home-store/guard.webm). Fantastics A and B both read opus with load_tree and get version a1b2. B saves first through a temp file and a rename, and the version becomes c3d4. A then saves with if_match a1b2, and the store refuses it with bad_arg: the file changed since A read it. The hint says to load_tree again and retry.
 
 #### From a set-up to an AI agent
 
@@ -3767,7 +3767,7 @@ The canvas uses the store when it makes an AI agent. The canvas’s host agent, 
 
 The store accepts any bundle that is linked in and passes its schema, so this check belongs to the canvas, not to the store. The agent gets the id `ai_<hex>`, made at creation. Its fields come from the set-up plus the stamp its caller supplies, and the creator adds the memory store and the grants.
 
-*Animation: From a set-up to an agent* (https://aisixteen.com/fantastic/foundations/canvas/home-store/apply.mp4). The saved set-ups opus and sonnet are listed by load_tree. prefer marks opus as the default. With illustrative names, a spawn that names no set-up reads the preferred one and makes the AI agent ai_3f9a1c02 with the record’s model. Its id, memory store and grants are added at creation.
+*Animation: From a set-up to an agent* (https://aisixteen.com/fantastic/foundations/canvas/home-store/apply.webm). The saved set-ups opus and sonnet are listed by load_tree. prefer marks opus as the default. With illustrative names, a spawn that names no set-up reads the preferred one and makes the AI agent ai_3f9a1c02 with the record’s model. Its id, memory store and grants are added at creation.
 
 The CLI’s own set-up flow, the wizard, saves the first set-up as the default when none is set. It also names the stored key for the endpoint, when one is stored, as `credentials` before saving. When it makes an agent from a saved set-up, it drops `handler_module` and `credentials` from the record, names the key again for the endpoint, and writes the agent under a free id (`opus`, `opus-2`, and so on).
 
@@ -3795,7 +3795,7 @@ The zip has three entries, in a fixed order: `readme.md`, `bundle.min.js` and `b
 
 The zip is reproducible. Every entry gets mode 644, no extra fields and a time taken from `SOURCE_DATE_EPOCH` (1980-01-01 UTC when unset), so the same inputs give the same bytes whatever the clock, the umask or the time zone. The pack also stamps the sha256 of `bundle.min.js` into the zip’s copy of `readme.md`, as `expected: …`.
 
-*Animation: Packed at build, embedded in the binary* (https://aisixteen.com/fantastic/foundations/canvas/page/embed.mp4). build.rs runs pack.sh, which turns the canvas app into canvas.zip with three entries: readme.md, bundle.min.js and bundle.min.js.map. The crate embeds the zip with include_bytes!, so the binary carries the page. A failed pack fails the build.
+*Animation: Packed at build, embedded in the binary* (https://aisixteen.com/fantastic/foundations/canvas/page/embed.webm). build.rs runs pack.sh, which turns the canvas app into canvas.zip with three entries: readme.md, bundle.min.js and bundle.min.js.map. The crate embeds the zip with include_bytes!, so the binary carries the page. A failed pack fails the build.
 
 #### Six files, one agent
 
@@ -3837,7 +3837,7 @@ A reply is a **binary reply**. The bytes are the body, under the key `bytes`, an
 
 A path the agent does not have is refused with `reason` `not_found`, and the error lists the files it does serve. The lookup is a map of names, not a filesystem path, so a name like `../secret` is simply not in the map.
 
-*Animation: Serving it: the web host reads as itself* (https://aisixteen.com/fantastic/foundations/canvas/page/serve.mp4). A browser asks web for /canvas_page/file/index.html. web sends read_stream to canvas_page as itself, with can_call and callable_by both granting it. canvas_page answers with the bytes and a head. A name it does not hold is refused with not_found.
+*Animation: Serving it: the web host reads as itself* (https://aisixteen.com/fantastic/foundations/canvas/page/serve.webm). A browser asks web for /canvas_page/file/index.html. web sends read_stream to canvas_page as itself, with can_call and callable_by both granting it. canvas_page answers with the bytes and a head. A name it does not hold is refused with not_found.
 
 The home kernel creates the same agent under its own `web` host. It serves `home.html` and `list.html` at `/canvas_page/file/…`, and the desktop app’s window filter admits those URLs.
 
@@ -3853,7 +3853,7 @@ The page is its own kernel, running in the browser, and a peer of the host kerne
 6. Load that canvas’s page bundles and page records through its loader, a `kernel_state` agent on the host. An empty tree is seeded with the canvas root. Every later local change is persisted back through the same loader.
 7. Boot the root. The first boot mints the page’s guid, and the host addresses the page as `<guid>|canvas`. Then mount the canvas.
 
-*Animation: What the page does when it loads* (https://aisixteen.com/fantastic/foundations/canvas/page/boot.mp4). The page kernel sends reflect to kernel through user.forward. An unauthorized reply stops it with a refusal. Otherwise it picks a canvas, loads its records through the loader, boots its root to mint a guid, and mounts the canvas.
+*Animation: What the page does when it loads* (https://aisixteen.com/fantastic/foundations/canvas/page/boot.webm). The page kernel sends reflect to kernel through user.forward. An unauthorized reply stops it with a refusal. Otherwise it picks a canvas, loads its records through the loader, boots its root to mint a guid, and mounts the canvas.
 
 The page also watches its own `bundles/` folder on the host through the `bundles_watch` bridge. When a file changes, it waits 150 ms, collects the burst, and sends `reload_bundle` for each touched folder. Nothing runs while nothing changes. When the host stops, it calls `host_stopping` on the page first, and the page flushes its records and stops its loader before the socket closes.
 
@@ -3896,7 +3896,7 @@ When a reduce changes the state, the driver emits `{"type": "state", "state": �
 
 A verb’s reply is the state after its effects ran, or the first refusal. A change made elsewhere reaches the watchers too, because the port reports OS-side changes as events. A canvas cell watches the agent over its socket leg and receives each emit as an `event` frame ([Web agents](/fantastic/foundations/agents/web/#ws)).
 
-*Animation: Model, driver, port* (https://aisixteen.com/fantastic/foundations/canvas/system/layers.mp4). A verb reaches the power model as an event. The model returns an effect as data, the driver runs it through the OS port, and the answer comes back as an event. The driver then emits one state to the watchers.
+*Animation: Model, driver, port* (https://aisixteen.com/fantastic/foundations/canvas/system/layers.webm). A verb reaches the power model as an event. The model returns an effect as data, the driver runs it through the OS port, and the answer comes back as an event. The driver then emits one state to the watchers.
 
 #### Unavailable, and refusals that say why
 
@@ -3924,7 +3924,7 @@ no, na     -> unsupported: "this machine cannot"
 
 The decision is made in the model, before the OS is asked. Nothing in these agents is interactive: there is no authentication prompt. On fantastic OS, a polkit rule lets the user `fantastic` power off, reboot, suspend and hibernate, and use NetworkManager.
 
-*Animation: logind’s can decides* (https://aisixteen.com/fantastic/foundations/canvas/system/refusal.mp4). The power agent holds can for each verb. suspend, with can yes, runs and returns the state. reboot, with can challenge, is refused denied. hibernate, with can na, is refused unsupported. The model decides before the OS is asked.
+*Animation: logind’s can decides* (https://aisixteen.com/fantastic/foundations/canvas/system/refusal.webm). The power agent holds can for each verb. suspend, with can yes, runs and returns the state. reboot, with can challenge, is refused denied. hibernate, with can na, is refused unsupported. The model decides before the OS is asked.
 
 #### What each agent adds
 
@@ -3961,7 +3961,7 @@ lock state (illustrative values):
 
 Unlike the other five, `lock` is not granted to an AI. The recipe’s grant code narrows it: the `callable_by` of `lock` keeps `user` alone, and no AI holder is granted `lock` in its `can_call`. The [call gate](/fantastic/foundations/protocol/call-gate/) therefore refuses an AI’s call at the caller’s own end first, so it never reaches `lock`, and no AI can unlock the screen or change the PIN.
 
-*Animation: lock answers user alone* (https://aisixteen.com/fantastic/foundations/canvas/system/lock.mp4). An AI calls lock and the gate refuses it at its own end: no AI holder is granted lock, and lock’s callable_by names user only. The person sends unlock with a wrong PIN five times in a row. After the fifth, each try gets retry_later; the first wait is 30 seconds and it doubles up to 15 minutes.
+*Animation: lock answers user alone* (https://aisixteen.com/fantastic/foundations/canvas/system/lock.webm). An AI calls lock and the gate refuses it at its own end: no AI holder is granted lock, and lock’s callable_by names user only. The person sends unlock with a wrong PIN five times in a row. After the fifth, each try gets retry_later; the first wait is 30 seconds and it doubles up to 15 minutes.
 
 Sources: The six agents and their ids (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-system-agents/src/lib.rs#L15); The driver: events, effects, 100 ms emit (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-system-agents/src/driver.rs#L1); The OS port and its errors (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-system-agents/src/sys/mod.rs#L15); The recipe that makes them under user (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/system.rs#L19); Power: logind’s can decides (https://github.com/aisixteen/fantastic/blob/main/src/tui/crates/fantastic-system/src/power.rs#L225); Lock: PIN, waits, refusals (https://github.com/aisixteen/fantastic/blob/main/src/tui/crates/fantastic-system/src/lock.rs#L14); lock is narrowed to user (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/reach.rs#L164); The pure models (https://github.com/aisixteen/fantastic/tree/main/src/tui/crates/fantastic-system/src)
 
@@ -3981,7 +3981,7 @@ Fantastic grows by new kinds of agents. The rule to keep in mind is the one the 
 
 A new verb is a function passed to `fa.serve` and a line in `bundle.yaml` `verbs`; the two must match, or the instance stops and says why. Saving `agent.py` restarts every instance; editing `panel.html` re-renders every instance’s cell.
 
-*Animation: One bundle, many agents* (https://aisixteen.com/fantastic/foundations/build/bundle.mp4). A folder bundle holds bundle.yaml, agent.py and panel.html. Two agents are instances of it, each a record that names the bundle. Saving agent.py restarts both at once; each agent keeps its own record.
+*Animation: One bundle, many agents* (https://aisixteen.com/fantastic/foundations/build/bundle.webm). A folder bundle holds bundle.yaml, agent.py and panel.html. Two agents are instances of it, each a record that names the bundle. Saving agent.py restarts both at once; each agent keeps its own record.
 
 Folder bundles are one way in. Below them, a Rust bundle is a crate implementing the kernel’s `Bundle` trait, linked into the binary at build time, and the Python kernel finds its bundles through entry points.
 
@@ -4014,7 +4014,7 @@ The `scheduler` bundle has a Python file and a Rust file that answer the same ni
 
 Python is the reference. [CONTRIBUTING.md](https://github.com/aisixteen/fantastic/blob/main/CONTRIBUTING.md) says that when the two disagree, Python is right. The Rust file copies Python’s verb docs and refusal texts, and its comments say so.
 
-*Animation: One bundle, a file in each runtime* (https://aisixteen.com/fantastic/foundations/build/bundle/twin.mp4). The handler_module scheduler.tools has two implementations. In Python, pyproject.toml publishes the module in the fantastic.bundles group, and tools.py holds VERBS and handler(). In Rust, main.rs calls reg.register, and lib.rs holds impl Bundle with handle(). Both answer to scheduler.tools and serve the same verbs: schedule, list, pause, history and the rest.
+*Animation: One bundle, a file in each runtime* (https://aisixteen.com/fantastic/foundations/build/bundle/twin.webm). The handler_module scheduler.tools has two implementations. In Python, pyproject.toml publishes the module in the fantastic.bundles group, and tools.py holds VERBS and handler(). In Rust, main.rs calls reg.register, and lib.rs holds impl Bundle with handle(). Both answer to scheduler.tools and serve the same verbs: schedule, list, pause, history and the rest.
 
 #### In Python: a module with a verb table
 
@@ -4091,7 +4091,7 @@ A bundle can publish more. In Python the module attributes `EMITS`, `CANCEL` and
 
 The docs never ride on a reflect. The scheduler’s own test checks it: a `reflect` of a scheduler carries no `verbs` or `emits`, and `docs` of the same agent lists `schedule` and `schedule_fired`. Keep a verb’s how-to in its doc, and keep `reflect` for what the agent is: the scheduler answers `id`, `sentence`, `paused` and `running`.
 
-*Animation: Verbs and their docs* (https://aisixteen.com/fantastic/foundations/build/bundle/docs.mp4). The bundle writes one doc per verb, in the VERBS table in Python or in verb_docs() in Rust. A docs send for the agent returns each doc cut to its first sentence, which the clip shortens: schedule, pause and history with their arguments. A reflect of the same agent answers with no verbs and no emits.
+*Animation: Verbs and their docs* (https://aisixteen.com/fantastic/foundations/build/bundle/docs.webm). The bundle writes one doc per verb, in the VERBS table in Python or in verb_docs() in Rust. A docs send for the agent returns each doc cut to its first sentence, which the clip shortens: schedule, pause and history with their arguments. A reflect of the same agent answers with no verbs and no emits.
 
 #### The record fields a bundle reads
 
@@ -4117,7 +4117,7 @@ The Rust bundle has the same method on the trait and the same text. The hook is 
 
 A bundle can also publish what its record takes before any agent exists. Python reads a module attribute `RECORD_SCHEMA`, and Rust calls `record_schema()`. The kernel adds it to the bundle’s entry in `reflect bundles=all`. A bundle that publishes a schema enforces the same one in `validate_meta`.
 
-*Animation: validate_meta judges the record* (https://aisixteen.com/fantastic/foundations/build/bundle/record.mp4). The record holds manifest fantastic.yaml. An update_agent patch sets manifest to an empty string. validate_meta gets the patch and the record and refuses it with invalid_meta, manifest must be a non-empty path string, before the record changes. A patch that sets manifest to team.yaml passes, and the record changes. Create is judged the same way.
+*Animation: validate_meta judges the record* (https://aisixteen.com/fantastic/foundations/build/bundle/record.webm). The record holds manifest fantastic.yaml. An update_agent patch sets manifest to an empty string. validate_meta gets the patch and the record and refuses it with invalid_meta, manifest must be a non-empty path string, before the record changes. A patch that sets manifest to team.yaml passes, and the record changes. Create is judged the same way.
 
 #### Hooks: what to free when the agent goes
 
@@ -4142,7 +4142,7 @@ For everything else, the checks are in the repository’s process. These are the
 
 The parity harness and the contract files live in the fantastic repository, which does not accept outside pull requests. A bundle you keep in your own repository runs the first two steps and your own selftest; the diff against Python applies when you also ship a twin.
 
-*Animation: Three checks for a new bundle* (https://aisixteen.com/fantastic/foundations/build/bundle/checks.mp4). A new bundle, tally.tools, meets three checks. A bundle should answer an unknown verb with unhandled, as the contract’s unknown-verb case pins on a probe agent and the scheduler’s parity case checks per bundle. The bundle’s own tests pass in each runtime it ships in: tests/ in Python and tests.rs in Rust. For a twin, the parity harness diffs the Rust answers against Python, the reference.
+*Animation: Three checks for a new bundle* (https://aisixteen.com/fantastic/foundations/build/bundle/checks.webm). A new bundle, tally.tools, meets three checks. A bundle should answer an unknown verb with unhandled, as the contract’s unknown-verb case pins on a probe agent and the scheduler’s parity case checks per bundle. The bundle’s own tests pass in each runtime it ships in: tests/ in Python and tests.rs in Rust. For a twin, the parity harness diffs the Rust answers against Python, the reference.
 
 The bundle’s `selftest.md` is a walk through the CLI with the expected output of each step. The scheduler’s runs `fantastic <id> <verb> …` against a fresh `.fantastic` folder.
 
@@ -4192,7 +4192,7 @@ fa.serve({"hello": hello, "count": bump})
 
 The verb `hello` answers a greeting. The verb `count` adds one to a counter, emits an event with the new value, and returns it. The panel redraws on that event. `bundle.yaml` lists the same two verbs, and its `record` holds `inherit_env: [PATH]`, which is what lets the bare command `python3` be found.
 
-*Animation: The starter becomes a bundle* (https://aisixteen.com/fantastic/foundations/build/program-agent/scaffold.mp4). A double-click on “python agent” copies four files into a new folder, bundles/py_ab12 (illustrative id): bundle.yaml, agent.py, panel.html and fantastic_agent.py. The kernel loads the bundle, and one instance, py_ab12_1, appears and runs.
+*Animation: The starter becomes a bundle* (https://aisixteen.com/fantastic/foundations/build/program-agent/scaffold.webm). A double-click on “python agent” copies four files into a new folder, bundles/py_ab12 (illustrative id): bundle.yaml, agent.py, panel.html and fantastic_agent.py. The kernel loads the bundle, and one instance, py_ab12_1, appears and runs.
 
 #### Add a verb in two places
 
@@ -4212,7 +4212,7 @@ The program says `hello` with its sorted verb names when it starts. If they diff
 
 Three names are not yours: `reflect`, `boot` and `shutdown` are answered by the kernel, and declaring one in `verbs` is refused.
 
-*Animation: A verb lives in two places* (https://aisixteen.com/fantastic/foundations/build/program-agent/verb.mp4). agent.py serves hello and count, and bundle.yaml declares the same two. Adding shout to the program alone makes its hello differ from the declaration, and the instance stops with “they must match”. Adding shout to bundle.yaml too makes the lists equal, and the instance runs.
+*Animation: A verb lives in two places* (https://aisixteen.com/fantastic/foundations/build/program-agent/verb.webm). agent.py serves hello and count, and bundle.yaml declares the same two. Adding shout to the program alone makes its hello differ from the declaration, and the instance stops with “they must match”. Adding shout to bundle.yaml too makes the lists equal, and the instance runs.
 
 #### Save, and every instance restarts
 
@@ -4224,7 +4224,7 @@ A change to the view file (`panel.html`) restarts nothing. The host writes each 
 
 The watcher belongs to the terminal host. `reload_bundle` itself is a kernel verb in both runtimes, answered by the root: without the watcher, send it yourself after you edit.
 
-*Animation: A save restarts every instance* (https://aisixteen.com/fantastic/foundations/build/program-agent/save.mp4). A call is in flight on py_ab12_1 when agent.py is saved. The watcher sends reload_bundle, and the call settles as transport_closed, “reloaded”. Both instances, py_ab12_1 and py_ab12_2, restart on the new code. A save of panel.html restarts nothing and only redraws the cells.
+*Animation: A save restarts every instance* (https://aisixteen.com/fantastic/foundations/build/program-agent/save.webm). A call is in flight on py_ab12_1 when agent.py is saved. The watcher sends reload_bundle, and the call settles as transport_closed, “reloaded”. Both instances, py_ab12_1 and py_ab12_2, restart on the new code. A save of panel.html restarts nothing and only redraws the cells.
 
 #### Copy the folder for a release
 
@@ -4298,7 +4298,7 @@ The button only sends. The new number arrives as an event, because the `count` v
 
 Setting `innerHTML` runs no `<script>`. Keep the script in `panel.html`, and send data, or HTML without scripts, in the events.
 
-*Animation: A view: click, verb, event, redraw* (https://aisixteen.com/fantastic/foundations/build/view/starter.mp4). py_ab12_1 has view {kind: html, bytes_file: panel.html, calls: [hello, count, watch]}. The panel sends count to py_ab12_1 through its cell. The agent adds one and emits {type: count, count: 1}, and the panel’s watch redraws “count = 1”.
+*Animation: A view: click, verb, event, redraw* (https://aisixteen.com/fantastic/foundations/build/view/starter.webm). py_ab12_1 has view {kind: html, bytes_file: panel.html, calls: [hello, count, watch]}. The panel sends count to py_ab12_1 through its cell. The agent adds one and emits {type: count, count: 1}, and the panel’s watch redraws “count = 1”.
 
 #### What the panel may call
 
@@ -4319,7 +4319,7 @@ The CLI watches every bundle folder and treats a burst of saves within 150 ms as
 
 The record the CLI writes takes `kind`, `calls` and `bytes_file` from `bundle.yaml` over the instance’s own. A new verb in `calls` therefore reaches every instance’s grant. It also removes any inline `bytes` and adds `bytes_rev`, a hash of the file, so the change is visible to the cells. If you save the code and the panel together, the code reloads first and then the panel redraws.
 
-*Animation: Edit a bundle while it runs* (https://aisixteen.com/fantastic/foundations/build/view/edit.mp4). Two instances, py_ab12_1 and py_ab12_2, share one bundle. Saving panel.html redraws both cells with no restart. Saving agent.py runs reload_bundle, and both instances restart.
+*Animation: Edit a bundle while it runs* (https://aisixteen.com/fantastic/foundations/build/view/edit.webm). Two instances, py_ab12_1 and py_ab12_2, share one bundle. Saving panel.html redraws both cells with no restart. Saving agent.py runs reload_bundle, and both instances restart.
 
 A bundle’s edit changes every instance. To change one agent alone, copy the folder to a new name first.
 
@@ -4329,7 +4329,7 @@ The terminal UI does not run `panel.html`. It has its own panel per kind of agen
 
 A bundle you wrote has an unknown module, so the TUI shows the **generic panel**, described on [Views of agents](/fantastic/foundations/canvas/views/#tui). You can call any verb it lists, and the answer, a refusal included, is shown verbatim. That is enough to try `hello` and `count` from the terminal.
 
-*Animation: The TUI shows the generic panel* (https://aisixteen.com/fantastic/foundations/build/view/tui.mp4). py_ab12_1 is selected in the TUI tree. Its handler_module is unknown to the shell, so it gets the generic panel: sentence, verbs hello and count, and a call. count answers {count: 1}.
+*Animation: The TUI shows the generic panel* (https://aisixteen.com/fantastic/foundations/build/view/tui.webm). py_ab12_1 is selected in the TUI tree. Its handler_module is unknown to the shell, so it gets the generic panel: sentence, verbs hello and count, and a call. count answers {count: 1}.
 
 The public code has no hook for a custom TUI panel, so a new handler gets the generic panel. The views you write are for the canvas.
 
@@ -4384,7 +4384,7 @@ Team ships six cards in its `roles/` folder. The `project_lead` card replaces fa
 
 Team checks the cards before it starts. It refuses to start when a card does not parse, names a tier that is not a template, grants an agent that `team.yaml` does not define, or when one of the six cards is missing. `roles:` also needs a `first_agent` and `templates`.
 
-*Animation: Cards name a tier, team.yaml defines it* (https://aisixteen.com/fantastic/foundations/build/team/cards.mp4). team.yaml defines templates, here strong and small. The project_lead card names strong and the worker card names small, so no card names a model. A third card, reviewer, names tier fast. No template has that name, so the team refuses to start.
+*Animation: Cards name a tier, team.yaml defines it* (https://aisixteen.com/fantastic/foundations/build/team/cards.webm). team.yaml defines templates, here strong and small. The project_lead card names strong and the worker card names small, so no card names a model. A third card, reviewer, names tier fast. No template has that name, so the team refuses to start.
 
 #### The project lead plans a tree
 
@@ -4413,7 +4413,7 @@ This is a rule in the card’s text, which the model reads. Team’s tests check
 
 Nothing is cleaned up until the user asks. The lead never deletes an agent or closes an issue by itself, so finished agents, their histories and their marks stay. The card has each worker make a branch, push it and open a draft pull request through the `github` connector, and the lead reads the worker’s ticks and labels instead of redoing them. The shipped `worker` card grants no connector, so a team whose workers deliver this way adds `github` to its own worker card.
 
-*Animation: The project lead grows a tree* (https://aisixteen.com/fantastic/foundations/build/team/plan.mp4). The project lead proposes a plan of six agents in the chat (the project lead and five it will start). Over five agents, so it waits. The user replies yes. It spawns a sub-lead and workers through the registry, and records each issue in tasks with a holder: w1 holds o/r#12, and the sub-lead’s subtree holds the rest of its area. It then waits for sub-a and w1 with await_set, and deletes nothing.
+*Animation: The project lead grows a tree* (https://aisixteen.com/fantastic/foundations/build/team/plan.webm). The project lead proposes a plan of six agents in the chat (the project lead and five it will start). Over five agents, so it waits. The user replies yes. It spawns a sub-lead and workers through the registry, and records each issue in tasks with a holder: w1 holds o/r#12, and the sub-lead’s subtree holds the rest of its area. It then waits for sub-a and w1 with await_set, and deletes nothing.
 
 #### Tasks it records
 
@@ -4453,7 +4453,7 @@ sub-a: 2 agents (2 busy) · +0 new · 1 STALLED
 
 A digest goes to the lead’s driver, else to the lead itself if it has an AI, else to the board. It is a `send` whose text is the lines. A failed send is counted and is never fatal. The cadencer also reports the team’s load as plain counts in its `status`: workers busy, idle and stalled, and tasks held, in review, done, blocked and queued. The code gives only these numbers; it has no mode and no progress bar.
 
-*Animation: The cadencer sends one line per branch* (https://aisixteen.com/fantastic/foundations/build/team/digest.mp4). The cadencer reads the spawned tree: lead, sub-lead sub-a, and two workers. Worker w2 holds a task and has been idle past stall_after. The digest to the lead has one roll-up line for sub-a with 1 STALLED, and none for the workers below.
+*Animation: The cadencer sends one line per branch* (https://aisixteen.com/fantastic/foundations/build/team/digest.webm). The cadencer reads the spawned tree: lead, sub-lead sub-a, and two workers. Worker w2 holds a task and has been idle past stall_after. The digest to the lead has one roll-up line for sub-a with 1 STALLED, and none for the workers below.
 
 #### Where to read more
 

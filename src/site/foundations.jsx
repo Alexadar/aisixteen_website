@@ -44,7 +44,6 @@ const Video = ({ c, n }) => {
           muted loop playsInline controls preload="metadata" data-fd-video=""
           aria-label={`Animation: ${c.title}`} aria-describedby={`${id}-cap`}>
           <source src={c.files.webm} type='video/webm; codecs="vp9"' />
-          <source src={c.files.mp4} type="video/mp4" />
         </video>
       </div>
       <figcaption className="fd-caption">

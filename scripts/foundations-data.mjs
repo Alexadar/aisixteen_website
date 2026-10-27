@@ -4,7 +4,7 @@
 //   registry.json               the whole #443 tree: key, path, title, short, parent, order, status
 //   articles/<key>.js           one file per article: text blocks, sources, its own clips' captions
 //   clips/<key>.json            render manifest per article (duration, size), written by anim/render.py
-//   media/fantastic/foundations/<path>/<clip>.{mp4,webm,webp} and og.jpg   the rendered files
+//   media/fantastic/foundations/<path>/<clip>.{webm,webp} and og.jpg   the rendered files
 //
 // A published node must have an article file that is not a seed, every clip it shows must be
 // rendered, and its cover clip's article folder must hold og.jpg. Planned nodes get a noindex
@@ -83,14 +83,14 @@ export async function loadFoundations(root) {
     const meta = owner.manifest[ref.clip]
     if (!meta) { fail(`${where.key}: clip ${owner.key}/${ref.clip} is not rendered (anim/render.sh ${owner.key}/${ref.clip})`); return null }
     const rel = `fantastic/foundations/${owner.path}/${ref.clip}`
-    for (const ext of ['mp4', 'webm', 'webp']) {
+    for (const ext of ['webm', 'webp']) {
       if (!fs.existsSync(join(media, `${rel}.${ext}`))) fail(`${where.key}: missing media/${rel}.${ext}`)
       mediaFiles.add(`${rel}.${ext}`)
     }
     return {
       key: `${owner.key}/${ref.clip}`, owner, name: ref.clip, title: def.title, caption: def.caption, meta,
       htmlId: `anim-${ref.clip}`,
-      files: { mp4: `/${rel}.mp4`, webm: `/${rel}.webm`, poster: `/${rel}.webp` },
+      files: { webm: `/${rel}.webm`, poster: `/${rel}.webp` },
     }
   }
   const ogOf = (owner, where) => {

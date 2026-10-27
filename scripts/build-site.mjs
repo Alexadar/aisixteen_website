@@ -123,7 +123,7 @@ for (const app of decorated) {
 copyMedia(fantastic.icon)
 copyMedia(fantastic.video.src)
 copyMedia(fantastic.video.poster)
-// Foundations: every clip a published page shows (mp4, webm, webp poster) and each og.jpg.
+// Foundations: every clip a published page shows (webm, webp poster) and each og.jpg.
 F.mediaFiles.forEach(copyMedia)
 if (fs.existsSync(join(media, 'logo.png'))) fs.copyFileSync(join(media, 'logo.png'), join(docs, 'logo.png'))
 

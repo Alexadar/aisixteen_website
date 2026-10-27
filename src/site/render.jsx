@@ -189,7 +189,7 @@ const crumbs = (items) => ({
 const crumbPath = (n) => [['AISixteen', `${ORIGIN}/`], ['Fantastic', `${ORIGIN}/fantastic/`], ['Foundations', FOUNDATIONS_URL],
   ...n.ancestors.map((a) => [a.title, `${ORIGIN}${a.url}`]), [n.title, `${ORIGIN}${n.url}`]]
 const publisher = { '@type': 'Organization', name: SITE.name, url: ORIGIN, logo: { '@type': 'ImageObject', url: `${ORIGIN}/logo.png` } }
-const videoId = (c) => `${ORIGIN}${c.files.mp4}#video`
+const videoId = (c) => `${ORIGIN}${c.files.webm}#video`
 
 function videoLd(c, uploadDate) {
   return {
@@ -199,7 +199,8 @@ function videoLd(c, uploadDate) {
     name: c.title,
     description: c.caption,
     thumbnailUrl: `${ORIGIN}${c.files.poster}`,
-    contentUrl: `${ORIGIN}${c.files.mp4}`,
+    contentUrl: `${ORIGIN}${c.files.webm}`,
+    encodingFormat: 'video/webm',
     uploadDate,
     duration: isoDuration(c.meta.duration),
     width: c.meta.width,

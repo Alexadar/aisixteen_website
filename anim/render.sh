@@ -4,7 +4,7 @@
 #   anim/render.sh K/clip                 one clip (a bare clip name works when it is unique)
 #   anim/render.sh --preview K/clip       quick 480p contact sheet in anim/.out/K/ (nothing published)
 #   anim/render.sh --list                 every article key with its clips
-# Outputs: media/fantastic/foundations/<path>/<clip>.{mp4,webm,webp} (+ og.jpg) and the
+# Outputs: media/fantastic/foundations/<path>/<clip>.{webm,webp} (+ og.jpg) and the
 # per-article manifest src/data/foundations/clips/K.json. Renders of different articles can
 # run in parallel (each uses anim/.media/K and anim/.out/K). The venv (anim/.venv), the fonts
 # (anim/.fonts), Manim's media (anim/.media) and raw renders (anim/.out) are local and

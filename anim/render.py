@@ -13,7 +13,6 @@ src/data/foundations/registry.json) declares
     OG = "clip"                           # whose final frame becomes the article's og.jpg
 
 For each clip it writes, under media/fantastic/foundations/<path>/ (path from registry.json):
-    <clip>.mp4   H.264, yuv420p, 1280x720, 30 fps, +faststart
     <clip>.webm  VP9, 1280x720, 30 fps
     <clip>.webp  poster (the held final state)
     og.jpg       for the OG clip only
@@ -122,15 +121,12 @@ def publish(key, path, file, clip, scene, og):
     raw = manim(key, file, scene, "h")  # 1080p, downscaled below: sharper text than a 720p render
     dest = PUBLISH / path
     dest.mkdir(parents=True, exist_ok=True)
-    mp4, webm, webp = dest / f"{clip}.mp4", dest / f"{clip}.webm", dest / f"{clip}.webp"
+    webm, webp = dest / f"{clip}.webm", dest / f"{clip}.webp"
     scale = "scale=1280:720:flags=lanczos"
-    run(["nice", "-n", "15", "ffmpeg", "-v", "error", "-y", "-i", raw, "-an", "-vf", scale, "-r", "30",
-         "-c:v", "libx264", "-preset", "veryslow", "-tune", "animation", "-crf", "30",
-         "-pix_fmt", "yuv420p", "-profile:v", "high", "-movflags", "+faststart", mp4])
     run(["nice", "-n", "15", "ffmpeg", "-v", "error", "-y", "-i", raw, "-an", "-vf", scale, "-r", "30",
          "-c:v", "libvpx-vp9", "-crf", "52", "-b:v", "0", "-deadline", "good", "-cpu-used", "1",
          "-row-mt", "1", "-threads", "2", "-pix_fmt", "yuv420p", webm])
-    dur = probe_duration(mp4)
+    dur = probe_duration(webm)
     out = OUT_ROOT / key
     out.mkdir(parents=True, exist_ok=True)
     png = out / f"{clip}-poster.png"
@@ -141,7 +137,7 @@ def publish(key, path, file, clip, scene, og):
         Image.open(png).convert("RGB").save(dest / "og.jpg", "JPEG", quality=85, optimize=True, progressive=True)
     return {
         "duration": round(dur, 2), "width": 1280, "height": 720,
-        "bytes": {"mp4": mp4.stat().st_size, "webm": webm.stat().st_size, "webp": webp.stat().st_size},
+        "bytes": {"webm": webm.stat().st_size, "webp": webp.stat().st_size},
     }
 
 

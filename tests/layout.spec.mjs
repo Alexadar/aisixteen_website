@@ -281,7 +281,7 @@ test.describe('foundations', () => {
         'https://aisixteen.com/', 'https://aisixteen.com/fantastic/', `https://aisixteen.com${FD}`, ...chain.map((c) => `https://aisixteen.com${urlOf(c)}`)])
       const clips = ld.filter((o) => o['@type'] === 'VideoObject')
       const ids = new Set(clips.map((c) => c['@id']))
-      expect(ids.size).toBe(new Set(await page.locator('.fd-video source[type="video/mp4"]').evaluateAll((ss) => ss.map((s) => s.getAttribute('src')))).size)
+      expect(ids.size).toBe(new Set(await page.locator('.fd-video source[src$=".webm"]').evaluateAll((ss) => ss.map((s) => s.getAttribute('src')))).size)
       for (const ref of article.video) expect(ids.has(ref['@id']), `${path}: ${ref['@id']} is a VideoObject`).toBe(true)
       for (const c of clips) {
         for (const k of ['name', 'description', 'thumbnailUrl', 'contentUrl', 'uploadDate', 'duration']) expect(c[k], `${path} ${c.name}: ${k}`).toBeTruthy()

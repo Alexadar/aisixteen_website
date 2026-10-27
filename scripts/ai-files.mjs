@@ -48,7 +48,7 @@ function articleMd(n) {
     if (b.table) return [`| ${b.table.head.join(' | ')} |`, `|${b.table.head.map(() => '---').join('|')}|`, ...b.table.rows.map((r) => `| ${r.join(' | ')} |`)].join('\n')
     if (b.video) {
       const c = b.resolved
-      return `*Animation: ${c.title}* (${ORIGIN}${c.files.mp4}). ${c.caption}`
+      return `*Animation: ${c.title}* (${ORIGIN}${c.files.webm}). ${c.caption}`
     }
     return ''
   }

@@ -15,7 +15,7 @@ public fantastic repo on `main`. Where its docs and its code disagree, the code 
 | `coder/tmp/foundations/facts/K.md` | fact sheet (outside the repo, not committed): copy `facts/_template.md` | writer |
 | `src/data/foundations/articles/K.js` | text, sources, clip titles and captions: copy `articles/_template.js` | writer |
 | `anim/foundations/K.py` | Manim scenes with `CLIPS` and `OG`: copy `anim/foundations/_template.py` | writer |
-| `media/fantastic/foundations/P/<clip>.{mp4,webm,webp}`, `og.jpg` | rendered clips | `anim/render.sh` |
+| `media/fantastic/foundations/P/<clip>.{webm,webp}`, `og.jpg` | rendered clips | `anim/render.sh` |
 | `src/data/foundations/clips/K.json` | durations and sizes of K's clips | `anim/render.sh` |
 | `src/data/foundations/registry.json` | the tree, `status` | **integrator only** |
 
