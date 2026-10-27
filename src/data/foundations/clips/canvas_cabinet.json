@@ -1,0 +1,32 @@
+{
+  "conclude": {
+    "duration": 8.93,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 97378,
+      "webm": 94300,
+      "webp": 18950
+    }
+  },
+  "open": {
+    "duration": 10.9,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 114033,
+      "webm": 119412,
+      "webp": 27850
+    }
+  },
+  "wiring": {
+    "duration": 8.0,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 68749,
+      "webm": 79496,
+      "webp": 25150
+    }
+  }
+}

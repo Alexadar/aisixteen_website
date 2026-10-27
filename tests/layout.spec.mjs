@@ -20,7 +20,7 @@ const PLANNED = TREE.filter((n) => n.status === 'planned')
 const READING = [FD, ...PUBLISHED.map(urlOf)] // previous/next order
 const FOUNDATIONS = READING
 const REDIRECTS = Object.entries(REG.redirects || {}).map(([from, to]) => [`${FD}${from}/`, `${FD}${to}/`])
-const PAGES = ['/', '/fantastic/', ...FOUNDATIONS, urlOf(PLANNED[0]), '/aircore/', '/404.html']
+const PAGES = ['/', '/fantastic/', ...FOUNDATIONS, ...PLANNED.slice(0, 1).map(urlOf), '/aircore/', '/404.html']
 const isMobile = (info) => info.project.name.startsWith('mobile')
 const widthsFor = (info) => (isMobile(info) ? [360, 390, 430] : [360, 390, 768, 1024, 1280, 1440, 1920])
 
@@ -299,7 +299,8 @@ test.describe('foundations', () => {
   })
 
   test('planned pages: a noindex placeholder, marked in the menu', async ({ page }) => {
-    for (const n of [PLANNED[0], PLANNED[PLANNED.length - 1]]) {
+    // with nothing planned, this is vacuous
+    for (const n of PLANNED.length ? [PLANNED[0], PLANNED[PLANNED.length - 1]] : []) {
       const r = await page.goto(urlOf(n), { waitUntil: 'domcontentloaded' })
       expect(r.status()).toBe(200)
       await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/)

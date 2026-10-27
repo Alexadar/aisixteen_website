@@ -3028,7 +3028,938 @@ Double-clicking opens the selector, which lists everything that can be placed th
 
 `new_canvas {name}`, sent to a canvas, makes a **child** canvas under it, and deleting a canvas deletes the canvases it spawned. Each canvas shows only its own subtree and the agents under no canvas. `user`, and every AI under a canvas, may call every host agent with every verb (granted on both sides); you narrow it with `update_agent`.
 
+In this part: User (https://aisixteen.com/fantastic/foundations/canvas/user/); Canvas (https://aisixteen.com/fantastic/foundations/canvas/canvas/); Views of agents (https://aisixteen.com/fantastic/foundations/canvas/views/); HTML and GL agents (https://aisixteen.com/fantastic/foundations/canvas/html-gl/); Skin and backgrounds (https://aisixteen.com/fantastic/foundations/canvas/skin/); Cabinet (https://aisixteen.com/fantastic/foundations/canvas/cabinet/); Web MCP (https://aisixteen.com/fantastic/foundations/canvas/web-mcp/); User home store (https://aisixteen.com/fantastic/foundations/canvas/home-store/); Canvas page (https://aisixteen.com/fantastic/foundations/canvas/page/); System agents (https://aisixteen.com/fantastic/foundations/canvas/system/)
+
 Sources: README.md: the canvas (https://github.com/aisixteen/fantastic/blob/main/README.md#L305); canvas.md (https://github.com/aisixteen/fantastic/blob/main/src/tui/docs/canvas.md#L11); web.rs: the canvas tree, child canvases (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/web.rs#L1)
+
+### Foundations › Canvas: an app built on fantastic › User
+
+URL: https://aisixteen.com/fantastic/foundations/canvas/user/
+
+The kernel knows only agents, so the person at the keyboard is one too. It is called `user`, its handler is `user.tools`, and every call the terminal and the canvas make goes out through it. That makes `user` the sender: its grants are the ones checked, and replies route back to it.
+
+This page covers what `user` does with a call from a canvas tab, why the [call gate](/fantastic/foundations/protocol/call-gate/) judges it and not the tab, and the other verbs it answers: `around`, `path` and the inquiries. The canvas leg that carries the tab’s frames is in [Web agents](/fantastic/foundations/agents/web/#ws). The `user` agent described here is the one in the Rust canvas host.
+
+#### One human, one agent
+
+The agent id is `user`. In the terminal the code says the terminal “IS an agent on the spine, not a client of a server”, and its reads and acts go out as the **sender** `user`.
+
+In the canvas tree `user` is the root of the host’s web agents: `web` is its child, and the canvas leg `canvas_ws` and the page server `canvas_page` sit under `web`. `user` also carries a `page_loader` field naming `web_loader`, the agent that holds the canvas page’s records.
+
+the canvas host’s first agents:
+
+```
+user
+└── web
+    ├── canvas_ws
+    └── canvas_page
+```
+
+A canvas tab never calls a host agent itself. The leg’s only call target is `user`: `user`’s `callable_by` names `canvas_ws` with `user`’s own verbs, and `canvas_ws`’s `can_call` is rewritten to `user`, plus each connected page’s own agents. Beyond that the leg holds only `watch` and `emit` on every agent, and `state_subscribe` on the root and the kernel. Every call to a host agent goes through `user`.
+
+#### forward: the call leaves as user
+
+The page wraps each call to a host agent as `forward {target, payload, timeout?}` (**forward** is the verb that carries a call) and sends it to `user`. A call addressed to `user` itself is sent as its own payload, unwrapped.
+
+what the page sends user (illustrative target):
+
+```
+{"type": "forward", "target": "notes",
+ "payload": {"type": "reflect"}}
+```
+
+`user` sends `payload` to `target` from inside its own handler, so the sender of that onward send is `user`. The reply comes back verbatim, binary bodies included. The verb needs a non-empty `target` string and a `payload` object, or it answers `bad_arg`; a `timeout` must be a number.
+
+There is no default timeout. The call lasts as long as the target takes, which matters for an AI turn that runs for minutes. A `timeout` that is given is honoured, and a call that runs out with no result answers `timed_out`.
+
+`forward` adds no secret marks of its own, so values travel and are recorded as they are. A secret mark the caller put under `payload` is carried onto the onward send, so [records](/fantastic/foundations/kernel/records/) mask it the same way. Who may call `forward` is `user`’s `callable_by` and nothing else.
+
+*Animation: Every call goes out as user* (https://aisixteen.com/fantastic/foundations/canvas/user/forward.mp4). A canvas tab wraps its call as forward {target: "notes", payload: {type: "reflect"}} and sends it to user. user sends the payload to notes with its own id as the sender. notes replies, and the reply comes back to the tab verbatim, with no default timeout.
+
+A tab checks at start that it is admitted. It sends `user.forward` of `reflect` to `kernel`, and if the answer’s reason is `unauthorized` the page shows the refusal and runs nothing else.
+
+#### What the gate sees
+
+Because the onward send is `user`’s, the call gate checks `user`’s `can_call` and the target’s `callable_by`, as it does for any send. The tab’s own rights do not enter into it.
+
+The canvas host writes both edges for `user` by grants. `user`, the canvas’s AI agents and a few host helpers hold every agent on both edges, in the code’s words **god mode by grants**: the target’s `callable_by` names each holder and each holder’s `can_call` names the target. The human reshapes them with `update_agent`. A cabinet’s agents are not reached this way.
+
+So narrowing `user`’s `can_call` is how the person limits what the canvas can do. The next `forward` is refused at egress, with the refusal the [call gate](/fantastic/foundations/protocol/call-gate/) describes.
+
+Every agent except stores and a cabinet’s agents may also `send` to `user`, on both edges, so that an exec agent’s monitor delivery, a sub-routine the AI built or an inquiry’s answer can reach it.
+
+The reverse is refused. `send` is not a verb of the human, and `user` answers it with reason `unhandled` and the text “use `forward`”.
+
+*Animation: The gate judges user’s grants* (https://aisixteen.com/fantastic/foundations/canvas/user/gate.mp4). With user.can_call and notes.callable_by both granting, a forward gets its reply. The person narrows user.can_call with update_agent and the next forward is refused at egress. A send to user itself is refused with reason unhandled: send is not a verb of the human.
+
+#### around and path
+
+`around {canvas?, view?, theme?, x, y, radius}` lists the cells of a page view that lie within `radius` of a point, nearest first. It reads the page records, defaulting to the main canvas, the view `view_root` and the theme `canvas`. A cell’s rectangle comes from the view’s layout for that theme.
+
+around (shape; backend_id when the cell has one):
+
+```
+{"view": "view_root", "members": [{"id": …, "kind": …, "title": …,
+  "rect": {"x": …, "y": …, "w": …, "h": …}, "distance": …, "backend_id": …}]}
+```
+
+Distance runs to the rectangle’s nearest edge and is 0 inside it. `x`, `y` and `radius` must be numbers with `radius` above 0, or the reply is `bad_arg`. An unknown view is `not_found`.
+
+The caller’s own grants judge the result. A caller with no origin, the shell, sees every cell. Any other caller sees a cell only if its `can_call` holds an entry `<tree guid>|<id>` for the cell or an ancestor, or `<tree guid>|*`; `*|*` covers every tree.
+
+`path {rescan?}` answers `{dirs, executables, self}`: the PATH directories, every executable on them by name with its full path, and the running fantastic’s own executable. PATH is this process’s merged with the login shell’s, because a CLI started from a service has a narrower one. The first directory wins, and `executables.fantastic` is always the running one.
+
+The scan runs when `user` boots and stays in RAM; `rescan: true` scans again. What a name means, a coding agent or an editor, is for the caller to decide.
+
+#### Inquiries: an agent asks the person
+
+An agent that needs the person sends `user` an `inquiry {text, kind?, options?, request_id?}`. The `kind` is `text` (the default), `single`, `multi` or `confirm`; `single` and `multi` need `options`. Nothing suspends. `user` accepts it at once and holds it as open.
+
+the inquiry reply (illustrative pid):
+
+```
+{"accepted": true, "re": 4655, "request_id": null, "open": 1}
+```
+
+`re` is the pid of the task the inquiry runs under, and it is the handle for the answer. `inquiries {asker?}` lists the open ones, oldest first, and the canvas shows each as a card in the asker’s chat.
+
+`answer_inquiry {re, answer}` takes words, a list of picks or true or false. `user` sends the asker a `send` on its own thread, then closes the inquiry. If the answer does not reach the asker, the inquiry stays open and the reply is `refused`.
+
+what the asker reads (illustrative pid):
+
+```
+[reply to 4655 · user inquiry]
+<answer>yes</answer>
+<request_id></request_id>
+```
+
+Open inquiries live in RAM only. A host restart forgets them, and the asker’s own history keeps the question.
+
+*Animation: An inquiry is held, then answered* (https://aisixteen.com/fantastic/foundations/canvas/user/inquiry.mp4). The agent ai_1 sends user an inquiry of kind confirm. user answers {accepted: true, re: 4655} at once and holds it in RAM. The person calls answer_inquiry with re 4655 and yes, and ai_1 receives “[reply to 4655 · user inquiry]” with yes on its own thread.
+
+#### The rest, and the Python twin
+
+`user` also answers `export_subtree` and `import_subtree`, which write an agent and everything under it as a blueprint folder and bring one back as a live subtree. They are not covered here.
+
+The Python `user.tools` answers only `reflect`, `export_subtree` and `import_subtree`. `forward`, `around`, `path` and the inquiries are verbs of the Rust canvas host.
+
+Sources: user bundle: verbs, forward, around, the send refusal (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-user/src/lib.rs#L1); inquiries: ask, list, answer (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-user/src/inquiries.rs#L1); grants.rs: how page grants decide what around shows (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-user/src/grants.rs#L1); path.rs: the human’s programs (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-user/src/path.rs#L1); web.rs: the canvas tree and the leg that reaches only user (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/web.rs#L1); reach.rs: god mode by grants, and the way back (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/reach.rs#L1); user_bridge.ts: the page wraps every call as forward (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/user_bridge.ts#L1); Python user.tools (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/io/user/src/user/tools.py#L1)
+
+### Foundations › Canvas: an app built on fantastic › Canvas
+
+URL: https://aisixteen.com/fantastic/foundations/canvas/canvas/
+
+A canvas page holds one **view**, `view_root`, and the view owns the cells on it. The page kernel has no verbs that create or delete agents anywhere. The view answers them for its own cells, so a human and an AI change the canvas through the same messages.
+
+This page covers those verbs, in the order you use them: `place`, `move`, `wire`, `hide`, `show` and `remove`, then the selector that a double-click opens. What a cell draws is covered in the other pages of this part.
+
+#### The view owns its cells
+
+The page’s root agent, `canvas`, has no editing verb; asked for one, it answers that the view is the one to talk to. It holds the one view, and the view’s cells are the view’s children. The view answers `place`, `move`, `fit`, `update`, `wire`, `remove`, `hide`, `show`, `open`, `tree`, `theme` and `terminal_renderer`.
+
+The view is page-side TypeScript, packed into the binary. Calls reach it like calls to any agent, so the [call gate](/fantastic/foundations/protocol/call-gate/) judges them. The address of the root view is `<page guid>|view_root` (see [the canvas overview](/fantastic/foundations/canvas/)).
+
+#### Place: a new cell at x, y
+
+A `place` names what to make and where. The `kind` is `html`, `gl`, `terminal` or `chat`, or a `handler_module` that names any page bundle. `x` and `y` are required numbers in view coordinates, and a call without them is refused with `reason: "bad_arg"`.
+
+A `terminal` or `chat` cell needs a `backend_id`, the host agent it shows. A `place` with only a `backend_id` and no kind makes a view of that agent, drawn the way the agent’s own record says.
+
+The cell gets the id you pass, or `<kind>_` and eight hex digits. An id that already exists is refused with `reason: "exists"`, and the hint says to `update` it or `remove` it first. A cell with no size starts at 480 by 320.
+
+place an html cell (illustrative guid):
+
+```
+[{"target": "<page guid>|view_root", "payload": {"type": "place", "kind": "html", "x": 80, "y": 60, "bytes": "<b>hello</b>"}}]
+```
+
+The body of an `html` or `gl` cell is `bytes`, taken verbatim. An html body that is empty, a placeholder or truncated is refused with the reason. `place` and `update` set only `display_name`, `html`, `gl_source`, `trusted`, `readme`, `can_call` and `callable_by`, and a field `place` does not take comes back in `ignored`. If the html calls an agent that the cell’s `can_call` lacks, the reply names the missing grants.
+
+*Animation: Place and move a cell* (https://aisixteen.com/fantastic/foundations/canvas/canvas/place.mp4). A send of place {kind: html, x: 80, y: 60} goes to view_root. The cell appears at 480 by 320, and its rectangle is written to layout_canvas. A move {id, x: 400} then rewrites only that rectangle. The cell itself is untouched.
+
+#### Move: a position lives in the layout
+
+A cell’s `x`, `y`, `width` and `height` are not on the cell. They are in the view’s **layout** for the theme in use: one `layout.ts` child agent per theme, named `layout_<theme>`, whose `rects` map a cell id to its rectangle.
+
+a layout agent’s record (illustrative id):
+
+```
+layout_canvas   rects: {"html_1a2b3c4d": {"x": 80, "y": 60, "width": 480, "height": 320}}
+```
+
+`move {id, x?, y?, width?, height?}` rounds the values and merges them over the cell’s old rectangle in that layout. A `move` with no geometry is refused, and so is an id that is not a cell of this view. Dragging a cell by its head writes the same rectangle. `place` and `update` write their geometry there too.
+
+There are two stock themes. `canvas` is the free two-dimensional canvas. `mobile` is one column, 400 wide, and `auto` (the default) picks `mobile` in a tab narrower than 768 px. `theme {name}` chooses one. Switching moves the cells, never the agents, because each theme has its own `rects`.
+
+A cell with no rectangle in the theme in use is placed once by the layout. The free theme puts it in the nearest free space around the centre of what the tab shows, 24 px from other cells. The column puts it at the bottom.
+
+#### Wire: write a grant on both cells
+
+`wire {sender, receiver, verbs}` is a grant. It adds the verbs to the sender’s `can_call` for the receiver and to the receiver’s `callable_by` for the sender. It writes each side only when that side is a cell of this view, because another agent’s record is not the view’s to write. A host agent as receiver gets only the sender’s side.
+
+The reply is `{wired: {sender, receiver, verbs}}`. The verbs are merged as a set, so a repeated `wire` adds nothing twice. A `wire` where neither agent is a cell of the view is refused with `not_found`. A `wire` without a sender, a receiver or a non-empty list of verbs is refused with `bad_arg`. The rule that decides whether the send then passes is the [call gate](/fantastic/foundations/protocol/call-gate/): both ends must grant it.
+
+wire (illustrative ids):
+
+```
+[{"target": "<page guid>|view_root", "payload": {"type": "wire", "sender": "chart_1", "receiver": "feed_1", "verbs": ["watch"]}}]
+```
+
+*Animation: Wire, hide and show* (https://aisixteen.com/fantastic/foundations/canvas/canvas/wire.mp4). Cells chart_1 and feed_1 sit on the view. wire {sender: chart_1, receiver: feed_1, verbs: [watch]} adds watch to chart_1’s can_call and to feed_1’s callable_by. hide {id: feed_1} then takes feed_1 off the view and its agent keeps running, and show brings it back at the same place.
+
+#### Hide, show and remove
+
+Three verbs take a cell away, and they differ in what they leave. `hide {id}` takes the cell off the view. Its agent keeps running and its rectangles are kept. The id goes on the view’s own `hidden` list, which holds for every theme, so a reload keeps the cell hidden.
+
+`show {id, x?, y?}` removes the id from that list and the cell mounts again, live. The `x` and `y` are used only when the cell was hidden. A cell that is already shown keeps its place, and `move` is the verb for moving it. `hide` and `show` refuse anything that is not a cell, such as the background, a selector or a layout.
+
+`remove {id}` deletes the cell from the view and clears its hidden entry. The layout drops the rectangles of a cell that is gone. The click on a cell’s ✕ sends a hide. Shift+✕ and right-click then Delete delete the agent, and the head menu also offers Export…
+
+#### The selector: a popup that is an agent
+
+A double-click on empty canvas, or Ctrl-K (Cmd-K on a Mac), adds a **selector** agent at that spot. A double-click inside a cell’s frame does not. Its id is `selector_` and eight hex digits, and its record holds the spot in view coordinates (`x`, `y`) and on the screen (`sx`, `sy`).
+
+The selector’s `boot` opens the popup on top of everything. When you pick a tile, press Esc or click away, the selector deletes itself, and what you picked is made at its spot. It is never a cell: the canvas draws no frame for it, and one left by a closed tab is removed when the page loads.
+
+While it exists, anyone with the grant can send it `tiles {typed?}`. The reply is `{tiles: [{label, kind, section, hint}]}`, the kinds a cell can be made of here for that text. The tiles come in sections: `host`, `coding`, `bundles`, `page`, `page_bundles` and `chats`. The built-in ones are `terminal`, `python agent`, `mcp connector`, `user store`, `html`, `stream`, `file tree`, `preview`, `canvas theme` and `tips`, plus the AI agent tile. The `coding` section lists `fantastic`, `claude`, `codex`, `aider` and `opencode` when they are on your `PATH`.
+
+*Animation: The selector popup* (https://aisixteen.com/fantastic/foundations/canvas/canvas/selector.mp4). A double-click on empty canvas adds selector_3f9a1c20 at that spot and its popup opens. tiles answers with the sections of what can be made. The human picks html, the cell is placed at the spot, and the selector deletes itself.
+
+Sources: canvas_agent.ts: the view and its verbs (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/canvas_agent.ts#L164); canvas_agent.ts: wire (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/canvas_agent.ts#L277); layout.ts: rects per theme, hidden (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/layout.ts#L4); cell_menu.ts: ✕ hides, Shift+✕ deletes (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/cell_menu.ts#L5); selector_agent.ts: the selector (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/selector_agent.ts#L4); action_popup.ts: the tiles (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/action_popup.ts#L96); canvas.md: the view’s verbs (https://github.com/aisixteen/fantastic/blob/main/src/tui/docs/canvas.md#L1)
+
+### Foundations › Canvas: an app built on fantastic › Views of agents
+
+URL: https://aisixteen.com/fantastic/foundations/canvas/views/
+
+An agent is not tied to a screen. The canvas and the terminal UI each look at an agent’s record and decide what to draw for it. In the canvas the decision is a short, ordered list, and the agent’s own record has the first say.
+
+This page covers how the app **chooses** a view. Writing one (`panel.html`, `view.calls`, `fantastic.send`) is in [A view](/fantastic/foundations/build/view/). The canvas itself, and where cells sit, is the [Canvas](/fantastic/foundations/canvas/) pillar.
+
+#### The agent is the unit; the cell is a view of it
+
+The **host agent** is the real agent, in the kernel. Its record declares how it is shown. A cell on the canvas holds only layout (where, how big) and a `backend_id`, the agent it shows. Placing a cell with just a `backend_id` makes a view of that agent, drawn as its record says.
+
+the record’s view field (shape):
+
+```
+view: {kind: terminal | chat | html | …  OR  handler: <any page bundle>,
+       bytes | bytes_file,   calls: [verbs…]}
+```
+
+`bytes` or `bytes_file` is the body of an `html` view, and `calls` lists the verbs an `html` or `handler` view may call on its agent. An agent has one view.
+
+#### Choosing: record, kind, stub
+
+`viewOf` in `host_views.ts` reads a record and returns the page bundle that draws it. It tries these in order, and the first match wins:
+
+1. The record has a `view`. A `handler` names a page bundle directly. A `kind` names one of the generic renderers: `terminal`, `chat`, `html`, `mcp`, `resources`, `tasks`, `store`, `scheduler`, `cabinets` or `credentials`. A `view` with no `kind` or `handler`, or with an unknown `kind`, gets the stub.
+2. The record has no `view`, and its `handler_module` is `exec_bridge.tools`: a terminal. For `mcp_client.tools`: the MCP view.
+3. Its `handler_module` is one of the agentic stores: `agentic_resources`, `task_registry`, `ram_store`, `sqlite_store`, `scheduler` or `credential_store`. Each has its own read-only view. A `cabinet` gets one only when its `cabinet_role` is `manager`.
+4. The record has a `memory_store_id` and a `handler_module`, which is what makes an AI agent: a chat.
+5. Anything else gets the **stub**: a reflect card.
+
+*Animation: Record, kind, stub* (https://aisixteen.com/fantastic/foundations/canvas/views/choose.mp4). Three host agents. py_ab12 has view {kind: html} in its record, so its own view draws it. runner has no view and is an exec_bridge, so it gets a terminal. notes has neither, so it gets the reflect card.
+
+The stub is `reflect_view`. It shows the agent’s `handler_module`, its sentence, its verbs as the kernel’s `docs` lists them, and the rest of its reflect as JSON. An agent nobody wrote a view for is therefore still visible and documented.
+
+The sidebar uses the same card to open any agent that no other cell shows. Its ✕ hides the card, and Shift+✕ deletes the agent. The card fronts the agent and does not own it.
+
+#### An agent’s own view
+
+A record with `view: {kind: html, …}` is drawn by `agent_view`. The body is the agent’s own small renderer. It comes from the bundle’s view file, `view.bytes_file`, read from `.fantastic/bundles/<handler_module>/` through the host’s `bundles_watch` bridge, with `{{agent}}` replaced by the instance id. Without a file, the record’s inline `view.bytes` is used. With neither, the cell says the agent declares no view body.
+
+The body runs in the same sandboxed panel as an `html` cell, and its calls go out as the cell. A bundle declares the view once, in `bundle.yaml`, and every instance gets it. Editing the view file writes each instance’s `view` again, and its cell re-renders without a restart. A chat card mounts the same panel inside its frame.
+
+the starter python agent’s view (bundle.yaml):
+
+```
+view: {kind: html, bytes_file: panel.html, calls: [hello, count, watch]}
+```
+
+The `agent_view` cell answers no verbs of its own beyond the panel’s relay. Anything else is refused as `unhandled`, and the hint points at the host agent’s `view` instead.
+
+#### The cell’s grant comes from the view
+
+A cell is an agent too, so the [call gate](/fantastic/foundations/protocol/call-gate/) judges what it sends. Nobody writes that grant by hand. `cellGrant` derives it as `{<agent id>: [the view’s calls]}` when the cell is placed.
+
+Each generic renderer carries its own fixed list. The stub gets `reflect` (and `docs` on the kernel). A terminal gets `watch`, `status`, `start`, `write`, `ack`, `resize`, `output` and `paste_image`. A chat gets `watch`, `reflect`, `history`, `status`, `send` and `stop`. For an `html` or `handler` view the list is the record’s `calls`, and `watch` is always added, so a view receives its agent’s events.
+
+The read-only views (resources, tasks, store, scheduler, cabinets, credentials) are granted reads and `watch` and no write verb. The credentials view never gets `get`: it shows a name and a grant, not a value. See the [credential store](/fantastic/foundations/agents/credential-store/).
+
+*Animation: The view’s calls become the cell’s grant* (https://aisixteen.com/fantastic/foundations/canvas/views/grant.mp4). py_ab12 declares calls [hello, count]. The canvas adds watch and writes the cell’s can_call as {py_ab12: [hello, count, watch]}. The panel’s hello passes the call gate as the cell. A stop is not in the grant and is refused.
+
+#### The terminal UI: a panel per handler_module
+
+The terminal UI (TUI) decides the same way, with a different key. Selecting an agent in the tree changes the right pane to that agent’s panel. `PanelKind::of` picks it from the agent’s `handler_module`, read from the tree’s reflect.
+
+| handler_module | panel |
+|---|---|
+| `*_backend.tools`, `ai_core.tools` | AI: conversation |
+| `exec_bridge.tools`, only for the shell’s own id `term` | terminal |
+| `file_bridge.tools` | files |
+| `agentic_resources`, `task_registry`, `ram_store`, `sqlite_store`, `scheduler`, `cabinet`, `credential_store` | read-only panels |
+| anything else | generic |
+
+AI agents match by suffix, so a new provider needs no change. A terminal is matched by id as well, because only the shell knows which exec agent it drew as its PTY. Any other `exec_bridge` agent gets the generic panel, which differs from the canvas, where every exec agent is a terminal.
+
+An unknown module is not an error and not a blank pane. The **generic panel** shows the agent’s id, whether it is open or sealed, its sentence, the last call, its egress (`can_call`) and ingress (`callable_by`), its verbs and its rows, and lets you call any declared verb. Its answer, a refusal included, is shown verbatim. A transport leg has only a reflect, so it lands here too.
+
+*Animation: A panel per handler_module* (https://aisixteen.com/fantastic/foundations/canvas/views/tui.mp4). Four agents selected in the tree. A vllm_backend.tools agent gets the AI panel, the shell’s term gets the terminal, another exec_bridge agent gets the generic panel, and so does a module the shell has never seen.
+
+In the public code, `make` in `panel/mod.rs` is a fixed `match` over these kinds. This page therefore claims no plug-in hook for a custom TUI panel: a new handler gets the generic panel.
+
+Sources: host_views.ts: viewOf and cellGrant (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/host_views.ts#L83); agent_view.ts: an agent’s own view (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/agent_view/agent_view.ts#L57); reflect_view.ts: the stub (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/reflect_view/reflect_view.ts#L39); canvas_agent.ts: hostViewCell and place (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/canvas_agent.ts#L27); bundle.yaml of the starter python agent (https://github.com/aisixteen/fantastic/blob/main/src/tui/starters/python_agent/bundle.yaml#L9); panel/mod.rs: PanelKind::of (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/panel/mod.rs#L78); panel/generic.rs: the generic panel (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/panel/generic.rs#L1)
+
+### Foundations › Canvas: an app built on fantastic › HTML and GL agents
+
+URL: https://aisixteen.com/fantastic/foundations/canvas/html-gl/
+
+Two kinds of cell on a canvas hold content instead of fronting a host agent. An **html agent** holds the body of a web page. A **gl agent** holds the source of a WebGL scene. Both are ordinary agents with a record, verbs and a `can_call`.
+
+They are page-side TypeScript: they run in the browser’s kernel, and the code says each was ported from a host Python bundle that no longer exists. So this page describes one implementation, with no Rust or Python twin.
+
+#### An html agent holds a body
+
+The handler module is `html_agent.ts`. The body is a string in the agent’s `meta.html`. `get_html` returns `{id, html}`, and `set_html` replaces the body. A cell answers `get_html` and `set_html` (`render_html` is a second name for `get_html`), plus the three `panel_*` relay verbs the panel’s own calls use; any other verb is refused with `unhandled` and a hint that placing, moving and wiring cells are the view’s verbs.
+
+A view creates the cell with `place {kind: "html", …}` and changes it with `update {id, bytes}`; the view itself is on [Views of agents](/fantastic/foundations/canvas/views/). `set_html` takes the markup as `bytes`, verbatim. After it stores the body, the agent emits `{"type": "reload_html"}` on itself, and the cell’s panel draws the new body in place.
+
+A **page bundle** is a folder under the canvas’s `bundles/` whose `bundle.yaml` has `base: html_agent`, a `sentence` and an `html:` body. Every instance starts with that body until it gets its own from `set_html`. This is the page kind of folder bundle on [Bundles](/fantastic/foundations/kernel/bundles/#folder-bundles).
+
+*Animation: set_html: refused, then accepted* (https://aisixteen.com/fantastic/foundations/canvas/html-gl/html_set.mp4). The view places cell panel1. A set_html whose body is plain text with no element is refused as bad_arg and the cell keeps its old body. A set_html with a button and a script is stored in meta.html, the agent emits reload_html, and the panel draws the new body.
+
+#### What counts as a body
+
+Before it writes a body, `set_html` checks the shapes that never render a panel. It refuses a body that is empty, has no element (it reads as text), opens a `<script>`, `<style>` or `<textarea>` and never closes it, or ends inside a tag. The last two are what a truncated body looks like. The page bundle’s own `html:` gets the same check when the bundle loads.
+
+the refusal (the reason after the dash varies):
+
+```
+{"error": "html_agent: the html body is not html — it is empty", "reason": "bad_arg", "arg": "bytes", "hint": "send the panel's WHOLE markup as <bytes>…</bytes> — verbatim, nothing elided"}
+```
+
+A refusal is data, so the AI that wrote the body reads it and sends the whole markup again ([Refusals](/fantastic/foundations/protocol/refusals/)). A reply that passes is `{ok: true, bytes: N}`, possibly with the grant hint below.
+
+#### The sandbox and the connector
+
+The panel draws the body in an `iframe` whose `srcdoc` is a small document: a `<script>` with the connector in `<head>`, then the body. The frame has `sandbox="allow-scripts"`, so it runs scripts with a null origin. If the agent’s record has `trusted: true`, the frame has no sandbox and shares the page’s origin. The code reserves that for the operator’s own content.
+
+The connector defines `fantastic` in the frame, and its only channel to the outside is `postMessage` to the page.
+
+| call | what it does |
+|---|---|
+| `await fantastic.send(target, payload)` | one send; resolves with the reply |
+| `fantastic.emit(target, payload)` | an event into the target’s inbox; no reply |
+| `fantastic.watch(src, cb)` | events of `src`; returns a function that stops it |
+| `fantastic.onMessage(cb)` | messages sent to this cell |
+| `fantastic.openCanvas(id)` | the page loads that canvas |
+
+The page relays each call to the kernel as the cell’s own agent, not as the operator. A `send` reaches the kernel through the cell’s `panel_send`, so the [call gate](/fantastic/foundations/protocol/call-gate/) judges it: the cell’s `can_call` and the target’s `callable_by` must both name the verb. An `emit` needs `emit` in the cell’s `can_call`, and a target on the page’s kernel must also name it in `callable_by`. A `watch` is gated too, and a refused one comes back to the frame as an event holding the refusal, so it does not look like a subscription that works.
+
+*Animation: The frame calls out through the cell* (https://aisixteen.com/fantastic/foundations/canvas/html-gl/connector.mp4). Inside the sandboxed frame of cell panel1, fantastic.send("runner", start) posts a message to the page. The page relays it as panel1 through the call gate. Panel1’s can_call names runner, so the reply returns to the frame. A second send to store is not named, so the gate refuses it.
+
+#### The grant hint
+
+A refused call inside a panel never reaches the AI that wrote it. So the write that sets the body says what is missing. It scans the body for `fantastic.send`, `fantastic.watch` and `fantastic.emit` calls with a literal target. For a `send` with `type: "name"` written inline it records that verb; otherwise it records `*`. It compares the result with the cell’s `can_call`.
+
+set_html reply with a hint (illustrative ids):
+
+```
+{"ok": true, "bytes": 212, "grants_missing": {"runner": ["start", "watch"]}, "hint": "this cell's html calls runner but its can_call does not name it — those calls will be refused. Grant it from the view: update {id: …, fields: {can_call: …}}"}
+```
+
+The hint only reads the body. It never writes a grant. The grant is a separate write on the view: `update` with `can_call`, or `wire {sender, receiver, verbs}`, which adds the verbs to the sender’s `can_call` and the receiver’s `callable_by`. The view’s `place` and `update` replies carry the same hint.
+
+#### A gl agent holds a scene
+
+The handler module is `gl_agent.ts`. The source is a string of JavaScript in `meta.gl_source`. `get_gl_view` returns `{id, source}`, and `set_gl_source {source}` stores a new source and emits `reload_html` on the agent. It has no html check and no grant hint.
+
+The canvas draws all GL cells into **one shared THREE renderer, scene and camera**, which follow the canvas’s pan and zoom. For a member that is not a view bundle, the canvas calls `get_gl_view`. If a source comes back, it installs it into the GL host, which makes one `THREE.Group` for that cell.
+
+The host compiles the source with `new Function("THREE", "scene", "t", "onFrame", "cleanup", source)`. Here `scene` is the cell’s own group. Unlike an html panel, the source runs in the page itself, not in a frame. The source adds objects to its group and registers behaviour:
+
+- Without `hz`, `onFrame(cb)` runs `cb(time)` on every frame and every frame is drawn. With `{hz}`, the callback makes a frame due at most `hz` times a second; it also runs on any frame drawn for another reason (a pan, a zoom, another cell). A frame with nothing due is not drawn.
+- `t.emit(target, payload)` goes out as the cell’s agent, gated by its `can_call` and the target’s `callable_by`, and is dropped when denied. `t.onMessage(cb)` receives what is emitted to the cell. `t.agent_id` is the cell’s id.
+- `cleanup` is an array; functions pushed on it run when the view is torn down.
+
+When a view is replaced, the host runs its cleanup functions, removes its group and disposes its geometries, materials and textures. It then mounts the new source in the same place. What triggers this is the host’s `updateView`, which refetches `get_gl_view` and swaps that cell’s group; `set_gl_source` only stores the source and emits `reload_html`. Sibling views are untouched. A source that throws while mounting is logged and removed, and the other views keep drawing. With no GL view left, the render loop stops.
+
+*Animation: GL cells share one scene* (https://aisixteen.com/fantastic/foundations/canvas/html-gl/gl_scene.mp4). The canvas calls get_gl_view on cell gl1 and gets a source. The GL host makes a group for gl1 inside the shared scene and runs the source with scene, t, onFrame and cleanup. A second cell gl2 gets its own group. When the host updates gl1, its cleanup runs, its group is replaced, and gl2 keeps drawing.
+
+A GL source is not sandboxed. `t` also carries the page’s host link (`call`, `subscribeState`), which is not gated by the cell’s `can_call`. Only `t.emit` and `onMessage` are the cell’s own. Treat a GL source as page code.
+
+Sources: html_agent: get_html, set_html, page bundles (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/html_agent/html_agent.ts#L31); the html check and its refusal (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/html_check.ts#L11); the connector injected into the frame (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/html_agent/connector.ts#L40); html_view: sandbox, srcdoc and the postMessage relay (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/html_agent/html_view.ts#L50); panel_send, panel_emit, panel_watch (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/panel_relay.ts#L17); the grant hint (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/html_agent/grant_hint.ts#L9); gl_agent: get_gl_view, set_gl_source (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/gl_agent/gl_agent.ts#L14); the GL host: shared scene, mountSource, teardown (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/gl_host.ts#L171)
+
+### Foundations › Canvas: an app built on fantastic › Skin and backgrounds
+
+URL: https://aisixteen.com/fantastic/foundations/canvas/skin/
+
+How the canvas looks is not a setting file. It is state on agents, and an AI cell or a person changes it with the same send they use for everything else.
+
+The code keeps three things apart. A **skin** is how everything is coloured and shaped. A **theme** is where the cells sit. A **background** is the picture behind the cells. This page covers the skin and the background and shows where the theme fits.
+
+#### Three things, three agents
+
+Each of the three has its own agent on the page, and none of them moves the others. The page-side agents are TypeScript, packed into the binary with the canvas; the code has no Rust or Python twin for them. Their verbs are reached like any other, through the [call gate](/fantastic/foundations/protocol/call-gate/).
+
+|  | answers | lives on | state |
+|---|---|---|---|
+| skin | colours, radii, fonts, shadows, motion, and the backdrop | the `skin` agent | `skins`, `user_skins` |
+| theme | where the cells sit: `free` or `column` | the canvas theme agent, `layout_<theme>` agents | `user_themes`, `hidden_themes` |
+| background | one GL scene behind every cell | the view’s `background` agent | `bg_source` |
+
+The docs say it directly: a skin “never moves a cell”. The theme, by contrast, changes the cells’ rectangles and never an agent. The [Canvas](/fantastic/foundations/canvas/canvas/) article covers cell placement.
+
+*Animation: Skin, theme, background* (https://aisixteen.com/fantastic/foundations/canvas/skin/three.mp4). Three cards, three agents. The skin agent holds design tokens and a backdrop. The canvas theme agent holds themes: where the cells sit, free or column. The view’s background agent holds one GL source. A change to one leaves the other two as they were.
+
+#### The skin: design tokens in a record
+
+A skin is a document of **design tokens** in a subset of the W3C Design Tokens format (2025.10), plus a **backdrop**, `web` or `native`. The `skin` agent is one per canvas, a delete-locked child of the page root, made when missing. Its record holds two fields:
+
+- `skins`: `{web, native}`, the name of the skin used on each backdrop. The defaults are the stock skins `dark` (web) and `glass` (native).
+- `user_skins`: `[{name, base, note, tokens}]`, skins written by an AI or a human. `tokens` is a partial document merged over `base`, which is a stock skin or another user skin.
+
+The skin in use is the slot for this tab’s backdrop. A plain browser tab has no shell flag, so it is always `web`. One canvas can therefore show `glass` in the app’s window and `dark` in a browser tab at the same time.
+
+The agent answers six verbs.
+
+| verb | what it does |
+|---|---|
+| `list` | stock skins, your skins, the two slots, this tab’s backdrop and `in_use` |
+| `get {name}` | the tokens as authored, and `merged`, the full document that compiles |
+| `schema` | the format, supported and refused features, and every token with its type and CSS name |
+| `use {name, backdrop?}` | sets a slot, by default this tab’s |
+| `add {name, base, tokens, note?}` | adds or replaces one of yours |
+| `delete {name}` | removes one of yours |
+
+#### Writing a skin
+
+A new look is one `add` and one `use`. The `add` carries only what changes; the rest comes from `base`. A token you give replaces the base’s whole token, and groups merge deeply.
+
+the skin agent’s own example (shortened):
+
+```
+add {name: "ocean", base: "dark", tokens: {color: {accent: {base: {$value:
+  {colorSpace: "srgb", components: [0.2, 0.7, 0.9]}}}}}}
+use {name: "ocean"}
+```
+
+Before it stores anything, `add` checks the name (1 to 40 characters of `a-z`, `0-9`, `_`, `-`), that it is not a stock name, that `base` exists and has no cycle, and that the merged document compiles. A bad token is refused with its path. The same name replaces the old skin, and if it is in use the page shows the new version at once.
+
+A colour is `srgb` with `components` in 0 to 1, an optional `alpha`, and an optional `hex` that must equal the components. Tokens marked `opaque` must have alpha 1, because the canvas mixes them with its `tint()` helper. Aliases such as `"{color.accent.base}"` are followed, and a `palette.*` group holds free alias targets that are never compiled.
+
+The format refuses `$ref`, `$extends`, `$root`, the types `strokeStyle`, `border`, `transition`, `gradient` and `typography`, and any colour space other than `srgb`.
+
+*Animation: Add a skin, use it* (https://aisixteen.com/fantastic/foundations/canvas/skin/skin.mp4). The skin agent receives add with name ocean, base dark and one accent token. The merged document compiles, so ocean is stored. use ocean sets the web slot, and the single fantastic-skin stylesheet is replaced. A native skin sent to the web slot is refused with bad_arg.
+
+#### How the page applies it
+
+The page compiles a skin to one CSS custom property per token, named `--fc-` plus the path with dots as dashes. All of them sit in one `<style id="fantastic-skin">` at the start of the head, and `<html>` gets `data-skin` and `data-backdrop`. Switching skins replaces that stylesheet’s text and the browser restyles every view from the new variables, and the canvas also redraws the view (a native backdrop hides the background).
+
+The page watches the `skin` record and applies again whenever `skins` or `user_skins` changes, so a send from anywhere shows at once. A skin that cannot apply is logged and shown as a toast, and the page keeps the skin it shows.
+
+`use` refuses a skin whose backdrop is `native` for the `web` slot, as `bad_arg`, because nothing is behind a browser tab. A web skin may sit in the `native` slot. `delete` refuses a skin that is in a slot or is another skin’s base.
+
+Font sizes, weights, line heights and layout geometry are not tokens. The docs keep them literal so that a skin never moves a cell.
+
+#### The background: a GL source on its own agent
+
+Every view has exactly one **background** agent, a child of the view. The root view’s is `background` and is delete-locked, so it can only be updated; a nested view’s is `<view>_bg`. Its one piece of state is `bg_source`.
+
+`bg_source` is JavaScript, run as `new Function("THREE", "scene", "t", "onFrame", "cleanup", bytes)` in the page’s shared three.js scene, behind every cell. The agent answers `set_bg {bytes}`, `default_bg`, `clear_bg` and `get_bg`, and `set_bg` refuses a source that does not compile, with the error and `reason` `bad_arg`. The record grants these verbs by name to the view (its parent) and to the backgrounds agent; no one else may call them.
+
+People and AI cells rarely call that agent directly. The page’s **backgrounds agent** (file `backgrounds_agent.ts`, called the canvas theme agent in its own header) manages a list and applies a choice by calling `set_bg` on the view’s background.
+
+- Stock backgrounds are Isoline, Glyph, Copper and Moire. `delete` hides a stock one and `restore_stock` brings all back.
+- `add {name, note?, bytes}` adds your own as a full GL source. `add {name, note?, body, sets?}` writes only a body on the stock prelude. Either must compile.
+- `set {name, set?}` applies one, `random` picks one, `none` clears, and `default` restores Isoline in its Ember colour set.
+- `rotate {on, every_s?}` picks a random one every `every_s` seconds. The default is 60, and values under 5 fall back to it.
+
+Its record keeps `user_bgs`, `hidden_stock`, `current` and `rotate`, so the choice survives a reload. The agent is granted `set_bg`, `clear_bg`, `default_bg` and `get_bg` on the background at both ends, as the [call gate](/fantastic/foundations/protocol/call-gate/) requires.
+
+*Animation: Set a background* (https://aisixteen.com/fantastic/foundations/canvas/skin/background.mp4). The backgrounds agent receives set with the name Isoline. It sends set_bg with the GL source to the view’s background agent, which checks that the source compiles and stores it as bg_source. A source that does not compile is refused with bad_arg. Under a native skin the background is not drawn.
+
+Under a `native` skin the page draws no background, because the window’s own material shows through. The background’s record is untouched, so a web skin brings it back. A skin change also redraws the view.
+
+#### Where the theme fits
+
+The canvas theme agent also keeps the themes, and they are a different thing from a skin. A theme is `{name, layout, trigger}`, where `layout` is `free` or `column`. The stock themes are `canvas` (free) and `mobile` (one column, for tabs under 768 px wide).
+
+With the view’s `theme` set to `auto`, the page takes the first theme whose width trigger matches the tab, yours first, otherwise the first without a trigger. The verbs are `themes`, `use_theme`, `add_theme`, `delete_theme` and `restore_themes`; the stock `canvas` cannot be deleted or hidden; edit it with `add_theme`.
+
+Positions live in one `layout_<theme>` agent per theme under the view. Switching theme moves the cells and never the agents. The [Canvas](/fantastic/foundations/canvas/canvas/) article follows from there.
+
+Sources: the skin agent: verbs, record, refusals (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/skin/skin_agent.ts#L128); applying a skin: one style element (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/skin/apply.ts#L13); the token format and what it refuses (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/skin/tokens.ts#L67); the token schema (every token) (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/skin/schema.ts#L26); the background agent (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/background_agent.ts#L50); the backgrounds agent (and themes) (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/backgrounds/backgrounds_agent.ts#L96); themes and layouts (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/layout.ts#L63); docs: skins (https://github.com/aisixteen/fantastic/blob/main/src/tui/docs/skins.md)
+
+### Foundations › Canvas: an app built on fantastic › Cabinet
+
+URL: https://aisixteen.com/fantastic/foundations/canvas/cabinet/
+
+A **cabinet** is a canvas of its own with one worker AI. A master AI splits a job into cabinets, gives each worker a task, and reads their reports as they come in.
+
+The `cabinet` bundle holds the rules: which canvas each cabinet gets, what each worker may call, and how the cabinets are removed. The Python bundle is the reference; the Rust bundle is a port with the same verbs, refusals and grants.
+
+#### The parts
+
+One **manager** is a `cabinet.tools` agent with `cabinet_role: manager`. The operator makes it once. It names the canvas that spawns the cabinets in its `canvas_id` field, and the cabinets are its children.
+
+Each cabinet is a record with `cabinet_role: cabinet`. It is the live status cell that the spawning canvas can show, and it owns one worker AI as its child. The cabinet also points at its own canvas, made by `new_canvas`. That canvas is a child of the spawning canvas, as described in [Canvas](/fantastic/foundations/canvas/canvas/).
+
+Deleting a canvas deletes the canvases it spawned. This is what lets a cabinet take its canvas with it when it closes.
+
+- manager verbs: `open_cabinet`, `close_cabinet`, `cabinets`, `conclude`, `reflect`
+- cabinet verbs: `status`, `view`, `reflect`
+
+The master is the AI that sends `open_cabinet`. An operator send is refused, because there is no master to wire the cabinet to.
+
+#### Opening a cabinet
+
+The master sends `open_cabinet {task, name?, backend?, setup?}` to the manager. Only `task` is required. The manager then works in this order:
+
+1. It grants itself `new_canvas` on the spawning canvas, and the canvas grants it back.
+2. It sends `new_canvas {name}` to the spawning canvas. The new canvas is a child of it.
+3. It creates the cabinet record `cabinet_<name>` with its task, its master, its canvas and an empty status.
+4. It creates the worker `cabinet_<name>_worker` under the cabinet.
+5. It wires the grants described below and rewrites every worker’s directory.
+
+The cabinet and worker records are made by sends to the root as the manager itself, so the operator must grant the manager `create_agent`, `update_agent` and `delete_agent` on the root. See the [call gate](/fantastic/foundations/protocol/call-gate/). If any wiring step fails, the manager removes the half-made cabinet and its canvas.
+
+the reply of open_cabinet (illustrative values):
+
+```
+{"id": "cabinet_alpha", "canvas": "canvas_cabinet_alpha",
+ "worker": "cabinet_alpha_worker", "master": "…",
+ "backend": "…", "new_backend": false, "peers": []}
+```
+
+The reply does not mean the worker has started. `open_cabinet` does not start the worker. The master sends it the task as its first message, `{type: "send", text: …}`.
+
+*Animation: open_cabinet: a canvas and a worker* (https://aisixteen.com/fantastic/foundations/canvas/cabinet/open.mp4). The master sends open_cabinet {task} to the manager. The manager asks the spawning canvas for new_canvas and gets a child canvas. It then creates the cabinet cell and, under it, the worker. The reply names the ids, and the worker waits for its first message.
+
+#### Where the worker comes from
+
+The worker is a copy of an existing AI backend’s record. By default the backend is the master itself, and `backend` names another. The copy keeps the handler, endpoint, model, credential reference and memory store, so the connection and key stay where their owner set them. The record’s identity, grants, prompts, view and cabinet fields are not copied.
+
+`setup` overrides fields of the copy, but a wiring key in it is refused. A worker whose handler, endpoint or credentials differ from the backend’s is flagged `new_backend: true` with a warning. The code allows it and discourages it.
+
+The manager’s optional `max_cabinets` is a ceiling. An open that would exceed it is refused with `reason: "ceiling"`.
+
+#### Who may call whom
+
+Every open edits grants key by key. The pattern follows the [call gate](/fantastic/foundations/protocol/call-gate/): each edge needs both a `can_call` and a `callable_by`.
+
+| edge | verbs |
+|---|---|
+| worker to its cabinet | `status` |
+| worker to its cabinet’s canvas | `create`, `place` |
+| worker to a peer worker, or to the master | `send`, `reflect` |
+| master or manager to a worker | all verbs |
+| master to a cabinet | `view`, `reflect` |
+| worker to the root | nothing |
+
+> a peer that may only message cannot stop, clear or re-task the other. (cabinet/tools.py)
+
+The worker also holds its memory store, and its credential store when the backend names one. It holds no grant on the root, so it cannot edit grants, and it cannot place a child canvas, because `new_canvas` is not on its grant. When a cabinet closes, the kernel prunes every grant that names a deleted id.
+
+#### The directory
+
+Each live worker’s record carries `cabinet_peers`: the cabinet, worker and task of every other cabinet. Its `post_system_prompt` says it is one of N workers, lists the peers, and shows how to message a peer or the master, how to report `status`, and how to build on its canvas. The text rides after the backend’s own prompt and never replaces it. Both are rewritten on every open and close.
+
+*Animation: Grants between workers* (https://aisixteen.com/fantastic/foundations/canvas/cabinet/wiring.mp4). Two cabinets, alpha and beta, each with a worker. The workers get send and reflect grants both ways. The master calls each worker in full. No worker holds any grant on the root.
+
+`open_cabinet`, `close_cabinet` and `conclude` run one at a time per manager. Each reads whole grant maps and writes them back, so two in flight would overwrite each other’s entries. Other verbs are not serialised.
+
+#### What a worker does
+
+A worker builds its **equipment** on its cabinet’s canvas. It sends `create {record: {handler_module, …}}` to build an agent there, for example an exec runner or a helper AI, and `place` to show a view. These are the only two verbs it holds on the canvas. Equipment is a child of the canvas, not of the worker.
+
+The worker reports up with `status {line, progress?, result?}` to its cabinet. `line` is a string, `progress` is a number from 0 to 100, and `result` can hold the final answer. The cabinet stores the report with a timestamp and emits an `update` event on its own id, so its view and every watcher see it live.
+
+status (illustrative values):
+
+```
+{"type": "status", "line": "parsing", "progress": 40}
+```
+
+The master reads the state in two ways. `cabinets` lists every live cabinet with its task, worker, canvas, status and equipment. `view` on one cabinet returns the same fields for it.
+
+The status cell appears on the spawning canvas once the master places it there with the canvas view’s `place {backend_id: <cabinet>, x, y}`. Its button calls `fantastic.openCanvas(canvas)` and the page switches to the cabinet’s canvas. The button stays disabled until a canvas is named. The Rust terminal panel for a cabinet is read-only and sends only `cabinets` and `view`.
+
+#### Closing and keeping
+
+`close_cabinet {id}` deletes the cabinet with its worker, then its canvas with all the equipment on it, then rewrites the remaining workers’ directories. It refuses an id that is not a cabinet of this manager.
+
+`conclude {keep?}` closes every cabinet that is not named in `keep`, and the manager stays. A `keep` id is either a live cabinet, which stays whole, or a **result**: an agent placed on a cabinet’s canvas at any depth. For a result, the canvas and the path down to it stay. The cabinet record, the worker and all other equipment are deleted.
+
+Any other id is refused with `reason: "unknown_keep"` before anything is deleted. A canvas’s page loader is its own records: it is never deleted and never counts as a result.
+
+*Animation: conclude keeps a result* (https://aisixteen.com/fantastic/foundations/canvas/cabinet/conclude.mp4). A worker reports status up to its cabinet. The master sends conclude {keep: ["report"]}, where report sits on a cabinet’s canvas. The canvas and the report stay; the cabinet, the worker and the other equipment are deleted.
+
+#### What the code leaves open
+
+- Equipment is not wired for the worker. A created helper AI gets its memory store and nothing else; the worker reaches other equipment only when its own `can_call`, or a peer’s, names it.
+- How many cabinets to open, and what each worker builds, is the model’s choice. The code limits only the ceiling and the grants.
+
+Sources: Python cabinet bundle (reference) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/cabinet/src/cabinet/tools.py#L349); cabinet readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/cabinet/src/cabinet/readme.md#L1); status cell (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/cabinet/src/cabinet/view.html#L1); Rust cabinet bundle (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-cabinet/src/lib.rs#L1); new_canvas and the canvas tree (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/web.rs#L8); terminal panel (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/panel/cabinet.rs#L1); the manager view (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/cabinets_view/cabinets_view.ts#L1)
+
+### Foundations › Canvas: an app built on fantastic › Web MCP
+
+URL: https://aisixteen.com/fantastic/foundations/canvas/web-mcp/
+
+A coding CLI or any other MCP client can drive a fantastic kernel through two tools, `reflect` and `send`. The part of the kernel that answers it is an agent called the **MCP leg**, with the handler `web_mcp.tools`.
+
+The wire format, the attach-or-run rule and the grants are already in [Transports](/fantastic/foundations/protocol/transports/#mcp). This page goes one layer down: how the leg splits protocol from identity, the config file it keeps, the questions it holds for the person, and the `fantastic send` command.
+
+#### Two layers: the agent and the protocol
+
+The leg lives in the `fantastic-web-mcp` crate, outside the kernel tree. It keeps two things apart on purpose. `WebMcpBundle` is the **agent**: it answers verbs sent to the leg. `McpCore` is the **protocol**: one JSON-RPC message in, one reply out. Every carrier calls `McpCore`, and no carrier knows what MCP means.
+
+The only carrier on `main` is a stream of JSON lines, over stdio or over the kernel’s local socket. The code comments name an HTTP carrier as later, so this page describes none. `McpCore` answers `initialize`, `ping`, `tools/list` and `tools/call`, and answers any other method with the error “Method not found”. A notification gets no reply. Protocol version 2025-11-25.
+
+#### A tool call is the leg’s task
+
+A carrier runs outside every dispatch, so anything it sent itself would count as the operator’s. `McpCore` avoids that. It starts a kernel task owned by the leg, and the task sends the leg an `inbound_send` verb with the batch. The leg then sends each item onward as itself, so the leg’s own grants decide every call, as in [Call gate and grants](/fantastic/foundations/protocol/call-gate/).
+
+*Animation: A tool call becomes the leg’s task* (https://aisixteen.com/fantastic/foundations/canvas/web-mcp/two_layers.mp4). A client sends tools/call send to McpCore. McpCore starts a task owned by the mcp leg (task 7, illustrative), which ps lists. The task hands the batch to the leg’s inbound_send. The leg sends the item to files as itself, so its grants decide. When the task ends, the outcomes return as [{pid, status, result}].
+
+The task id exists from the first instant, so `ps` lists the call and `cancel` on it kills the subtree. The client’s `notifications/cancelled` does the same, and an item `timeout` cancels just that item. There is no wait bound: the reply is the outcome whenever the task ends. [Tasks](/fantastic/foundations/kernel/tasks/) explains the task table.
+
+#### The two tools
+
+There is no tool per agent or per verb. `reflect` with no arguments reflects `kernel` with `tree` and `bundles` as ids and the readme index on; with a `target` it reflects that agent, and extra arguments pass through. `send` takes `{items: [{target, payload, timeout?}]}`. Each item needs a `target` and a `payload` object whose `type` names the verb.
+
+what send returns (shape):
+
+```
+[{"pid": 8, "status": "completed", "result": …}]
+```
+
+The result is pretty-printed JSON text, plus `structuredContent` when it is an object. `isError` is true only when nothing in the batch completed. A mixed batch, or a refusal inside one, is data. A shape error in an item, such as a missing `payload.type`, comes back as a tool error naming the item.
+
+#### The mcp agent and how it connects
+
+The agent is named `mcp`. The CLI creates it in code at boot, or on the first connection if it is missing, as a child of the `user` agent, with the handler `web_mcp.tools`. If an agent called `mcp` already runs another handler, the CLI stops with an error and asks you to rename or delete it.
+
+The CLI also grants it every verb on every agent, both edges, except cabinet-owned agents (they keep the grants `fantastic_cabinet` writes for them), and the human reshapes those grants with `update_agent`. [Transports](/fantastic/foundations/protocol/transports/#mcp) describes `fantastic mcp` attaching to a running kernel over `.fantastic/cli/mcp.sock`, or running the kernel itself when none holds the directory’s lock. When it runs the kernel, stdout belongs to the protocol: the real stdout is duplicated to a private descriptor and the log takes over fds 1 and 2.
+
+A `reflect` of the leg shows its sentence, the protocol, the two tools, how many inquiries are open, and `mcp_config_error` when the config check below failed. The leg has no other verbs for a client. A verb it does not know gets `{error, reason: "unhandled"}` with the note that the leg is driven by its carrier.
+
+#### The project’s MCP config
+
+A coding CLI needs to find this kernel. So the leg keeps a file right: `.fantastic/.mcp.json`. At every boot the CLI makes a writable `file_bridge` named `mcp_config`, rooted at the project and exposing only that one file, and names it on the leg as `file_bridge_id` with `mcp_config_file`. The bridge is never rooted at `.fantastic`, because the kernel persists its own records there.
+
+On its boot the leg then reads the file through the bridge, as itself, with `read_stream`. It sets `mcpServers.fantastic` to `{command: <this binary, absolute path>, args: ["mcp"]}`, and writes the file back with `write` only when that entry changed. A missing file counts as `{}`. Every other server and key keeps its place, so a moved or rebuilt binary is corrected on the next start.
+
+*Animation: The leg keeps .mcp.json right* (https://aisixteen.com/fantastic/foundations/canvas/web-mcp/config_file.mp4). At boot the mcp leg reaches .fantastic/.mcp.json through its mcp_config bridge. It reads the file with read_stream and keeps the other servers. It sets mcpServers.fantastic to this binary with args mcp, and writes with write only if the entry changed. A bad file or a missing grant makes the boot answer with reason mcp_config.
+
+A failure is loud and nothing is overwritten. The boot answers `{error, reason: "mcp_config"}` and the leg’s `reflect` carries `mcp_config_error` until a boot succeeds. The causes are a bridge named without a file path, a bridge that does not admit the leg, a file that is not a JSON object, and `mcpServers` that is not an object. To use the file, point the client at it: `claude --mcp-config .fantastic/.mcp.json`.
+
+#### Inquiries: questions for the person
+
+Some decisions belong to the human who drives the kernel through the leg. An agent sends the leg `inquiry {text, kind?, options?, request_id?, reply_client_id?}`. The `kind` is `text`, `single`, `multi` or `confirm`, and `single` and `multi` need `options`. The leg accepts at once with `{accepted, re, request_id, open}` and holds the question. `re` is the pid the inquiry runs under, and it is the handle for the answer.
+
+The person lists the open ones with `inquiries`, oldest first, optionally for one `asker`. They answer with `answer {re, text}`, where `text` is words, a list of picks or a boolean. The leg sends the asker a message shaped `[reply to <re> · <leg> inquiry]`, then closes the inquiry. If that send fails, the question stays open and `answer` returns `reason: "refused"`.
+
+*Animation: An inquiry waits for the person* (https://aisixteen.com/fantastic/foundations/canvas/web-mcp/inquiry.mp4). An agent sends the mcp leg inquiry with kind confirm. The leg accepts at once with re 12 (illustrative pid) and holds it in open_inquiries. The person lists inquiries and sends answer with re 12 and the text yes. The asker receives [reply to 12 · mcp inquiry] and the inquiry closes.
+
+The open list is durable. It lives on the leg’s own record as `open_inquiries`, written through the kernel’s ordinary update, so an unanswered question is still there after a restart.
+
+#### fantastic send: one call from a shell
+
+`fantastic send '<item json>'` makes one call into the kernel running in the current directory, as the `mcp` leg. It is attach-only: it opens the same socket, speaks `initialize` and one `tools/call` of `send`, and prints the item’s `{pid, status, result}`. With no live kernel it exits 1 and starts nothing. The exit code is 0 only when the item completed.
+
+A payload string value that starts with `$env:`, at any depth, is replaced by the variable of the calling shell named by the rest of the string. This is the only place `$env:` is resolved, and the kernel never reads its own environment for it. A string with text before `$env:` is left alone. An unset variable exits 2 before anything is sent.
+
+storing a key (from the connected client’s instructions):
+
+```
+KEY=$(op read op://vault/openai/key) fantastic send '{"target":"credentials","payload":{"type":"set","ref":"responses/api.openai.com","fields":{"api_key":"$env:KEY"}}}'
+```
+
+The CLI docs say `send` items also take `secret` marks. In the code the MCP carrier builds each item without reading one, and `fantastic send` substitutes `$env:` without marking a path. This page claims neither. [Credential store](/fantastic/foundations/agents/credential-store/) covers where keys go.
+
+Sources: lib.rs: WebMcpBundle, McpCore, the two tools (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-web-mcp/src/lib.rs#L1); McpCore.run: a tool call as the leg’s task (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-web-mcp/src/lib.rs#L418); the config sync: with_entry and write_config (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-web-mcp/src/lib.rs#L160); inquiries.rs: inquiry, inquiries, answer (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-web-mcp/src/inquiries.rs#L1); mcp.rs: attach or run, the socket, ensure_leg (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/mcp.rs#L1); mcp_config.rs: .fantastic/.mcp.json and its bridge (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/mcp_config.rs#L1); send.rs: fantastic send and $env: (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/send.rs#L1); the crate’s tests (https://github.com/aisixteen/fantastic/tree/main/src/tui/bundles/fantastic-web-mcp/tests)
+
+### Foundations › Canvas: an app built on fantastic › User home store
+
+URL: https://aisixteen.com/fantastic/foundations/canvas/home-store/
+
+A project keeps its agents in its own `.fantastic/` folder. Some choices belong to the person instead, and should follow them from project to project, such as which model an AI agent uses. Fantastic keeps those in the user’s **home**: `FANTASTIC_HOME`, or `~/.fantastic` when it is unset.
+
+This page is about the **saved set-up**: a named blueprint for an agent, kept as one file in the home. It covers what the file may hold, how it is written and protected, and how the canvas makes an AI agent from it. The Rust CLI provides the store; the Python runtime has no twin of it.
+
+#### What the home holds
+
+The `user_home_store.tools` bundle owns one directory of the home. Next to it sit the key refs (see the [credential store](/fantastic/foundations/agents/credential-store/)) and the stored locations of your fantastics.
+
+the layout (opus is an illustrative name):
+
+```
+<home>/                         0700
+  user/                         0700
+    setups/ai_agent/            0700
+      opus.yaml                 0600
+      .preferred                0600
+    keys/                       0700
+  fantastics/                   0700
+```
+
+The binary fixes the directory when it registers the bundle. Nothing on a record can move it, so a cloned project whose record names the same bundle still gets the same store and cannot point it at another place. If neither `FANTASTIC_HOME` nor the user’s home variable is set, the store has no home, and it says which variable is missing.
+
+Who reaches the store is its `callable_by`, as for every agent. The CLI makes an agent `user_home` under `user` and grants `user` exactly `persist_record`, `forget_record`, `load_tree`, `prefer` and `reflect`. It sets that grant again on every boot, so a record on disk that widened it is narrowed. The [call gate](/fantastic/foundations/protocol/call-gate/) refuses every other caller.
+
+#### A blueprint, not an agent
+
+A saved set-up is a `handler_module` plus that bundle’s own settings, such as a model and an endpoint. It is not an agent. It carries no identity, no per-project wiring and no authority. The store refuses a record that holds any of these fields:
+
+fields a saved set-up may never carry:
+
+```
+id  parent_id  guid  agents  memory_store_id
+can_call  callable_by  ingress_rule  egress_rule  auth
+```
+
+The refusal is `invalid_meta`, names the fields to drop, and adds the hint that the creator supplies id, parent, memory store and grants when it makes an agent from the set-up. The store keeps no key values either. A set-up may name a key by its ref (`credentials: {store, ref}`), and the value stays in the credential store.
+
+The record must also be a record the target bundle would accept. The bundle must be linked into this build. Its record schema decides which fields are required and which values an enumerated field may take. A bundle without a schema is checked by its own `validate_meta`. A record that fails the bundle’s schema is refused when saved, not when used. Other problems, such as a handler that is not an AI backend, appear when the canvas makes an agent from it.
+
+*Animation: A blueprint, not an agent* (https://aisixteen.com/fantastic/foundations/canvas/home-store/blueprint.mp4). With illustrative names, a record with a handler_module and a model also carries id ai_1 and a can_call grant. persist_record opus is refused with invalid_meta, which says to drop id and can_call. Without them the record passes the bundle’s checks, opus.yaml is written with mode 0600, and the store answers {name, version, path}.
+
+#### Four verbs
+
+| verb | what it does |
+|---|---|
+| `persist_record {name, record, if_match?}` | checks and writes `<name>.yaml`; answers `{name, version, path}` |
+| `forget_record {name, if_match?}` | deletes the file; answers `{name, forgotten}`; clears the default if it was this one |
+| `load_tree` | answers `{saved: [{name, version, record}], preferred, dir}`, sorted by name |
+| `prefer {name}` | writes the default’s name to `.preferred`; the set-up must exist; `{name: null}` clears it |
+
+A name is letters, digits, `-` and `_`, starts with a letter or digit, and is at most 64 characters, so a name is never a path. A read creates nothing: with no set-ups ever saved, `load_tree` answers an empty list and does not make the home folder.
+
+Nothing is a default until someone calls `prefer`. Deleting the `user_home` agent never deletes the files, because the set-ups belong to the user, not to the project.
+
+#### Private files and lost updates
+
+Directories are created `0700` and files `0600`, with that mode from the start. A write goes to a temporary file that is synced and then renamed over the target, so a reader never sees half a file.
+
+The store applies the ssh rule on every read and write. A set-up file or a directory on the path that is readable or writable by group or others is refused as `unauthorized`, and the refusal names the fix, a `chmod`.
+
+The **version** of a set-up is the first 16 hex digits of the SHA-256 of its bytes. Two running fantastics share one home, so a save can overwrite a change it never saw. Passing `if_match` with the version you read prevents that: if the file differs, the save is refused and the hint says to `load_tree` again and retry.
+
+a stale save (illustrative versions):
+
+```
+persist_record {"name": "opus", "record": {...}, "if_match": "a1b2…"}
+→ bad_arg  arg: if_match
+  persist_record: opus changed since you read it (you had a1b2…, it is c3d4…)
+  hint: load_tree again, then retry
+```
+
+*Animation: Two fantastics, one file* (https://aisixteen.com/fantastic/foundations/canvas/home-store/guard.mp4). Fantastics A and B both read opus with load_tree and get version a1b2. B saves first through a temp file and a rename, and the version becomes c3d4. A then saves with if_match a1b2, and the store refuses it with bad_arg: the file changed since A read it. The hint says to load_tree again and retry.
+
+#### From a set-up to an AI agent
+
+The canvas uses the store when it makes an AI agent. A `spawn` names a saved set-up, or else uses the preferred one. With neither, it answers `not_found`, “no default AI set-up”, and the hint says to save one and make it the default. A set-up whose handler is not an AI backend, one whose handler’s record schema has no `memory_store_id` field, is refused with `bad_arg` at this point, not when saved.
+
+The store accepts any bundle that is linked in and passes its schema, so this check belongs to the canvas, not to the store. The agent gets the id `ai_<hex>`, made at creation. Its fields come from the set-up plus the stamp its caller supplies, and the creator adds the memory store and the grants.
+
+*Animation: From a set-up to an agent* (https://aisixteen.com/fantastic/foundations/canvas/home-store/apply.mp4). The saved set-ups opus and sonnet are listed by load_tree. prefer marks opus as the default. With illustrative names, a spawn that names no set-up reads the preferred one and makes the AI agent ai_3f9a1c02 with the record’s model. Its id, memory store and grants are added at creation.
+
+The CLI’s own set-up flow, the wizard, saves the first set-up as the default when none is set. It also names the stored key for the endpoint, when one is stored, as `credentials` before saving. When it makes an agent from a saved set-up, it drops `handler_module` and `credentials` from the record, names the key again for the endpoint, and writes the agent under a free id (`opus`, `opus-2`, and so on).
+
+#### The user store beside it
+
+A second agent, `user_store`, is made under `user` on every boot. It reads the same home and shows what the user keeps: key refs with their hosts, the names of the saved set-ups, and the locations of stored fantastics. Each stored fantastic has a folder `<home>/fantastics/<guid or name>/fantastic.yaml` with its project path, process id and canvas URL. A switch on its record, `register_home_folder`, turns that folder on or off. The canvas places its own view of it from the double-click menu.
+
+Sources: lib.rs: the store, its layout and rules (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-user-home-store/src/lib.rs#L1); lib.rs: persist_record (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-user-home-store/src/lib.rs#L248); readme.md: the store’s own summary (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-user-home-store/src/readme.md#L1); kern/saved.rs: the user_home agent and its grants (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/saved.rs#L1); kern/backend.rs: spawn from a saved set-up (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/backend.rs#L192); kern/wizard.rs: create and from_saved (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/wizard.rs#L59); user_store.rs: the stored fantastics (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-user-home-store/src/user_store.rs#L1); tests.rs: the store’s behaviour (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-user-home-store/src/tests.rs#L62)
+
+### Foundations › Canvas: an app built on fantastic › Canvas page
+
+URL: https://aisixteen.com/fantastic/foundations/canvas/page/
+
+The canvas is a web page, and the binary that runs the kernel carries it. There is no folder of assets to install and no second server. A **`canvas_page`** agent holds the page and hands it out, one file at a time, to the `web` host.
+
+This page follows the page from build to browser: how it is packed and embedded, what the agent answers, and what the page does in its first moments. What the canvas then draws is the subject of the other Canvas pages. This page covers the Rust runtime. The Python runtime has no `canvas_page` bundle on `main`.
+
+#### Packed at build, embedded in the binary
+
+`canvas_page` is an ordinary [bundle](/fantastic/foundations/kernel/bundles/), built outside the kernel tree. Its handler module is `canvas_page.tools`, and it is a child of a `web` host.
+
+Its `build.rs` runs the canvas app’s `scripts/pack.sh`, which needs only a POSIX shell, a vendored esbuild pinned by its sha256, and no npm or node. The result is `canvas.zip`. The build script writes it under `OUT_DIR`, never into the source tree, and the crate embeds it with `include_bytes!`. A failed pack fails the build, because a binary without its page is not a build.
+
+The zip has three entries, in a fixed order: `readme.md`, `bundle.min.js` and `bundle.min.js.map`. `bundle.min.js` is the whole page in one file. The canvas, its views, the TypeScript kernel library, three.js and xterm are all inlined, and the pack refuses a bundle with a bare vendor import left in it.
+
+The zip is reproducible. Every entry gets mode 644, no extra fields and a time taken from `SOURCE_DATE_EPOCH` (1980-01-01 UTC when unset), so the same inputs give the same bytes whatever the clock, the umask or the time zone. The pack also stamps the sha256 of `bundle.min.js` into the zip’s copy of `readme.md`, as `expected: …`.
+
+*Animation: Packed at build, embedded in the binary* (https://aisixteen.com/fantastic/foundations/canvas/page/embed.mp4). build.rs runs pack.sh, which turns the canvas app into canvas.zip with three entries: readme.md, bundle.min.js and bundle.min.js.map. The crate embeds the zip with include_bytes!, so the binary carries the page. A failed pack fails the build.
+
+#### Six files, one agent
+
+The agent inflates the zip once and keeps the files in a map by name. It adds three small pages of its own, so it serves six files.
+
+| file | what it is |
+|---|---|
+| `index.html` | one `<script type="module" src="bundle.min.js">` tag, so the bundle is the whole page; the path is relative, so it loads under whatever id the agent has |
+| `home.html` | the same tag with `<body data-page="home">`; the bundle then boots the Home page instead of the canvas |
+| `list.html` | the example client of the `home` protocol, a single file with no build step |
+| `bundle.min.js`, `bundle.min.js.map`, `readme.md` | the three entries of `canvas.zip` |
+
+The choice between canvas and Home is made inside the bundle. Its entry file imports the Home when `document.body.dataset.page` is `home`, and the canvas for every other page.
+
+The agent holds no state and writes nothing. Its sentence says it serves the files “read-only (transport only)”.
+
+#### Serving it: the web host reads as itself
+
+`canvas_page` answers four verbs:
+
+| verb | answer |
+|---|---|
+| `reflect` | `id`, a sentence, and `files`, the served names |
+| `boot` | a no-op, `{"booted": true}`: the parent `web` host serves the route |
+| `list` | `{"files": [...]}` |
+| `read_stream {path, offset?, length?}` | a chunk of one file |
+
+Any other verb gets an error with `reason` `unhandled`. `read_stream` is the one that matters. The record declares it in its `verbs`, which is what lets the host’s generic file route, `GET /<id>/file/<path>`, serve this agent. That route is described in [Web agents](/fantastic/foundations/agents/web/#files).
+
+Once the canvas is running, the page lives at `/canvas_page/file/index.html`. The host reads as itself, so the read passes the [call gate](/fantastic/foundations/protocol/call-gate/) like any send. `fantastic canvas` writes both halves: `web` has `can_call` for `read_stream` on `canvas_page`, and `canvas_page` has `callable_by` for it from `web`.
+
+the head of a read_stream reply:
+
+```
+{"path": "index.html", "offset": 0, "next_offset": 10, "eof": false, "size": 173}
+```
+
+A reply is a **binary reply**. The bytes are the body, under the key `bytes`, and the head carries `path`, `offset`, `next_offset`, `eof` and `size`. A caller that sends text only gets the head. The host asks for 256 KiB at a time and walks `next_offset` until `eof`.
+
+A path the agent does not have is refused with `reason` `not_found`, and the error lists the files it does serve. The lookup is a map of names, not a filesystem path, so a name like `../secret` is simply not in the map.
+
+*Animation: Serving it: the web host reads as itself* (https://aisixteen.com/fantastic/foundations/canvas/page/serve.mp4). A browser asks web for /canvas_page/file/index.html. web sends read_stream to canvas_page as itself, with can_call and callable_by both granting it. canvas_page answers with the bytes and a head. A name it does not hold is refused with not_found.
+
+The home kernel creates the same agent under its own `web` host. It serves `home.html` and `list.html` at `/canvas_page/file/…`, and the desktop app’s window filter admits those URLs.
+
+#### What the page does when it loads
+
+The page is its own kernel, running in the browser, and a peer of the host kernel. It talks to the host over the socket leg `canvas_ws`. Its first steps run in a fixed order:
+
+1. Read the shell flag. A desktop shell sets one frozen global, `window.__FANTASTIC_SHELL__`, with `name`, `os`, `webview`, `backdrop` and an optional `pickFolder`. A plain browser tab has none. A malformed flag is said in place of the page, and nothing else runs.
+2. Install the stock skin, so the first paint is already styled.
+3. Build the kernel and its bridge. Every host call goes through the host’s `user` agent: a call to agent `T` is sent as `user.forward {target: T, payload}`.
+4. Send `reflect` to `kernel` through `user`. If the reply’s `reason` is `unauthorized`, the page shows “The host refused this canvas” with the reason, and stops.
+5. List the host’s agents, keep the canvases, and pick one: `?canvas=<id>` if given, else the main one, else the first. An unknown id shows “no canvas <id> on this host”.
+6. Load that canvas’s page bundles and page records through its loader, a `kernel_state` agent on the host. An empty tree is seeded with the canvas root. Every later local change is persisted back through the same loader.
+7. Boot the root. The first boot mints the page’s guid, and the host addresses the page as `<guid>|canvas`. Then mount the canvas.
+
+*Animation: What the page does when it loads* (https://aisixteen.com/fantastic/foundations/canvas/page/boot.mp4). The page kernel sends reflect to kernel through user.forward. An unauthorized reply stops it with a refusal. Otherwise it picks a canvas, loads its records through the loader, boots its root to mint a guid, and mounts the canvas.
+
+The page also watches its own `bundles/` folder on the host through the `bundles_watch` bridge. When a file changes, it waits 150 ms, collects the burst, and sends `reload_bundle` for each touched folder. Nothing runs while nothing changes. When the host stops, it calls `host_stopping` on the page first, and the page flushes its records and stops its loader before the socket closes.
+
+The Home page, `home.html`, boots the same way. It mounts one view onto the host’s `home` agent, and its open pages and selection live in that agent’s state, not in page records.
+
+Sources: canvas_page bundle: verbs, files and read_stream (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-canvas-page/src/lib.rs#L29); build.rs: pack, then embed (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-canvas-page/build.rs#L11); pack.sh: one bundle, vendors inlined (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/scripts/pack.sh#L1); zip_repro.sh: the reproducible zip (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-canvas-page/tests/zip_repro.sh#L1); kern/web.rs: creating the page and both grants (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/web.rs#L308); main.ts: the page’s boot (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/main.ts#L118); user_bridge.ts: every call through user (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/user_bridge.ts#L1); the canvas app (https://github.com/aisixteen/fantastic/tree/main/src/tui/web/canvas)
+
+### Foundations › Canvas: an app built on fantastic › System agents
+
+URL: https://aisixteen.com/fantastic/foundations/canvas/system/
+
+The **system agents** are six agents that stand for the machine itself: `power`, `network`, `audio`, `displays`, `notifications` and `lock`. They are the agents of fantastic OS, and they are Rust only: the code on `main` has no Python twin.
+
+An AI calls them like any other agent: `reflect`, `state`, then their verbs. This page shows how each one is built, what it refuses and why, and why `lock` answers `user` alone.
+
+#### Where they come from
+
+`fantastic system` and `fantastic canvas system` name the **system recipe**. On start, it makes each of the six agents under `user`. If an agent already exists, it updates it instead and resets its view, its `callable_by` and its display name, so a new build’s view replaces the old one.
+
+Each agent gets an html view, which is a canvas cell, and `user` is granted the agent’s verbs. A view only sends to its own agent id.
+
+The recipe is Linux only. Anywhere else it is refused with “`system` needs Linux with D-Bus: the system agents are fantastic OS’s”. For how a canvas shows a view, see [Views](/fantastic/foundations/canvas/views/).
+
+| agent | handler | the machine side |
+|---|---|---|
+| `power` | `power.tools` | UPower and logind: battery, lid, power off, reboot, suspend, hibernate |
+| `network` | `network.tools` | NetworkManager: devices, Wi-Fi access points, saved connections |
+| `audio` | `audio.tools` | PipeWire: `pw-dump` reads, `wpctl` acts |
+| `displays` | `displays.tools` | `wlr-randr` for outputs; logind for the backlight |
+| `notifications` | `notifications.tools` | the session bus: the agent is the notification server |
+| `lock` | `lock.tools` | logind’s session lock and a PIN kept as a hash |
+
+#### Model, driver, port
+
+Every agent is built in three layers. The **ViewModel** is pure: `reduce(event)` is its only mutation and returns **effects** as plain data, and `state()` is what a view draws. Time arrives as a number in an event, and nothing in the model touches the OS.
+
+The **driver** is one task per agent. It feeds events in, runs each effect through the **OS port**, and feeds the answers back. Only the Linux side of the port talks to the machine: D-Bus, `wpctl`, `wlr-randr`. On any other OS the port refuses.
+
+When a reduce changes the state, the driver emits `{"type": "state", "state": …}` to the agent’s watchers. It emits at most once per 100 ms, and always the latest state. A tick reaches each model every 5 seconds, so a model can re-read the machine or expire an item.
+
+A verb’s reply is the state after its effects ran, or the first refusal. A change made elsewhere reaches the watchers too, because the port reports OS-side changes as events. For how watchers receive an emit, see [Records](/fantastic/foundations/kernel/records/) and [Messages](/fantastic/foundations/protocol/messages/).
+
+*Animation: Model, driver, port* (https://aisixteen.com/fantastic/foundations/canvas/system/layers.mp4). A verb reaches the power model as an event. The model returns an effect as data, the driver runs it through the OS port, and the answer comes back as an event. The driver then emits one state to the watchers.
+
+#### Unavailable, and refusals that say why
+
+When a service is missing, the agent still exists. `reflect` and `state` say `available: false` with a `why`, and every other verb is refused with the reason `unavailable`. The boot does not fail.
+
+A refusal is `{error, reason}`, the shape from [Refusals](/fantastic/foundations/protocol/refusals/). The reasons here are these.
+
+| reason | meaning |
+|---|---|
+| `unavailable` | the service is not there, or a read has not succeeded yet |
+| `denied` | the OS asked for authentication or said no |
+| `unsupported` | this machine cannot do it, or the verb is not offered in this state |
+| `failed` | any other OS error |
+| `bad_arg`, `not_found` | a verb’s arguments: missing or wrong, or naming nothing that exists |
+
+The power verbs show the pattern. logind reports `can` for each of `power_off`, `reboot`, `suspend` and `hibernate` as `yes`, `no`, `challenge` or `na`, and the model reads it at start and again every 30 seconds. A verb runs only when its `can` is `yes`.
+
+power: logind’s can decides:
+
+```
+yes        -> the call runs
+challenge  -> denied: "needs authentication — is the polkit rule installed?"
+no, na     -> unsupported: "this machine cannot"
+```
+
+The decision is made in the model, before the OS is asked. Nothing in these agents is interactive: there is no authentication prompt. On fantastic OS, a polkit rule lets the user `fantastic` power off, reboot, suspend and hibernate, and use NetworkManager.
+
+*Animation: logind’s can decides* (https://aisixteen.com/fantastic/foundations/canvas/system/refusal.mp4). The power agent holds can for each verb. suspend, with can yes, runs and returns the state. reboot, with can challenge, is refused denied. hibernate, with can na, is refused unsupported. The model decides before the OS is asked.
+
+#### What each agent adds
+
+#### network
+
+Verbs: `scan`, `connect {ssid, password?}`, `activate {uuid}`, `deactivate {iface}`, `forget {uuid}` and `set_wireless {enabled}`. `connect` activates a saved connection with that SSID, and otherwise makes a new one. It refuses with `bad_arg` for a missing `ssid`, a missing password or a WPA password that is not 8 to 63 characters or 64 hex digits. It refuses `enterprise` and `wep` networks as `unsupported`, and refuses with `not_found` when the SSID is not in range. The password is held in a type that does not serialize, so it is not in the state.
+
+#### audio
+
+Verbs: `set_volume {volume, id?}`, `set_mute {muted, id?}` and `set_default {id}`. Without `id` they act on the default sink. A volume is clamped to 0.0 to 1.5. The state follows `pw-dump --monitor`, so a change made by another program reaches the watchers.
+
+#### displays
+
+Verbs: `set_output {name, mode?, scale?, transform?, position?, enabled?}` and `set_brightness {value}`. `wlr-randr` has no change stream, so the state is read every 5 seconds and after each verb. Turning off the last enabled output is refused as `unsupported`, because it would leave no screen.
+
+#### notifications
+
+This agent is the session’s notification server: it owns `org.freedesktop.Notifications`, so a notification from any program lands in `state`. The state keeps at most 50 items. The default lifetime is 8 seconds, and the model expires items on its own clock. Verbs: `notify`, `dismiss`, `dismiss_all`, `invoke` and `set_dnd`. With do-not-disturb on, new items still arrive, marked `quiet`.
+
+#### lock: for the person only
+
+The `lock` agent drives the kiosk’s PIN lock screen. The Home page draws the overlay while `state.locked` is true. The code calls it “a kiosk UI lock, not a security boundary”.
+
+Its verbs are `lock`, `unlock {pin}`, `set_pin {new, old?}`, `clear_pin {pin}`, `set_auto_lock {minutes}` and `activity`. A PIN is text of 4 to 12 digits. Nothing locks until a PIN exists: `lock` is refused as `unsupported` with “set a PIN first, or nothing could unlock the screen”.
+
+After the fifth wrong PIN in a row, `retry_at_ms` is set; each try before it is refused `retry_later`. The first wait is 30 seconds, and it doubles up to 15 minutes. While a PIN is being checked, another PIN verb is refused `busy`.
+
+lock state (illustrative values):
+
+```
+{"available": true, "locked": true, "has_pin": true,
+ "auto_lock_min": 10, "failures": 5, "retry_at_ms": 1760000000000}
+```
+
+Unlike the other five, `lock` is not granted to an AI. The recipe’s grant code narrows it: the `callable_by` of `lock` keeps `user` alone, and no AI holder is granted `lock` in its `can_call`. The [call gate](/fantastic/foundations/protocol/call-gate/) therefore refuses an AI’s call at the caller’s own end first, so it never reaches `lock`, and no AI can unlock the screen or change the PIN.
+
+*Animation: lock answers user alone* (https://aisixteen.com/fantastic/foundations/canvas/system/lock.mp4). An AI calls lock and the gate refuses it at its own end: no AI holder is granted lock, and lock’s callable_by names user only. The person sends unlock with a wrong PIN five times in a row. After the fifth, each try gets retry_later; the first wait is 30 seconds and it doubles up to 15 minutes.
+
+Sources: The six agents and their ids (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-system-agents/src/lib.rs#L15); The driver: events, effects, 100 ms emit (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-system-agents/src/driver.rs#L1); The OS port and its errors (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-system-agents/src/sys/mod.rs#L15); The recipe that makes them under user (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/system.rs#L19); Power: logind’s can decides (https://github.com/aisixteen/fantastic/blob/main/src/tui/crates/fantastic-system/src/power.rs#L225); Lock: PIN, waits, refusals (https://github.com/aisixteen/fantastic/blob/main/src/tui/crates/fantastic-system/src/lock.rs#L14); lock is narrowed to user (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/reach.rs#L164); The pure models (https://github.com/aisixteen/fantastic/tree/main/src/tui/crates/fantastic-system/src)
 
 ### Foundations › Build your own
 
@@ -3050,7 +3981,478 @@ A new verb is a function passed to `fa.serve` and a line in `bundle.yaml` `verbs
 
 Folder bundles are one way in. Below them, a Rust bundle is a crate implementing the kernel’s `Bundle` trait, linked into the binary at build time, and the Python kernel finds its bundles through entry points.
 
+In this part: A bundle (https://aisixteen.com/fantastic/foundations/build/bundle/); A program agent (https://aisixteen.com/fantastic/foundations/build/program-agent/); A view (https://aisixteen.com/fantastic/foundations/build/view/); Example: Team (https://aisixteen.com/fantastic/foundations/build/team/)
+
 Sources: README.md: folder bundles (https://github.com/aisixteen/fantastic/blob/main/README.md#L341); bundles.md (https://github.com/aisixteen/fantastic/blob/main/src/tui/docs/bundles.md#L3); the python agent starter (https://github.com/aisixteen/fantastic/blob/main/src/tui/starters/python_agent/agent.py#L1); bundle.rs: the Bundle trait (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/bundle.rs#L50)
+
+### Foundations › Build your own › A bundle
+
+URL: https://aisixteen.com/fantastic/foundations/build/bundle/
+
+A bundle is the code behind a `handler_module`. [Kernel › Bundles](/fantastic/foundations/kernel/bundles/) explains how the kernel finds one. This page is the how-to: what to write, in Python or in Rust, so that an agent of your bundle answers its verbs.
+
+The examples come from two real bundles that exist in both runtimes. The `scheduler` shows verbs, docs and hooks. The `static_loader` shows a record field and its check. The code blocks that name `tally` are illustrative; the shapes are the real ones.
+
+#### Start from a pair that already exists
+
+The `scheduler` bundle has a Python file and a Rust file that answer the same nine verbs under one `handler_module`, `scheduler.tools`. Read them side by side before you write your own.
+
+|  | Python | Rust |
+|---|---|---|
+| the code | `bundled_agents/scheduler/src/scheduler/tools.py` | `crates/bundles/fantastic-scheduler/src/lib.rs` |
+| how the kernel finds it | an entry point in `pyproject.toml` | `reg.register("scheduler.tools", …)` in the CLI |
+| its tests | `tests/test_scheduler.py` | `src/tests.rs` |
+
+Python is the reference. [CONTRIBUTING.md](https://github.com/aisixteen/fantastic/blob/main/CONTRIBUTING.md) says that when the two disagree, Python is right. The Rust file copies Python’s verb docs and refusal texts, and its comments say so.
+
+*Animation: One bundle, a file in each runtime* (https://aisixteen.com/fantastic/foundations/build/bundle/twin.mp4). The handler_module scheduler.tools has two implementations. In Python, pyproject.toml publishes the module in the fantastic.bundles group, and tools.py holds VERBS and handler(). In Rust, main.rs calls reg.register, and lib.rs holds impl Bundle with handle(). Both answer to scheduler.tools and serve the same verbs: schedule, list, pause, history and the rest.
+
+#### In Python: a module with a verb table
+
+A Python bundle is a module with an `async def handler(id, payload, agent)`. The kernel awaits it for every verb that is not a kernel verb, and passes the agent object as the third argument. The scheduler calls that parameter `kernel`; it is the agent’s handle for `get`, `update`, `emit` and `send`.
+
+tally/tools.py (illustrative; the scheduler’s handler is this shape):
+
+```
+VERBS = {"reflect": _reflect, "bump": _bump}
+
+async def handler(id, payload, agent):
+    fn = VERBS.get(payload.get("type"))
+    if fn is None:
+        return refusal(UNHANDLED, f"tally: unknown type {payload.get('type')!r}",
+                       verb=payload.get("type"))
+    return await fn(id, payload, agent)
+```
+
+Each verb is a function that returns a dict. A refusal comes from `kernel._refusal`: `refusal(UNHANDLED, …, verb=…)` for an unknown verb, and `bad(verb, arg, want)` for an argument that is present but wrong. Both carry a machine `reason`; see [Refusals](/fantastic/foundations/protocol/refusals/).
+
+To make the module reachable, publish it in the `fantastic.bundles` entry-point group. The kernel resolves a `handler_module` only from that catalog, so a module without an entry point answers “No module named”.
+
+pyproject.toml (illustrative; the scheduler publishes scheduler = "scheduler.tools"):
+
+```
+[project.entry-points."fantastic.bundles"]
+tally = "tally.tools"
+```
+
+The package layout is `src/<package>/tools.py`, an optional `readme.md` that the kernel reads from the package, and a `tests/` folder. A module with no entry point can still dispatch in tests through `register_unlisted`.
+
+#### In Rust: a crate that implements Bundle
+
+A Rust bundle is a crate that implements the `Bundle` trait of `fantastic-kernel`. Only two methods are required: `name()` and `handle()`. Every other method has a default that does nothing.
+
+the trait (illustrative; the scheduler implements these):
+
+```
+impl Bundle for TallyBundle {
+    fn name(&self) -> &str { "tally" }
+    fn verb_docs(&self) -> Value { json!({ "bump": "args: by:int?. Returns {count}." }) }
+    async fn handle(&self, agent_id: &AgentId, payload: &Value,
+                    kernel: &Arc<Kernel>) -> Result<Reply, BundleError> { /* match on payload["type"] */ }
+}
+```
+
+`handle` matches on `payload["type"]` and returns `Ok(Some(reply))`. `Ok(None)` means no reply. A domain error is a normal reply with an `error` field; `Err` is for a failure of the substrate. The unknown-verb arm builds the same `unhandled` refusal with the `verb` field that Python builds.
+
+The kernel does not load Rust bundles at run time. A crate is linked into the binary, and the host registers it under its `handler_module` string. The CLI does that in `register_default_bundles()`. A host that is not the CLI can register its own bundles after the stock set, with an `Extra` function passed to the TUI shell’s `main_with`; registering a stock name again replaces the stock bundle.
+
+aisixteen/fantastic: fantastic-cli/src/main.rs:
+
+```
+reg.register("scheduler.tools", fantastic_scheduler::SchedulerBundle);
+```
+
+`fantastic-web-mcp` is a public example of a bundle written outside the kernel tree. Among the workspace crates, its non-test dependencies include only `fantastic-kernel`, and its comment says every API it touches is the kernel’s public surface. In the repository’s own workspace, a crate also needs a line in the workspace `members` and a dependency in the CLI’s `Cargo.toml`.
+
+The scheduler crate also depends on `fantastic-bundle`. That crate holds helpers that format values the way Python does (`repr`, `str`, truthiness), so a Rust refusal text matches Python’s byte for byte. A new bundle needs it only when it must match a Python text exactly.
+
+#### Verbs and their docs
+
+Every verb gets one doc. In Python the doc is the verb function’s docstring, and the `VERBS` table is where the kernel reads them. In Rust it is the map that `verb_docs()` returns, `{verb: doc}`, in the bundle’s order. The scheduler’s Rust map holds the first paragraph of each Python docstring.
+
+The kernel’s `docs` verb serves them. The default tier, `oneliners`, cuts each doc at its first top-level `. ` or ` — `, outside brackets. The `detailed` tier returns the whole doc. Rust’s `docs::signature` mirrors Python’s rule, so write the doc’s first sentence as the signature: the arguments, then what it returns.
+
+a verb doc (the scheduler’s `schedule`, shortened):
+
+```
+"schedule": "args: target:str, payload:{type:<verb>, ...}, interval_seconds:int (default 60). ... Returns {schedule_id, schedule}."
+```
+
+A bundle can publish more. In Python the module attributes `EMITS`, `CANCEL` and `NOTES` are served by `docs` at the detailed tier; in Rust the methods `emits_doc`, `cancel_doc` and `notes_doc` do the same. The scheduler declares its one event, `schedule_fired`, in `EMITS`.
+
+The docs never ride on a reflect. The scheduler’s own test checks it: a `reflect` of a scheduler carries no `verbs` or `emits`, and `docs` of the same agent lists `schedule` and `schedule_fired`. Keep a verb’s how-to in its doc, and keep `reflect` for what the agent is: the scheduler answers `id`, `sentence`, `paused` and `running`.
+
+*Animation: Verbs and their docs* (https://aisixteen.com/fantastic/foundations/build/bundle/docs.mp4). The bundle writes one doc per verb, in the VERBS table in Python or in verb_docs() in Rust. A docs send for the agent returns each doc cut to its first sentence, which the clip shortens: schedule, pause and history with their arguments. A reflect of the same agent answers with no verbs and no emits.
+
+#### The record fields a bundle reads
+
+An agent’s **record** holds `id`, `handler_module`, `parent_id` and any other fields written to it ([Records](/fantastic/foundations/kernel/records/)). A bundle reads the fields it defines. In Python the agent object has `record` and `get(id)`. In Rust the fields are `agent.meta`, behind a lock. The scheduler reads `paused` from the record each time it decides whether to fire, and it writes the same field with `update`.
+
+A field that only your bundle understands needs a check that only your bundle can make. That is `validate_meta(meta, record)`. `meta` is the patch, and `record` is the agent’s current fields, empty at create. Return a string to refuse the write, or nothing to accept it. The kernel calls it in both `create_agent` and `update_agent`, so a value refused on update is refused on create too. The refusal has the reason `invalid_meta`.
+
+Judge the state the write will produce, not the patch alone. The `static_loader` reads one field, `manifest`, and checks it against the merged view.
+
+static_loader/tools.py, validate_meta (shortened):
+
+```
+def validate_meta(meta, record):
+    merged = {**record, **meta}
+    if "manifest" not in merged:
+        return None
+    path = merged.get("manifest")
+    if not isinstance(path, str) or not path:
+        return "static_loader: manifest must be a non-empty path string"
+```
+
+The Rust bundle has the same method on the trait and the same text. The hook is handed no kernel, so it checks shape only. Whether the manifest file exists is a question for the verb that reads it, at boot.
+
+A bundle can also publish what its record takes before any agent exists. Python reads a module attribute `RECORD_SCHEMA`, and Rust calls `record_schema()`. The kernel adds it to the bundle’s entry in `reflect bundles=all`. A bundle that publishes a schema enforces the same one in `validate_meta`.
+
+*Animation: validate_meta judges the record* (https://aisixteen.com/fantastic/foundations/build/bundle/record.mp4). The record holds manifest fantastic.yaml. An update_agent patch sets manifest to an empty string. validate_meta gets the patch and the record and refuses it with invalid_meta, manifest must be a non-empty path string, before the record changes. A patch that sets manifest to team.yaml passes, and the record changes. Create is judged the same way.
+
+#### Hooks: what to free when the agent goes
+
+A bundle that keeps state in the process, such as a cache or a running loop, frees it in a hook. Python looks for module functions `on_delete(agent)` and `on_shutdown(agent)`. Rust’s trait has `on_delete`, `on_shutdown` and `on_cancel`, all defaulting to nothing.
+
+The shutdown hook is the only one the shutdown walk calls. There is no fallback to `on_delete`, so a bundle that frees resources at shutdown says so. The scheduler does it in one line, `on_shutdown = on_delete`, and Rust’s `on_shutdown` calls its own `on_delete`.
+
+The scheduler starts its loop with `spawn_task`, so the loop is in `ps` and can be cancelled. See [Tasks](/fantastic/foundations/kernel/tasks/). A bare background task would be missing from both.
+
+#### Passing the contract and the parity checks
+
+The `contract/` folder states wire behaviour as data ([The contract](/fantastic/foundations/protocol/contract/)). Its `unknown-verb` case sends a verb that does not exist to a probe agent, a test fixture and not a shipped bundle, and expects `reason: unhandled`. Nothing in the contract runs against a new bundle. It pins the wire behaviour, and a bundle should answer an unknown verb the same way, with `unhandled` and the `verb` field, as both scheduler files do. The scheduler’s own parity case, `shutdown` to `unhandled`, is the per-bundle check.
+
+Contract files that are about a kind of bundle exist for memory stores. `contract/memory_store/cases.json` says that every memory store bundle in every runtime that ships it replays its scenarios and must answer each step as written. If your bundle is a memory store, those scenarios are your cases.
+
+For everything else, the checks are in the repository’s process. These are the steps for a bundle that has twins:
+
+1. Write the Python bundle first, with its tests in the package’s `tests/` folder. Python is the reference.
+2. Write the Rust bundle with the same verbs, the same docs, the same refusal texts and its own unit tests in `src/tests.rs`.
+3. Add the verbs to the parity harness. `e2e/parity` sends the same inputs to a Python kernel and a Rust kernel and diffs the Rust answers against Python’s. Its `bundle_verbs` family has a list of cases for the scheduler, among them `{"type": "shutdown"}`, which is not a verb and must be refused alike.
+4. Name the verbs and fields in the bundle’s own docs. If a change alters the wire protocol, it must land in every host; CONTRIBUTING.md says a change to one bundle’s internals with no wire impact needs no such parity.
+
+The parity harness and the contract files live in the fantastic repository, which does not accept outside pull requests. A bundle you keep in your own repository runs the first two steps and your own selftest; the diff against Python applies when you also ship a twin.
+
+*Animation: Three checks for a new bundle* (https://aisixteen.com/fantastic/foundations/build/bundle/checks.mp4). A new bundle, tally.tools, meets three checks. A bundle should answer an unknown verb with unhandled, as the contract’s unknown-verb case pins on a probe agent and the scheduler’s parity case checks per bundle. The bundle’s own tests pass in each runtime it ships in: tests/ in Python and tests.rs in Rust. For a twin, the parity harness diffs the Rust answers against Python, the reference.
+
+The bundle’s `selftest.md` is a walk through the CLI with the expected output of each step. The scheduler’s runs `fantastic <id> <verb> …` against a fresh `.fantastic` folder.
+
+#### Where to go next
+
+A bundle that is only a folder, with a program in any language and no new crate, is the other route; it is in [Kernel › Bundles](/fantastic/foundations/kernel/bundles/#folder-bundles) and [Program agents](/fantastic/foundations/agents/program-agents/). To see what a bundle’s agent may call and be called by, read [The call gate](/fantastic/foundations/protocol/call-gate/).
+
+Sources: Rust: the Bundle trait and registry (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/bundle.rs#L50); Python: the scheduler bundle (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/scheduler/src/scheduler/tools.py#L514); Python: the scheduler’s entry point (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/scheduler/pyproject.toml#L13); Rust: the scheduler bundle (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-scheduler/src/lib.rs#L210); Python: static_loader and validate_meta (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/loader/static_loader/src/static_loader/tools.py#L88); Rust: static_loader validate_meta (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-static-loader/src/lib.rs#L314); Python: the docs verb (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_docs.py#L1); a bundle written outside the kernel tree (https://github.com/aisixteen/fantastic/tree/main/src/tui/bundles/fantastic-web-mcp); the parity harness: scheduler cases (https://github.com/aisixteen/fantastic/blob/main/e2e/parity/families/bundle_verbs.py#L187); the contract: unknown-verb case (probe agent) (https://github.com/aisixteen/fantastic/blob/main/contract/conformance/cases.json#L44)
+
+### Foundations › Build your own › A program agent
+
+URL: https://aisixteen.com/fantastic/foundations/build/program-agent/
+
+A **program agent** is a folder with a program in it. This page is a walkthrough: make one from the starter, add a verb, see what a save does, and keep a copy that does not change.
+
+What the running program sees and how it ends is on [Program agents](/fantastic/foundations/agents/program-agents/), and how a folder becomes a bundle is on [Bundles](/fantastic/foundations/kernel/bundles/#folder-bundles). This page does not repeat either.
+
+#### Start from the starter
+
+The CLI ships one starter, `python_agent`. On the canvas, double-click and pick **python agent**. The host copies the starter into a new folder `.fantastic/bundles/py_<hex>/` and places one instance of it, `py_<hex>_1`, with its view on the canvas. It refuses to reuse a folder name that already exists.
+
+The folder holds four files:
+
+- `bundle.yaml` names the base (`py_agent`), the `command` that starts the program, the `verbs` it serves with a one-line doc each, and the `record` defaults.
+- `agent.py` is the program. Its verbs are the functions it passes to `fa.serve`.
+- `panel.html` is the view the instance shows on the canvas.
+- `fantastic_agent.py` is the reference helper, copied next to the program ([The program’s side](/fantastic/foundations/agents/program-agents/#helper)).
+
+agent.py of the starter (comments left out):
+
+```
+import fantastic_agent as fa
+
+count = 0
+
+def hello(p):
+    return {"greeting": f"hello, {p.get('name') or 'world'}"}
+
+def bump(p):
+    global count
+    count += 1
+    fa.emit({"type": "count", "count": count})
+    return {"count": count}
+
+fa.serve({"hello": hello, "count": bump})
+```
+
+The verb `hello` answers a greeting. The verb `count` adds one to a counter, emits an event with the new value, and returns it. The panel redraws on that event. `bundle.yaml` lists the same two verbs, and its `record` holds `inherit_env: [PATH]`, which is what lets the bare command `python3` be found.
+
+*Animation: The starter becomes a bundle* (https://aisixteen.com/fantastic/foundations/build/program-agent/scaffold.mp4). A double-click on “python agent” copies four files into a new folder, bundles/py_ab12 (illustrative id): bundle.yaml, agent.py, panel.html and fantastic_agent.py. The kernel loads the bundle, and one instance, py_ab12_1, appears and runs.
+
+#### Add a verb in two places
+
+A verb exists in `agent.py` and in `bundle.yaml`, and the two lists must be equal. Write the function, add it to the dictionary passed to `fa.serve`, and add a line under `verbs` in `bundle.yaml`.
+
+adding shout (illustrative verb):
+
+```
+agent.py      fa.serve({"hello": hello, "count": bump, "shout": shout})
+bundle.yaml   verbs:
+                hello: "args: name:str?. Returns {greeting}."
+                count: "args: none. …"
+                shout: "args: text:str (req). Returns {text}."
+```
+
+The program says `hello` with its sorted verb names when it starts. If they differ from `bundle.yaml`, the instance stops with “the program serves […] but bundle.yaml declares […] — they must match”, and `reflect` shows that text as `program_error`. A call to a verb that `bundle.yaml` does not list is refused as `unhandled` with the hint `its verbs: …`.
+
+Three names are not yours: `reflect`, `boot` and `shutdown` are answered by the kernel, and declaring one in `verbs` is refused.
+
+*Animation: A verb lives in two places* (https://aisixteen.com/fantastic/foundations/build/program-agent/verb.mp4). agent.py serves hello and count, and bundle.yaml declares the same two. Adding shout to the program alone makes its hello differ from the declaration, and the instance stops with “they must match”. Adding shout to bundle.yaml too makes the lists equal, and the instance runs.
+
+#### Save, and every instance restarts
+
+In the terminal host, a watcher keeps an eye on `.fantastic/bundles/`. It runs on the operating system’s file events, so nothing runs while nothing changes. Saves that arrive within 150 ms of each other count as one change. Python’s `__pycache__` files are ignored.
+
+A change to any file of the bundle except its view makes the watcher send the kernel `reload_bundle {name}`. The kernel re-reads `bundle.yaml`, then sends `shutdown` with the reason `reloaded` and `boot` to every live instance of that bundle. The restart is abrupt: a call still in flight settles as `transport_closed`, and its message says the program was reloaded. The next call meets the new code in a new process.
+
+A change to the view file (`panel.html`) restarts nothing. The host writes each instance’s `view` again, and the cells redraw. A change to `bundle.yaml` also reaches the `calls` list of every instance’s view, so a panel that calls a new verb is not refused.
+
+The watcher belongs to the terminal host. `reload_bundle` itself is a kernel verb in both runtimes, answered by the root: without the watcher, send it yourself after you edit.
+
+*Animation: A save restarts every instance* (https://aisixteen.com/fantastic/foundations/build/program-agent/save.mp4). A call is in flight on py_ab12_1 when agent.py is saved. The watcher sends reload_bundle, and the call settles as transport_closed, “reloaded”. Both instances, py_ab12_1 and py_ab12_2, restart on the new code. A save of panel.html restarts nothing and only redraws the cells.
+
+#### Copy the folder for a release
+
+A save changes every instance of the bundle, because the code lives in the bundle and an instance is only a record that names it. To change one agent without touching the others, fork first.
+
+Copy the folder to a new name, for example `.fantastic/bundles/web_search`. The new name is a new handler. Its instances are not touched by edits to the original, and the original’s are not touched by edits to the copy. Every bundle in the folder appears as a tile in the double-click popup, and each pick places one more instance, `<name>_<n>`. An agent can do the same with `spawn {instance_of: <name>}`.
+
+To update the release from the working folder later, copy the working files over the release folder. Every instance of the release then restarts with the new code.
+
+#### What the folder is allowed to do
+
+A program agent’s code runs with your operating-system rights. What it does itself, such as reading files, starting processes or opening the network, passes no kernel gate. Only the verbs that reach it, and the sends it makes through its agent, are gated ([Program agents](/fantastic/foundations/agents/program-agents/#out), [Security](/fantastic/foundations/protocol/security/)). A bundle is a folder of open files, so read one before you run it.
+
+Sources: the starter: agent.py (https://github.com/aisixteen/fantastic/blob/main/src/tui/starters/python_agent/agent.py#L7); the starter: bundle.yaml (https://github.com/aisixteen/fantastic/blob/main/src/tui/starters/python_agent/bundle.yaml#L1); the starter: panel.html (https://github.com/aisixteen/fantastic/blob/main/src/tui/starters/python_agent/panel.html#L1); the dev watcher: reload on save (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/bundle_watch.rs#L1); the starter copied into a new folder (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/bundle_watch.rs#L238); reload_bundle in Rust (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-core/src/lib.rs#L729); reload_bundle in Python (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/loader/kernel_state/src/kernel_state/tools.py#L1109); bundles.md: make, change, keep (https://github.com/aisixteen/fantastic/blob/main/src/tui/docs/bundles.md#L14)
+
+### Foundations › Build your own › A view
+
+URL: https://aisixteen.com/fantastic/foundations/build/view/
+
+An agent shows itself through its record. Give the record a `view` that names an HTML file, and the canvas draws that file as a panel: buttons that call the agent’s verbs and a script that redraws when the agent emits an event.
+
+This page builds one from the starter that ships with the CLI. How the app **chooses** a view is [Views of agents](/fantastic/foundations/canvas/views/). The sandbox it runs in is [HTML and GL agents](/fantastic/foundations/canvas/html-gl/). The program behind the verbs is [Program agents](/fantastic/foundations/agents/program-agents/).
+
+#### Three files: record, verbs, panel
+
+The starter is a **folder bundle** ([Bundles](/fantastic/foundations/kernel/bundles/#folder-bundles)). `spawn {bundle: python_agent}` copies its files into a new folder, `.fantastic/bundles/py_<hex>/`, loads it, makes one instance named `<folder>_1`, and writes the instance’s view from the bundle. Each file has one job.
+
+| file | job |
+|---|---|
+| `bundle.yaml` | the verbs, and `record.view`: the view every instance gets |
+| `agent.py` | the verbs. `count` adds one and calls `fa.emit({"type": "count", "count": n})` |
+| `panel.html` | the view: buttons that send verbs and a `watch` that redraws |
+
+the view record (bundle.yaml):
+
+```
+view: {kind: html, bytes_file: panel.html, calls: [hello, count, watch]}
+```
+
+`kind: html` selects the HTML view renderer (`agent_view`). `bytes_file` names the body, relative to the bundle folder. `calls` lists the verbs the body may send to its agent. The two verbs in `bundle.yaml` must equal the ones `agent.py` serves, or the kernel refuses the agent (see [Program agents](/fantastic/foundations/agents/program-agents/#start)).
+
+A view can also carry its HTML inline as `bytes` in the record instead of `bytes_file`. With neither, the cell says the agent declares no view body.
+
+To show the agent, call `place {backend_id: "<id>", x, y}` on the canvas’s view, with no `kind`. It makes a cell that is a view of that host agent, 480 by 320 unless the call gives a size. An unknown agent is refused as `not_found`, and a missing `x` or `y` as `bad_arg`.
+
+#### The panel: send, watch, and {{agent}}
+
+The panel is a fragment of HTML. The canvas wraps it in a document and puts a small script, the **connector**, in its head, so a global `fantastic` exists before the body runs. The frame is a sandboxed iframe: scripts run, but the only way out is a message to the page.
+
+| call | does |
+|---|---|
+| `fantastic.send(target, payload)` | sends a message and returns a promise of the reply |
+| `fantastic.watch(src, cb)` | calls `cb` with each event the agent emits; returns a function that stops watching |
+| `fantastic.emit(target, payload)` | emits an event on another agent |
+| `fantastic.onMessage(cb)` | receives messages sent to the cell itself |
+
+The agent’s own id is not known when you write the file, so write `{{agent}}`. When the canvas reads the file it replaces every `{{agent}}` with the instance’s id. One `panel.html` therefore serves every instance of the bundle.
+
+panel.html (the starter, shortened):
+
+```
+const AGENT = "{{agent}}";
+document.getElementById("c").onclick =
+  () => fantastic.send(AGENT, {type: "count"});
+fantastic.watch(AGENT, (ev) => {
+  if (ev && ev.type === "count") out.textContent = "count = " + ev.count;
+});
+```
+
+The button only sends. The new number arrives as an event, because the `count` verb emits it, and the `watch` callback draws it. Any other client of the agent sees the same event. The starter never polls.
+
+Setting `innerHTML` runs no `<script>`. Keep the script in `panel.html`, and send data, or HTML without scripts, in the events.
+
+*Animation: A view: click, verb, event, redraw* (https://aisixteen.com/fantastic/foundations/build/view/starter.mp4). py_ab12_1 has view {kind: html, bytes_file: panel.html, calls: [hello, count, watch]}. The panel sends count to py_ab12_1 through its cell. The agent adds one and emits {type: count, count: 1}, and the panel’s watch redraws “count = 1”.
+
+#### What the panel may call
+
+The panel does not act as you. Its sends go out as its **cell**, which is an agent, so the [call gate](/fantastic/foundations/protocol/call-gate/) judges them like any other send. The cell’s `can_call` is derived from the view as `{<agent id>: [hello, count, watch]}`: `calls`, plus `watch`, which a view always gets.
+
+A verb that is not in `calls` is refused at the cell, inside the panel, where nobody reads a log. If your button needs a new verb, add it to the bundle’s `verbs`, to `agent.py` and to `calls`.
+
+The other end of the edge is the agent’s `callable_by`. The terminal UI shell grants `user`, which every canvas tab calls through, on each agent it sees, and `spawn` waits for that grant before it returns. For an agent you create by hand, the canvas’s own documentation says to give it `callable_by: {user: [the verbs the panel calls, watch]}`, because a new agent admits no one.
+
+A chat can show the same panel inside a conversation. The AI’s `embed {id}` verb draws a card for any host agent with a `view` record, and it checks the same grants. It answers `not_found`, `no_view` or `grants_missing` with the fix in `hint`. One agent can be a chat card and a canvas cell at once.
+
+#### Edit it while it runs
+
+The CLI watches every bundle folder. It listens to file events rather than polling, and it treats one save, a burst of events within 150 ms, as one change. What happens depends on the file.
+
+- **`panel.html`** (the view file): the CLI writes each instance’s `view` again, and the cells redraw. Nothing restarts.
+- **`agent.py` or `bundle.yaml`**: the kernel runs `reload_bundle`. Every instance stops abruptly and starts again, and calls in flight answer `reloaded`.
+
+The record the CLI writes takes `kind`, `calls` and `bytes_file` from `bundle.yaml` over the instance’s own. A new verb in `calls` therefore reaches every instance’s grant. It also removes any inline `bytes` and adds `bytes_rev`, a hash of the file, so the change is visible to the cells. If you save the code and the panel together, the code reloads first and then the panel redraws.
+
+*Animation: Edit a bundle while it runs* (https://aisixteen.com/fantastic/foundations/build/view/edit.mp4). Two instances, py_ab12_1 and py_ab12_2, share one bundle. Saving panel.html redraws both cells with no restart. Saving agent.py runs reload_bundle, and both instances restart.
+
+A bundle’s edit changes every instance. To change one agent alone, copy the folder to a new name first.
+
+#### In the terminal UI
+
+The terminal UI does not run `panel.html`. It has its own panel per kind of agent, chosen by the agent’s `handler_module`, and no code in its panels reads a `view` record.
+
+A bundle you wrote has an unknown module, so the TUI shows the **generic panel**: the agent’s id, whether it is open or sealed, its sentence, the last call, its egress (`can_call`) and ingress (`callable_by`), its verbs with their argument lines, and its rows. You can call any verb it lists, and the answer, a refusal included, is shown verbatim. That is enough to try `hello` and `count` from the terminal.
+
+*Animation: The TUI shows the generic panel* (https://aisixteen.com/fantastic/foundations/build/view/tui.mp4). py_ab12_1 is selected in the TUI tree. Its handler_module is unknown to the shell, so it gets the generic panel: sentence, verbs hello and count, and a call. count answers {count: 1}.
+
+In the public code, `make` in `panel/mod.rs` is a fixed `match` over the panel kinds. This page therefore claims no way to add a custom TUI panel: a new handler gets the generic panel. The views you write are for the canvas.
+
+Sources: starter bundle.yaml: the view record (https://github.com/aisixteen/fantastic/blob/main/src/tui/starters/python_agent/bundle.yaml#L9); starter agent.py: a verb that emits (https://github.com/aisixteen/fantastic/blob/main/src/tui/starters/python_agent/agent.py#L36); starter panel.html: send and watch (https://github.com/aisixteen/fantastic/blob/main/src/tui/starters/python_agent/panel.html#L6); connector.ts: the fantastic object (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/html_agent/connector.ts#L40); agent_view.ts: reading the view file (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/agent_view/agent_view.ts#L57); host_views.ts: the cell’s grant (https://github.com/aisixteen/fantastic/blob/main/src/tui/web/canvas/src/bundles/canvas/host_views.ts#L108); bundle_watch.rs: live edits and the starters (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/bundle_watch.rs#L1); panel/mod.rs: the TUI panels (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/panel/mod.rs#L78)
+
+### Foundations › Build your own › Example: Team
+
+URL: https://aisixteen.com/fantastic/foundations/build/team/
+
+[fantastic_team](https://github.com/aisixteen/fantastic_team) is a separate, public program built on fantastic. Its README describes it as unattended team work: you queue tasks, a team of AI workers takes them, and you review what comes back. It is an example of what the pieces on the other pages make when you put them together.
+
+This page follows four parts of it: how `team.yaml` turns role cards into agents, what the `project_lead` card grants and asks, how the lead records its work in the task registry, and what the cadencer sends back up. Everything about fantastic itself is covered on the pages linked in each section; this page shows Team’s use of it. The statements about Team come from its repository at the commit named in the sources.
+
+#### What Team is, and what it is not yet
+
+Team depends on fantastic as a pinned git dependency, so it uses the same kernel, agents and bundles described in the other Foundations pages. A **team** is a folder with a `team.yaml`. The file names the worker templates the team may start, the connectors it may use, the queue and the credential store.
+
+The binary adds no coding agent of its own. A `team.yaml` with no `templates` and no `first_agent` is valid and starts only the system agents: the dispatcher, the tools and the queue. Which agents exist is the file’s choice.
+
+- The README says there are no releases yet, so you build from source with `sh scripts/build.sh`. It needs `git` and a Rust toolchain.
+- It also says CI runs the unit tests on Linux, macOS and Windows, but the run was verified on Linux only.
+- Team does not merge. A worker opens a draft pull request, and a person reviews and merges it.
+
+#### Role cards and tiers in team.yaml
+
+Team turns on fantastic’s roles registry with a `roles:` section. It takes an `id` (default `roles`), `dirs`, the folders of role cards (default `roles`), and `limits` with `total` and `per_role`. Team applies the limits with `set_limit` at every start, and clears a limit the file no longer names. [Agentic resources and tasks](/fantastic/foundations/agents/agentic-resources/) explains the registry; the cards and limits themselves work as described there.
+
+the roles section of examples/team.yaml:
+
+```
+roles:
+  id: roles
+  dirs: [roles]
+  limits:
+    total: 3
+    per_role:
+      worker: 2
+```
+
+A card’s `tier` is the name of a template in the same `team.yaml`. A card therefore names no model: the file maps the tier to a model, an endpoint and a credential, and the registry holds one tier per template. The example file names three tiers, `strong`, `small` and `issue_keeper`. A test checks that no card text names a provider or a model.
+
+Team ships six cards in its `roles/` folder. The `project_lead` card replaces fantastic’s generic card of the same name.
+
+| card | tier | grants |
+|---|---|---|
+| `worker` | `small` | `worker_exec`, `worker_files`, `queue` |
+| `lead` | `strong` | `$registry`, `worker_exec`, `worker_files`, `queue`, `kernel` |
+| `project_lead` | `strong` | `$registry`, `github`, `board`, `queue`, `kernel_state`, `tasks` |
+| `issue_keeper` | `issue_keeper` | `queue` |
+| `issue_writer` | `small` | `queue` |
+| `spec_reviewer` | `small` | `queue`, `worker_files` |
+
+Team checks the cards before it starts. It refuses to start when a card does not parse, names a tier that is not a template, grants an agent that `team.yaml` does not define, or when one of the six cards is missing. `roles:` also needs a `first_agent` and `templates`.
+
+*Animation: Cards name a tier, team.yaml defines it* (https://aisixteen.com/fantastic/foundations/build/team/cards.mp4). team.yaml defines templates, here strong and small. The project_lead card names strong and the worker card names small, so no card names a model. A third card, reviewer, names tier fast. No template has that name, so the team refuses to start.
+
+#### The project lead plans a tree
+
+The `project_lead` card describes a lead that “plans a team’s open issues as a tree of agents, runs it through the GitHub connector, and reports one condensed account upward”. It plans and coordinates, and does not write code. Its grants are the whole of what it can do:
+
+| grant | verbs |
+|---|---|
+| `$registry` | `roles`, `role`, `spawn`, `get_count`, `fleet`, `report` |
+| `github` | `issues`, `issue_view`, `issue_edit`, `issue_state`, `comment`, `label`, `project_field_set`, `pr_create`, `pr_status`, `staleness`, `push` |
+| `board` | `board`, `rows` |
+| `queue` | all verbs |
+| `kernel_state` | `await_set`, `await_cancel` |
+| `tasks` | `add`, `assign`, `reassign`, `status`, `report`, `list`, `get` |
+
+The card tells it a flow. It reads the issues and the board, and it reads its own room: `roles`, `get_count` and the fork points of its conversation. It then proposes a tree in the chat: sub-leads per area, a worker per issue, what waits on what. After approval it grows the tree with `spawn {role, task}` on the registry. A sub-lead starts with `spawn {role, from: {agent, at}}`, which branches off a mark in the lead’s conversation ([Forking and marks](/fantastic/foundations/agents/ai-agent/forking/)), and with `limits` that hand it part of the lead’s quota ([the quota](/fantastic/foundations/agents/agentic-resources/#quotas)).
+
+It waits for its children with `await_set` ([Tasks and waiting](/fantastic/foundations/kernel/tasks/)), never with a shell wait or short polling loops. Team writes the other end of that grant at every start: it names the agents below the root in the root’s `callable_by` with `await_set` and `await_cancel`.
+
+#### When it asks first
+
+The card says when to stop and ask. It asks before a plan of more than five agents, before going past its limits, and before any GitHub write (`issue_edit`, `issue_state`, `comment`, `label`, `pr_create`, `push`). A small plan within its limits and with no GitHub write may start at once. If the user says “show me the plan first”, it always waits for a “yes”.
+
+> Approval is the user's reply in the chat, nothing else: no button, no code gate. (roles/project_lead.md)
+
+This is a rule in the card’s text, which the model reads. Team’s tests check that the card contains these rules, but no code enforces the wait. What code does enforce is the grants: a call the card does not list is refused with “may not call”, and the card tells the lead to say so and stop. The limits are enforced too. A spawn past a limit is refused, and the card says that refusal is final.
+
+Nothing is cleaned up until the user asks. The lead never deletes an agent or closes an issue by itself, so finished agents, their histories and their marks stay. The card has each worker make a branch, push it and open a draft pull request through the `github` connector, and the lead reads the worker’s ticks and labels instead of redoing them. The shipped `worker` card grants no connector, so a team whose workers deliver this way adds `github` to its own worker card.
+
+*Animation: The project lead grows a tree* (https://aisixteen.com/fantastic/foundations/build/team/plan.mp4). The project lead proposes a plan of six agents in the chat (the project lead and five it will start). Over five agents, so it waits. The user replies yes. It spawns a sub-lead and workers through the registry, and records each issue in tasks with a holder: w1 holds o/r#12, and the sub-lead’s subtree holds the rest of its area.
+
+#### Tasks it records
+
+With `roles:`, Team adds one more agent, `tasks`: fantastic’s `task_registry`, created as a child of the lead. The id `tasks` is taken. Its rows live in the team’s one store agent, a `sqlite_store` whose file is `.fantastic/memory.db` by default. That store also keeps every AI agent’s conversation, so the history and the task rows survive a restart.
+
+The card tells the project lead to record each issue it hands out. Right after it starts an agent for an issue, it calls `add` with the issue as the `source` and the agent as the `holder`. When it gives a whole area to a sub-lead, the holder is that sub-lead’s subtree. When it hands an issue to another agent, it calls `reassign`, and the registry keeps every step in the task’s history.
+
+illustrative ids: the lead’s calls on tasks:
+
+```
+add {"id": "o/r#12", "source": "gh:o/r#12", "holder": "w1"}
+reassign {"id": "o/r#12", "holder": {"subtree": "sub-a"}}
+```
+
+The card also has the lead store, with each task, the `versions` it was done against (`{repo, branch, commit}` per repo), the issue’s `source_version`, and the mark it was forked from (`fork_from`). Before it reuses a mark, it calls the connector’s `staleness` verb, which returns the commits and changed files since the recorded commit and whether the issue changed. The card says “Code gives the facts; you decide”, so the choice between forking and starting fresh stays with the lead. A child’s `usage` goes up with its `report`, and `list` sums it.
+
+The registry does not sync with GitHub. The card says so: after the lead changes a task, it pushes the update to the source itself, with `issue_edit`, `comment` or `label` on the `github` connector, at the task’s `update_to`. [Who holds what](/fantastic/foundations/agents/agentic-resources/#tasks) covers the verbs and refusals such as `already_held`.
+
+With `roles:`, the `board` verb returns a `roles` section as well: the tree below the project lead with each agent’s role and state, the count from `get_count`, and the task rows with source, holder and status. Team finds the project lead as the first agent that the registry’s `fleet` lists under the role `project_lead`. Its end-to-end test spawns that role through the registry as the operator.
+
+#### The cadencer reports upward
+
+The **cadencer** is an agent Team creates in every team. It is on by default; `cadencer: {enabled: false}` creates it switched off. On a timer it reads the tree and sends each lead a short digest of the level directly below it. A sub-lead’s line rolls up its whole subtree, so a project lead sees one line per sub-lead and does not see the workers below.
+
+In a team with `roles:`, the tree is the spawned tree. The cadencer reads the registry’s `fleet` and `get_count`, the root’s `reflect` of the project lead’s branch, and the task registry’s `list`. An agent holding a running, waiting or blocked task, itself or through an ancestor’s subtree, is busy. An agent whose tasks are all done is done, and an agent with no task is idle. Before each beat the cadencer is let `send` to the leads the registry lists under `project_lead` and `lead`, so a lead spawned after the start still gets its digest.
+
+- The beat is 60 seconds by default. A group in `team.yaml` may set its own `cadence`, `stall_after`, `quiet` and `enabled`.
+- A worker is **stalled** when it holds a task and has been idle for `stall_after` seconds (300 by default). The digest line says `STALLED` with the idle time.
+- In quiet mode, the default, a digest holds only what changed since the last one, plus every stall. An empty digest is not sent.
+- A quiet lead that gets no digest, has an idle member and sees queued work gets one line on every third such beat: `heartbeat: N idle, M queued`. A regular digest restarts the count.
+
+a sub-lead’s roll-up line (illustrative values):
+
+```
+sub-a: 2 agents (2 busy) · +0 new · 1 STALLED
+```
+
+A digest goes to the lead’s driver, else to the lead itself if it has an AI, else to the board. It is a `send` whose text is the lines. A failed send is counted and is never fatal. The cadencer also reports the team’s load as plain counts in its `status`: workers busy, idle and stalled, and tasks held, in review, done, blocked and queued. The code gives only these numbers; it has no mode and no progress bar.
+
+*Animation: The cadencer sends one line per branch* (https://aisixteen.com/fantastic/foundations/build/team/digest.mp4). The cadencer reads the spawned tree: lead, sub-lead sub-a, and two workers. Worker w2 holds a task and has been idle past stall_after. The digest to the lead has one roll-up line for sub-a with 1 STALLED, and none for the workers below.
+
+#### Where to read more
+
+The repository is [aisixteen/fantastic_team](https://github.com/aisixteen/fantastic_team), under AGPL-3.0-or-later like fantastic. Start with `README.md`, `examples/team.yaml` and the six cards in `roles/`. The code for the tree, the grants and the cadencer is in `crates/team/src`. The README also covers Team’s other parts, such as the dispatcher page, worker packs and remote running, which this page leaves out.
+
+To build your own agents of the same kind, see [A program agent](/fantastic/foundations/build/program-agent/) and [A bundle](/fantastic/foundations/build/bundle/). The cards, the registry and the task registry are the pieces that Team shares with any other team you write.
+
+Sources: fantastic_team README: configure, roles, load and progress (https://github.com/aisixteen/fantastic_team/blob/main/README.md#L129); fantastic_team: examples/team.yaml (https://github.com/aisixteen/fantastic_team/blob/main/examples/team.yaml#L1); fantastic_team: the project_lead card (https://github.com/aisixteen/fantastic_team/blob/main/roles/project_lead.md#L1); fantastic_team: card checks and the tasks agent in the plan (https://github.com/aisixteen/fantastic_team/blob/main/crates/team/src/tree.rs#L154); fantastic_team: the cadencer (https://github.com/aisixteen/fantastic_team/blob/main/crates/team/src/cadencer.rs#L1); fantastic_team: the board’s roles section (https://github.com/aisixteen/fantastic_team/blob/main/crates/team/src/board.rs#L868); fantastic: the roles registry (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-agentic-resources/src/lib.rs#L88); fantastic: the task registry (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-task-registry/src/lib.rs#L92)
 
 ## Apps
 

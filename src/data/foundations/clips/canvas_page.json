@@ -1,0 +1,32 @@
+{
+  "boot": {
+    "duration": 10.17,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 118348,
+      "webm": 114853,
+      "webp": 31690
+    }
+  },
+  "embed": {
+    "duration": 8.63,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 72037,
+      "webm": 85825,
+      "webp": 29760
+    }
+  },
+  "serve": {
+    "duration": 8.83,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 94016,
+      "webm": 91260,
+      "webp": 26784
+    }
+  }
+}

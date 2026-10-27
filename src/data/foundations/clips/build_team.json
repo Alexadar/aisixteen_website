@@ -1,0 +1,32 @@
+{
+  "cards": {
+    "duration": 8.53,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 79606,
+      "webm": 90665,
+      "webp": 33384
+    }
+  },
+  "digest": {
+    "duration": 9.43,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 98923,
+      "webm": 104435,
+      "webp": 26044
+    }
+  },
+  "plan": {
+    "duration": 11.9,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 118942,
+      "webm": 111635,
+      "webp": 26922
+    }
+  }
+}

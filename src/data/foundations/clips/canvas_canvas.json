@@ -1,0 +1,32 @@
+{
+  "place": {
+    "duration": 8.83,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 69494,
+      "webm": 66829,
+      "webp": 15454
+    }
+  },
+  "selector": {
+    "duration": 8.23,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 64924,
+      "webm": 69365,
+      "webp": 14664
+    }
+  },
+  "wire": {
+    "duration": 9.43,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 90255,
+      "webm": 90160,
+      "webp": 17716
+    }
+  }
+}
