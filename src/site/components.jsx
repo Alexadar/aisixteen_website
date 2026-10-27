@@ -60,6 +60,7 @@ export const Footer = ({ year }) => (
         <b>Links</b>
         <a className="nav__link" href="/#apps">All apps</a>
         <a className="nav__link" href="/fantastic/">Fantastic</a>
+        <a className="nav__link" href="/fantastic/foundations/">Foundations</a>
         <a className="nav__link" href="/#privacy">Privacy</a>
         <a className="nav__link" href={`mailto:${SITE.email}`}>Contact</a>
       </div>
@@ -733,6 +734,11 @@ const Kernel = ({ f }) => {
             <p className="fl-tile__text">{f.security}</p>
           </div>
         </article>
+        <a className="fl-tile fl-tile--wide fl-foundations" data-reveal="" href="/fantastic/foundations/">
+          <span className="fl-tile__kicker">Foundations</span>
+          <span className="fl-foundations__title">How it works, one mechanism at a time <span className="card__arrow">&rarr;</span></span>
+          <span className="fl-tile__text">Articles with short animations: 1. Kernel: agents and messaging · 2. Context folding.</span>
+        </a>
       </div>
     </section>
   )
@@ -907,7 +913,8 @@ export const FantasticPage = ({ f, year }) => (
         <p className="fl-hero__meta fl-in" style={{ '--d': '.3s' }}>
           <img src={asset(f.icon)} alt="" width="20" height="20" /> {f.fullName} · {f.status} · macOS, Linux &amp; Windows ·{' '}
           <a className="fx-link" href={f.crate} target="_blank" rel="noreferrer">crates.io</a> ·{' '}
-          <a className="fx-link" href={f.roadmap} target="_blank" rel="noreferrer">roadmap</a>
+          <a className="fx-link" href={f.roadmap} target="_blank" rel="noreferrer">roadmap</a> ·{' '}
+          <a className="fx-link" href="/fantastic/foundations/">how it works</a>
         </p>
         <div className="fl-hero__video fl-in" style={{ '--d': '.38s' }}><HeroVideo v={f.video} /></div>
       </section>

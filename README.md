@@ -127,3 +127,22 @@ reveals, the /fantastic/ reel, the video), that the reel keeps one size on every
 drawings inside it, and that no script throws. Install the browsers once with
 `npx playwright install chromium firefox webkit`, or run one, e.g. `--project=chromium`.
 The `Layout tests` workflow runs all of them on every pull request.
+
+## Foundations animations (Manim)
+
+`/fantastic/foundations/` (articles in `src/data/foundations.js`, pages in `src/site/foundations.jsx`)
+embeds short animations rendered with [Manim Community](https://www.manim.community/). The scenes
+are in `anim/foundations/` (`kernel.py`, `folding.py`, shared look in `common.py`); render and
+compress them with:
+
+```bash
+anim/render.sh                    # every clip
+anim/render.sh k2_gate            # one clip
+anim/render.sh --preview k2_gate  # quick 480p contact sheet in anim/.out, nothing published
+```
+
+It needs `uv`, `ffmpeg` and `curl`; it creates `anim/.venv`, fetches the site's fonts into
+`anim/.fonts`, renders at 1080p and writes a 720p H.264 MP4, a VP9 WebM and a WebP poster per clip to
+`media/fantastic/foundations/<article>/`, plus durations in `src/data/foundations-videos.json`.
+Only those final files are committed; the venv, fonts, Manim's media dir and raw renders are
+gitignored. Then `npm run build` as usual.

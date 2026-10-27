@@ -22,3 +22,11 @@ dist
 # Layout test output
 test-results/
 playwright-report/
+
+# Manim (anim/): local venv, fetched fonts, Manim's media dir and raw renders.
+# Only the compressed clips under media/fantastic/foundations/ are committed.
+anim/.venv/
+anim/.fonts/
+anim/.media/
+anim/.out/
+__pycache__/
