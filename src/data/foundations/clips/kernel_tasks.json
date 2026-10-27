@@ -1,0 +1,12 @@
+{
+  "cancel": {
+    "duration": 12.4,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 155461,
+      "webm": 150532,
+      "webp": 32178
+    }
+  }
+}

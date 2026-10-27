@@ -1,0 +1,12 @@
+{
+  "ledger": {
+    "duration": 14.77,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 173261,
+      "webm": 175072,
+      "webp": 29584
+    }
+  }
+}

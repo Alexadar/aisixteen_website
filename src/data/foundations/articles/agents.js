@@ -1,0 +1,35 @@
+// 3. Agents — pillar page. Published. Overview + one clip (reused from Context folding)
+// + the list of its articles, which the page adds from registry.json.
+import { src } from '../lib.js'
+
+export default {
+  headline: 'The agents Aisixteen Fantastic ships',
+  description: 'The agents that ship with Aisixteen Fantastic, grouped by what they do: AI agents over several model backends, memory stores, credentials, IO legs for files, processes, the web, other kernels and MCP servers, and kernel services such as the scheduler.',
+  summary: 'The agents fantastic ships, grouped by what they do: the AI agent and its memory, credentials, IO legs for files, commands, the web, other kernels and MCP, and kernel services.',
+  cover: { clip: 'fold', from: 'agents_ai_agent_context_folding' },
+  about: ['Aisixteen Fantastic', 'AI agents', 'LLM tools', 'Agent memory'],
+  lead: [
+    'Everything in Fantastic is an agent, so what it can do is the set of agents it ships. Each is a bundle that answers its own verbs behind the same call gate.',
+  ],
+  sections: [
+    {
+      id: 'overview',
+      title: 'What ships',
+      blocks: [
+        { list: [
+          '**AI agents** over vLLM, Ollama, the OpenAI Responses API and Anthropic’s Messages API, plus Apple’s on-device model on macOS. Tool calling is the kernel’s own prompt-taught `<call>` grammar, not a provider tool API, so any capable model drives the same verbs.',
+          '**Memory**: every message lives in a memory store agent. AI agents fold, recall and page their own history.',
+          '**IO legs**: `file_bridge` for files, edits, streams and watches; `exec_bridge` for allow-listed commands and terminals; `web_ws` and `web_rest` for the browser and HTTP; `ws_bridge` from one kernel to another; `mcp_client` for a remote MCP server’s tools as verbs.',
+          '**Kernel services**: a scheduler, and credentials by reference, with keys bound to one host.',
+        ] },
+        'The AI agent keeps a long conversation in a finite window by folding it: a finished stretch of work becomes one appended row that names what it hides.',
+        { video: 'fold', from: 'agents_ai_agent_context_folding' },
+      ],
+    },
+  ],
+  sources: [
+    ['README.md: what’s in the box', src('README.md', 48)],
+    ['README.md: memory', src('README.md', 47)],
+    ['ai_core (Python)', src('src/lib/python/bundled_agents/ai/ai_core/src/ai_core')],
+  ],
+}

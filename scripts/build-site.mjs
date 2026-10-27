@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { robotsTxt, llmsFullTxt } from './ai-files.mjs'
+import { loadFoundations } from './foundations-data.mjs'
 // Static site generator: pre-renders the home page + one real HTML page per app
 // into docs/ so every app gets its own crawlable URL on GitHub Pages (no server).
 // React is used only here, at build time, as the template engine.
@@ -28,16 +29,12 @@ await build({
   external: ['react', 'react-dom', 'react-dom/server'],
   logLevel: 'warning',
 })
-const { renderHome, renderLanding, renderNotFound, renderFantastic, renderFoundationsIndex, renderFoundationsArticle } = await import(pathToFileURL(bundlePath).href)
+const { renderHome, renderLanding, renderNotFound, renderFantastic, renderFoundationsIndex, renderFoundationsPage, renderFoundationsComing, renderRedirect } = await import(pathToFileURL(bundlePath).href)
 const { apps, featuredSlug } = await import(pathToFileURL(join(siteSrc, '..', 'data', 'apps.js')).href)
 const { fantastic } = await import(pathToFileURL(join(siteSrc, '..', 'data', 'fantastic.js')).href)
-const { foundations, videos: foundationVideos } = await import(pathToFileURL(join(siteSrc, '..', 'data', 'foundations.js')).href)
-// Durations and sizes of the Manim clips, written by anim/render.sh next to the clips it publishes.
-const clipMeta = JSON.parse(fs.readFileSync(join(siteSrc, '..', 'data', 'foundations-videos.json'), 'utf8'))
-const clipSlugs = (a) => a.sections.flatMap((s) => s.blocks).filter((b) => b.video).map((b) => b.video)
-for (const a of foundations.articles) for (const slug of clipSlugs(a)) {
-  if (!clipMeta[slug] || !foundationVideos[slug]) throw new Error(`[build-site] clip ${slug} has no render (anim/render.sh ${slug}) or no title/caption`)
-}
+// Foundations: the #443 tree (src/data/foundations/registry.json) and each article's own data
+// file and clip manifest. Throws, listing every problem, on a missing file, caption or render.
+const F = await loadFoundations(root)
 
 // 2) Decorate apps with build-time facts: a multi-device carousel that rotates through
 //    EVERY platform's screenshots, each shown in the device frame designed for it.
@@ -95,9 +92,11 @@ const written = []
 written.push(write('index.html', renderHome(decorated, featured, { year, fantastic })))
 for (const app of decorated) written.push(write(`${app.slug}/index.html`, renderLanding(app, decorated, { year, fantastic })))
 written.push(write(`${fantastic.slug}/index.html`, renderFantastic(fantastic, { year })))
-const fdOpts = { year, meta: clipMeta, videos: foundationVideos, modified: buildDate }
-written.push(write(`${foundations.slug}/index.html`, renderFoundationsIndex(foundations, fdOpts)))
-for (const a of foundations.articles) written.push(write(`${foundations.slug}/${a.slug}/index.html`, renderFoundationsArticle(foundations, a, fdOpts)))
+const fdOpts = { year, modified: buildDate }
+written.push(write('fantastic/foundations/index.html', renderFoundationsIndex(F, fdOpts)))
+for (const n of F.published) written.push(write(`${n.url.slice(1)}index.html`, renderFoundationsPage(F, n, fdOpts)))
+for (const n of F.planned) written.push(write(`${n.url.slice(1)}index.html`, renderFoundationsComing(F, n, fdOpts)))
+for (const r of F.redirects) written.push(write(`${r.from.slice(1)}index.html`, renderRedirect(r.to.url, r.to.title)))
 written.push(write('404.html', renderNotFound({ year })))
 
 // 4) Shared cached assets (one copy each).
@@ -124,28 +123,21 @@ for (const app of decorated) {
 copyMedia(fantastic.icon)
 copyMedia(fantastic.video.src)
 copyMedia(fantastic.video.poster)
-// Foundations: each article's compressed clips (mp4, webm, webp poster) and its og.jpg.
-for (const a of foundations.articles) {
-  const dir = `${foundations.slug}/${a.slug}`
-  copyMedia(`${dir}/og.jpg`)
-  for (const slug of clipSlugs(a)) {
-    const name = clipMeta[slug].file
-    for (const ext of ['mp4', 'webm', 'webp']) copyMedia(`${dir}/${name}.${ext}`)
-  }
-}
+// Foundations: every clip a published page shows (mp4, webm, webp poster) and each og.jpg.
+F.mediaFiles.forEach(copyMedia)
 if (fs.existsSync(join(media, 'logo.png'))) fs.copyFileSync(join(media, 'logo.png'), join(docs, 'logo.png'))
 
 // Sitemap of every indexable page (redirect stubs and 404 excluded). No <lastmod>:
 // a build date on every URL would be inaccurate, and Google ignores unreliable lastmod.
 const indexable = ['', ...decorated.map((a) => `${a.slug}/`), `${fantastic.slug}/`,
-  `${foundations.slug}/`, ...foundations.articles.map((a) => `${foundations.slug}/${a.slug}/`)]
+  'fantastic/foundations/', ...F.published.map((n) => n.url.slice(1))]
 fs.writeFileSync(join(docs, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${indexable.map((p) => `  <url><loc>https://aisixteen.com/${p}</loc></url>`).join('\n')}
 </urlset>
 `)
 fs.writeFileSync(join(docs, 'robots.txt'), robotsTxt())
-fs.writeFileSync(join(docs, 'llms-full.txt'), llmsFullTxt({ apps: decorated, fantastic, foundations, videos: foundationVideos }))
+fs.writeFileSync(join(docs, 'llms-full.txt'), llmsFullTxt({ apps: decorated, fantastic, foundations: F }))
 // IndexNow (Bing, Yandex, Seznam…; Bing's index feeds ChatGPT search and Copilot):
 // the key file must be served at the site root. Ping with `npm run indexnow` after a deploy.
 const indexNowKey = fs.readFileSync(join(root, 'indexnow-key.txt'), 'utf8').trim()

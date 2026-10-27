@@ -19,6 +19,10 @@
   <url><loc>https://aisixteen.com/aircore/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/protocol/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/kernel/</loc></url>
-  <url><loc>https://aisixteen.com/fantastic/foundations/context-folding/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/canvas/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/build/</loc></url>
 </urlset>

@@ -32,10 +32,11 @@ Sitemap: ${ORIGIN}/sitemap.xml
 
 const md = (s) => String(s).replace(/\n+/g, ' ').trim()
 
-// A Foundations article as Markdown: the same blocks the page renders, with each animation
-// given as its title, caption and file.
-function articleMd(a, videos) {
-  const url = `${ORIGIN}/fantastic/foundations/${a.slug}/`
+// A published Foundations page as Markdown: the same blocks the page renders, each animation
+// given as its title, caption and file, then its published children. Planned pages are left out.
+function articleMd(n) {
+  const a = n.article
+  const url = `${ORIGIN}${n.url}`
   const block = (b) => {
     if (typeof b === 'string') return b
     if (b.h3) return `#### ${b.h3}`
@@ -46,25 +47,26 @@ function articleMd(a, videos) {
     if (b.note) return b.note
     if (b.table) return [`| ${b.table.head.join(' | ')} |`, `|${b.table.head.map(() => '---').join('|')}|`, ...b.table.rows.map((r) => `| ${r.join(' | ')} |`)].join('\n')
     if (b.video) {
-      const v = videos[b.video]
-      const name = b.video.split('_').slice(1).join('_')
-      return `*Animation: ${v.title}* (${url}${name}.mp4). ${v.caption}`
+      const c = b.resolved
+      return `*Animation: ${c.title}* (${ORIGIN}${c.files.mp4}). ${c.caption}`
     }
     return ''
   }
-  return `### ${a.n}. ${a.title}
+  const path = ['Foundations', ...n.ancestors.map((x) => x.title), n.title].join(' › ')
+  const kids = n.children.filter((c) => c.status === 'published')
+  return `### ${path}
 
 URL: ${url}
 
 ${a.lead.join('\n\n')}
 
 ${a.sections.map((sec) => `#### ${sec.title}\n\n${sec.blocks.map(block).join('\n\n')}`).join('\n\n')}
-
+${kids.length ? `\nIn this part: ${kids.map((c) => `${c.title} (${ORIGIN}${c.url})`).join('; ')}\n` : ''}
 Sources: ${a.sources.map(([label, href]) => `${label} (${href})`).join('; ')}
 `
 }
 
-export function llmsFullTxt({ apps, fantastic: f, foundations, videos }) {
+export function llmsFullTxt({ apps, fantastic: f, foundations }) {
   const out = []
   out.push(`# AISixteen — full site text
 
@@ -131,13 +133,13 @@ ${f.commands.map(([c, w]) => `- \`${c}\` — ${w}`).join('\n')}
 
   // Foundations
   if (foundations) {
-    out.push(`## ${foundations.headline}
+    out.push(`## ${foundations.hub.headline}
 
 URL: ${ORIGIN}/fantastic/foundations/
 
-${foundations.lead}
+${foundations.hub.lead}
 `)
-    for (const a of foundations.articles) out.push(articleMd(a, videos))
+    for (const n of foundations.published) out.push(articleMd(n))
   }
 
   // Apps

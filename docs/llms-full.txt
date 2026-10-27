@@ -130,38 +130,19 @@ Commands:
 
 URL: https://aisixteen.com/fantastic/foundations/
 
-How Fantastic works underneath, one mechanism at a time. Each article follows the code on the main branch of the open-source repo, for the Rust and Python runtimes, with short animations of the mechanism it describes.
+How Fantastic works underneath, one mechanism at a time, in five parts. Each page follows the code on the main branch of the open-source repo, for the Rust and Python runtimes, with short animations of the mechanism it describes.
 
-### 1. Kernel: agents and messaging
+### Foundations › Protocol
 
-URL: https://aisixteen.com/fantastic/foundations/kernel/
+URL: https://aisixteen.com/fantastic/foundations/protocol/
 
-Fantastic starts from one sentence, its whole THESIS: “A shared system where human operators, statistical models, and programs are decentralized and flat, with a mediator that handles the communication exchange.” The kernel is that mediator.
+Fantastic’s whole thesis is one sentence: “A shared system where human operators, statistical models, and programs are decentralized and flat, with a mediator that handles the communication exchange.” The protocol is what those peers say to each other, and it is the same for all three.
 
-This article walks through what the kernel actually does, from the agent record to the call gate, the task table, the ledger and a restart. It covers the Rust and Python kernels, which answer the same fourteen kernel verbs with the same semantics.
+#### One message model
 
-#### Everything is an agent
+A model, a program, a file tree, a shell, a browser canvas and the person at the keyboard are all **agents**, addressed by id and reached the same way: one call, `send`. There is no client library. In the README’s words, “The protocol is the API”: every agent answers `{"type":"reflect"}` with what it is, and `docs` says how to call it.
 
-> A model, a program, a file tree, a shell, a browser canvas and the human at the keyboard are all agents in one tree, addressed by id and reached the same way: one call, `send`. (README)
-
-An agent is two things: a **record** and the **bundle** that answers its verbs. The record is small. It has an `id` that is unique across the tree, a `handler_module` naming the bundle, a `parent_id`, and every other field flat at the top level. Those other fields are how a bundle is configured.
-
-an agent record:
-
-```
-id              file_bridge_ab12cd   minted as <bundle>_<hex6> when you leave it out
-handler_module  file_bridge.tools    the bundle; fixed once the agent exists
-parent_id       kernel_state         where it sits in the tree
-...             ...                  every other field: the bundle’s own config
-```
-
-A bundle is the code. In Python it is anything with a `handler(id, payload, agent)` callable, found through entry points. In Rust it is a crate implementing the `Bundle` trait, linked into the binary at compile time. That is the one real difference between the two runtimes: how bundles load. On top of either, a **folder bundle** (a `bundle.yaml` plus a program dropped into `.fantastic/bundles/<name>/`) becomes a new kind of agent, hot-reloadable.
-
-A handler that returns nothing sends no reply; a domain error comes back as `{"error": ...}`. A bundle can also run code when its agent is deleted (`on_delete`), stopped (`on_shutdown`) or has a task cancelled (`on_cancel`). It can refuse a bad record with `validate_meta` and publish a `record_schema`, the same schema `create_agent` and `update_agent` enforce.
-
-#### The protocol is the API
-
-There is no client library. Every agent answers `{"type": "reflect"}` with what it is, and the `docs` kernel verb says how to call it. A reflect carries the agent’s `can_call` and `callable_by`, so an agent can read what it may call without trial and error. The README’s first example is one reflect of the root:
+Every interaction is one batch send: a list of items, each `{target, payload}`, answered in order with `{pid, status, result}`. The payload’s `type` is the verb.
 
 send:
 
@@ -169,201 +150,56 @@ send:
 [{"target": "kernel", "payload": {"type": "reflect", "readme": true}}]
 ```
 
-It returns the live tree and the kernel’s manual index. With `bundles: "all"` it also lists every kind of agent you can create, which is enough for a person or a model to take it from there.
+Who may call whom is decided by the **call gate**. It is deny-all and two-sided: a call passes only when the caller’s `can_call` and the target’s `callable_by` both grant it.
 
-#### One tree
+*Animation: The call gate: both ends must grant* (https://aisixteen.com/fantastic/foundations/protocol/call-gate/gate.mp4). Agent a sends reflect to b. The send is refused at egress until a’s can_call names b, then at ingress until b’s callable_by names a. With both grants it passes, one way, for that verb only. Operator sends skip the gate.
 
-Every agent has exactly one parent. The root’s id is `kernel_state`, and the reserved address `kernel` reaches it too. Children keep their creation order. On disk each agent is an `agent.yaml` in its own folder, with its children in folders below it (under `agents/` by default), all inside `.fantastic/`. One kernel runs per folder: a second `fantastic` started there attaches to the running one.
+What the protocol promises is written down once, as data. The `contract/` folder holds cases that every runtime replays with its own runner, “instead of being written four times in four languages and drifting.”
 
-The tree does not route messages. The kernel keeps one flat map of agents and looks the target id up directly. The tree is about **ownership**: what a delete takes with it, what the `$parent` and `$subtree` grants mean, how records lie on disk, and what `reflect` shows.
+Sources: THESIS.md (https://github.com/aisixteen/fantastic/blob/main/THESIS.md#L5); README.md: agents and send (https://github.com/aisixteen/fantastic/blob/main/README.md#L15); README.md: the protocol is the API (https://github.com/aisixteen/fantastic/blob/main/README.md#L22); README.md: one batch send (https://github.com/aisixteen/fantastic/blob/main/README.md#L27); README.md: the call gate (https://github.com/aisixteen/fantastic/blob/main/README.md#L45); contract/README.md (https://github.com/aisixteen/fantastic/blob/main/contract/README.md#L3)
 
-#### Composition verbs
+### Foundations › Kernel
 
-Fourteen verbs belong to the kernel, and only the root answers them: `create_agent`, `update_agent`, `delete_agent`, `list_agents`, `ps`, `cancel`, `ledger`, `ack_deadletter`, `await_set`, `await_cancel`, `kernel_start`, `shutdown_agents`, `kernel_stop` and `docs`. The agent you name is the operand, not the actor, so a kernel verb sent to any other agent is refused with `not_here` and the fix.
+URL: https://aisixteen.com/fantastic/foundations/kernel/
 
-- `create_agent` needs `handler_module` and `parent_id`. There is no default parent: “placement is always stated, never inferred from who sent the call.” The reply is the new record, and the child boots right away.
-- `update_agent` replaces every field you name and leaves the rest alone. A map such as `can_call` is replaced whole: “Granting one edge reads like a PATCH and behaves like a PUT.” `handler_module` cannot change.
-- `delete_agent` deletes the agent and its whole subtree, deepest first. `keep_memory: true` keeps the subtree’s rows in the memory store.
-- `list_agents` returns every record, flat, root first, paged.
+The thesis names a “mediator that handles the communication exchange.” The kernel is that mediator: it holds the agents, routes every send between them and keeps track of the work in flight.
 
-create a child of the root:
+#### What the kernel holds
 
-```
-[{"target": "kernel", "payload": {"type": "create_agent",
-  "handler_module": "ram_store.tools", "parent_id": "kernel", "id": "memory"}}]
-```
+Agents form a recursive tree. Each one runs a **bundle** (a handler module) and keeps its state in its own record. The tree is persisted on disk under `.fantastic/`.
 
-*Animation: delete_agent: the whole subtree* (https://aisixteen.com/fantastic/foundations/kernel/delete.mp4). delete_agent on team is refused because reviewer carries delete_lock. After update_agent clears it, the delete cascades deepest first, each agent running its on_delete hook, and the deleted ids are pruned from x’s can_call.
+A set of verbs belongs to the kernel itself and only the root answers them, such as `create_agent`, `update_agent`, `delete_agent`, `ps` and `cancel`. The agent you name is the operand, not the actor: sending one of these verbs to any other agent gets a `not_here` refusal that names the fix.
 
-A delete runs per node: children first, then the bundle’s `on_delete` hook, then the agent leaves the tree. A raising hook is logged and the cascade goes on. If any agent in the subtree carries `delete_lock`, the whole delete is refused with `reason: "locked"` and `blocked_by` naming it; clear the lock with `update_agent` first. The root cannot be deleted. After a cascade, every deleted id is pruned from every other agent’s `can_call` and `callable_by`, so an agent created later under the same id inherits no stale edge.
+Every item of a send is a kernel task. The task table works like Unix: `ps` lists what is in flight and `cancel` stops it.
 
-#### One verb: send
+*Animation: One send, a batch of calls* (https://aisixteen.com/fantastic/foundations/protocol/messages/batch.mp4). A model turn sends three items in one batch. The kernel registers all three as tasks in ps before any reply; they run concurrently and finish in any order, and the reply array keeps the input order: one {pid, status, result} per item.
 
-Every interaction is one **batch** send: a list of items, each `{target, payload}`, answered in order with `{pid, status, result}`. There is deliberately no single-call form. The code says why: a model reply that fans out to N calls would otherwise get its answers spread over the next N replies. In the README’s words, “One turn of 500 calls runs as one kernel batch on every runtime.”
+There are two host kernels, Rust and Python. The Rust kernel’s files describe themselves as rule-for-rule ports of the Python kernel, “which is canonical.” The main difference is how bundles load: Rust crates implement a `Bundle` trait, Python finds handler modules through entry points.
 
-two calls, one send:
+Sources: THESIS.md (https://github.com/aisixteen/fantastic/blob/main/THESIS.md#L5); README.md: agents and send (https://github.com/aisixteen/fantastic/blob/main/README.md#L42); README.md: kernel services (https://github.com/aisixteen/fantastic/blob/main/README.md#L62); system-verbs.md (the kernel verbs) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-core/src/docs/system-verbs.md#L5); rows.rs: a port of the Python kernel (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/rows.rs#L4); bundle.rs: the Bundle trait (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/bundle.rs#L50); _bundles.py: entry points (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_bundles.py#L1)
 
-```
-[{"target": "kernel", "payload": {"type": "list_agents"}},
- {"target": "kernel", "payload": {"type": "ps"}}]
-```
+### Foundations › Agents
 
-The whole batch is registered as tasks, visible in `ps`, before the first reply is awaited. The items then run concurrently, and the result array keeps the input order.
+URL: https://aisixteen.com/fantastic/foundations/agents/
 
-*Animation: One send, a batch of calls* (https://aisixteen.com/fantastic/foundations/kernel/batch.mp4). A model turn sends three items in one batch. The kernel registers all three as tasks in ps before any reply; they run concurrently and finish in any order, and the reply array keeps the input order: one {pid, status, result} per item.
+Everything in Fantastic is an agent, so what it can do is the set of agents it ships. Each is a bundle that answers its own verbs behind the same call gate.
 
-An item can also carry an `id` (it names the execution, more on that below), a `timeout` in seconds and a `retries` budget. The kernel never defaults the timeout: absent means wait forever. When a timeout expires, the item is killed through the same path as `cancel`, so cleanup hooks run.
+#### What ships
 
-#### Five statuses
+- **AI agents** over vLLM, Ollama, the OpenAI Responses API and Anthropic’s Messages API, plus Apple’s on-device model on macOS. Tool calling is the kernel’s own prompt-taught `<call>` grammar, not a provider tool API, so any capable model drives the same verbs.
+- **Memory**: every message lives in a memory store agent. AI agents fold, recall and page their own history.
+- **IO legs**: `file_bridge` for files, edits, streams and watches; `exec_bridge` for allow-listed commands and terminals; `web_ws` and `web_rest` for the browser and HTTP; `ws_bridge` from one kernel to another; `mcp_client` for a remote MCP server’s tools as verbs.
+- **Kernel services**: a scheduler, and credentials by reference, with keys bound to one host.
 
-The code calls these strings the contract:
+The AI agent keeps a long conversation in a finite window by folding it: a finished stretch of work becomes one appended row that names what it hides.
 
-| status | meaning |
-|---|---|
-| `completed` | the handler ran and returned a reply, passed through verbatim |
-| `errored` | the handler ran and returned a map with a truthy `error` |
-| `failed` | refused before dispatch (gate, unknown agent, malformed item), or the handler panicked or raised: `{"error": ..., "raised": true}` |
-| `cancelled` | killed by `cancel`; the result is `{"cancelled": true}` |
-| `timed_out` | the item’s own deadline expired |
+*Animation: A fold is a new row* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/fold.mp4). context_fold over rows 3 to 8 appends one fold row (13) to the store, with refs to its members; nothing is deleted. In the view the fold sits at its anchor, row 3, in place of its members, and everything before the range keeps its exact bytes.
 
-Nothing propagates out of `send`: a panic settles as `failed`, a cancel as `cancelled`, and the caller always gets an answer. Only `failed` and `timed_out` are retried, and only within the `retries` the caller declared. `cancelled` is never retried; in the code’s words, “an operator kill is an absorbing decision.”
+Sources: README.md: what’s in the box (https://github.com/aisixteen/fantastic/blob/main/README.md#L48); README.md: memory (https://github.com/aisixteen/fantastic/blob/main/README.md#L47); ai_core (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core)
 
-#### send, emit, and the word “call”
+### Foundations › Agents › AI agent › Context folding
 
-There is no verb named `call`. `send` is the one request/reply primitive. `emit` is fire-and-forget: one event onto a target’s inbox and its watchers, no reply. `watch` mirrors an agent’s inbound traffic into a watcher’s inbox. Both are gated like a send. “Call” in the docs means the **call gate** below, and the **call row** the ledger writes for every send.
-
-The reserved target `kernel` names the root, and `<guid>|<agent id>` addresses an agent on a connected kernel.
-
-#### The call gate
-
-Security is one rule, applied to every send an agent makes, for any verb, `reflect` and the kernel verbs included. **Egress:** the sender’s `can_call` must grant (target, verb). **Ingress:** the target’s `callable_by` must grant (sender, verb). An edge exists only if both ends grant it. The gate never looks at what the verb is.
-
-*Animation: The call gate: both ends must grant* (https://aisixteen.com/fantastic/foundations/kernel/gate.mp4). Agent a sends reflect to b. The send is refused at egress until a’s can_call names b, then at ingress until b’s callable_by names a. With both grants it passes, one way, for that verb only. Operator sends skip the gate.
-
-A grant map has keys and values. A value is `"*"` (every verb) or a list of verbs. A key is a literal agent id; `$self`; `$parent`; `$subtree` (every agent below the holder, at any depth); or, in `can_call` only, `<guid>|<agent>` or `<guid>|*` for a connected kernel. Tokens resolve relative to the agent holding the grant. An absent or empty grant denies, and the baseline merged into every agent, on both fields, is `{"$self": "*"}` and nothing else.
-
-a may send reflect to b (one way):
-
-```
-a.can_call     {"$self": "*", "b": ["reflect"]}
-b.callable_by  {"$self": "*", "a": ["reflect"]}
-```
-
-A refusal says which half failed. Egress is checked first, so a call with neither half granted reports egress:
-
-the two refusals:
-
-```
-{"error": "a may not call 'reflect' on b", "reason": "unauthorized", "side": "egress", "hint": "grants come from above ..."}
-{"error": "b does not accept 'reflect' from a", "reason": "unauthorized", "side": "ingress", "hint": "..."}
-```
-
-The hint says where grants come from: “grants come from above — an ancestor (update_agent on an agent in its subtree) or the operator writes can_call and callable_by; an agent never raises its own.” Holding `update_agent` on the root is itself such a grant, and an agent without it is refused.
-
-**Operator sends** skip the gate: the CLI, a cold bootstrap, a test driver, a transport handing in an inbound frame, and the kernel’s own bookkeeping. Identity comes only from dispatch, so the sends a handler makes, and the tasks it spawns, are that agent’s.
-
-The same gate covers the edges around it. `watch` is gated, because a mirror of a target’s traffic is a read of it. Joining someone else’s named execution is gated, because you receive its recorded outcome. Grant maps are checked when they are written, so a malformed grant is refused with `invalid_meta` instead of failing quietly later. The e2e probe for the gate runs against both the Python and the Rust host.
-
-#### Work in flight: ps and cancel
-
-An agent is a node; a **task** is one in-flight dispatch. Tasks form a tree: a `send` issued inside a handler is a child of that handler’s task, “like a process spawned by init.” `ps` lists them kernel-wide, one row per dispatch, `ps`’s own row included:
-
-ps (shape):
-
-```
-{"tasks": [{"id": 42, "agent": "planner", "parent": 41, "verb": "run", "started_at": ...}], "next": ...}
-```
-
-Task ids are plain integers from the kernel’s one id counter, the same number an outcome carries as `pid`. `cancel {task_id}` kills that task and its whole subtree, “like a process group,” and answers `{"cancelled": true, "killed": [...]}`. An unknown or finished id answers `{"cancelled": false, "killed": []}`. The caller blocked on the cancelled send gets status `cancelled`; nothing raises.
-
-*Animation: cancel: a task and its subtree* (https://aisixteen.com/fantastic/foundations/kernel/cancel.mp4). cancel on task 42 first runs every on_cancel hook in its subtree while the tasks are alive (a child process is SIGKILLed, a generation is closed), then aborts the tasks leaves first. The sibling and the parent keep running; the waiting send settles as cancelled.
-
-Cancel runs in two phases. First, every `on_cancel` hook in the subtree is awaited while all the tasks are still alive; that is where real resources go (an `exec_bridge` job’s child process is SIGKILLed, an AI backend’s in-flight generation is closed out with a `done` event). Then the tasks abort, leaves first. A task being cancelled starts no new work, and the kernel’s own service tasks refuse `cancel`.
-
-These are ordinary verbs behind the gate, so an agent with the grant can read `ps` and cancel another agent’s runaway work.
-
-#### Executions, the ledger and dead letters
-
-Every call is an **execution**: a `call` row when it is dispatched and a `settle` row with its outcome when it ends. The rows are held in RAM and flushed, debounced, into the kernel’s memory store, the agent the root names in `memory_store_id`. A settled, flushed execution leaves RAM.
-
-#### Named calls run once
-
-An item with a string `id` is a **named** execution with “ensure” semantics. A new name dispatches and records. A name in flight is joined: no second run, “once-only under concurrency.” A settled name returns the recorded outcome and the handler never runs. Because the store is read before dispatch, this holds across a flush and across a restart. An integer `id` joins an existing execution by its number and never creates one.
-
-A settle row keeps a named call’s whole result (that is the dedup contract), a dead letter’s error text, and for everything else only `{status, bytes}`: “a reply body is its caller’s, never the kernel’s record.” Call rows hold their payload in clear, so values that must not be recorded belong in a credential store, named by reference, or in payload fields the sender marks `secret`, which records and events show as `[secret]`.
-
-#### Dead letters
-
-An execution that settles `failed`, `timed_out` or `cancelled` is a **dead letter** (`errored` is not: the handler ran and answered). The originating caller gets an `on_deadletter` event on its own inbox, the root gets it for an operator send, and nothing retries it silently.
-
-the event (shape):
-
-```
-{"type": "on_deadletter", "id": 57, "target": "fetcher", "caller": "lead", "status": "failed", "attempts": 1}
-```
-
-`ledger` lists executions, `{id, target, status, attempts, retries, named, outcome?, acked?}`, scoped to the caller: an agent sees only what it originated, the operator sees all. “Unscoped this would be a side-channel around callable_by.” `ack_deadletter {id}` acknowledges a dead letter you originated and writes an `ack` row; an acknowledged dead letter may be pruned, an unacknowledged one is kept. There is no re-send verb: inspect it, send again under a new id if you choose, then ack.
-
-*Animation: Every call is an execution* (https://aisixteen.com/fantastic/foundations/kernel/ledger.mp4). A named call writes a call row and a settle row, flushed into the memory store. A failed call is a dead letter with an on_deadletter event for its caller. After a restart, re-sending the named call returns the recorded outcome without running the handler; ack_deadletter retires the dead letter.
-
-#### One counter names everything
-
-A call, a task, a settle row, a wait and a conversation row all take their id from one allocator, “so one number names one thing everywhere (`ps`, `cancel`, a reply tag, a store row).” It is a 64-bit counter starting at 1, reserved in blocks of 1000 and persisted as `next_id` in the root record, so a crash can skip ids but never reuse them. A string from outside is always a name; it never becomes a pid.
-
-#### Waiting on many: await_set
-
-A lead waiting on several workers would otherwise wake on every report and re-send its whole context each time. `await_set {ids, timeout_s?, label?}` answers at once with a `wait_id`. Each named agent then sends the lead a plain `{"type": "report", "state": ..., "result": ...}`; until the set completes, the report is held and the reporter is told `{"held": true, "wait_id": ...}`.
-
-When everyone has reported, or `timeout_s` passes, the lead gets **one** message: `{type: "send", text, wait_id, label, done: [{id, state, result}], missing, timed_out}`, with `done` in the order of `ids` and `text` the same body as compact JSON for a model to read. `await_cancel` drops a wait and delivers the held reports one by one. A wait is rows in the memory store, so it is rebuilt when the kernel starts.
-
-#### Start, stop and restart
-
-`kernel_start` refuses to start unless the root names a memory store, with no built-in default (fail loud). Its hint is the fix:
-
-the hint, verbatim:
-
-```
-create_agent parent_id=<root> handler_module=ram_store.tools id=memory
-update_agent id=<root> memory_store_id=memory
-```
-
-1. Boot the root (it mints the kernel’s `guid`), then the store, before anyone who might call it.
-2. Probe that the store serves the operator, and refuse now rather than on the first flush.
-3. Write the reserved `next_id` bound to the root record.
-4. Start the flusher, restore open `await_set` waits, boot every other agent in registration order, and complete waits that are already due.
-
-It answers `{started: true, store, booted: [ids]}`, and a second call is idempotent. `shutdown_agents` drains: new work is refused, sends from inside live work still pass, every agent that advertises `shutdown` gets it, in-flight work gets a bounded time to finish, and the rest is cancelled through the normal path so hooks run. It stops the agents, not the process. `kernel_stop` acknowledges first, then about 100 ms later stops the process gracefully: drain, every call settles, the last rows flush, the lock is released, exit 0.
-
-#### What survives a restart
-
-- The agent tree, from the `agent.yaml` files under `.fantastic/`; schedules and conversations too.
-- The kernel’s `guid` and its id counter.
-- Settled named executions and their recorded outcomes, dead letters and acks, and open `await_set` waits — when the kernel’s memory store is persistent. `sqlite_store` keeps “its ledger, dead letters, named-call dedup and every AI agent’s memory”; with `ram_store` those rows end with the process.
-
-Two honest limits. A call in flight when the process dies has no settle row, and per the code “re-sending runs it.” On a graceful stop the drain settles interrupted calls as `cancelled`, which makes them dead letters. Replaying an interrupted turn to where it stopped is not built.
-
-#### Rust and Python
-
-The Rust files describe themselves as rule-for-rule ports of the Python kernel, “which is canonical.” Everything above is implemented in both:
-
-|  | Rust | Python |
-|---|---|---|
-| the 14 kernel verbs | yes | yes, the same set |
-| batch `send`, five statuses, dead letters | yes | yes |
-| two-sided gate, baseline `{"$self": "*"}` | yes | yes, same refusals |
-| tasks, `ps`, `cancel`, integer ids | yes | yes |
-| one id counter in blocks of 1000 | yes | yes |
-| `await_set` | yes | yes (“twin”) |
-| how bundles load | crates linked in at compile time | entry points |
-| root `reflect` reports `runtime` | `"rust"` | `"python"` |
-
-The `fantastic` CLI is one static binary that runs the Rust kernel in-process. Both kernel hosts also run on their own from a source checkout: `uv run fantastic_kernel` for the Python reference kernel and `cargo run --bin fantastic_kernel` for the Rust one.
-
-Sources: README.md (https://github.com/aisixteen/fantastic/blob/main/README.md); THESIS.md (https://github.com/aisixteen/fantastic/blob/main/THESIS.md); system-verbs.md (the kernel verbs) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-core/src/docs/system-verbs.md); agents.md and reflect.md (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-core/src/docs); the Rust kernel crate (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src); the Python kernel (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel); the call-gate e2e probe (E114) (https://github.com/aisixteen/fantastic/blob/main/e2e/tests/kernel/E114_call_gate/probe.py)
-
-### 2. Context folding
-
-URL: https://aisixteen.com/fantastic/foundations/context-folding/
+URL: https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/
 
 A model reads a finite window, and an agent that works for hours outgrows it. Something has to give. Folding is Fantastic’s way of giving without losing anything: a finished stretch of work collapses into one row that names what it hides, and in the code’s words “the history becomes a tree of marks the model walks down as far as it needs.”
 
@@ -404,7 +240,7 @@ OPEN: none
 
 The `anchor` is the smallest ordinary row id the fold covers. Because row ids order rows in time, the view can place a fold at its anchor without loading the rows it hides. Rendering is deterministic, “so a view renders the same bytes until a new fold lands.” If the summarizer fails, the fold is still written, with its refs and the members’ titles, and says so on its header line: “Degraded, loud, never silent.”
 
-*Animation: A fold is a new row* (https://aisixteen.com/fantastic/foundations/context-folding/fold.mp4). context_fold over rows 3 to 8 appends one fold row (13) to the store, with refs to its members; nothing is deleted. In the view the fold sits at its anchor, row 3, in place of its members, and everything before the range keeps its exact bytes.
+*Animation: A fold is a new row* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/fold.mp4). context_fold over rows 3 to 8 appends one fold row (13) to the store, with refs to its members; nothing is deleted. In the view the fold sits at its anchor, row 3, in place of its members, and everything before the range keeps its exact bytes.
 
 #### Folding by hand: context_fold
 
@@ -421,7 +257,7 @@ context_fold {"from": 12, "to": 18, "summary": "printer fixed; queue cleared"}
 
 Folds nest. A fold’s level is one more than the highest level among the folds it contains: 1 for a fold of rows, 2 for a fold of folds, and so on. When three adjacent folds sit at the head of the view, they fold as a group. The constant is `FOLD_RUN = 3`, and its comment explains the choice: “THREE, not four ... depth grows as log3 of the history rather than one level per cut.”
 
-*Animation: Folds of folds* (https://aisixteen.com/fantastic/foundations/context-folding/levels.mp4). Finished chains at the head of the view fold into level-1 folds. Three adjacent folds at the head fold again into one level-2 fold, and so on, so depth grows like log3 of the history. history {fold} opens any fold one level down.
+*Animation: Folds of folds* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/levels.mp4). Finished chains at the head of the view fold into level-1 folds. Three adjacent folds at the head fold again into one level-2 fold, and so on, so depth grows like log3 of the history. history {fold} opens any fold one level down.
 
 The summary format is fixed. The model writes a one-sentence title, then five sections, “omitting none (write `none`)”: ASKED, DONE (and why), BINDING (rules and choices that still bind), ERRORS (quoted verbatim) and OPEN. When a fold contains earlier summaries, they are merged: “the newer statement wins, and unfinished work is carried forward.” The summary budget is 1024 tokens; a summary still over it after three re-summarizes fails the turn loudly.
 
@@ -462,7 +298,7 @@ Model servers cache the work done on a prompt’s prefix and compare it **byte f
 
 So Fantastic only appends. Rows are never edited, a fold is a new row placed at its anchor, the view is persisted, and `context_fold` keeps the rows before its range exactly as they were rendered. The Rust tests assert that “the messages before the fold are byte-identical,” and the E125 end-to-end probe checks the same across a kernel restart.
 
-*Animation: Why folds append, never edit* (https://aisixteen.com/fantastic/foundations/context-folding/cache.mp4). A prompt cache compares bytes from the start. Appending a row keeps the whole old prompt as a cached prefix; cutting rows from the front moves everything after the cut; a fold misses from its anchor on but keeps the rows before it, and because the fold row persists, the next turn appends after the same bytes again.
+*Animation: Why folds append, never edit* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/cache.mp4). A prompt cache compares bytes from the start. Appending a row keeps the whole old prompt as a cached prefix; cutting rows from the front moves everything after the cut; a fold misses from its anchor on but keeps the rows before it, and because the fold row persists, the next turn appends after the same bytes again.
 
 To be precise about the claim: a fold replaces its members, so the prompt does change from the fold on. What stays byte-identical is everything before the folded range, and after the fold lands, the next turns append after it again. Whether a provider actually hits its cache depends on the provider; the code only keeps the bytes stable and places markers.
 
@@ -480,7 +316,7 @@ The primer is pinned in every mode: “The primer and every row before it are pi
 
 After that the two are separate: “Later rows, folds and forgets on either side never reach the other.” A fork point must be clean, and a bad one is refused with a reason: `no_such_row`, `cuts_turn` (inside a turn, or one still owed a reply), `cuts_fold` (some of a fold’s members before `at`, some after), `parent_mid_turn`, or `store_refused`, which leaves no agent behind.
 
-*Animation: fork: a new agent on the same prefix* (https://aisixteen.com/fantastic/foundations/context-folding/fork.mp4). mark labels a turn boundary. fork at row 5 is refused with cuts_turn; fork at 6 starts a new agent with a copy of rows 1 to 6 under its own key, with the same ids, so its first prompt has the parent’s bytes. After that the two histories diverge.
+*Animation: fork: a new agent on the same prefix* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/fork.mp4). mark labels a turn boundary. fork at row 5 is refused with cuts_turn; fork at 6 starts a new agent with a copy of rows 1 to 6 under its own key, with the same ids, so its first prompt has the parent’s bytes. After that the two histories diverge.
 
 `mark {label, note?, version?}` records a turn boundary outside any fold, a point `fork` always accepts; an agent keeps its last 20 marks. `fork_points` lists them with `rows_after` and a `warm` flag, true while the agent’s last send is younger than 300 seconds, the code’s assumption of how long a provider keeps a prefix warm.
 
@@ -506,7 +342,7 @@ Nothing is deleted: `grep`, `recall` and `history {fold: <id>}` still reach ever
 
 `context_forget {include_cleared?}` is the verb that deletes. In one `prune` it removes every ordinary row covered by a fold whose place is known (rows of an open chain are spared) and all but the newest view row; with `include_cleared` it also removes every row before the last clear, which stays. It keeps every fold at every level, every row no fold covers, and the anchors a kept fold needs. It answers `{pruned, kept_folds, unanchored}`. The verb’s own promise: “The next prompt is the same before and after.” Afterwards, a pruned id is gone from `grep`, `recall` and `history`, while `history {fold}` still returns the fold’s title and summary.
 
-*Animation: clear starts over; forget deletes* (https://aisixteen.com/fantastic/foundations/context-folding/forget.mp4). context_clear appends one clear row and the view starts at its line; nothing is deleted and grep still finds old rows. context_forget then deletes the rows a fold covers, keeps every fold, and the next prompt is the same before and after.
+*Animation: clear starts over; forget deletes* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/forget.mp4). context_clear appends one clear row and the view starts at its line; nothing is deleted and grep still finds old rows. context_forget then deletes the rows a fold covers, keeps every fold, and the next prompt is the same before and after.
 
 `context_status` reports the posture: `{context_window, output_reserve, budget, strategy, last_projection, last_reaction}`, where the projection record lists the ids the model actually saw that turn, measured from the view rather than self-reported.
 
@@ -517,6 +353,46 @@ Both runtimes implement the fold, strip, truncate, compact and none strategies, 
 One difference is visible in `context_status`: Python builds a pinned-facts block in the prompt, while the Rust runtime has none and always reports `pinned_facts: 0`.
 
 Sources: ai_core (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core); fantastic-ai-core (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src); ram_store readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/memory/ram_store/src/ram_store/readme.md); sqlite_store readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/memory/sqlite_store/src/sqlite_store/readme.md); the context_fold e2e probe (E125) (https://github.com/aisixteen/fantastic/blob/main/e2e/tests/memory/E125_context_fold); README.md (https://github.com/aisixteen/fantastic/blob/main/README.md)
+
+### Foundations › Canvas: an app built on fantastic
+
+URL: https://aisixteen.com/fantastic/foundations/canvas/
+
+The canvas is an example of building on the kernel. `fantastic canvas` serves a page from the binary where you build, run and wire systems visually with an AI, and every part of it is an agent.
+
+#### A page that is a kernel
+
+The page is its own kernel in the browser, bridged to the host kernel through the `canvas_ws` leg. It holds no memory and no AI. Every cell is a **view** of a host agent, such as a terminal, an AI chat, a python agent or an MCP server, or page-side content (`html`, `gl`).
+
+*Animation: Every cell is a view of an agent* (https://aisixteen.com/fantastic/foundations/canvas/cells.mp4). The canvas page is its own kernel in the browser, bridged to the host kernel through canvas_ws. Each cell on the page is a view of a host agent: a terminal shows an exec_bridge job, a chat shows an AI agent. The page holds no memory and no AI.
+
+Double-clicking opens the selector, which lists everything that can be placed there. In the README’s words: “Nothing floats on the canvas; every surface is a cell.”
+
+Canvases are flat peers: `new_canvas {name}` makes one, and each shows only its own subtree. `user`, and every AI under a canvas, may call every host agent with every verb (granted on both sides); you narrow it with `update_agent`.
+
+Sources: README.md: the canvas (https://github.com/aisixteen/fantastic/blob/main/README.md#L305); canvas.md (https://github.com/aisixteen/fantastic/blob/main/src/tui/docs/canvas.md#L11)
+
+### Foundations › Build your own
+
+URL: https://aisixteen.com/fantastic/foundations/build/
+
+Fantastic grows by new kinds of agents. The rule to keep in mind is the one the bundles doc opens with: a **bundle** is code, an **agent** is an instance of it.
+
+#### A bundle and its agents
+
+|  | a bundle | an agent |
+|---|---|---|
+| what | code: `bundle.yaml` (its verbs), `agent.py`, `panel.html` (its view) | a record that names the bundle |
+| where | `.fantastic/bundles/<name>/` | `.fantastic/agents/…/<id>/agent.yaml` |
+| one of | per project | many per bundle |
+
+A new verb is a function passed to `fa.serve` and a line in `bundle.yaml` `verbs`; the two must match, or the kernel refuses the agent. Saving `agent.py` restarts every instance; editing `panel.html` re-renders every instance’s cell.
+
+*Animation: One bundle, many agents* (https://aisixteen.com/fantastic/foundations/build/bundle.mp4). A folder bundle holds bundle.yaml, agent.py and panel.html. Two agents are instances of it, each a record that names the bundle. Saving agent.py restarts both at once; each agent keeps its own record.
+
+Folder bundles are one way in. Below them, a Rust bundle is a crate implementing the kernel’s `Bundle` trait, linked into the binary at build time, and the Python kernel finds its bundles through entry points.
+
+Sources: README.md: folder bundles (https://github.com/aisixteen/fantastic/blob/main/README.md#L60); bundles.md (https://github.com/aisixteen/fantastic/blob/main/src/tui/docs/bundles.md#L3); the python agent starter (https://github.com/aisixteen/fantastic/blob/main/src/tui/starters/python_agent/agent.py#L1); bundle.rs: the Bundle trait (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/bundle.rs#L50)
 
 ## Apps
 

@@ -34,8 +34,12 @@ Full text of the site for LLMs: https://aisixteen.com/llms-full.txt
 
 ## Foundations (how Fantastic works)
 - [Foundations](https://aisixteen.com/fantastic/foundations/): Articles on how Aisixteen Fantastic works underneath, one mechanism each, with short animations; they follow the Rust and Python source on the main branch.
-- [1. Kernel: agents and messaging](https://aisixteen.com/fantastic/foundations/kernel/): Agents and the tree, the one verb `send` (a batch answered in order with `{pid, status, result}`), the two-sided call gate (`can_call` and `callable_by`), tasks with `ps` and `cancel`, the ledger and dead letters, and what survives a restart.
-- [2. Context folding](https://aisixteen.com/fantastic/foundations/context-folding/): Conversation rows in a memory store (`ram_store`, `sqlite_store`), folds as appended rows with refs, folds of folds, `context_fold`, `context_recall`, `context_clear`, `context_forget`, `fork` and `mark`, and why the prompt prefix stays byte-identical.
+- [1. Protocol](https://aisixteen.com/fantastic/foundations/protocol/): One message model for people, models and programs: every agent answers verbs, every interaction is one batch `send` answered in order with `{pid, status, result}`, and a deny-all, two-sided call gate (`can_call` and `callable_by`) decides who may call whom.
+- [2. Kernel](https://aisixteen.com/fantastic/foundations/kernel/): The runtime that holds agents as records in one tree, answers the kernel verbs (`create_agent`, `update_agent`, `delete_agent`, `ps`, `cancel`, …) and runs every send as a task; Rust and Python kernels.
+- [3. Agents](https://aisixteen.com/fantastic/foundations/agents/): The agents fantastic ships: AI agents over several model backends, memory stores, credentials, IO legs for files, commands, the web, other kernels and MCP, and kernel services.
+- [Context folding](https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/): Conversation rows in a memory store (`ram_store`, `sqlite_store`), folds as appended rows with refs, folds of folds, `context_fold`, `context_recall`, `context_clear`, `context_forget`, `fork` and `mark`, and why the prompt prefix stays byte-identical.
+- [4. Canvas: an app built on fantastic](https://aisixteen.com/fantastic/foundations/canvas/): The browser canvas as an application made of agents: a page kernel bridged to the host through `canvas_ws`, and cells that are views of host agents.
+- [5. Build your own](https://aisixteen.com/fantastic/foundations/build/): A bundle is code, an agent is a record that names it: folder bundles in `.fantastic/bundles/<name>/`, and every instance restarting at once when the bundle changes.
 
 ## Contact
 - Email: info@aisixteen.com

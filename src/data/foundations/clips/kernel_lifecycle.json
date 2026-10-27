@@ -1,0 +1,12 @@
+{
+  "delete": {
+    "duration": 13.7,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 183371,
+      "webm": 198263,
+      "webp": 40188
+    }
+  }
+}

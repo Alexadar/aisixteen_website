@@ -1,7 +1,7 @@
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { Home, Landing, NotFound, FantasticPage } from './components.jsx'
-import { FoundationsIndex, FoundationsArticle, articleUrl, videoFiles } from './foundations.jsx'
+import { FoundationsIndex, FoundationsPage, FoundationsComing, BASE } from './foundations.jsx'
 import { SITE, appStoreUrl, faqsOf, claimOf } from './theme.js'
 
 const esc = (s) => String(s)
@@ -174,95 +174,133 @@ export function renderNotFound({ year }) {
 }
 
 /* ---------------- /fantastic/foundations/ ---------------- */
-// One TechArticle per article, with a BreadcrumbList and a VideoObject per Manim clip.
-// Every value mirrors text visible on the page.
+// Every published page is a TechArticle with a BreadcrumbList (the full tree path) and a
+// VideoObject per Manim clip, referenced from the article by @id. Every value mirrors text
+// visible on the page. Planned pages are noindex placeholders; old URLs get a redirect page.
 
-const FOUNDATIONS_URL = `${SITE.origin}/fantastic/foundations/`
+const ORIGIN = SITE.origin
+const FOUNDATIONS_URL = `${ORIGIN}${BASE}`
 const isoDuration = (s) => { const t = Math.round(s); return `PT${t >= 60 ? `${Math.floor(t / 60)}M` : ''}${t % 60}S` }
 const crumbs = (items) => ({
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: items.map(([name, item], i) => ({ '@type': 'ListItem', position: i + 1, name, item })),
 })
-const publisher = { '@type': 'Organization', name: SITE.name, url: SITE.origin, logo: { '@type': 'ImageObject', url: `${SITE.origin}/logo.png` } }
-const ogOf = (a) => `${SITE.origin}${articleUrl(a)}og.jpg`
-const clipsOf = (a) => a.sections.flatMap((s) => s.blocks).filter((b) => b.video).map((b) => b.video)
+const crumbPath = (n) => [['AISixteen', `${ORIGIN}/`], ['Fantastic', `${ORIGIN}/fantastic/`], ['Foundations', FOUNDATIONS_URL],
+  ...n.ancestors.map((a) => [a.title, `${ORIGIN}${a.url}`]), [n.title, `${ORIGIN}${n.url}`]]
+const publisher = { '@type': 'Organization', name: SITE.name, url: ORIGIN, logo: { '@type': 'ImageObject', url: `${ORIGIN}/logo.png` } }
+const videoId = (c) => `${ORIGIN}${c.files.mp4}#video`
 
-const videoId = (a, slug) => `${SITE.origin}${videoFiles(a, slug).mp4}#video`
-
-function videoLd(a, slug, meta, v, uploadDate) {
-  const f = videoFiles(a, slug)
+function videoLd(c, uploadDate) {
   return {
     '@context': 'https://schema.org',
     '@type': 'VideoObject',
-    '@id': videoId(a, slug),
-    name: v.title,
-    description: v.caption,
-    thumbnailUrl: `${SITE.origin}${f.poster}`,
-    contentUrl: `${SITE.origin}${f.mp4}`,
+    '@id': videoId(c),
+    name: c.title,
+    description: c.caption,
+    thumbnailUrl: `${ORIGIN}${c.files.poster}`,
+    contentUrl: `${ORIGIN}${c.files.mp4}`,
     uploadDate,
-    duration: isoDuration(meta.duration),
-    width: meta.width,
-    height: meta.height,
+    duration: isoDuration(c.meta.duration),
+    width: c.meta.width,
+    height: c.meta.height,
     isFamilyFriendly: true,
     inLanguage: 'en',
     publisher,
   }
 }
 
-export function renderFoundationsIndex(f, { year, meta, videos, modified }) {
+export function renderFoundationsIndex(F, { year, modified }) {
   const collection = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: f.headline,
-    description: f.description,
+    name: F.hub.headline,
+    description: F.hub.description,
     url: FOUNDATIONS_URL,
     inLanguage: 'en',
-    isPartOf: { '@type': 'WebSite', name: SITE.name, url: SITE.origin },
-    about: { '@type': 'SoftwareApplication', name: 'Aisixteen Fantastic', url: `${SITE.origin}/fantastic/` },
+    isPartOf: { '@type': 'WebSite', name: SITE.name, url: ORIGIN },
+    about: { '@type': 'SoftwareApplication', name: 'Aisixteen Fantastic', url: `${ORIGIN}/fantastic/` },
     dateModified: modified,
-    hasPart: f.articles.map((a) => ({ '@type': 'TechArticle', headline: a.headline, url: `${SITE.origin}${articleUrl(a)}` })),
+    hasPart: F.published.map((n) => ({ '@type': 'TechArticle', headline: n.article.headline, url: `${ORIGIN}${n.url}` })),
   }
   return doc({
     title: 'Foundations — how Aisixteen Fantastic works | AISixteen',
-    description: f.description,
+    description: F.hub.description,
     canonical: FOUNDATIONS_URL,
-    ogImage: ogOf(f.articles[0]),
-    jsonld: [ORG, collection, crumbs([['AISixteen', `${SITE.origin}/`], ['Fantastic', `${SITE.origin}/fantastic/`], ['Foundations', FOUNDATIONS_URL]])],
-    body: renderToStaticMarkup(<FoundationsIndex f={f} meta={meta} videos={videos} year={year} />),
+    ogImage: `${ORIGIN}${F.hub.og}`,
+    jsonld: [ORG, collection, crumbs([['AISixteen', `${ORIGIN}/`], ['Fantastic', `${ORIGIN}/fantastic/`], ['Foundations', FOUNDATIONS_URL]])],
+    body: renderToStaticMarkup(<FoundationsIndex F={F} year={year} />),
   })
 }
 
-export function renderFoundationsArticle(f, a, { year, meta, videos, modified }) {
-  const url = `${SITE.origin}${articleUrl(a)}`
-  const published = `${f.published}T00:00:00+00:00`
+export function renderFoundationsPage(F, n, { year, modified }) {
+  const a = n.article
+  const url = `${ORIGIN}${n.url}`
+  const published = `${F.hub.published}T00:00:00+00:00`
+  const parent = n.ancestors[n.ancestors.length - 1]
   const article = {
     '@context': 'https://schema.org',
     '@type': 'TechArticle',
     headline: a.headline,
-    name: a.title,
+    name: n.title,
     description: a.description,
     url,
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
-    image: ogOf(a),
-    datePublished: f.published,
+    image: `${ORIGIN}${n.og}`,
+    datePublished: F.hub.published,
     dateModified: modified,
-    author: { '@type': 'Organization', name: SITE.name, url: SITE.origin },
+    author: { '@type': 'Organization', name: SITE.name, url: ORIGIN },
     publisher,
     inLanguage: 'en',
-    isPartOf: { '@type': 'CollectionPage', name: f.headline, url: FOUNDATIONS_URL },
+    isPartOf: parent
+      ? { '@type': 'WebPage', name: parent.title, url: `${ORIGIN}${parent.url}` }
+      : { '@type': 'CollectionPage', name: F.hub.headline, url: FOUNDATIONS_URL },
     about: a.about.map((name) => ({ '@type': 'Thing', name })),
-    video: clipsOf(a).map((slug) => ({ '@id': videoId(a, slug) })),
+    video: n.clips.map((c) => ({ '@id': videoId(c) })),
   }
-  const clips = clipsOf(a).map((slug) => videoLd(a, slug, meta[slug], videos[slug], published))
+  const seen = new Set()
+  const clips = n.clips.filter((c) => !seen.has(c.key) && seen.add(c.key)).map((c) => videoLd(c, published))
   return doc({
-    title: `${a.title} — Foundations of Aisixteen Fantastic | AISixteen`,
+    title: `${n.title} — Foundations of Aisixteen Fantastic | AISixteen`,
     description: a.description,
     canonical: url,
-    ogImage: ogOf(a),
+    ogImage: `${ORIGIN}${n.og}`,
     ogType: 'article',
-    extraMeta: `\n<meta property="article:published_time" content="${f.published}">\n<meta property="article:modified_time" content="${modified}">\n<meta property="article:section" content="Foundations">`,
-    jsonld: [ORG, article, crumbs([['AISixteen', `${SITE.origin}/`], ['Fantastic', `${SITE.origin}/fantastic/`], ['Foundations', FOUNDATIONS_URL], [a.title, url]]), ...clips],
-    body: renderToStaticMarkup(<FoundationsArticle f={f} a={a} meta={meta} videos={videos} year={year} modified={modified} />),
+    extraMeta: `\n<meta property="article:published_time" content="${F.hub.published}">\n<meta property="article:modified_time" content="${modified}">\n<meta property="article:section" content="Foundations">`,
+    jsonld: [ORG, article, crumbs(crumbPath(n)), ...clips],
+    body: renderToStaticMarkup(<FoundationsPage F={F} n={n} year={year} modified={modified} />),
   })
+}
+
+export function renderFoundationsComing(F, n, { year }) {
+  return doc({
+    title: `${n.title} (coming) — Foundations of Aisixteen Fantastic | AISixteen`,
+    description: `${n.title}: a planned page of Foundations, the series on how Aisixteen Fantastic works. Not written yet.`,
+    canonical: `${ORIGIN}${n.url}`,
+    ogImage: `${ORIGIN}${n.pillar.og || F.hub.og}`,
+    robots: 'noindex, follow',
+    jsonld: [ORG, crumbs(crumbPath(n))],
+    body: renderToStaticMarkup(<FoundationsComing F={F} n={n} year={year} />),
+  })
+}
+
+// An old URL: a static redirect page (meta refresh, canonical to the new place, noindex).
+export function renderRedirect(to, title) {
+  const href = `${ORIGIN}${to}`
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moved: ${esc(title)} | AISixteen</title>
+<link rel="canonical" href="${href}">
+<meta name="robots" content="noindex, follow">
+<meta http-equiv="refresh" content="0; url=${to}">
+<style>body{margin:0;padding:40px 20px;background:#0b1020;color:#e6e9f2;font:16px/1.6 system-ui,sans-serif}a{color:#55d3ff}</style>
+</head>
+<body>
+<p>This page has moved to <a href="${to}">${esc(title)}</a>.</p>
+</body>
+</html>
+`
 }

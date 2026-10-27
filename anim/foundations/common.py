@@ -85,6 +85,13 @@ def connector(a, b, color=LINE, sw=2.2):
     return Line(a.get_bottom(), b.get_top(), color=color, stroke_width=sw)
 
 
+def panel(title, w, h, x, y=0.15):
+    """A titled panel: a card at (x, y) with a small mono title above its top-left corner."""
+    c = card(w, h).move_to([x, y, 0])
+    t = mono(title, size=17, color=DIM).next_to(c, UP, buff=0.14).align_to(c, LEFT).shift(RIGHT * 0.06)
+    return c, t
+
+
 class FScene(Scene):
     """A Foundations clip: eyebrow + title top left, one narration line at the bottom."""
 
