@@ -21,7 +21,7 @@ export default {
       blocks: [
         '`fantastic system` and `fantastic canvas system` name the **system recipe**. On start, it makes each of the six agents under `user`. If an agent already exists, it updates it instead and resets its view, its `callable_by` and its display name, so a new build’s view replaces the old one.',
         'Each agent gets an html view, which is a canvas cell, and `user` is granted the agent’s verbs. A view only sends to its own agent id.',
-        'The recipe is Linux only. Anywhere else it is refused with “`system` needs Linux with D-Bus: the system agents are fantastic OS’s”. For how a canvas shows a view, see [Views](/fantastic/foundations/canvas/views/).',
+        'The recipe is Linux only. Anywhere else it is refused with “`system` needs Linux with D-Bus: the system agents are fantastic OS’s”. For how a canvas shows a view, see [Views of agents](/fantastic/foundations/canvas/views/).',
         { table: { head: ['agent', 'handler', 'the machine side'], rows: [
           ['`power`', '`power.tools`', 'UPower and logind: battery, lid, power off, reboot, suspend, hibernate'],
           ['`network`', '`network.tools`', 'NetworkManager: devices, Wi-Fi access points, saved connections'],
@@ -39,7 +39,7 @@ export default {
         'Every agent is built in three layers. The **ViewModel** is pure: `reduce(event)` is its only mutation and returns **effects** as plain data, and `state()` is what a view draws. Time arrives as a number in an event, and nothing in the model touches the OS.',
         'The **driver** is one task per agent. It feeds events in, runs each effect through the **OS port**, and feeds the answers back. Only the Linux side of the port talks to the machine: D-Bus, `wpctl`, `wlr-randr`. On any other OS the port refuses.',
         'When a reduce changes the state, the driver emits `{"type": "state", "state": …}` to the agent’s watchers. It emits at most once per 100 ms, and always the latest state. A tick reaches each model every 5 seconds, so a model can re-read the machine or expire an item.',
-        'A verb’s reply is the state after its effects ran, or the first refusal. A change made elsewhere reaches the watchers too, because the port reports OS-side changes as events. For how watchers receive an emit, see [Records](/fantastic/foundations/kernel/records/) and [Messages](/fantastic/foundations/protocol/messages/).',
+        'A verb’s reply is the state after its effects ran, or the first refusal. A change made elsewhere reaches the watchers too, because the port reports OS-side changes as events. A canvas cell watches the agent over its socket leg and receives each emit as an `event` frame ([Web agents](/fantastic/foundations/agents/web/#ws)).',
         { video: 'layers' },
       ],
     },

@@ -70,7 +70,7 @@ export default {
         '`re` is the pid of the task the inquiry runs under, and it is the handle for the answer. `inquiries {asker?}` lists the open ones, oldest first, and the canvas shows each as a card in the asker’s chat.',
         '`answer_inquiry {re, answer}` takes words, a list of picks or true or false. `user` sends the asker a `send` on its own thread, then closes the inquiry. If the answer does not reach the asker, the inquiry stays open and the reply is `refused`.',
         { code: '[reply to 4655 · user inquiry]\n<answer>yes</answer>\n<request_id></request_id>', label: 'what the asker reads (illustrative pid)' },
-        'Open inquiries live in RAM only. A host restart forgets them, and the asker’s own history keeps the question.',
+        'Open inquiries live in RAM only. A host restart forgets them, and the asker’s own history keeps the question. The `mcp` leg holds its own inquiries, with `answer` and on its record, so they survive a restart ([Web MCP](/fantastic/foundations/canvas/web-mcp/#inquiries)).',
         { video: 'inquiry' },
       ],
     },

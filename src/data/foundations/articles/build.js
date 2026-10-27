@@ -5,7 +5,7 @@ import { src } from '../lib.js'
 export default {
   headline: 'Build your own agents on Aisixteen Fantastic',
   description: 'How to extend Aisixteen Fantastic: a bundle is code, an agent is a record that names it. Drop a folder bundle into .fantastic/bundles/ and it becomes a new kind of agent; edit it and every instance changes at once.',
-  summary: 'A bundle is code, an agent is an instance of it: folder bundles, program agents, views, and a product built on fantastic.',
+  summary: 'A bundle is code, an agent is an instance of it: writing a bundle in Python or Rust, a program agent from the starter, a view, and Team, a product built on fantastic.',
   cover: { clip: 'bundle' },
   about: ['Aisixteen Fantastic', 'Agent development', 'Plugins'],
   lead: [
@@ -21,9 +21,15 @@ export default {
           ['where', '`.fantastic/bundles/<name>/`', '`.fantastic/agents/…/<id>/agent.yaml`'],
           ['one of', 'per project', 'many per bundle'],
         ] } },
-        'A new verb is a function passed to `fa.serve` and a line in `bundle.yaml` `verbs`; the two must match, or the kernel refuses the agent. Saving `agent.py` restarts every instance; editing `panel.html` re-renders every instance’s cell.',
+        'A new verb is a function passed to `fa.serve` and a line in `bundle.yaml` `verbs`; the two must match, or the instance stops and says why. Saving `agent.py` restarts every instance; editing `panel.html` re-renders every instance’s cell.',
         { video: 'bundle' },
         'Folder bundles are one way in. Below them, a Rust bundle is a crate implementing the kernel’s `Bundle` trait, linked into the binary at build time, and the Python kernel finds its bundles through entry points.',
+        { list: [
+          '[A bundle](/fantastic/foundations/build/bundle/): the handler, verb docs, record checks and hooks, in Python or Rust.',
+          '[A program agent](/fantastic/foundations/build/program-agent/): the starter folder, a new verb, save to reload, copy to release.',
+          '[A view](/fantastic/foundations/build/view/): `panel.html`, the cell’s grant, and what the terminal UI shows instead.',
+          '[Example: Team](/fantastic/foundations/build/team/): a public product built on fantastic, with role cards, a project lead and a cadencer.',
+        ] },
       ],
     },
   ],

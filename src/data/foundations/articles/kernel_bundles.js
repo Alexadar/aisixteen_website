@@ -48,7 +48,7 @@ export default {
       title: 'Folder bundles: a new kind of agent without a rebuild',
       blocks: [
         'A **folder bundle** is a folder `bundles/<name>/` inside a kernel’s root (`.fantastic/`) that holds a `bundle.yaml`. It extends a bundled agent named by `base`. On main the one base a folder can extend is `py_agent`. The folder’s name becomes the `handler_module` of its instances.',
-        'Both runtimes load folder bundles, with the same rules. A folder bundle needs no entry point in Python and no new crate in Rust. The `py_agent` base it extends is itself a bundle: a registered crate in Rust (under `full`) and a bundled module in Python.',
+        'Both runtimes load folder bundles, with the same rules ([A program agent](/fantastic/foundations/build/program-agent/) builds one, and [A bundle](/fantastic/foundations/build/bundle/) covers a bundle written as code). A folder bundle needs no entry point in Python and no new crate in Rust. The `py_agent` base it extends is itself a bundle: a registered crate in Rust (under `full`) and a bundled module in Python.',
         { code: 'base: py_agent\nsentence: Keeps short notes.\ncommand: [python3, agent.py]\nverbs:\n  add: "args: text:str (req). Returns {id}."', label: 'bundles/notes/bundle.yaml (illustrative)' },
         'Folders are read at boot, before the agent tree loads, so an instance’s handler resolves. A folder that fails any check is listed in `reflect bundles=all` with an `error` and is never loaded. The checks are, in order:',
         { ol: [

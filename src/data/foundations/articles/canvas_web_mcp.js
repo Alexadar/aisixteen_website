@@ -17,7 +17,7 @@ export default {
       title: 'Two layers: the agent and the protocol',
       blocks: [
         'The leg lives in the `fantastic-web-mcp` crate, outside the kernel tree. It keeps two things apart on purpose. `WebMcpBundle` is the **agent**: it answers verbs sent to the leg. `McpCore` is the **protocol**: one JSON-RPC message in, one reply out. Every carrier calls `McpCore`, and no carrier knows what MCP means.',
-        'The only carrier on `main` is a stream of JSON lines, over stdio or over the kernel’s local socket. The code comments name an HTTP carrier as later, so this page describes none. `McpCore` answers `initialize`, `ping`, `tools/list` and `tools/call`, and answers any other method with the error “Method not found”. A notification gets no reply. Protocol version 2025-11-25.',
+        'The only carrier on `main` is a stream of JSON lines, over stdio or over the kernel’s local socket. There is no HTTP carrier on `main`. `McpCore` answers `initialize`, `ping`, `tools/list` and `tools/call`, and answers any other method with the error “Method not found”. A notification gets no reply. Protocol version 2025-11-25.',
         { h3: 'A tool call is the leg’s task' },
         'A carrier runs outside every dispatch, so anything it sent itself would count as the operator’s. `McpCore` avoids that. It starts a kernel task owned by the leg, and the task sends the leg an `inbound_send` verb with the batch. The leg then sends each item onward as itself, so the leg’s own grants decide every call, as in [Call gate and grants](/fantastic/foundations/protocol/call-gate/).',
         { video: 'two_layers' },
@@ -54,7 +54,7 @@ export default {
         'Some decisions belong to the human who drives the kernel through the leg. An agent sends the leg `inquiry {text, kind?, options?, request_id?, reply_client_id?}`. The `kind` is `text`, `single`, `multi` or `confirm`, and `single` and `multi` need `options`. The leg accepts at once with `{accepted, re, request_id, open}` and holds the question. `re` is the pid the inquiry runs under, and it is the handle for the answer.',
         'The person lists the open ones with `inquiries`, oldest first, optionally for one `asker`. They answer with `answer {re, text}`, where `text` is words, a list of picks or a boolean. The leg sends the asker a message shaped `[reply to <re> · <leg> inquiry]`, then closes the inquiry. If that send fails, the question stays open and `answer` returns `reason: "refused"`.',
         { video: 'inquiry' },
-        'The open list is durable. It lives on the leg’s own record as `open_inquiries`, written through the kernel’s ordinary update, so an unanswered question is still there after a restart.',
+        'The open list is durable. It lives on the leg’s own record as `open_inquiries`, written through the kernel’s ordinary update, so an unanswered question is still there after a restart. The canvas’s `user` agent holds inquiries the same way with different verbs and in RAM only ([User](/fantastic/foundations/canvas/user/#inquiries)).',
       ],
     },
     {

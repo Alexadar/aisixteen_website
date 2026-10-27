@@ -60,7 +60,7 @@ export default {
       title: 'Copy the folder for a release',
       blocks: [
         'A save changes every instance of the bundle, because the code lives in the bundle and an instance is only a record that names it. To change one agent without touching the others, fork first.',
-        'Copy the folder to a new name, for example `.fantastic/bundles/web_search`. The new name is a new handler. Its instances are not touched by edits to the original, and the original’s are not touched by edits to the copy. Every bundle in the folder appears as a tile in the double-click popup, and each pick places one more instance, `<name>_<n>`. An agent can do the same with `spawn {instance_of: <name>}`.',
+        'Copy the folder to a new name, for example `.fantastic/bundles/web_search`. The new name is a new handler. Its instances are not touched by edits to the original, and the original’s are not touched by edits to the copy. Every bundle in the folder appears as a tile in the double-click popup, and each pick places one more instance, `<name>_<n>`. An agent can do the same with `spawn {instance_of: <name>}`, sent to the canvas’s host agent `canvas_root`.',
         'To update the release from the working folder later, copy the working files over the release folder. Every instance of the release then restarts with the new code.',
       ],
     },

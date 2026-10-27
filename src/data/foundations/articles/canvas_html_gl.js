@@ -20,8 +20,8 @@ export default {
       title: 'An html agent holds a body',
       blocks: [
         'The handler module is `html_agent.ts`. The body is a string in the agent’s `meta.html`. `get_html` returns `{id, html}`, and `set_html` replaces the body. A cell answers `get_html` and `set_html` (`render_html` is a second name for `get_html`), plus the three `panel_*` relay verbs the panel’s own calls use; any other verb is refused with `unhandled` and a hint that placing, moving and wiring cells are the view’s verbs.',
-        'A view creates the cell with `place {kind: "html", …}` and changes it with `update {id, bytes}`; the view itself is on [Views of agents](/fantastic/foundations/canvas/views/). `set_html` takes the markup as `bytes`, verbatim. After it stores the body, the agent emits `{"type": "reload_html"}` on itself, and the cell’s panel draws the new body in place.',
-        'A **page bundle** is a folder under the canvas’s `bundles/` whose `bundle.yaml` has `base: html_agent`, a `sentence` and an `html:` body. Every instance starts with that body until it gets its own from `set_html`. This is the page kind of folder bundle on [Bundles](/fantastic/foundations/kernel/bundles/#folder-bundles).',
+        'A view creates the cell with `place {kind: "html", …}` and changes it with `update {id, bytes}`; those verbs belong to the canvas view, covered in [Canvas](/fantastic/foundations/canvas/canvas/). `set_html` takes the markup as `bytes`, verbatim. After it stores the body, the agent emits `{"type": "reload_html"}` on itself, and the cell’s panel draws the new body in place.',
+        'A **page bundle** is a folder under the canvas’s `bundles/` whose `bundle.yaml` has `base: html_agent`, a `sentence` and an `html:` body. Every instance starts with that body until it gets its own from `set_html`. The page kernel loads these. They are not the host’s [folder bundles](/fantastic/foundations/kernel/bundles/#folder-bundles), which extend only `py_agent`.',
         { video: 'html_set' },
       ],
     },

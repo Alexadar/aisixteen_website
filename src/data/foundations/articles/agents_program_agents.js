@@ -13,7 +13,7 @@ export default {
   about: ['Aisixteen Fantastic', 'Agents', 'Inter-process communication'],
   lead: [
     'A **program agent** is an ordinary agent whose handler is a process. The kernel starts the process, forwards each verb to it as a message, and returns what it answers. To a caller it is an agent like any other; nothing in the call tells the two apart.',
-    'The base that does this is `py_agent`. How a folder with a `bundle.yaml` becomes a bundle is on [Bundles](/fantastic/foundations/kernel/bundles/#folder-bundles). This page is about the running program: what it sees, what it can do, and how it ends.',
+    'The base that does this is `py_agent`. How a folder with a `bundle.yaml` becomes a bundle is on [Bundles](/fantastic/foundations/kernel/bundles/#folder-bundles). This page is about the running program: what it sees, what it can do, and how it ends. [A program agent](/fantastic/foundations/build/program-agent/) builds one from the starter.',
   ],
   sections: [
     {

@@ -11,7 +11,7 @@ export default {
   about: ['Aisixteen Fantastic', 'User interface', 'Agents'],
   lead: [
     'An agent is not tied to a screen. The canvas and the terminal UI each look at an agent’s record and decide what to draw for it. In the canvas the decision is a short, ordered list, and the agent’s own record has the first say.',
-    'This page covers how the app **chooses** a view. Writing one (`panel.html`, `view.calls`, `fantastic.send`) is in [A view](/fantastic/foundations/build/view/). The canvas itself, and where cells sit, is the [Canvas](/fantastic/foundations/canvas/) pillar.',
+    'This page covers how the app **chooses** a view. Writing one (`panel.html`, `view.calls`, `fantastic.send`) is in [A view](/fantastic/foundations/build/view/). Where cells sit, and the view’s own verbs, are in [Canvas](/fantastic/foundations/canvas/canvas/).',
   ],
   sections: [
     {

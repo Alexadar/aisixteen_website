@@ -9,7 +9,7 @@ export default {
   about: ['Aisixteen Fantastic', 'Model Context Protocol', 'Tool calling'],
   lead: [
     'An **MCP server** offers tools over HTTP. The `mcp_client` agent stands for exactly one such server. It lists the server’s tools at boot, and from then on each tool is a verb of the agent: `send {type: <tool>, …arguments}` runs that tool on the remote server.',
-    'This page follows one server through the agent: the record that names it, how its tools become verbs, what a call sends and gets back, and how the key and the protocol version are chosen. The opposite direction, where Fantastic is the MCP server, is covered in [Transports](/fantastic/foundations/protocol/transports/#mcp). How an AI agent uses verbs as tools is in [AI agent](/fantastic/foundations/agents/ai-agent/).',
+    'This page follows one server through the agent: the record that names it, how its tools become verbs, what a call sends and gets back, and how the key and the protocol version are chosen. The opposite direction, where Fantastic is the MCP server, is covered in [Transports](/fantastic/foundations/protocol/transports/#mcp) and [Web MCP](/fantastic/foundations/canvas/web-mcp/). How an AI agent uses verbs as tools is in [AI agent](/fantastic/foundations/agents/ai-agent/).',
   ],
   sections: [
     {

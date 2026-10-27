@@ -8,7 +8,7 @@ export default {
   about: ['Aisixteen Fantastic', 'Agent roles', 'Task registry'],
   lead: [
     'Two bundles let a lead agent grow a team and keep track of its work. `agentic_resources` holds **role cards** and creates agents from them with `spawn`, under limits. `task_registry` records which agent, or which subtree, holds each task.',
-    'Neither bundle is on by default. This page covers how to turn them on, what a card is, how `spawn` counts and caps agents, how a worker reports, and how tasks are added, assigned and reassigned. The Rust and Python runtimes implement the same verbs.',
+    'Neither bundle is on by default. This page covers how to turn them on, what a card is, how `spawn` counts and caps agents, how a worker reports, and how tasks are added, assigned and reassigned. The Rust and Python runtimes implement the same verbs. [Example: Team](/fantastic/foundations/build/team/) shows both in use in a product.',
   ],
   sections: [
     {

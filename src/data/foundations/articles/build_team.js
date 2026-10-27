@@ -125,7 +125,7 @@ export default {
     },
     plan: {
       title: 'The project lead grows a tree',
-      caption: 'The project lead proposes a plan of six agents in the chat (the project lead and five it will start). Over five agents, so it waits. The user replies yes. It spawns a sub-lead and workers through the registry, and records each issue in tasks with a holder: w1 holds o/r#12, and the sub-lead’s subtree holds the rest of its area.',
+      caption: 'The project lead proposes a plan of six agents in the chat (the project lead and five it will start). Over five agents, so it waits. The user replies yes. It spawns a sub-lead and workers through the registry, and records each issue in tasks with a holder: w1 holds o/r#12, and the sub-lead’s subtree holds the rest of its area. It then waits for sub-a and w1 with await_set, and deletes nothing.',
     },
     digest: {
       title: 'The cadencer sends one line per branch',

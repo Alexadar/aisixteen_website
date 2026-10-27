@@ -18,7 +18,7 @@ export default {
       title: 'The parts',
       blocks: [
         'One **manager** is a `cabinet.tools` agent with `cabinet_role: manager`. The operator makes it once. It names the canvas that spawns the cabinets in its `canvas_id` field, and the cabinets are its children.',
-        'Each cabinet is a record with `cabinet_role: cabinet`. It is the live status cell that the spawning canvas can show, and it owns one worker AI as its child. The cabinet also points at its own canvas, made by `new_canvas`. That canvas is a child of the spawning canvas, as described in [Canvas](/fantastic/foundations/canvas/canvas/).',
+        'Each cabinet is a record with `cabinet_role: cabinet`. It is the live status cell that the spawning canvas can show, and it owns one worker AI as its child. The cabinet also points at its own canvas, made by `new_canvas`. That canvas is a child of the spawning canvas, as described in the [Canvas](/fantastic/foundations/canvas/) overview.',
         'Deleting a canvas deletes the canvases it spawned. This is what lets a cabinet take its canvas with it when it closes.',
         { list: [
           'manager verbs: `open_cabinet`, `close_cabinet`, `cabinets`, `conclude`, `reflect`',

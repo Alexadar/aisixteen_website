@@ -81,7 +81,7 @@ export default {
           'Stock backgrounds are Isoline, Glyph, Copper and Moire. `delete` hides a stock one and `restore_stock` brings all back.',
           '`add {name, note?, bytes}` adds your own as a full GL source. `add {name, note?, body, sets?}` writes only a body on the stock prelude. Either must compile.',
           '`set {name, set?}` applies one, `random` picks one, `none` clears, and `default` restores Isoline in its Ember colour set.',
-          '`rotate {on, every_s?}` picks a random one every `every_s` seconds. The default is 60, and values under 5 fall back to it.',
+          '`rotate {on, every_s?}` picks a random one every `every_s` seconds. The default is 60, and a value under 5 keeps the current interval.',
         ] },
         'Its record keeps `user_bgs`, `hidden_stock`, `current` and `rotate`, so the choice survives a reload. The agent is granted `set_bg`, `clear_bg`, `default_bg` and `get_bg` on the background at both ends, as the [call gate](/fantastic/foundations/protocol/call-gate/) requires.',
         { video: 'background' },

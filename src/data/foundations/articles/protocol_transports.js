@@ -69,7 +69,7 @@ export default {
       title: 'MCP: both directions',
       blocks: [
         'The Rust program `fantastic mcp` is an MCP server over stdio, protocol 2025-11-25, with two tools: `reflect` and `send`. The `send` tool takes `{items: [{target, payload, timeout?}]}` and returns `[{pid, status, result}]`, the same batch as in process. If a kernel already runs in the directory, `fantastic mcp` attaches to it over `.fantastic/cli/mcp.sock`; otherwise it runs the kernel itself.',
-        'MCP is a leg too. A persisted agent named `mcp` receives each batch through `inbound_send` and sends it as itself. It starts with grants on every agent, and the human narrows them with `update_agent`. Each tool call is a kernel task that `ps` lists, and MCP’s `notifications/cancelled` cancels it.',
+        'MCP is a leg too. A persisted agent named `mcp` receives each batch through `inbound_send` and sends it as itself. It starts with grants on every agent, and the human narrows them with `update_agent`. Each tool call is a kernel task that `ps` lists, and MCP’s `notifications/cancelled` cancels it. [Web MCP](/fantastic/foundations/canvas/web-mcp/) goes one layer down: the leg, its config file and its inquiries.',
         'The other direction is the `mcp_client` agent, in Rust and Python. It connects to one remote MCP server and makes each of that server’s tools a verb of the agent, so `send {type: <tool>, …}` becomes a `tools/call`. [MCP client](/fantastic/foundations/agents/mcp-client/) covers that agent.',
       ],
     },
