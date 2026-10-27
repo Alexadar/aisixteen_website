@@ -5,7 +5,7 @@ import { src } from '../lib.js'
 export default {
   headline: 'The canvas: an application made of agents',
   description: 'The Aisixteen Fantastic canvas is an app built on the kernel: a page that is its own kernel in the browser, bridged to the host kernel, where every cell is a view of an agent. The articles in this part cover each piece.',
-  summary: 'The browser canvas as an application made of agents: a page kernel bridged to the host, cells that are views of agents, nested canvases and the grants between them.',
+  summary: 'The browser canvas as an application made of agents: a page kernel bridged to the host, cells that are views of agents, child canvases and the grants between them.',
   cover: { clip: 'cells' },
   about: ['Aisixteen Fantastic', 'Browser canvas', 'Agent user interface'],
   lead: [
@@ -19,13 +19,14 @@ export default {
         'The page is its own kernel in the browser, bridged to the host kernel through the `canvas_ws` leg. It holds no memory and no AI. Every cell is a **view** of a host agent, such as a terminal, an AI chat, a python agent or an MCP server, or page-side content (`html`, `gl`).',
         { video: 'cells' },
         'Double-clicking opens the selector, which lists everything that can be placed there. In the README’s words: “Nothing floats on the canvas; every surface is a cell.”',
-        'Canvases are flat peers: `new_canvas {name}` makes one, and each shows only its own subtree. `user`, and every AI under a canvas, may call every host agent with every verb (granted on both sides); you narrow it with `update_agent`.',
+        '`new_canvas {name}`, sent to a canvas, makes a **child** canvas under it, and deleting a canvas deletes the canvases it spawned. Each canvas shows only its own subtree and the agents under no canvas. `user`, and every AI under a canvas, may call every host agent with every verb (granted on both sides); you narrow it with `update_agent`.',
       ],
     },
   ],
   sources: [
     ['README.md: the canvas', src('README.md', 305)],
     ['canvas.md', src('src/tui/docs/canvas.md', 11)],
+    ['web.rs: the canvas tree, child canvases', src('src/tui/src/kern/web.rs', 1)],
   ],
   clips: {
     cells: {

@@ -3026,9 +3026,9 @@ The page is its own kernel in the browser, bridged to the host kernel through th
 
 Double-clicking opens the selector, which lists everything that can be placed there. In the README’s words: “Nothing floats on the canvas; every surface is a cell.”
 
-Canvases are flat peers: `new_canvas {name}` makes one, and each shows only its own subtree. `user`, and every AI under a canvas, may call every host agent with every verb (granted on both sides); you narrow it with `update_agent`.
+`new_canvas {name}`, sent to a canvas, makes a **child** canvas under it, and deleting a canvas deletes the canvases it spawned. Each canvas shows only its own subtree and the agents under no canvas. `user`, and every AI under a canvas, may call every host agent with every verb (granted on both sides); you narrow it with `update_agent`.
 
-Sources: README.md: the canvas (https://github.com/aisixteen/fantastic/blob/main/README.md#L305); canvas.md (https://github.com/aisixteen/fantastic/blob/main/src/tui/docs/canvas.md#L11)
+Sources: README.md: the canvas (https://github.com/aisixteen/fantastic/blob/main/README.md#L305); canvas.md (https://github.com/aisixteen/fantastic/blob/main/src/tui/docs/canvas.md#L11); web.rs: the canvas tree, child canvases (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/web.rs#L1)
 
 ### Foundations › Build your own
 
