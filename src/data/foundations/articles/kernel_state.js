@@ -62,7 +62,7 @@ export default {
           ['`sqlite_store`', 'yes', 'one SQLite file; the rows are read back'],
         ] } },
         'The same store holds the data that gives a restart its meaning: the ledger, dead letters, named-call dedup and every AI agent’s memory. A reply’s body is not stored, only a one-line `origin` that says what to re-read.',
-        'The ledger is trimmed once it passes `ledger_cap` (1,000,000 rows by default in Python), oldest settled executions first, unnamed before named. A dead letter that nobody has acknowledged is kept ([Ledger and dead letters](/fantastic/foundations/protocol/ledger/)).',
+        'The ledger is trimmed once it passes `ledger_cap` (1,000,000 rows by default in the Python kernel, and 100,000 in the `fantastic` CLI, which sets it at start), oldest settled executions first, unnamed before named. A dead letter that nobody has acknowledged is kept ([Ledger and dead letters](/fantastic/foundations/protocol/ledger/)).',
       ],
     },
     {
@@ -94,6 +94,8 @@ export default {
     ['persistence.rs: find_store_for and the record writer', src('src/lib/rust/crates/fantastic-kernel/src/persistence.rs', 163)],
     ['seed.rs: the CLI’s first-start seed and its store agent', src('src/tui/src/boot/seed.rs', 322)],
     ['blueprint.yaml: the seeded store and files agents', src('src/tui/blueprint.yaml', 79)],
+    ['_kernel.py: the Python default ledger_cap', src('src/lib/python/kernel/_kernel.py', 526)],
+    ['host.rs: LEDGER_CAP, the CLI’s ledger cap', src('src/tui/src/kern/host.rs', 41)],
     ['host.rs: volatile()', src('src/tui/src/kern/host.rs', 622)],
     ['sqlite_store readme', src('src/lib/python/bundled_agents/memory/sqlite_store/src/sqlite_store/readme.md')],
     ['ram_store readme', src('src/lib/python/bundled_agents/memory/ram_store/src/ram_store/readme.md')],

@@ -41,7 +41,7 @@ export default {
         '`spawn {role, task?, name?, limits?}` creates an agent from the card and makes it a child of the caller. An operator spawn has no caller, so the child sits under the registry. The new record carries `spawned_by`, the registry’s id, and `role`. These two fields are how the registry finds its agents later.',
         'The caller gets `pause`, `resume` and `stop` on the child. The grant is written on both ends: into the child’s `callable_by` and into the caller’s `can_call`. A lead therefore controls its own subtree without anyone writing grants by hand.',
         'A `task` that is a string is sent to the child as its first message. The registry sends it detached, so `spawn` answers at once and does not wait for the child’s turn. Any other `task` is `bad_arg`. The reply is `{id, role, tier}`.',
-        'The card’s grants on tools are written on both ends of each edge, and a spawn never hands out more than the spawner holds. [Call gate and grants](/fantastic/foundations/protocol/call-gate/#spawn) covers that check, `not_allowed` and `grant_failed`. [Forking and marks](/fantastic/foundations/agents/ai-agent/forking/) covers `spawn` with `from`, which branches the new agent off an existing one.',
+        'The card’s grants on tools are written on both ends of each edge: the child’s own `can_call` and the tool’s `callable_by`. A spawn never hands out more than the spawner holds. [Call gate and grants](/fantastic/foundations/protocol/call-gate/#spawn) covers that check, `not_allowed` and `grant_failed`. [Forking and marks](/fantastic/foundations/agents/ai-agent/forking/) covers `spawn` with `from`, which branches the new agent off an existing one.',
       ],
     },
     {
@@ -81,7 +81,7 @@ export default {
       blocks: [
         '`task_registry` keeps the **task tree** of a team: which agent, or which subtree, holds each task, and where the task came from. It makes no outbound call. `source` and `update_to` are opaque strings such as `gh:owner/repo#12`. An agent reads them to see where a task came from and pushes updates itself, through that source’s own agent. Nothing is synced automatically.',
         'This is not the kernel’s task table. The registry’s tasks are records of work. [Tasks and waiting](/fantastic/foundations/kernel/tasks/) covers `ps`, `cancel` and `await_set`, which track running jobs in the kernel. The registry holds the task tree.',
-        'An entry has `id`, `parent`, `source`, `update_to`, `holder`, `history`, `status`, `report`, `versions`, `source_version`, `fork_from` and `usage`. `parent` is another task id or `null`. `status` is one of the six states, and defaults to `waiting`.',
+        'An entry has `id`, `parent`, `source`, `update_to`, `holder`, `history`, `status`, `report`, `versions`, `source_version`, `fork_from` and `usage`. `versions` is a list of `{repo, branch, commit}`, one per repo the task touches; `fork_from` is `{agent, mark}`; `usage` is the token counts of the task’s last `report`. All are opaque facts that nothing checks. `parent` is another task id or `null`. `status` is one of the six states, and defaults to `waiting`.',
         'The `holder` is an agent id, `{subtree: <root agent id>}`, or `null`. It must name an existing agent.',
         { list: [
           '`add {id, source, parent?, update_to?, holder?, status?}` creates a task. A taken id is `exists`, and an unknown parent or holder is `not_found`. `update_to` defaults to `source`.',
@@ -110,6 +110,8 @@ export default {
     ['agentic_resources readme', src('src/lib/rust/crates/bundles/fantastic-agentic-resources/src/readme.md', 1)],
     ['agentic_resources: the same verbs in Python', src('src/lib/python/bundled_agents/agentic_resources/src/agentic_resources/tools.py', 197)],
     ['task_registry: assign, reassign, report (Rust)', src('src/lib/rust/crates/bundles/fantastic-task-registry/src/lib.rs', 555)],
+    ['agentic_resources: tool grants opened on the tool’s end (Rust)', src('src/lib/rust/crates/bundles/fantastic-agentic-resources/src/lib.rs', 766)],
+    ['task_registry: versions, source_version, fork_from, usage (Rust)', src('src/lib/rust/crates/bundles/fantastic-task-registry/src/lib.rs', 24)],
     ['task_registry readme', src('src/lib/rust/crates/bundles/fantastic-task-registry/src/readme.md', 1)],
     ['task_registry: the same verbs in Python', src('src/lib/python/bundled_agents/task_registry/src/task_registry/tools.py', 1)],
     ['where the host registers both (Rust)', src('src/lib/rust/crates/fantastic-cli/src/main.rs', 116)],
