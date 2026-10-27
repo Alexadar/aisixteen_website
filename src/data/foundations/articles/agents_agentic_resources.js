@@ -54,7 +54,7 @@ export default {
         'A slot frees only on `delete_agent`. A worker that reports `done` still holds its slot. `fleet` lists the same agents, grouped by role, as `{roles: {role: [{id}]}}`.',
         'At the start of a `spawn` the registry checks the role cap, then the total. A spawn at the cap is refused and creates nothing:',
         { code: '{"error": "limit", "scope": "total", "role": "worker", "running": 2, "max": 2,\n "reason": "all roles together are at the limit (2 running, max 2)"}', label: 'the refusal (illustrative values)' },
-        '`scope` is `role` or `total` for the registry’s caps; `running` and `max` give the count and the cap that stopped the spawn. Both bundles refuse in a shape of their own: `error` is a short code such as `limit`, `unknown_tier` or `already_held`, and `reason` is a sentence. The kernel’s [common refusal shape](/fantastic/foundations/protocol/refusals/) is the other way round, with the code in `reason`.',
+        '`scope` is `role` or `total` for the registry’s caps; `running` and `max` give the count and the cap that stopped the spawn. Today both bundles refuse with the code in `error` (such as `limit`, `unknown_tier` or `already_held`) and a sentence in `reason`, the reverse of the kernel’s [common refusal shape](/fantastic/foundations/protocol/refusals/), which puts the code in `reason`.',
         { video: 'limits' },
       ],
     },

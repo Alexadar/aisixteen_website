@@ -19,7 +19,7 @@ export default {
         'The page is its own kernel in the browser, bridged to the host kernel through the `canvas_ws` leg. It holds no memory and no AI. Every cell is a **view** of a host agent, such as a terminal, an AI chat, a python agent or an MCP server, or page-side content (`html`, `gl`).',
         { video: 'cells' },
         'Double-clicking opens the selector, which lists everything that can be placed there. In the README’s words: “Nothing floats on the canvas; every surface is a cell.”',
-        '`new_canvas {name}`, sent to a canvas, makes a **child** canvas under it, and deleting a canvas deletes the canvases it spawned. Each canvas shows only its own subtree and the agents under no canvas. `user`, and every AI under a canvas, may call every host agent with every verb (granted on both sides); you narrow it with `update_agent`.',
+        'Canvases are **flat peers**: `new_canvas {name}` makes one, and `?canvas=<node id>` opens it. In the agent tree a new canvas is recorded under the canvas it was sent to, and that only decides what a delete takes with it: deleting a canvas deletes the canvases it spawned. Each canvas shows only its own subtree and the agents under no canvas. `user`, and every AI under a canvas, may call every host agent with every verb (granted on both sides); you narrow it with `update_agent`.',
         { list: [
           '**Who calls**: every call from a tab leaves as the [user](/fantastic/foundations/canvas/user/) agent, and the [canvas page](/fantastic/foundations/canvas/page/) is served from the binary and boots as a peer kernel.',
           '**What is drawn**: the [canvas](/fantastic/foundations/canvas/canvas/) view places, moves, wires and hides cells; [views of agents](/fantastic/foundations/canvas/views/) decide how each host agent is drawn; [HTML and GL agents](/fantastic/foundations/canvas/html-gl/) hold page content; [skin and backgrounds](/fantastic/foundations/canvas/skin/) set the look.',
@@ -31,7 +31,8 @@ export default {
   sources: [
     ['README.md: the canvas', src('README.md', 305)],
     ['canvas.md', src('src/tui/docs/canvas.md', 11)],
-    ['web.rs: the canvas tree, child canvases', src('src/tui/src/kern/web.rs', 1)],
+    ['web.rs: new_canvas and canvas deletion', src('src/tui/src/kern/web.rs', 1)],
+    ['README: canvases are flat peers', src('README.md', 329)],
   ],
   clips: {
     cells: {
