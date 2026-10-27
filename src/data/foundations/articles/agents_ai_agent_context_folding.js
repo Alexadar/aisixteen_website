@@ -19,7 +19,7 @@ export default {
       title: 'Memory is rows in a store',
       blocks: [
         'An AI agent’s conversation lives in a **memory store** agent, one row per message, keyed by the caller so that an agent reads and writes only its own rows. [Memory stores](/fantastic/foundations/agents/memory-stores/) covers the two bundles, `ram_store` and `sqlite_store`, and their verbs. Row ids are the kernel’s own counter, the same one that numbers calls and tasks ([State and durability](/fantastic/foundations/kernel/state/)), which is why an id also orders rows in time.',
-        'Two things in the store matter here. A fold’s members are kept in a `fold_refs` table whose foreign keys cascade, so pruning a row also removes it from every fold that names it. And on `prune`, `sqlite_store` overwrites the deleted bytes and truncates the WAL, “so the text leaves `memory.db` and its `-wal` at once.”',
+        'Two things in the store matter here. Pruning a row also removes it from every fold that names it ([Fold refs cascade](/fantastic/foundations/agents/memory-stores/#cascade)). And on `prune`, `sqlite_store` overwrites the deleted bytes and truncates the WAL, so the text leaves the file at once ([One file per store](/fantastic/foundations/agents/memory-stores/#file)).',
       ],
     },
     {

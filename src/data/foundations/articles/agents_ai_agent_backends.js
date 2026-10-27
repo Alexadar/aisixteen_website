@@ -19,11 +19,11 @@ export default {
       id: 'surface',
       title: 'One surface, five providers',
       blocks: [
-        'The shared code is **ai-core**. It owns the verbs (`send` and the rest), the per-client history, the FIFO lock that serializes callers, prompt assembly and the status events. A backend supplies only a **provider**: messages in, content tokens out.',
+        'The shared code is `ai_core`, the crate the [AI agent](/fantastic/foundations/agents/ai-agent/) page follows. It owns the verbs (`send` and the rest), the per-client history, the FIFO lock that serializes callers, prompt assembly and the status events. A backend supplies only a **provider**: messages in, content tokens out.',
         { quote: 'A provider is a PURE RAW-TEXT streamer: it takes plain chat messages (role system/user/assistant/…, text content) and yields content tokens', cite: 'provider.rs' },
-        'No backend uses a provider’s native tool API. The model writes its `<call name=…>` envelope as plain text, the provider streams that text through without reading it, and ai-core parses and routes it. Adding a provider therefore teaches it nothing about tools. A provider holds no agent state; its one protocol duty is to wrap the model’s reasoning channel in `<think>…</think>` once per turn, so a reasoning model’s turn does not read as empty.',
+        'No backend uses a provider’s native tool API. The model writes its `<call name=…>` envelope as plain text, the provider streams that text through without reading it, and `ai_core` parses and routes it. Adding a provider therefore teaches it nothing about tools. A provider holds no agent state; its one protocol duty is to wrap the model’s reasoning channel in `<think>…</think>` once per turn, so a reasoning model’s turn does not read as empty.',
         { video: 'surface' },
-        'Every backend answers the same verbs because each one’s verb list starts from ai-core’s (Anthropic and vLLM add `usage`; Anthropic also adds `usage_reset` and `models`). `send` runs one turn on `text` and returns `{response, final, client_id}`. The call gate, refusals and ledger work as on any other agent; see [The call gate](/fantastic/foundations/protocol/call-gate/).',
+        'Every backend answers the same verbs because each one’s verb list starts from `ai_core`’s (Anthropic and vLLM add `usage`; Anthropic also adds `usage_reset` and `models`). `send` runs one turn on `text` and returns `{response, final, client_id}`. The call gate, refusals and ledger work as on any other agent; see [The call gate](/fantastic/foundations/protocol/call-gate/).',
         'Rust ships all five backends. Python ships four: it has no Foundation Models backend, because that one is Apple-only native code.',
       ],
     },
@@ -62,7 +62,7 @@ export default {
           ['`cleanup`', 'superseded whole-state reads, repeated reply bodies and used docs drop out; no markers'],
           ['`provider_cache`', '`none`’s history plus two markers: the end of the **primer** row (`cache_primer_until`) and the end of the last fold or clear row'],
         ] } },
-        'ai-core only flags the two messages. The backend turns the flags into its own markers, and only in `provider_cache`. Anthropic is the only backend that declares it. It sends ephemeral `cache_control` markers on the system block, on the block that ends the primer row, on the block that ends the last fold, and one top-level automatic marker: at most four. In every other mode the body carries none.',
+        '`ai_core` only flags the two messages. The backend turns the flags into its own markers, and only in `provider_cache`. Anthropic is the only backend that declares it. It sends ephemeral `cache_control` markers on the system block, on the block that ends the primer row, on the block that ends the last fold, and one top-level automatic marker: at most four. In every other mode the body carries none.',
         { video: 'caching' },
         'A backend that cannot cache refuses the mode, at the write and again at the turn.',
         { code: 'responses_backend cannot do provider caching: caching=provider_cache is refused — use none or cleanup', label: 'the refusal at the write (vLLM, Ollama, Responses and Foundation Models say the same with their own name)' },
@@ -74,7 +74,7 @@ export default {
       title: 'Transport retries',
       blocks: [
         'Each provider error carries a `transport` flag. It is true when the failure is the link, not the model or the request: a connect failure, a stream that stalls or drops, or a transient gateway error. A stalled stream is detected by the **idle clock**, `stream_idle_seconds` (default 60), which covers the response headers and every read of the body.',
-        'The record field `transport_retries` is an int from 0 to 5, and 0 is the default, which means off. When a pass fails with a transport error and retries remain, ai-core stores a notice row, emits a `status` event with phase `retrying`, waits, and runs the pass again.',
+        'The record field `transport_retries` is an int from 0 to 5, and 0 is the default, which means off. When a pass fails with a transport error and retries remain, `ai_core` stores a notice row, emits a `status` event with phase `retrying`, waits, and runs the pass again.',
         { code: '[retry 1/2] the link dropped (<message>) — retrying the turn\nstatus: {phase: "retrying", detail: {attempt: 1, of: 2, error: "<message>"}}', label: 'what each retry leaves (message illustrative)' },
         { video: 'retries' },
         'The wait doubles: 2 s, 4 s, 8 s and so on. The notice row is stored in the history, so the model reads it on the next pass and the operator sees it. A `cancel` that lands during the wait ends the turn. A failure that is not a transport failure, or a transport failure after the last retry, ends the turn with the error as usual. Rust and Python do the same.',
@@ -104,7 +104,7 @@ export default {
   clips: {
     surface: {
       title: 'Five backends, one agent surface',
-      caption: 'An agent sends send to ai-core. ai-core hands the messages to the agent’s backend: anthropic, vllm, ollama, responses or foundation_models, each with its own wire (/v1/messages, /chat/completions, /api/chat, /v1/responses, or on-device). The backend streams raw text back, a <call> in it is parsed by ai-core, and the call is routed the same way for every provider.',
+      caption: 'An agent sends send to ai_core. ai_core hands the messages to the agent’s backend: anthropic, vllm, ollama, responses or foundation_models, each with its own wire (/v1/messages, /chat/completions, /api/chat, /v1/responses, or on-device). The backend streams raw text back, a <call> in it is parsed by ai_core, and the call is routed the same way for every provider.',
     },
     caching: {
       title: 'caching: one history, three views',

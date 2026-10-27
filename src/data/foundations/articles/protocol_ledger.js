@@ -20,7 +20,7 @@ export default {
       title: 'What is recorded',
       blocks: [
         'Every send that the kernel dispatches is an **execution**. It writes a `call` row when it starts, with the verb, the caller and the payload as sent. When it ends, it writes a `settle` row that names the call and holds the outcome.',
-        'The rows start in the kernel’s RAM. A flusher waits 150 ms after a new row, then writes everything waiting as one batch into the **memory store**: the agent that the root record names in `memory_store_id`. The batch ends with a `flush` row that lists the ids it covers. If the store refuses the batch, the rows stay in RAM for the next flush. A flushed, settled execution leaves RAM.',
+        'The rows start in the kernel’s RAM. A flusher waits 150 ms after a new row, then writes everything waiting as one batch into the **memory store**: the agent that the root record names in `memory_store_id` ([Memory stores](/fantastic/foundations/agents/memory-stores/)). The batch ends with a `flush` row that lists the ids it covers. If the store refuses the batch, the rows stay in RAM for the next flush. A flushed, settled execution leaves RAM.',
         'The kernel does not start without a memory store. `kernel_start` refuses when the root names none ([Lifecycle](/fantastic/foundations/kernel/lifecycle/)).',
         { h3: 'What a settle row keeps' },
         'A settle row does not keep every reply. It keeps the whole result of a **named** call, the error fields of a dead letter (each cut at 500 characters), and for everything else only `{status, bytes}`. The kernel’s own store reads are executions too, so keeping their bodies would record the store inside the store.',

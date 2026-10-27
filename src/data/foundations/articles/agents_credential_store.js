@@ -73,9 +73,9 @@ export default {
     },
     {
       id: 'app',
-      title: 'In the fantastic app',
+      title: 'In the fantastic CLI',
       blocks: [
-        'The `fantastic` app keeps all provider keys in one store agent with the id `credentials`. Its backend follows the user’s key mode: **plain** is the `file` backend, one 0600 file in the user’s home; **secure** is the `keychain` backend. Until a mode is chosen there is no store and no key can be stored, and the mode cannot change while keys are stored under the other one.',
+        'The `fantastic` CLI keeps all provider keys in one store agent with the id `credentials`. Its backend follows the user’s key mode: **plain** is the `file` backend, one 0600 file in the user’s home; **secure** is the `keychain` backend. Until a mode is chosen there is no store and no key can be stored, and the mode cannot change while keys are stored under the other one.',
         'A key’s ref is `<provider>/<host>`, for example `responses/api.openai.com`. The app declares the ref on the store, then sends `set` with the key marked secret. It then grants the AI agent `get` on the store and the store’s `callable_by` the agent, which are the two ends the call gate needs.',
       ],
     },
@@ -87,8 +87,8 @@ export default {
     ['the Rust keychain, by OS', src('src/lib/rust/crates/bundles/fantastic-credential-store/src/sys/keychain.rs', 1)],
     ['how an AI backend reads its key', src('src/lib/rust/crates/bundles/fantastic-ai-core/src/credentials.rs', 154)],
     ['the credential store test spec', src('contract/agentic/specs/credential_store.yaml', 1)],
-    ['the app’s key handling', src('src/tui/src/kern/keys.rs', 1)],
-    ['the app’s key modes', src('src/tui/bundles/fantastic-user-home-store/src/secrets.rs', 1)],
+    ['the CLI’s key handling', src('src/tui/src/kern/keys.rs', 1)],
+    ['the CLI’s key modes', src('src/tui/bundles/fantastic-user-home-store/src/secrets.rs', 1)],
   ],
   clips: {
     declare: {

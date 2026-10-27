@@ -17,10 +17,10 @@ export default {
       title: 'What ships',
       blocks: [
         { list: [
-          '**AI agents** over vLLM, Ollama, the OpenAI Responses API and Anthropic’s Messages API, plus Apple’s on-device model on macOS. Tool calling is the kernel’s own prompt-taught `<call>` grammar, not a provider tool API, so any capable model drives the same verbs.',
-          '**Memory**: every message lives in a memory store agent. AI agents fold, recall and page their own history.',
+          '**AI agents** over vLLM, Ollama, the OpenAI Responses API and Anthropic’s Messages API, plus Apple’s on-device model on macOS. Tool calling is Fantastic’s own prompt-taught `<call>` grammar, not a provider tool API, so any capable model drives the same verbs. [AI agent](/fantastic/foundations/agents/ai-agent/) follows one turn, and [Model backends](/fantastic/foundations/agents/ai-agent/backends/) the five providers.',
+          '**Memory**: every message lives in a [memory store](/fantastic/foundations/agents/memory-stores/) agent. AI agents fold, recall and page their own history.',
           '**IO legs**: `file_bridge` for files, edits, streams and watches; `exec_bridge` for allow-listed commands and terminals; `web_ws` and `web_rest` for the browser and HTTP; `ws_bridge` from one kernel to another; `mcp_client` for a remote MCP server’s tools as verbs.',
-          '**Kernel services**: a scheduler, and credentials by reference, with keys bound to one host.',
+          '**Kernel services**: a scheduler, and [credentials by reference](/fantastic/foundations/agents/credential-store/), with keys bound to one host.',
         ] },
         'The AI agent keeps a long conversation in a finite window by folding it: a finished stretch of work becomes one appended row that names what it hides.',
         { video: 'fold', from: 'agents_ai_agent_context_folding' },

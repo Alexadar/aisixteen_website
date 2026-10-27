@@ -45,6 +45,7 @@ export default {
         'The value rides the call, so the kernel records it as `[secret]`. A `set` payload and a `get` reply show `[secret]` in the ledger, the memory store and the state stream, while the caller receives the value whole. Across connected kernels, the calling side marks the values as secret too.',
         'The store’s own guidance is not to give a credential to an AI agent’s prompt, and instead to give it to a bundle that sends it. A store has no per-ref access lists: any caller the call gate admits may `set`, `get` or `forget` a declared ref, so the gate decides who is admitted.',
         { video: 'credential' },
+        '[Credential store](/fantastic/foundations/agents/credential-store/) follows one key through the store: how a ref is declared, how it is read on every request, and each backend in detail.',
         { h3: 'Where the value rests' },
         { table: { head: ['backend', 'how it holds a value'], rows: [
           ['`file` (default)', 'a YAML file at an absolute path, written with mode 0600 and read only if it is a regular file owned by this user with no group or other bits'],

@@ -1,6 +1,6 @@
 """Foundations — Agents › AI agent › Model backends. Three clips, each one mechanism.
 
-surface: one agent surface in ai-core; five providers only stream raw text — facts 1-6, 22, 29
+surface: one agent surface in ai_core; five providers only stream raw text — facts 1-6, 22, 29
          (provider.rs:1-10, lib.rs of each backend).
 caching: the same history under caching none / cleanup / provider_cache; only anthropic
          declares provider_cache, the others refuse it — facts 14, 32-36 (caching.rs:1-13, 127-142).
@@ -28,7 +28,7 @@ class BK1Surface(FScene):
         self.play(FadeIn(self.header()), run_time=0.4)
         agent = Node("agent", w=1.5, color=BLUE).move_to([-5.3, -0.2, 0])
         core = card(2.5, 1.5, stroke=VIOLET, fill=VIOLET, opacity=0.1).move_to([-2.4, -0.2, 0])
-        core_t = VGroup(mono("ai-core", 21, VIOLET), mono("history", 17, DIM), mono("<call> parse", 17, DIM))
+        core_t = VGroup(mono("ai_core", 21, VIOLET), mono("history", 17, DIM), mono("<call> parse", 17, DIM))
         core_t.arrange(DOWN, buff=0.1).move_to(core)
         names = [
             ("anthropic", "/v1/messages", CYAN),
@@ -42,7 +42,7 @@ class BK1Surface(FScene):
         wires = [mono(w, 17, DIM).move_to([4.55, y, 0]).align_to([3.55, 0, 0], LEFT) for (_, w, _), y in zip(names, ys)]
         links = [Line(core.get_right(), n.get_left(), color=LINE, stroke_width=2) for n in nodes]
 
-        self.say("send runs one turn in ai-core, whichever backend the agent uses.")
+        self.say("send runs one turn in ai_core, whichever backend the agent uses.")
         self.play(FadeIn(agent), FadeIn(core), FadeIn(core_t), run_time=0.6)
         send = pill('send {"text": …}', color=CYAN, size=17).next_to(agent, UP, buff=0.35)
         self.play(FadeIn(send, shift=UP * 0.1), run_time=0.3)
@@ -57,7 +57,7 @@ class BK1Surface(FScene):
         self.play(FadeIn(tok), run_time=0.3)
         self.play(tok.animate.move_to(core.get_right() + LEFT * 0.0 + UP * 0.9 + RIGHT * 0.2), run_time=0.8)
         self.play(core_t[2].animate.set_color(GREEN), FadeOut(tok), run_time=0.4)
-        self.say("ai-core parses it and routes the call, the same for every provider.", wait=0.8)
+        self.say("ai_core parses it and routes the call, the same for every provider.", wait=0.8)
         self.finish()
 
 

@@ -214,7 +214,7 @@ A person, a model and a program differ in what stands behind the agent. They do 
 
 The human’s side differs between the two runtimes. The Python `user` bundle answers `reflect`, `export_subtree` and `import_subtree`. The terminal app’s `user` also has `forward {target, payload}`, which sends a payload to a target and returns the reply.
 
-A model pass is one provider call with no loop. The model’s reply is parsed for `<call>` tags, each call is sent to its target, and each reply goes to the call’s `reply_to`. Nothing uses a provider’s native tool API.
+A model pass is one provider call with no loop. The model’s reply is parsed for `<call>` tags, each call is sent to its target, and each reply goes to the call’s `reply_to`. Nothing uses a provider’s native tool API. [AI agent](/fantastic/foundations/agents/ai-agent/) follows a pass and the chain of passes in full.
 
 A program declares its verbs in `bundle.yaml`, and the kernel treats the running process as a full agent. The program runs with the user’s OS rights, and its own subprocesses, files and network never pass the gate.
 
@@ -481,6 +481,8 @@ The store’s own guidance is not to give a credential to an AI agent’s prompt
 
 *Animation: A key by reference, for one host* (https://aisixteen.com/fantastic/foundations/protocol/security/credential.mp4). The record of an AI agent holds credentials: store and ref, not a key. Before a request it sends the store get with the ref and the host it is about to call. The store returns the key only for the host the ref is bound to. A get for another host is refused, and the ledger shows the value as [secret].
 
+[Credential store](/fantastic/foundations/agents/credential-store/) follows one key through the store: how a ref is declared, how it is read on every request, and each backend in detail.
+
 #### Where the value rests
 
 | backend | how it holds a value |
@@ -646,7 +648,7 @@ This page covers what is recorded and where, which endings make a dead letter, t
 
 Every send that the kernel dispatches is an **execution**. It writes a `call` row when it starts, with the verb, the caller and the payload as sent. When it ends, it writes a `settle` row that names the call and holds the outcome.
 
-The rows start in the kernel’s RAM. A flusher waits 150 ms after a new row, then writes everything waiting as one batch into the **memory store**: the agent that the root record names in `memory_store_id`. The batch ends with a `flush` row that lists the ids it covers. If the store refuses the batch, the rows stay in RAM for the next flush. A flushed, settled execution leaves RAM.
+The rows start in the kernel’s RAM. A flusher waits 150 ms after a new row, then writes everything waiting as one batch into the **memory store**: the agent that the root record names in `memory_store_id` ([Memory stores](/fantastic/foundations/agents/memory-stores/)). The batch ends with a `flush` row that lists the ids it covers. If the store refuses the batch, the rows stay in RAM for the next flush. A flushed, settled execution leaves RAM.
 
 The kernel does not start without a memory store. `kernel_start` refuses when the root names none ([Lifecycle](/fantastic/foundations/kernel/lifecycle/)).
 
@@ -1403,7 +1405,7 @@ The kernel keeps no conversation and no message log in the tree. Its execution r
 
 `kernel_start` refuses when the root names no store, and there is no default. The start sequence, step by step on [Lifecycle](/fantastic/foundations/kernel/lifecycle/), boots the root first, which supplies the guid, then the store, which is probed to confirm that it serves the operator. Then it writes the id bound, starts the flusher, rebuilds the open waits, and boots every other agent in registration order.
 
-Every row in a store is keyed `<kernel guid>|<agent id>`, and `<guid>|kernel` is the operator and the kernel’s own bookkeeping. Two stores ship with the kernel, and they answer the same verbs:
+Every row in a store is keyed `<kernel guid>|<agent id>`, and `<guid>|kernel` is the operator and the kernel’s own bookkeeping. Two stores ship with the kernel, and they answer the same verbs ([Memory stores](/fantastic/foundations/agents/memory-stores/)):
 
 | store | durable | after a restart |
 |---|---|---|
@@ -1448,10 +1450,10 @@ Everything in Fantastic is an agent, so what it can do is the set of agents it s
 
 #### What ships
 
-- **AI agents** over vLLM, Ollama, the OpenAI Responses API and Anthropic’s Messages API, plus Apple’s on-device model on macOS. Tool calling is the kernel’s own prompt-taught `<call>` grammar, not a provider tool API, so any capable model drives the same verbs.
-- **Memory**: every message lives in a memory store agent. AI agents fold, recall and page their own history.
+- **AI agents** over vLLM, Ollama, the OpenAI Responses API and Anthropic’s Messages API, plus Apple’s on-device model on macOS. Tool calling is Fantastic’s own prompt-taught `<call>` grammar, not a provider tool API, so any capable model drives the same verbs. [AI agent](/fantastic/foundations/agents/ai-agent/) follows one turn, and [Model backends](/fantastic/foundations/agents/ai-agent/backends/) the five providers.
+- **Memory**: every message lives in a [memory store](/fantastic/foundations/agents/memory-stores/) agent. AI agents fold, recall and page their own history.
 - **IO legs**: `file_bridge` for files, edits, streams and watches; `exec_bridge` for allow-listed commands and terminals; `web_ws` and `web_rest` for the browser and HTTP; `ws_bridge` from one kernel to another; `mcp_client` for a remote MCP server’s tools as verbs.
-- **Kernel services**: a scheduler, and credentials by reference, with keys bound to one host.
+- **Kernel services**: a scheduler, and [credentials by reference](/fantastic/foundations/agents/credential-store/), with keys bound to one host.
 
 The AI agent keeps a long conversation in a finite window by folding it: a finished stretch of work becomes one appended row that names what it hides.
 
@@ -1597,7 +1599,7 @@ This article covers the fold row, levels, the five context strategies, the verbs
 
 An AI agent’s conversation lives in a **memory store** agent, one row per message, keyed by the caller so that an agent reads and writes only its own rows. [Memory stores](/fantastic/foundations/agents/memory-stores/) covers the two bundles, `ram_store` and `sqlite_store`, and their verbs. Row ids are the kernel’s own counter, the same one that numbers calls and tasks ([State and durability](/fantastic/foundations/kernel/state/)), which is why an id also orders rows in time.
 
-Two things in the store matter here. A fold’s members are kept in a `fold_refs` table whose foreign keys cascade, so pruning a row also removes it from every fold that names it. And on `prune`, `sqlite_store` overwrites the deleted bytes and truncates the WAL, “so the text leaves `memory.db` and its `-wal` at once.”
+Two things in the store matter here. Pruning a row also removes it from every fold that names it ([Fold refs cascade](/fantastic/foundations/agents/memory-stores/#cascade)). And on `prune`, `sqlite_store` overwrites the deleted bytes and truncates the WAL, so the text leaves the file at once ([One file per store](/fantastic/foundations/agents/memory-stores/#file)).
 
 #### A fold is an appended row
 
@@ -1820,15 +1822,15 @@ This page covers what the five share, what each one adds, the three `caching` mo
 
 #### One surface, five providers
 
-The shared code is **ai-core**. It owns the verbs (`send` and the rest), the per-client history, the FIFO lock that serializes callers, prompt assembly and the status events. A backend supplies only a **provider**: messages in, content tokens out.
+The shared code is `ai_core`, the crate the [AI agent](/fantastic/foundations/agents/ai-agent/) page follows. It owns the verbs (`send` and the rest), the per-client history, the FIFO lock that serializes callers, prompt assembly and the status events. A backend supplies only a **provider**: messages in, content tokens out.
 
 > A provider is a PURE RAW-TEXT streamer: it takes plain chat messages (role system/user/assistant/…, text content) and yields content tokens (provider.rs)
 
-No backend uses a provider’s native tool API. The model writes its `<call name=…>` envelope as plain text, the provider streams that text through without reading it, and ai-core parses and routes it. Adding a provider therefore teaches it nothing about tools. A provider holds no agent state; its one protocol duty is to wrap the model’s reasoning channel in `<think>…</think>` once per turn, so a reasoning model’s turn does not read as empty.
+No backend uses a provider’s native tool API. The model writes its `<call name=…>` envelope as plain text, the provider streams that text through without reading it, and `ai_core` parses and routes it. Adding a provider therefore teaches it nothing about tools. A provider holds no agent state; its one protocol duty is to wrap the model’s reasoning channel in `<think>…</think>` once per turn, so a reasoning model’s turn does not read as empty.
 
-*Animation: Five backends, one agent surface* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/surface.mp4). An agent sends send to ai-core. ai-core hands the messages to the agent’s backend: anthropic, vllm, ollama, responses or foundation_models, each with its own wire (/v1/messages, /chat/completions, /api/chat, /v1/responses, or on-device). The backend streams raw text back, a <call> in it is parsed by ai-core, and the call is routed the same way for every provider.
+*Animation: Five backends, one agent surface* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/surface.mp4). An agent sends send to ai_core. ai_core hands the messages to the agent’s backend: anthropic, vllm, ollama, responses or foundation_models, each with its own wire (/v1/messages, /chat/completions, /api/chat, /v1/responses, or on-device). The backend streams raw text back, a <call> in it is parsed by ai_core, and the call is routed the same way for every provider.
 
-Every backend answers the same verbs because each one’s verb list starts from ai-core’s (Anthropic and vLLM add `usage`; Anthropic also adds `usage_reset` and `models`). `send` runs one turn on `text` and returns `{response, final, client_id}`. The call gate, refusals and ledger work as on any other agent; see [The call gate](/fantastic/foundations/protocol/call-gate/).
+Every backend answers the same verbs because each one’s verb list starts from `ai_core`’s (Anthropic and vLLM add `usage`; Anthropic also adds `usage_reset` and `models`). `send` runs one turn on `text` and returns `{response, final, client_id}`. The call gate, refusals and ledger work as on any other agent; see [The call gate](/fantastic/foundations/protocol/call-gate/).
 
 Rust ships all five backends. Python ships four: it has no Foundation Models backend, because that one is Apple-only native code.
 
@@ -1876,7 +1878,7 @@ The `caching` field decides how the model’s view of the history is built. `cle
 | `cleanup` | superseded whole-state reads, repeated reply bodies and used docs drop out; no markers |
 | `provider_cache` | `none`’s history plus two markers: the end of the **primer** row (`cache_primer_until`) and the end of the last fold or clear row |
 
-ai-core only flags the two messages. The backend turns the flags into its own markers, and only in `provider_cache`. Anthropic is the only backend that declares it. It sends ephemeral `cache_control` markers on the system block, on the block that ends the primer row, on the block that ends the last fold, and one top-level automatic marker: at most four. In every other mode the body carries none.
+`ai_core` only flags the two messages. The backend turns the flags into its own markers, and only in `provider_cache`. Anthropic is the only backend that declares it. It sends ephemeral `cache_control` markers on the system block, on the block that ends the primer row, on the block that ends the last fold, and one top-level automatic marker: at most four. In every other mode the body carries none.
 
 *Animation: caching: one history, three views* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/caching.mp4). Rows 1 to 6 are stored, and row 5 is a fold. none sends all six. cleanup drops rows 3 and 4 from the view. provider_cache sends all six with a marker after the primer row (2) and one at the last fold (5). Only anthropic turns the markers into cache_control; vllm, ollama, responses and foundation_models refuse the mode.
 
@@ -1894,7 +1896,7 @@ The primer row and every row before it are pinned in any mode: `context_fold` wi
 
 Each provider error carries a `transport` flag. It is true when the failure is the link, not the model or the request: a connect failure, a stream that stalls or drops, or a transient gateway error. A stalled stream is detected by the **idle clock**, `stream_idle_seconds` (default 60), which covers the response headers and every read of the body.
 
-The record field `transport_retries` is an int from 0 to 5, and 0 is the default, which means off. When a pass fails with a transport error and retries remain, ai-core stores a notice row, emits a `status` event with phase `retrying`, waits, and runs the pass again.
+The record field `transport_retries` is an int from 0 to 5, and 0 is the default, which means off. When a pass fails with a transport error and retries remain, `ai_core` stores a notice row, emits a `status` event with phase `retrying`, waits, and runs the pass again.
 
 what each retry leaves (message illustrative):
 
@@ -2004,7 +2006,7 @@ Nothing is built in. The root’s `memory_store_id` names the store for the kern
 
 The store is reached like any agent: the AI agent needs `can_call` on the store, and the store needs a `callable_by` naming the agent.
 
-The `fantastic` CLI wires both kinds. Its blueprint, applied once to a fresh store, creates `kernel_memory`, a `ram_store` that the root names, and `memory`, a `sqlite_store` at `.fantastic/memory.db` that every AI agent uses. The comments say why: the kernel’s own rows stay in RAM so no keystroke or read touches disk, and the AI agents’ chats, folds and recall survive restarts. Their rows are keyed `<guid>|<agent>`, so agents never mix.
+The `fantastic` CLI wires both kinds. Its first-start seed, `blueprint.yaml`, applied once to a new `.fantastic/`, creates `kernel_memory`, a `ram_store` that the root names, and `memory`, a `sqlite_store` at `.fantastic/memory.db` that every AI agent uses. The comments say why: the kernel’s own rows stay in RAM so no keystroke or read touches disk, and the AI agents’ chats, folds and recall survive restarts. Their rows are keyed `<guid>|<agent>`, so agents never mix.
 
 the CLI blueprint, abridged:
 
@@ -2111,13 +2113,13 @@ A store has no per-ref access lists. Any caller the call gate admits may `set`, 
 
 The value rides the call, so the kernel records it as `[secret]`. The field values of a `set` payload and of a `get` reply show `[secret]` in the ledger, the memory store and the state stream, while the caller receives the value whole. A `list` shows refs, hosts and field names only. Across connected kernels, the calling side marks the values as secret too.
 
-#### In the fantastic app
+#### In the fantastic CLI
 
-The `fantastic` app keeps all provider keys in one store agent with the id `credentials`. Its backend follows the user’s key mode: **plain** is the `file` backend, one 0600 file in the user’s home; **secure** is the `keychain` backend. Until a mode is chosen there is no store and no key can be stored, and the mode cannot change while keys are stored under the other one.
+The `fantastic` CLI keeps all provider keys in one store agent with the id `credentials`. Its backend follows the user’s key mode: **plain** is the `file` backend, one 0600 file in the user’s home; **secure** is the `keychain` backend. Until a mode is chosen there is no store and no key can be stored, and the mode cannot change while keys are stored under the other one.
 
 A key’s ref is `<provider>/<host>`, for example `responses/api.openai.com`. The app declares the ref on the store, then sends `set` with the key marked secret. It then grants the AI agent `get` on the store and the store’s `callable_by` the agent, which are the two ends the call gate needs.
 
-Sources: credential_store readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-credential-store/src/readme.md#L1); credential_store (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-credential-store/src/lib.rs#L1); credential_store (Python, canonical) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/security/credential_store/src/credential_store/tools.py#L1); the Rust keychain, by OS (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-credential-store/src/sys/keychain.rs#L1); how an AI backend reads its key (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/credentials.rs#L154); the credential store test spec (https://github.com/aisixteen/fantastic/blob/main/contract/agentic/specs/credential_store.yaml#L1); the app’s key handling (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/keys.rs#L1); the app’s key modes (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-user-home-store/src/secrets.rs#L1)
+Sources: credential_store readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-credential-store/src/readme.md#L1); credential_store (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-credential-store/src/lib.rs#L1); credential_store (Python, canonical) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/security/credential_store/src/credential_store/tools.py#L1); the Rust keychain, by OS (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-credential-store/src/sys/keychain.rs#L1); how an AI backend reads its key (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/credentials.rs#L154); the credential store test spec (https://github.com/aisixteen/fantastic/blob/main/contract/agentic/specs/credential_store.yaml#L1); the CLI’s key handling (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/keys.rs#L1); the CLI’s key modes (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-user-home-store/src/secrets.rs#L1)
 
 ### Foundations › Canvas: an app built on fantastic
 

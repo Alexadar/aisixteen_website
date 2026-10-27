@@ -53,7 +53,7 @@ export default {
           ['program', 'a `py_agent` folder bundle', 'A `command` the kernel starts when the agent boots and kills when it is deleted. Calls reach it as `{op: "call"}` messages and come back as `{op: "result"}`.'],
         ] } },
         'The human’s side differs between the two runtimes. The Python `user` bundle answers `reflect`, `export_subtree` and `import_subtree`. The terminal app’s `user` also has `forward {target, payload}`, which sends a payload to a target and returns the reply.',
-        'A model pass is one provider call with no loop. The model’s reply is parsed for `<call>` tags, each call is sent to its target, and each reply goes to the call’s `reply_to`. Nothing uses a provider’s native tool API.',
+        'A model pass is one provider call with no loop. The model’s reply is parsed for `<call>` tags, each call is sent to its target, and each reply goes to the call’s `reply_to`. Nothing uses a provider’s native tool API. [AI agent](/fantastic/foundations/agents/ai-agent/) follows a pass and the chain of passes in full.',
         'A program declares its verbs in `bundle.yaml`, and the kernel treats the running process as a full agent. The program runs with the user’s OS rights, and its own subprocesses, files and network never pass the gate.',
       ],
     },
