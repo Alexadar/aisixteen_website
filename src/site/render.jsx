@@ -188,11 +188,14 @@ const publisher = { '@type': 'Organization', name: SITE.name, url: SITE.origin, 
 const ogOf = (a) => `${SITE.origin}${articleUrl(a)}og.jpg`
 const clipsOf = (a) => a.sections.flatMap((s) => s.blocks).filter((b) => b.video).map((b) => b.video)
 
+const videoId = (a, slug) => `${SITE.origin}${videoFiles(a, slug).mp4}#video`
+
 function videoLd(a, slug, meta, v, uploadDate) {
   const f = videoFiles(a, slug)
   return {
     '@context': 'https://schema.org',
     '@type': 'VideoObject',
+    '@id': videoId(a, slug),
     name: v.title,
     description: v.caption,
     thumbnailUrl: `${SITE.origin}${f.poster}`,
@@ -249,7 +252,7 @@ export function renderFoundationsArticle(f, a, { year, meta, videos, modified })
     inLanguage: 'en',
     isPartOf: { '@type': 'CollectionPage', name: f.headline, url: FOUNDATIONS_URL },
     about: a.about.map((name) => ({ '@type': 'Thing', name })),
-    video: clipsOf(a).map((slug) => ({ '@type': 'VideoObject', name: videos[slug].title, contentUrl: `${SITE.origin}${videoFiles(a, slug).mp4}` })),
+    video: clipsOf(a).map((slug) => ({ '@id': videoId(a, slug) })),
   }
   const clips = clipsOf(a).map((slug) => videoLd(a, slug, meta[slug], videos[slug], published))
   return doc({
