@@ -4,9 +4,9 @@
     "width": 1280,
     "height": 720,
     "bytes": {
-      "mp4": 150979,
-      "webm": 155971,
-      "webp": 31230
+      "mp4": 152108,
+      "webm": 158855,
+      "webp": 32244
     }
   },
   "reflect": {
@@ -14,19 +14,19 @@
     "width": 1280,
     "height": 720,
     "bytes": {
-      "mp4": 174189,
-      "webm": 151695,
-      "webp": 46420
+      "mp4": 174506,
+      "webm": 153570,
+      "webp": 47826
     }
   },
   "statuses": {
-    "duration": 12.43,
+    "duration": 10.0,
     "width": 1280,
     "height": 720,
     "bytes": {
-      "mp4": 211796,
-      "webm": 168124,
-      "webp": 36234
+      "mp4": 164797,
+      "webm": 149439,
+      "webp": 37286
     }
   }
 }

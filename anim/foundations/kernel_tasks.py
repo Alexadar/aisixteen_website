@@ -20,7 +20,6 @@ OG = "cancel"
 class K3Cancel(FScene):
     """cancel kills a task and its subtree: hooks first while alive, then leaves-up abort."""
 
-    EYEBROW = "Fantastic kernel"
     TITLE = "cancel: a task and its subtree"
 
     def construct(self):

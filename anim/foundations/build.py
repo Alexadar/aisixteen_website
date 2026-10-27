@@ -21,7 +21,6 @@ OG = "bundle"
 class BuildBundle(FScene):
     """One folder bundle, two agents that are instances of it, one save restarts both."""
 
-    EYEBROW = "Build your own"
     TITLE = "One bundle, many agents"
 
     def construct(self):

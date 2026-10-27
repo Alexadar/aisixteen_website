@@ -24,7 +24,6 @@ OG = "reach"
 class SecReach(FScene):
     """No grant, no reach: the baseline is $self; an edge is written on both ends."""
 
-    EYEBROW = "Protocol · Security"
     TITLE = "No grant, no reach"
 
     def construct(self):
@@ -82,7 +81,6 @@ class SecReach(FScene):
 class SecCredential(FScene):
     """A key by reference, pinned to one host, recorded as [secret]."""
 
-    EYEBROW = "Protocol · Security"
     TITLE = "A key by reference, for one host"
 
     def construct(self):
@@ -127,7 +125,6 @@ class SecCredential(FScene):
 class SecEdges(FScene):
     """Sealed by default, then an allowlist (exec) and an allow list (file)."""
 
-    EYEBROW = "Protocol · Security"
     TITLE = "Sealed edges and allowlists"
 
     def construct(self):

@@ -23,7 +23,6 @@ OG = "ledger"
 class K5Ledger(FScene):
     """Executions: call + settle rows, flush to the store, a dead letter, restart, dedup, ack."""
 
-    EYEBROW = "Protocol"
     TITLE = "Every call is an execution"
 
     def construct(self):
@@ -88,7 +87,6 @@ class K5Ledger(FScene):
 class DeadLetters(FScene):
     """Which endings are dead letters, the event, pruning, ack."""
 
-    EYEBROW = "Protocol"
     TITLE = "Dead letters"
 
     def construct(self):
@@ -140,7 +138,6 @@ class DeadLetters(FScene):
 class StopAndCrash(FScene):
     """Graceful stop settles in-flight calls as cancelled; a crash leaves no settle row."""
 
-    EYEBROW = "Protocol"
     TITLE = "Graceful stop and crash"
 
     def construct(self):

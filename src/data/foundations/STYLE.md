@@ -98,7 +98,13 @@ start from it: re-check every claim, rewrite it to this guide, and delete `seed:
 ## Clips
 
 - 6 to 20 s each, 1280×720 at 30 fps. One mechanism per clip, drawn in 3 to 5 steps.
-- Start with `self.play(FadeIn(self.header()))`, with the pillar as `EYEBROW` and the clip title as `TITLE`.
+- Start with `self.play(FadeIn(self.header()))` and set only `TITLE` (the clip's title).
+- **The eyebrow** (the small label above the title) has one format on every clip:
+  `<Pillar> · <Article>`, for example `PROTOCOL · CALL GATE`, `KERNEL · TASKS` or
+  `AGENTS · CONTEXT FOLDING`; a pillar page's clip shows the pillar alone (`CANVAS`). Both
+  names are the registry's `short` names; sections between pillar and article are left out.
+  `header()` builds it from the scene file's key with `eyebrow_for()` in `common.py`, so never
+  write it by hand; setting `EYEBROW` raises an error. A reused clip keeps its owner's eyebrow.
 - One narration line at a time (`self.say("…")`), at most about 70 characters.
 - At most about 5 labels on screen at once. Use `Node`, `pill`, `card` and `panel` from `common.py`.
 - Use only the palette in `common.py`: BLUE for agents, CYAN for messages and links, GREEN for

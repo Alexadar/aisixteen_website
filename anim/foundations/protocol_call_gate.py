@@ -20,7 +20,6 @@ OG = "gate"
 class K2Gate(FScene):
     """Two keys, one door: egress (sender's can_call) and ingress (target's callable_by)."""
 
-    EYEBROW = "Protocol · Call gate"
     TITLE = "The call gate: both ends must grant"
 
     def construct(self):
@@ -103,7 +102,6 @@ class CallGateVerbs(FScene):
     """A grant names verbs, and each end keeps its own list.
     can_call / callable_by matching: R/authz.rs:119-129, 137-168; P/_authz.py:98-104, 120-160."""
 
-    EYEBROW = "Protocol · Call gate"
     TITLE = "Grants are per verb, on both ends"
 
     def construct(self):
@@ -169,7 +167,6 @@ class CallGateSpawn(FScene):
     """A spawn cannot hand out more than the spawner holds; the card's grants land on both ends.
     escalation: AR/lib.rs:716-757, PAR/tools.py:435-462; edges and undo: AR/lib.rs:766-815, PAR/tools.py:465-516."""
 
-    EYEBROW = "Protocol · Call gate"
     TITLE = "Spawn grants stay within the spawner"
 
     def construct(self):

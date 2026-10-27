@@ -54,7 +54,6 @@ def bracket(mobs, color, label, up=True, size=18):
 class CF1Fold(FScene):
     """context_fold: one appended row with refs; the view puts it at its anchor; the prefix stays."""
 
-    EYEBROW = "Context folding"
     TITLE = "A fold is a new row"
 
     def construct(self):
@@ -113,7 +112,6 @@ class CF1Fold(FScene):
 class CF2Levels(FScene):
     """Three adjacent folds at the head fold as a group: L1 -> L2 -> L3. history {fold} walks back down."""
 
-    EYEBROW = "Context folding"
     TITLE = "Folds of folds"
 
     def construct(self):
@@ -188,7 +186,6 @@ class CF2Levels(FScene):
 class CF3Cache(FScene):
     """Prefix caches compare bytes from the start: append keeps them, a cut misses, a fold misses once."""
 
-    EYEBROW = "Context folding"
     TITLE = "Why folds append, never edit"
 
     def construct(self):
@@ -240,7 +237,6 @@ class CF3Cache(FScene):
 class CF4Fork(FScene):
     """mark a turn boundary; fork {at} copies rows <= at under a new key with the same ids."""
 
-    EYEBROW = "Context folding"
     TITLE = "fork: a new agent on the same prefix"
 
     def construct(self):
@@ -299,7 +295,6 @@ class CF4Fork(FScene):
 class CF5Forget(FScene):
     """context_clear deletes nothing; context_forget prunes only rows the model can no longer see."""
 
-    EYEBROW = "Context folding"
     TITLE = "clear starts over; forget deletes"
 
     def construct(self):

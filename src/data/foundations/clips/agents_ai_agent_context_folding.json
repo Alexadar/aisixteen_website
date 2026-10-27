@@ -1,42 +1,22 @@
 {
-  "fold": {
-    "duration": 13.97,
-    "width": 1280,
-    "height": 720,
-    "bytes": {
-      "mp4": 186174,
-      "webm": 193313,
-      "webp": 43142
-    }
-  },
-  "levels": {
-    "duration": 14.2,
-    "width": 1280,
-    "height": 720,
-    "bytes": {
-      "mp4": 179977,
-      "webm": 177840,
-      "webp": 28928
-    }
-  },
   "cache": {
     "duration": 12.47,
     "width": 1280,
     "height": 720,
     "bytes": {
-      "mp4": 195524,
-      "webm": 166688,
-      "webp": 45226
+      "mp4": 192958,
+      "webm": 168268,
+      "webp": 45758
     }
   },
-  "fork": {
-    "duration": 13.67,
+  "fold": {
+    "duration": 13.97,
     "width": 1280,
     "height": 720,
     "bytes": {
-      "mp4": 158888,
-      "webm": 170822,
-      "webp": 35872
+      "mp4": 189305,
+      "webm": 195802,
+      "webp": 43976
     }
   },
   "forget": {
@@ -44,9 +24,29 @@
     "width": 1280,
     "height": 720,
     "bytes": {
-      "mp4": 180329,
-      "webm": 168658,
-      "webp": 36396
+      "mp4": 188091,
+      "webm": 169739,
+      "webp": 37094
+    }
+  },
+  "fork": {
+    "duration": 13.67,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 157327,
+      "webm": 173122,
+      "webp": 36890
+    }
+  },
+  "levels": {
+    "duration": 14.2,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 183775,
+      "webm": 181632,
+      "webp": 29416
     }
   }
 }

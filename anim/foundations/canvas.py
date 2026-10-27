@@ -21,7 +21,6 @@ OG = "cells"
 class CanvasCells(FScene):
     """The page kernel, the canvas_ws bridge, and cells that are views of host agents."""
 
-    EYEBROW = "Canvas"
     TITLE = "Every cell is a view of an agent"
 
     def construct(self):

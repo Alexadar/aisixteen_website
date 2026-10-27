@@ -38,7 +38,6 @@ def case_card(name, send, expect, x=-3.7, y=0.35):
 class Replay(FScene):
     """One file of cases; every runtime sends them to its own kernel and gets the expected reply."""
 
-    EYEBROW = "Protocol"
     TITLE = "One file of cases, every runtime"
 
     def construct(self):
@@ -80,7 +79,6 @@ class Replay(FScene):
 class Legs(FScene):
     """Python also sends each case down five transports and diffs every reply with the in-proc reply."""
 
-    EYEBROW = "Protocol"
     TITLE = "Five transports, one answer"
 
     def construct(self):
@@ -114,7 +112,6 @@ class Legs(FScene):
 class Named(FScene):
     """Differences between runtimes are written down: a placeholder, and a skip by name."""
 
-    EYEBROW = "Protocol"
     TITLE = "Differences are named"
 
     def construct(self):

@@ -20,7 +20,6 @@ OG = "delete"
 class K4Delete(FScene):
     """delete_agent cascades deepest-first; delete_lock refuses; grants naming the dead are pruned."""
 
-    EYEBROW = "Fantastic kernel"
     TITLE = "delete_agent: the whole subtree"
 
     def construct(self):
@@ -38,7 +37,7 @@ class K4Delete(FScene):
         self.say("A tree of agents. reviewer carries delete_lock; x may call writer.")
         self.play(FadeIn(root), *[Create(l) for l in e[:2]], FadeIn(team), FadeIn(x), run_time=0.6)
         self.play(*[Create(l) for l in e[2:]], FadeIn(wr), FadeIn(rv), FadeIn(lock), FadeIn(grants), run_time=0.6)
-        self.wait(0.6)
+        self.wait(0.4)
 
         # a console on the right: each operator call, then its reply
         X, top = 0.4, 1.9
@@ -58,8 +57,8 @@ class K4Delete(FScene):
         put(mono('delete_agent {"id": "team"}', 21, AMBER))
         self.say("Any lock in the subtree refuses the whole delete, and names the blocker.")
         put(mono('reason: "locked"', 20, RED), mono('blocked_by: "reviewer"', 20, RED))
-        self.play(Indicate(lock, color=RED), run_time=0.6)
-        self.wait(0.7)
+        self.play(Indicate(lock, color=RED), run_time=0.4)
+        self.wait(0.5)
         put(mono('update_agent {"id": "reviewer",', 21, AMBER), mono('  "delete_lock": false}', 21, AMBER))
         self.play(FadeOut(lock, shift=DOWN * 0.2), run_time=0.4)
         put(mono('delete_agent {"id": "team"}', 21, AMBER))

@@ -4,6 +4,8 @@ Colours come from src/site/site.css (:root). Text is Space Grotesk (titles), Int
 and JetBrains Mono (code), registered from anim/.fonts (fetched by anim/render.sh, not
 committed). No LaTeX: every label is a Text.
 """
+import inspect
+import json
 from pathlib import Path
 
 import manimpango
@@ -14,6 +16,7 @@ from manim import (
 )
 
 FONTS = Path(__file__).resolve().parent.parent / ".fonts"
+REGISTRY = Path(__file__).resolve().parents[2] / "src" / "data" / "foundations" / "registry.json"
 for _f in sorted(FONTS.glob("*.ttf")):
     manimpango.register_font(str(_f))
 
@@ -92,14 +95,38 @@ def panel(title, w, h, x, y=0.15):
     return c, t
 
 
-class FScene(Scene):
-    """A Foundations clip: eyebrow + title top left, one narration line at the bottom."""
+def eyebrow(pillar, article=None):
+    """THE clip eyebrow format, used by every clip: "<Pillar> · <Article>", or "<Pillar>" alone
+    on a pillar page. Both are the registry's `short` names; FScene.header() upper-cases it."""
+    return pillar if not article or article == pillar else f"{pillar} · {article}"
 
-    EYEBROW = ""
+
+def eyebrow_for(key):
+    """The eyebrow of article `key`, from registry.json: its pillar (the root of its branch) and
+    its own short name. Intermediate sections are skipped: "Agents · Context folding"."""
+    nodes = {n["key"]: n for n in json.loads(REGISTRY.read_text())["nodes"]}
+    if key not in nodes:
+        raise KeyError(f"{key!r} is not in {REGISTRY.name}; the scene file must be named <key>.py")
+    root = nodes[key]
+    while root["parent"]:
+        root = nodes[root["parent"]]
+    return eyebrow(root["short"], None if root is nodes[key] else nodes[key]["short"])
+
+
+class FScene(Scene):
+    """A Foundations clip: eyebrow + title top left, one narration line at the bottom.
+
+    The eyebrow is not set by hand: header() derives it from the scene file's name (the article
+    key) with eyebrow_for(), so every clip reads "<Pillar> · <Article>". Set only TITLE.
+    """
+
     TITLE = ""
 
     def header(self):
-        eb = mono(self.EYEBROW.upper(), size=19, color="#8dbbff")
+        if getattr(self, "EYEBROW", None) is not None:
+            raise TypeError(f"{type(self).__name__}: do not set EYEBROW; it comes from eyebrow_for(<file key>)")
+        key = Path(inspect.getfile(type(self))).stem
+        eb = mono(eyebrow_for(key).upper(), size=19, color="#8dbbff")
         dot = Dot(radius=0.045, color=CYAN).next_to(eb, LEFT, buff=0.16)
         ti = txt(self.TITLE, size=38, weight=BOLD, font=DISPLAY)
         g = VGroup(VGroup(dot, eb), ti).arrange(DOWN, aligned_edge=LEFT, buff=0.16)

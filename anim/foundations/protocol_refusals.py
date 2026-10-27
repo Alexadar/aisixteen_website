@@ -28,7 +28,6 @@ def field_row(key, val, kcolor, vcolor=INK, size=21):
 class RShape(FScene):
     """One refusal shape: error for the person, reason for the machine, hint for the repair."""
 
-    EYEBROW = "Protocol"
     TITLE = "One shape for every refusal"
 
     def construct(self):
@@ -72,7 +71,6 @@ class RShape(FScene):
 class RBranch(FScene):
     """A caller branches on reason, never on the prose; each code carries its facts."""
 
-    EYEBROW = "Protocol"
     TITLE = "Branch on reason"
 
     def construct(self):
@@ -111,7 +109,6 @@ class RBranch(FScene):
 class RRecover(FScene):
     """A model copies a placeholder id; the refusal lists the real ids and the next send completes."""
 
-    EYEBROW = "Protocol"
     TITLE = "Recover from a refusal"
 
     def construct(self):

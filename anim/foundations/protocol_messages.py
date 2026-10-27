@@ -24,7 +24,6 @@ OG = "batch"
 class K1Batch(FScene):
     """One batch, many calls: registered at once, run concurrently, answered in input order."""
 
-    EYEBROW = "Protocol"
     TITLE = "One send, a batch of calls"
 
     def construct(self):
@@ -109,7 +108,6 @@ class K1Batch(FScene):
 class Statuses(FScene):
     """Five items, five statuses: how each ends and what its result holds."""
 
-    EYEBROW = "Protocol"
     TITLE = "Five statuses"
 
     def construct(self):
@@ -143,27 +141,25 @@ class Statuses(FScene):
 
         self.say("One send of five items. Each one settles in exactly one status.")
         self.play(FadeIn(card_bg), FadeIn(heads), LaggedStart(*[
-            FadeIn(VGroup(r[0], r[1]), shift=RIGHT * 0.15) for r in left_cols], lag_ratio=0.15), run_time=1.3)
-        self.wait(0.5)
+            FadeIn(VGroup(r[0], r[1]), shift=RIGHT * 0.15) for r in left_cols], lag_ratio=0.15), run_time=1.1)
+        self.wait(0.2)
 
         def reveal(idxs, line, color=MUTED):
             self.say(line, color=color)
-            self.play(*[FadeIn(VGroup(left_cols[i][2], left_cols[i][3]), shift=RIGHT * 0.15) for i in idxs], run_time=0.6)
-            self.wait(0.5)
+            self.play(*[FadeIn(VGroup(left_cols[i][2], left_cols[i][3])) for i in idxs], run_time=0.45)
+            self.wait(0.3)
 
         reveal([0], "completed: the handler ran and returned. The reply is passed through.")
         reveal([1], "errored: the handler ran and returned a map with a truthy error.")
         reveal([2], "failed: refused before dispatch (pid null), or the handler raised.")
         reveal([3, 4], "cancelled: killed by cancel. timed_out: its own deadline expired.")
         self.say("Every item gets an answer; nothing propagates out of send.", color=INK)
-        self.play(Indicate(card_bg, color=GREEN, scale_factor=1.01), run_time=0.6)
         self.finish(1.6)
 
 
 class Reflect(FScene):
     """reflect says what an agent is; docs says how to call it; then the verb."""
 
-    EYEBROW = "Protocol"
     TITLE = "reflect, docs, then the verb"
 
     def construct(self):

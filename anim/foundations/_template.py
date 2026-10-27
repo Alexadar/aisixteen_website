@@ -26,7 +26,8 @@ OG = "example"
 class Example(FScene):
     """One mechanism, drawn in a few steps."""
 
-    EYEBROW = "Protocol"            # the pillar (or "Pillar · Section")
+    # No EYEBROW: header() writes it for you from this file's key, always "<Pillar> · <Article>"
+    # (common.eyebrow / eyebrow_for), e.g. "Protocol · Call gate". Setting EYEBROW is an error.
     TITLE = "A short title"         # the clip's title, as in the article's clips.<name>.title
 
     def construct(self):

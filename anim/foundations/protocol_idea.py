@@ -18,7 +18,6 @@ OG = "peers"
 
 
 class Peers(FScene):
-    EYEBROW = "Protocol"
     TITLE = "Three peers, one mediator"
 
     def construct(self):
@@ -66,7 +65,6 @@ class Peers(FScene):
 
 
 class Table(FScene):
-    EYEBROW = "Protocol"
     TITLE = "Routing by id, not by tree"
 
     def construct(self):
@@ -104,7 +102,6 @@ class Table(FScene):
 
 
 class Reflect(FScene):
-    EYEBROW = "Protocol"
     TITLE = "Every agent answers reflect"
 
     def construct(self):

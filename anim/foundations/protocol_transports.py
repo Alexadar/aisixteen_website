@@ -23,7 +23,6 @@ OG = "carriers"
 class Carriers(FScene):
     """The payload is fixed; only the envelope around it changes."""
 
-    EYEBROW = "Protocol · Transports"
     TITLE = "One message, five carriers"
 
     def construct(self):
@@ -86,7 +85,6 @@ class Carriers(FScene):
 class SealedLeg(FScene):
     """A wire leg is sealed until opened; then it is the caller of the onward send."""
 
-    EYEBROW = "Protocol · Transports"
     TITLE = "A wire leg is the caller"
 
     def construct(self):
@@ -138,7 +136,6 @@ class SealedLeg(FScene):
 class ForwardBridge(FScene):
     """Kernel to kernel: forward out as a call frame, reply frame back."""
 
-    EYEBROW = "Protocol · Transports"
     TITLE = "Kernel to kernel with forward"
 
     def construct(self):
