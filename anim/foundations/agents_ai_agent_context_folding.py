@@ -120,12 +120,12 @@ class CF2Levels(FScene):
         X0 = -6.3
         self.play(FadeIn(lane_label("view", VY + 0.65, X0)), run_time=0.2)
 
-        def fold_block(level, refs, w=2.0):
+        def fold_block(level, refs, w=2.0, size=19):
             color = {1: AMBER, 2: BRAND, 3: CYAN}[level]
-            return Node(f"L{level} · {refs} refs", w=w, h=CELL, color=color, size=19, fill_alpha=0.22)
+            return Node(f"L{level} · {refs} refs", w=w, h=CELL, color=color, size=size, fill_alpha=0.22)
 
-        # the conversation grows; the oldest finished chain folds, three times
-        self.say("Under context_strategy: fold, finished chains at the head fold, oldest first.")
+        # the conversation grows; the oldest rows fold, three times
+        self.say("With context_strategy: fold, the oldest rows fold first.")
         live = [cell(i, size=17) for i in range(1, 15)]
         place_row(live, X0, VY)
         self.play(LaggedStart(*[FadeIn(c) for c in live], lag_ratio=0.06), run_time=0.9)
@@ -169,8 +169,9 @@ class CF2Levels(FScene):
         self.say("Nothing is lost: history {fold: <id>} opens a fold one level down, as far as needed.", color=INK)
         lvl2 = [fold_block(2, 3, w=2.4) for _ in range(3)]
         place_row(lvl2, X0, VY - 1.25)
-        lvl1 = [fold_block(1, n, w=2.0) for n in refs]
-        place_row(lvl1, X0, VY - 2.5)
+        lvl1 = [fold_block(1, n, w=2.1, size=16) for n in refs]
+        for i, m in enumerate(lvl1):
+            m.move_to([X0 + 1.05 + i * 2.55, VY - 2.5, 0])
         e1 = VGroup(*[Line(l3.get_bottom(), m.get_top(), color=LINE, stroke_width=2) for m in lvl2])
         e2 = VGroup(*[Line(lvl2[0].get_bottom(), m.get_top(), color=LINE, stroke_width=2) for m in lvl1])
         self.play(Create(e1), LaggedStart(*[FadeIn(m, shift=DOWN * 0.15) for m in lvl2], lag_ratio=0.15), run_time=0.7)
@@ -178,7 +179,7 @@ class CF2Levels(FScene):
         rows = VGroup(*[cell(i, size=15, w=0.5) for i in range(1, 6)])
         place_row(list(rows), X0 + 2.6, VY - 2.5)
         rows.next_to(lvl1[-1], RIGHT, buff=0.6)
-        e3 = Line(lvl1[0].get_right(), rows.get_left(), color=LINE, stroke_width=2)
+        e3 = Line(lvl1[-1].get_right(), rows.get_left(), color=LINE, stroke_width=2)
         self.play(Create(e3), FadeIn(rows), run_time=0.5)
         self.finish(2.4)
 

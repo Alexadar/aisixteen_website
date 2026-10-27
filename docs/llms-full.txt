@@ -1457,35 +1457,151 @@ The AI agent keeps a long conversation in a finite window by folding it: a finis
 
 *Animation: A fold is a new row* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/fold.mp4). context_fold over rows 3 to 8 appends one fold row (13) to the store, with refs to its members; nothing is deleted. In the view the fold sits at its anchor, row 3, in place of its members, and everything before the range keeps its exact bytes.
 
+In this part: AI agent (https://aisixteen.com/fantastic/foundations/agents/ai-agent/); Memory stores (https://aisixteen.com/fantastic/foundations/agents/memory-stores/); Credential store (https://aisixteen.com/fantastic/foundations/agents/credential-store/)
+
 Sources: README.md: what’s in the box (https://github.com/aisixteen/fantastic/blob/main/README.md#L49); README.md: memory (https://github.com/aisixteen/fantastic/blob/main/README.md#L47); ai_core (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core)
+
+### Foundations › Agents › AI agent
+
+URL: https://aisixteen.com/fantastic/foundations/agents/ai-agent/
+
+An **AI agent** is an ordinary agent whose handler talks to a language model. It is the shared crate `ai_core`, in Rust and in Python, behind a small interface called a provider. A backend such as ollama, vllm, responses or anthropic supplies only that provider.
+
+This page follows what happens when a message reaches an AI agent: the prompt it builds, the one pass it runs, the calls the model writes, the chain that continues from their replies, the rows it leaves behind, and the verbs that pause it. Three parts have their own pages: [Context folding](/fantastic/foundations/agents/ai-agent/context-folding/), [Forking and marks](/fantastic/foundations/agents/ai-agent/forking/) and [Model backends](/fantastic/foundations/agents/ai-agent/backends/).
+
+#### One pass behind a provider seam
+
+Each `send` to an AI agent runs exactly one **pass**: it assembles the prompt, fits it to the context window, streams the model’s tokens, and appends the turn to the agent’s history. The code says so itself: “ONE provider pass per `send`.”
+
+The **provider** is the only part that knows a vendor. It takes plain chat messages (a role and text) and yields text tokens. It does no tool calling, holds no agent state, and never uses a vendor’s native tool interface. Its one protocol duty is the reasoning channel: it wraps a reasoning model’s deliberation in `<think>` and `</think>` once per turn, so a turn that is all thinking is not read as empty.
+
+- `chat(messages, max_tokens)` streams the completion as tokens.
+- `model()` names the upstream model.
+- `ready()` can refuse the turn up front, before anything is assembled.
+- `report()` returns what the endpoint reported about the pass, such as its own prompt-token count.
+
+A pass runs its steps in a fixed order: the provider’s `ready()` check, the caching-mode check, any recall owed from the last fold, prompt assembly, context projection, and only then `chat`. A failure at any step ends the turn with a reason instead of a half answer. The two runtimes agree on this contract; the Rust crate is a port of the Python `ai_core`, which its comments call canonical.
+
+*Animation: One pass: rows and a prompt in, a stream out* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/pass.mp4). A send reaches the AI agent. The system block (tree, self, how-to) and the rows from its memory store go to the provider. Tokens stream back. The agent appends two rows, the incoming message and the answer.
+
+#### The prompt is built from the live tree
+
+The default system block is three parts joined by blank lines: `{tree}`, `{self}` and `{howto}`. `{tree}` is the kernel’s primer, a flat list of agent ids and the bundle names. `{self}` is the agent’s own identity: its `id`, `description`, `memory_store_id`, `can_call` and `callable_by`. `{howto}` is fixed text that teaches the call envelope, grants, replies and the context window.
+
+Nothing in the block lists other agents’ verbs. To learn what a target answers, the model sends `kernel` a `docs` with `<of>` naming the agent. That reply is transient: after the model’s next message it shrinks to a one-line stub.
+
+The block states the mechanism and no strategy. The source comment is explicit that the default prompt says nothing about looping, orienting, iterating or finishing, and a test pins it. A record can replace the block with its own `system_prompt`, or a file named by `system_prompt_file`; a `send` can replace it for one delivery. The first of those that is set wins, and the placeholders above are filled in whichever block is used. `pre_system_prompt` and `post_system_prompt` on the record wrap it without replacing anything.
+
+Everything after the block is the conversation: the rows in the agent’s store, shaped to a view that fits the window ([Context folding](/fantastic/foundations/agents/ai-agent/context-folding/)).
+
+#### Tools are verbs, written as text
+
+A model calls an agent by writing a `<call>` element in its answer: one child tag per argument, no JSON, no escaping. `<target_id>` names the agent, `<type>` is the verb, and every other child is an argument. This is the only envelope the parser reads.
+
+a call (illustrative ids):
+
+```
+<call name="send">
+<target_id>notes</target_id>
+<type>read</type>
+<path>todo.md</path>
+</call>
+```
+
+It is the same `{target, payload}` item that [every message](/fantastic/foundations/protocol/messages/) carries, written as text. So an AI agent has no tool list of its own: its tools are the verbs of every agent it may reach. Four call names parse: `send`, `done`, `await` and `inquiry_answer`. The last three are control calls, not dispatches.
+
+The calls run as the agent, so the [call gate](/fantastic/foundations/protocol/call-gate/) decides each one. The prompt tells the model to read its `can_call` before the first call, because a call outside it is refused and costs a turn.
+
+Only the answer acts. A `<call>` written inside thinking never runs, and thinking is stripped before the turn is stored. A pass that stops with a call still open dispatches nothing at all, even its closed calls, and leaves a marker row in place of a half answer.
+
+#### The loop is a chain of passes
+
+No code loops inside a pass. The loop is a **chain**: after a pass, the router dispatches every call the model wrote in one batch, and the calls run concurrently. Everything owed to one destination comes back as one message, one block per call, each headed by its pid:
+
+a reply batch, abridged (illustrative pids and batch token):
+
+```
+[reply to 1042 · notes read · 1 of 2 in batch b7]
+…
+[reply to 1043 · notes list · 2 of 2 in batch b7]
+…
+```
+
+The model never sees half a batch. `reply_to` decides where a reply goes: back to the caller by default, another agent’s id, or `null` to discard it. When the batch lands on the agent itself, that is the next pass, and the chain goes on when a reply batch lands on the agent, or when the router sends a reminder (below).
+
+*Animation: A chain is passes joined by replies* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/chain.mp4). Pass 1 writes two calls. They run concurrently and come back as one reply batch addressed to the agent. That starts pass 2, which writes done, and the chain ends.
+
+#### How a chain ends
+
+- `done` ends it explicitly. Nothing runs and nothing reminds.
+- `await` stops until something lands. Status ends with `reason: awaiting` and the `pending` count. With nothing in flight it ends the chain and stores a note, `nothing_to_await`.
+- A turn with no calls dispatched ends it only after the reminders run out (below).
+
+A turn that dispatches no call at all is not the end. The router stores a reminder, `[no call was dispatched]`, and the agent runs again. A turn that was only thinking has its answer discarded and never stored (the incoming row stays), and gets an extra line saying so. The second silent turn in a row escalates the reminder.
+
+Ten silent turns in a row end the chain with status `done`, `reason: gave_up`. The record field `misfire_limit` replaces the ten. Any call resets the count, `done` and `await` included.
+
+*Animation: A turn with no call is reminded* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/nudge.mp4). The agent answers with prose and no call. The router stores a reminder and the agent runs again. Ten silent turns in a row end the chain with gave_up; a done call ends it at once.
+
+`cancel` ends a runaway chain like any other task ([Tasks and waiting](/fantastic/foundations/kernel/tasks/)).
+
+#### History is rows in a store
+
+The conversation is never kept in the agent. It lives in the **memory store** the record names with `memory_store_id`, one row per message, under the agent’s own key. A turn adds two rows: the incoming message, `{role: "user", content, id, parent}`, and the answer, `{role: "assistant", content, id, parent}` with the thinking removed.
+
+Row ids come from the kernel’s counter ([State and durability](/fantastic/foundations/kernel/state/)), minted at the moment of the append. An id therefore orders rows in time, and after a restart the conversation comes back in the order it was lived. When the incoming message is a reply batch, its `parent` is the turn named by the `↑N` on its first tag.
+
+Writes go to the store first and into the agent’s in-memory head only when the store took them. The head is the rows since the last `clear`, read once on the first turn after boot. No store named means the agent fails loud at boot and on its first turn; nothing falls back to RAM. A store that refuses mid-turn fails the turn.
+
+Large reply bodies are held in memory for this run only. The store keeps the reply’s `origin` line, how to get it again, so after a restart the model re-reads instead of remembering. Memory stores, their verbs and their durability are on [their own page](/fantastic/foundations/agents/memory-stores/).
+
+#### pause and resume
+
+`pause {reason?}` stops the generation in flight and then holds every message sent to the agent, in order, in its store. It returns `{paused: true, held: 0}`. Pausing twice is a no-op.
+
+While the agent is paused, each `send` is appended as a `held` row and answers `{held: <n>, paused: true}`. Nothing runs and nothing is dropped.
+
+`resume {note?}` writes one `resume` row, `[resumed after a pause of 42s]` plus the note, then releases the held messages as a kernel task, one after another, each as a fresh turn in arrival order. It returns `{resumed: true, released: <n>}`; when the agent is not paused it returns `{resumed: false, released: 0}`.
+
+*Animation: pause holds, resume releases in order* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/pause.mp4). pause stops the generation and writes a pause row. Two sends arrive and become held rows. resume writes a resume row and releases both, in order, each as a fresh turn.
+
+The pause state is rows too. The last `pause` or `resume` row decides, and the `held` rows after the last `resume` are the queue. A restart reads them back from the head, so a paused agent stays paused with its queue intact.
+
+#### Sends, queues and status
+
+`send {text, client_id?, system_prompt?, send_to?}` runs a turn. A lock lets one generation run at a time; a caller who waits gets a `status` event with `phase: queued` and the number ahead. If the model made no call of its own, `send_to` hands the pass’s text to another agent once, without propagating.
+
+An agent has one chain at a time. A message that lands while its chain is alive is stored as a row and read by the chain’s next pass, and its sender gets the answer of the pass that read it. A message the agent sends to itself is its own chain turn and is never held.
+
+`stop` closes the provider stream, aborts the open parts and leaves a `[stopped by <caller>]` marker. There is no `interrupt` verb: a `send` is a kernel task, so `cancel` ends it, and the agent’s cancel hook closes the turn out with `status` `done` and `reason: cancelled`.
+
+#### status
+
+The `status` verb answers `{source, client_id, generating, current, mine_pending, others_pending}`. With a `client_id` it shows that client’s own queue entries and in-flight text in full; other clients collapse to a count, and without a `client_id` all text is redacted. It has no `paused` field.
+
+The same transitions also stream as events: `queued`, `thinking`, `streaming`, `retrying` and `done`. A `done` carries a reason (for example `ok`, `cancelled`, `timeout`, `error`, `awaiting`, `nothing_to_await`, `dead_turn`, `gave_up`) and the token counts, `prompt_tokens`, `completion_tokens`, `gen_seconds` and `context_window`. The counts are the endpoint’s own, or an estimate flagged `…_estimated`.
+
+In this part: Context folding (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/); Forking and marks (https://aisixteen.com/fantastic/foundations/agents/ai-agent/forking/); Model backends (https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/)
+
+Sources: ai_core: the crate overview and verbs (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/lib.rs#L1); the provider seam (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/provider.rs#L1); one pass: run_generation (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/agent_loop.rs#L173); prompt assembly and the how-to text (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/assembly.rs#L81); the call envelope and its four names (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/tool_parse/grammar.rs#L50); routing, done, await and the no-call reminder (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/route.rs#L961); pause and resume (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/pause.rs#L1); the Python ai_core (https://github.com/aisixteen/fantastic/tree/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core)
 
 ### Foundations › Agents › AI agent › Context folding
 
 URL: https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/
 
-A model reads a finite window, and an agent that works for hours outgrows it. Something has to give. Folding is Fantastic’s way of giving without losing anything: a finished stretch of work collapses into one row that names what it hides, and in the code’s words “the history becomes a tree of marks the model walks down as far as it needs.”
+A model reads a finite window, and an agent that works for hours outgrows it. Something has to give. Folding is Fantastic’s way of giving without losing anything: a stretch of old rows collapses into one row that names what it hides, and in the code’s words “the history becomes a tree of marks the model walks down as far as it needs.”
 
-This article covers the storage under it, the fold row itself, levels, the verbs that fold, recall, clear and forget, and the reason old bytes never move: the provider’s prompt cache. Starting a new agent from this one’s prefix, with `fork` and `mark`, has [its own page](/fantastic/foundations/agents/ai-agent/forking/). Folding is opt-in, with `context_strategy: fold`; the default strategy is `compact`.
+This article covers the fold row, levels, the five context strategies, the verbs that fold, recall, clear and forget, and the reason old bytes never move: the provider’s prompt cache. The rows live in a memory store, described on [Memory stores](/fantastic/foundations/agents/memory-stores/). Starting a new agent from this one’s prefix, with `fork` and `mark`, has [its own page](/fantastic/foundations/agents/ai-agent/forking/), and the provider side is on [Model backends](/fantastic/foundations/agents/ai-agent/backends/). Folding is opt-in, with `context_strategy: fold`; the default strategy is `compact`.
 
 #### Memory is rows in a store
 
-An AI agent’s conversation lives in a **memory store** agent, one row per message. Two store bundles ship, each in Rust and in Python with identical readmes: `ram_store`, where everything is lost when the process exits, and `sqlite_store`, one SQLite file that survives it. They answer “the SAME verbs, arguments, replies and refusals”; the only difference a caller sees is `durable: true`.
+An AI agent’s conversation lives in a **memory store** agent, one row per message, keyed by the caller so that an agent reads and writes only its own rows. [Memory stores](/fantastic/foundations/agents/memory-stores/) covers the two bundles, `ram_store` and `sqlite_store`, and their verbs. Row ids are the kernel’s own counter, the same one that numbers calls and tasks ([State and durability](/fantastic/foundations/kernel/state/)), which is why an id also orders rows in time.
 
-Rows are keyed `(owner, id)`. The owner is the caller, `<kernel guid>|<agent id>`, set by the store from who is calling: “there is no `owner` field to forge.” Row ids are the kernel’s own counter, the same one that numbers calls and tasks ([State and durability](/fantastic/foundations/kernel/state/)), which is why an id also orders rows in time.
-
-| verb | what |
-|---|---|
-| `append {rows}` | add rows under your key, all or none |
-| `read {after?, limit?, kinds?, match?, ...}` | your rows |
-| `search {query, ids?}` | the lines that mention something |
-| `prune {before_id | ids, keep?}` | delete your rows; fold refs on them go too |
-| `inject {tables}` · `dump` | replace or capture the whole store |
-
-A fold’s members are kept in a `fold_refs` table whose foreign keys cascade, so pruning a row also removes it from every fold that names it. `sqlite_store` adds an FTS5 trigram index for `search`, runs in WAL mode, and on `prune` overwrites the deleted bytes and truncates the WAL, “so the text leaves `memory.db` and its `-wal` at once.”
+Two things in the store matter here. A fold’s members are kept in a `fold_refs` table whose foreign keys cascade, so pruning a row also removes it from every fold that names it. And on `prune`, `sqlite_store` overwrites the deleted bytes and truncates the WAL, “so the text leaves `memory.db` and its `-wal` at once.”
 
 #### A fold is an appended row
 
-What the model reads is a **view** over those rows: an ordered list of row ids, each at a resolution (`full`, `stub` or `fold`). The view is saved as a row of its own, so the next turn, and the next process, rebuild the same bytes instead of a freshly guessed prefix.
+What the model reads is a **view** over those rows: an ordered list of row ids, each at a resolution (`full`, `stub` or `fold`). Every projection saves the view as a row of its own, so the next turn, and the next process, rebuild the same bytes instead of a freshly guessed prefix.
 
 A fold is an ordinary row appended to the conversation. It carries `refs` (the ids it collapses, in order), a `title` of at most 140 characters, a summary `body`, a `level` and an `anchor`. Nothing is rewritten and nothing is lost. The model sees it as one line plus the summary:
 
@@ -1500,13 +1616,13 @@ ERRORS: ...
 OPEN: none
 ```
 
-The `anchor` is the smallest ordinary row id the fold covers. Because row ids order rows in time, the view can place a fold at its anchor without loading the rows it hides. Rendering is deterministic, “so a view renders the same bytes until a new fold lands.” If the summarizer fails, the fold is still written, with its refs and the members’ titles, and says so on its header line: “Degraded, loud, never silent.”
+The `anchor` is the smallest non-fold row id the fold covers (a member fold contributes its own anchor). Because row ids order rows in time, the view can place a fold at its anchor without loading the rows it hides. Rendering is deterministic, “so a view renders the same bytes until a new fold lands.” If the summarizer fails, the fold is still written, with its refs and the members’ titles, and says so on its header line: “Degraded, loud, never silent.”
 
 *Animation: A fold is a new row* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/fold.mp4). context_fold over rows 3 to 8 appends one fold row (13) to the store, with refs to its members; nothing is deleted. In the view the fold sits at its anchor, row 3, in place of its members, and everything before the range keeps its exact bytes.
 
 #### Folding by hand: context_fold
 
-`context_fold {from?, to?, summary?}` is an operator verb, not one the model is taught. It folds a range of consecutive rows in the view into one fold row, `summary` used verbatim or written by the fold summarizer, and answers `{folded: <fold id>, rows: <n>, summarized: <bool>}`. The new view is the rows before the range unchanged, then the fold, then the rows after. It refuses an empty range, an id not in the view, a range that crosses a fold or a clear row, a range that starts at or before the pinned primer, and any range while a turn is running.
+`context_fold {from?, to?, summary?}` is an operator verb: the how-to text an AI agent reads teaches `history`, `grep`, `recall`, `context_status`, `context_recall` and `context_clear`, and does not mention it. It folds a range of consecutive rows in the view into one fold row, `summary` used verbatim or written by the fold summarizer, and answers `{folded: <fold id>, rows: <n>, summarized: <bool>}`. The new view is the rows before the range unchanged, then the fold, then the rows after. It refuses an empty range, an id not in the view, a range that crosses a fold or a clear row, a range that starts at or before the pinned primer, and any range while a turn is running (a [refusal](/fantastic/foundations/protocol/refusals/) that names the reason). `from` defaults to the row after the last fold or clear in the view, and `to` to the last row.
 
 illustrative ids:
 
@@ -1517,31 +1633,33 @@ context_fold {"from": 12, "to": 18, "summary": "printer fixed; queue cleared"}
 
 #### Folds of folds
 
-Folds nest. A fold’s level is one more than the highest level among the folds it contains: 1 for a fold of rows, 2 for a fold of folds, and so on. When three adjacent folds sit at the head of the view, they fold as a group. The constant is `FOLD_RUN = 3`, and its comment explains the choice: “THREE, not four ... depth grows as log3 of the history rather than one level per cut.”
+Folds nest. A fold’s level is one more than the highest level among the folds it contains: 1 for a fold of rows, 2 for a fold of folds, and so on. The automatic fold normally skips the folds at the head of the view and takes the oldest ordinary rows, because wrapping the previous fold every time would build a linked list of summaries of summaries. Only when three adjacent folds sit at the head do they fold as a group. The constant is `FOLD_RUN = 3`, and its comment explains the choice: “THREE, not four ... depth grows as log3 of the history rather than one level per cut.”
 
-*Animation: Folds of folds* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/levels.mp4). Finished chains at the head of the view fold into level-1 folds. Three adjacent folds at the head fold again into one level-2 fold, and so on, so depth grows like log3 of the history. history {fold} opens any fold one level down.
+*Animation: Folds of folds* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/levels.mp4). The oldest rows fold into level-1 folds, one fold row each. Three adjacent folds at the head fold again into one level-2 fold, and so on, so depth grows like log3 of the history. history {fold} opens any fold one level down.
 
 The summary format is fixed. The model writes a one-sentence title, then five sections, “omitting none (write `none`)”: ASKED, DONE (and why), BINDING (rules and choices that still bind), ERRORS (quoted verbatim) and OPEN. When a fold contains earlier summaries, they are merged: “the newer statement wins, and unfinished work is carried forward.” The summary budget is 1024 tokens; a summary still over it after three re-summarizes fails the turn loudly.
 
-Next to the summary, every fold carries a mechanical index that no summarizer can drop: the file names and identifiers its members mention, and up to 1200 characters of what the user said, verbatim.
+Next to the summary, every fold carries a mechanical index that no summarizer can drop and that sits outside the 1024-token budget: up to 30 file names and 20 hex identifiers its members mention, and up to 1200 characters of what the user said, verbatim.
 
-Going back down is one verb. `history {fold: <id>}` returns the fold’s title and summary and its members one level down, and a member that is itself a fold opens the same way. `grep` finds a line “behind every clear, inside every fold,” and `recall` pages turns back from the durable store.
+Going back down is one verb. `history {fold: <id>}` returns the fold’s title and summary and its members one level down, and a member that is itself a fold opens the same way. `grep` finds a line “behind every clear, inside every fold,” and `recall {query?, limit?, before?}` pages whole turns back, read-only, from the durable store.
 
 #### When folding happens
 
-Each AI agent has one `context_strategy`, chosen statically; there is no try-this-then-that chain, and an unknown value is refused.
+Each AI agent has one `context_strategy`, chosen statically; there is no try-this-then-that chain, and an unknown value is refused with the list of valid names. A strategy runs only when the estimated prompt passes `TRIGGER = 0.8` of the budget. Token counts are estimates (the serialized message length divided by four), calibrated against the prompt sizes the model server reports.
 
 | strategy | what it does when the window fills |
 |---|---|
-| `compact` | the default |
+| `compact` | the default: keeps the recent turns verbatim and adds a model summary of the overflow |
 | `truncate` | keeps the first, task-framing turn and the recent turns, drops the middle; no model call |
 | `strip` | drops reply bodies and keeps their titles, oldest first; no model call |
-| `fold` | folds finished chains into fold rows, then strips, then cuts |
-| `none` | never shrinks; an over-budget turn is refused before any model call |
+| `fold` | folds the oldest rows into fold rows, then strips, then cuts |
+| `none` | never shrinks; an over-budget turn is refused before any model call, with “context full” |
 
 `fold` is “THE ONE STRATEGY THAT WRITES.” Every other strategy is a pure projection; this one appends fold rows to the durable store, “because a fold is a mark that must persist — the next turn has to see the same collapse, or the prefix rewrites every turn.”
 
-It starts once the view passes `FOLD_AT = 0.95` of the body budget and works oldest first, in one batch, until the view is at `LOW = 0.6` or under. Step one folds **closed** chains, one summarizing call each. A chain is open while its last row is an assistant turn still owed a reply, and open chains are never folded. If the view is still over, step two strips reply bodies in open chains; if it is still over, step three cuts. The last `KEEP_TAIL = 6` rows never fold.
+It acts once the view passes `FOLD_AT = 0.95` of the body budget. Step one takes the oldest rows, sized by their tokens, until the view would sit at `LOW = 0.6` or under, and writes one fold for them, with one summarizing call; it repeats only if the view is still over `LOW`. The ordinary span skips any folds at the head, stops at the next fold, never contains the goal turn or the last `KEEP_TAIL = 6` rows, and drops trailing assistant rows so it does not end between a call and its answer. Only when `FOLD_RUN = 3` or more folds sit adjacent at the head are they taken together as the span (the fold-of-folds case below). If the view is still over after step one, step two strips reply bodies, and if it is still over, step three cuts.
+
+The module’s header comment speaks of folding “closed chains” and stripping “open chains.” The code that picks the span counts tokens and does not test whether a chain is open. Open chains matter to `context_forget`, which spares them.
 
 strip, from its module doc:
 
@@ -1552,13 +1670,13 @@ strip, from its module doc:
 
 Strip follows two rules that keep the cache warm. Hysteresis: it strips only past a high watermark and then down to `LOW` in one batch, because “ten stubs in one event is one cache miss, not ten.” Monotone, oldest first: “Once stripped, always stripped,” so “the stable prefix only ever EXTENDS, never gets holes.”
 
-Token counts are estimates (characters divided by four), calibrated against the prompt sizes the model server reports.
+If the summarizer returns nothing, the fold is still written with its refs and its members’ titles, and its header line says “summary unavailable.” A summary that stays over its budget after three re-summarizes ends the turn with `reason: fold_summary` and folds nothing.
 
 #### Why the prefix stays byte-identical
 
 Model servers cache the work done on a prompt’s prefix and compare it **byte for byte**: an append after the cached prefix reuses it, an edit inside it does not. The `ai_core` code records one measurement on its own stack (a vLLM prefix cache): an append reused the whole 4752-token prefix out of a 6559-token prompt, while “any edit inside it — or a cut taken from the front of it — reuses nothing and recomputes everything.”
 
-So Fantastic only appends. Rows are never edited, a fold is a new row placed at its anchor, the view is persisted, and `context_fold` keeps the rows before its range exactly as they were rendered. The Rust tests assert that “the messages before the fold are byte-identical,” and the E125 end-to-end probe checks the same across a kernel restart.
+So Fantastic only appends. Rows are never edited, a fold is a new row placed at its anchor, the view is persisted, and `context_fold` keeps the rows before its range exactly as they were rendered. The Rust tests assert that “the messages before the fold are byte-identical,” and the E125 end-to-end probe, which runs against the Python runtime, checks the same for stored rows, the next prompt, a refused range and a kernel restart.
 
 *Animation: Why folds append, never edit* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/cache.mp4). A prompt cache compares bytes from the start. Appending a row keeps the whole old prompt as a cached prefix; cutting rows from the front moves everything after the cut; a fold misses from its anchor on but keeps the rows before it, and because the fold row persists, the next turn appends after the same bytes again.
 
@@ -1566,7 +1684,7 @@ To be precise about the claim: a fold replaces its members, so the prompt does c
 
 #### Caching modes and the primer
 
-The `caching` setting picks how the view is rendered. `none` sends every stored row, in order, never trimmed. `cleanup`, the default, trims superseded whole-state reads, repeated reply bodies and used docs from the view, with no markers. `provider_cache` sends what `none` sends, plus two cache markers: the end of the **primer** (the row `cache_primer_until` names) and the last fold or clear row. The Anthropic backend turns them into `cache_control` markers, at most four; a backend that cannot cache refuses `provider_cache`.
+The `caching` setting picks how the view is rendered. `none` sends every stored row, in order, never trimmed. `cleanup`, the default, trims superseded whole-state reads, repeated reply bodies and used docs from the view, with no markers. `provider_cache` sends what `none` sends, plus two cache markers: the end of the **primer** (the row `cache_primer_until` names) and the last fold or clear row. The Anthropic backend turns them into `cache_control` markers, together with one on the system block and the automatic top-level one, at most four; a backend that cannot cache refuses `provider_cache`. [Model backends](/fantastic/foundations/agents/ai-agent/backends/) covers the provider side.
 
 The primer is pinned in every mode: “The primer and every row before it are pinned — context_fold will not fold a range that starts at or before it.”
 
@@ -1574,9 +1692,9 @@ The primer is pinned in every mode: “The primer and every row before it are pi
 
 `context_recall {dry?}` rebuilds the agent’s view from its store. With the fold strategy, a head longer than the budget is folded first. Then the head is fitted to the budget at digest resolution, the model is asked which rows it wants in full (one model call), the chosen id list is persisted and the decision is logged as a row. It answers `{kept, expanded, dropped, folded, budget, why, degraded}`. A bad or missing model answer changes nothing: recall falls back to the mechanical fit and reports `degraded`.
 
-Some rows always stay in. The goal turn is first. Then, within half of the target (`PIN_SHARE = 0.5`), the standing rows: the first task root (the turn that set the task), the last task root (the live one), the newest fold, then other task roots, newest first. The rest fills newest first. The purpose, per the code: “a reboot after a long run of polling still sees why it is running.”
+Some rows always stay in. The goal turn is first. Then, within half of the target (`PIN_SHARE = 0.5`), the standing rows: the first task root (a user turn with no parent that set the task), the last task root (the live one), the newest fold, then other task roots, newest first. The rest fills newest first. The decision is a `recall` row that names the live task. The purpose, per the code: “a reboot after a long run of polling still sees why it is running.”
 
-Recall runs on the first turn after a boot, after a batch that folded (debounced to every third fold batch), or on request. With `dry: true` it does the mechanical fit only, with no model call.
+Recall runs on the first turn after a boot, after three fold rows have been written since the last recall (a recall is a model call, so it is debounced), or on request. It is not the `recall` verb, which only pages old turns back. With `dry: true` it does the mechanical fit only, with no model call.
 
 #### Clear and forget
 
@@ -1590,19 +1708,416 @@ a clear line (illustrative ids):
 
 Nothing is deleted: `grep`, `recall` and `history {fold: <id>}` still reach every member. It answers `{cleared, rows}`.
 
-`context_forget {include_cleared?}` is the verb that deletes. In one `prune` it removes every ordinary row covered by a fold whose place is known (rows of an open chain are spared) and all but the newest view row; with `include_cleared` it also removes every row before the last clear, which stays. It keeps every fold at every level, every row no fold covers, and the anchors a kept fold needs. It answers `{pruned, kept_folds, unanchored}`. The verb’s own promise: “The next prompt is the same before and after.” Afterwards, a pruned id is gone from `grep`, `recall` and `history`, while `history {fold}` still returns the fold’s title and summary.
+`context_forget {include_cleared?}` is the verb that deletes. In one `prune` it removes every ordinary row covered by a fold whose place is known (rows of an open chain are spared) and all but the newest view row; with `include_cleared` it also removes every row before the last clear, which stays. It keeps every fold at every level, every row no fold covers, and the anchors a kept fold needs. It answers `{pruned, kept_folds, unanchored}`. The verb’s own promise: “The next prompt is the same before and after.” It waits for a running turn. Afterwards, a pruned id is gone from `grep`, `recall` and `history`, while `history {fold}` still returns the fold’s title and summary.
 
 *Animation: clear starts over; forget deletes* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/forget.mp4). context_clear appends one clear row and the view starts at its line; nothing is deleted and grep still finds old rows. context_forget then deletes the rows a fold covers, keeps every fold, and the next prompt is the same before and after.
 
-`context_status` reports the posture: `{context_window, output_reserve, budget, strategy, last_projection, last_reaction}`, where the projection record lists the ids the model actually saw that turn, measured from the view rather than self-reported.
+`context_status` reports the posture: `{context_window, output_reserve, budget, trigger, calibration, reported_prompt_tokens, strategy, last_projection, last_reaction, view_source}`, where the projection record lists the ids the model actually saw that turn, measured from the view rather than self-reported.
+
+| verb | what | in the model’s how-to |
+|---|---|---|
+| `history {fold?}` | rows at digest resolution; a fold’s title, summary and members | yes |
+| `grep {query}` | the line that mentions something, anywhere in memory | yes |
+| `recall {query?}` | whole old turns from the durable store, read-only | yes |
+| `context_recall {dry?}` | rebuild the view and fit it to the budget | yes |
+| `context_clear {why?}` | start a new thread; delete nothing | yes |
+| `context_fold {from?, to?, summary?}` | fold a range by hand | no |
+| `context_forget {include_cleared?}` | delete rows no longer in view | no |
+| `context_status` | the budget posture | yes |
 
 #### Rust and Python
 
-Both runtimes implement the fold, strip, truncate, compact and none strategies, the caching modes, `context_fold`, `context_recall`, `context_clear`, `context_forget`, `context_status`, `fork`, `mark` and `fork_points`, and both ship `ram_store` and `sqlite_store`. The Rust code describes itself as mirroring Python, with Python’s `folds.py` as “the immutable reference.”
+Both runtimes implement the fold, strip, truncate, compact and none strategies, the caching modes, `context_fold`, `context_recall`, `context_clear`, `context_forget`, `context_status`, `history`, `grep` and `recall`, and both ship `ram_store` and `sqlite_store`. The Rust code describes itself as mirroring Python, with Python’s `folds.py` as “the immutable reference.”
 
-One difference is visible in `context_status`: Python builds a pinned-facts block in the prompt, while the Rust runtime has none and always reports `pinned_facts: 0`.
+One difference is visible in the projection record: the Rust runtime always reports `pinned_facts: 0`, and no strategy on main fills the Python counter either. Forking and `mark` are on [their own page](/fantastic/foundations/agents/ai-agent/forking/).
 
-Sources: ai_core (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core); fantastic-ai-core (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src); ram_store readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/memory/ram_store/src/ram_store/readme.md); sqlite_store readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/memory/sqlite_store/src/sqlite_store/readme.md); the context_fold e2e probe (E125) (https://github.com/aisixteen/fantastic/blob/main/e2e/tests/memory/E125_context_fold); README.md (https://github.com/aisixteen/fantastic/blob/main/README.md)
+Sources: ai_core (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core); fantastic-ai-core (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src); sqlite_store readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/memory/sqlite_store/src/sqlite_store/readme.md); the context_fold e2e probe (E125) (https://github.com/aisixteen/fantastic/blob/main/e2e/tests/memory/E125_context_fold); fold.py: the fold strategy (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core/strategies/fold.py); folds.py: the fold row, anchors, levels (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core/folds.py); constants.py: FOLD_AT, LOW, FOLD_RUN, KEEP_TAIL (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core/constants.py); caching.py: the caching modes and the primer (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core/caching.py)
+
+### Foundations › Agents › AI agent › Forking and marks
+
+URL: https://aisixteen.com/fantastic/foundations/agents/ai-agent/forking/
+
+Sometimes one conversation should become several: three reviewers that start from the same briefing, or a retry from the point before a bad turn. Starting each over would send the whole prefix to the model again, from scratch.
+
+`fork {at}` starts a new agent from the first rows of an existing one. The rows are copied byte for byte, so the model server can reuse the work it already did on them. `mark` and `fork_points` choose and list the places where a fork is allowed. This page assumes the rows and folds of [Context folding](/fantastic/foundations/agents/ai-agent/context-folding/).
+
+#### fork: a copy of the prefix
+
+`fork {at, name?, id?}` takes a row id, `at`, and answers `{id, copied, at}`. The new agent gets the same card as its source: handler, model, endpoint, system prompt, memory store, context settings and `can_call`. It sits beside its source, with the same parent, and is named “<source> fork” unless you pass `name`. Pass `id` to choose its agent id.
+
+The memory store is shared, but the rows are not. A store keys every row by the agent that writes it, so the copy is written as the fork, under its own key. It keeps every original row id, and the store’s `callable_by` is opened for the fork the way it is open for the source ([the call gate](/fantastic/foundations/protocol/call-gate/)). In the code’s words, “rows are never edited and the provider’s prompt cache compares bytes, not storage.”
+
+> the fork re-appends the parent’s rows under its OWN key with their original ids and hits the parent’s cache. (fork.rs)
+
+The copy is one `append`, all or nothing. If the store refuses it, the half-made agent is deleted and its grant removed, and the refusal is `store_refused`: nothing is left behind.
+
+*Animation: fork: a new agent on the same prefix* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/forking/fork.mp4). mark labels a turn boundary. fork at row 5 is refused with cuts_turn; fork at 6 starts a new agent with a copy of rows 1 to 6 under its own key, with the same ids, so its first prompt has the parent’s bytes. After that the two histories diverge.
+
+After the copy the two agents are separate. Later rows, folds and forgets on either side never reach the other, and each new row takes a fresh id from the kernel’s counter ([State and durability](/fantastic/foundations/kernel/state/)).
+
+#### Where a fork may start
+
+A fork point is always the end of a finished turn, outside any fold. A **turn** here is a chain of rows linked by `parent`, and a chain whose last row is an assistant message with a pending `send` call is still owed a reply, and is not finished. `fork` judges `at` before it creates anything, and a refusal names a `reason`, the `at` it judged, and a `hint` ([Refusals](/fantastic/foundations/protocol/refusals/)).
+
+| reason | when |
+|---|---|
+| `no_such_row` | no row of the conversation has id `at` |
+| `cuts_turn` | `at` is inside a turn, or the turn ends in an assistant message with a pending `send` call |
+| `cuts_fold` | some of a fold’s members are at or before `at`, some after |
+| `parent_mid_turn` | a turn is running for the source agent |
+| `store_refused` | the store refused the copy; no agent is left |
+
+The check on folds follows nested folds down to their leaf rows. A fold whose members all sit at or before `at` is not cut, even when the fold row itself was appended after `at`: the fork takes it whole.
+
+#### What is copied
+
+The fork gets every conversation row with id at or below `at`, and every fold whose members all sit at or below it. It also gets the newest `view` row and the newest `anchors` row at or before `at`, because the prompt is assembled from them, so the fork’s next prompt equals its source’s for the same prefix. It does not get `pause`, `held`, `late` or `mark` rows, which are the live state of one agent: each fork writes its own marks.
+
+*Animation: fork and folds: whole or refused* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/forking/folds.mp4). The parent has rows 1 to 8, a fold 9 over rows 2 and 3, and a fold 10 over rows 6 and 7. fork at 6 is refused with cuts_fold, because fold 10 has members 6 and 7, one at or before row 6 and one after it. fork at 4 copies rows 1 to 4 and fold 9 whole, and leaves fold 10 behind.
+
+#### mark and fork_points
+
+`mark {label, note?, version?}` records the agent’s newest row as a fork point. That row is the end of the last turn, so `fork` there is accepted. The `version` is a free-form tag, for example a commit. A mark is one `mark` row that never enters the prompt, and the agent keeps its last 20: a new mark prunes the oldest in the same step.
+
+A mark is itself checked as a fork would be. It is refused as `mid_turn` while a turn runs, `open_chain` while the last chain ends in an assistant message with a pending `send` call, `in_fold` when the newest row is inside a fold, and `no_rows` on an empty conversation.
+
+`fork_points {filter?}` lists the agent’s own marks, oldest first. `filter` is `{label?, version?}`: a substring of the label, or an exact version.
+
+fork_points (shape, illustrative values):
+
+```
+{"points": [{"agent": "reviewer", "at": 6, "label": "briefing", "note": null,
+  "version": null, "rows_after": 4, "model": "…", "warm": true}]}
+```
+
+Each point carries `rows_after`, the number of conversation rows after `at`, and the agent’s `model`. It also carries `warm`, which the next section explains.
+
+#### Cache lifetime and several forks
+
+`warm` is true while the agent’s last send ended less than 300 seconds ago. The constant is `CACHE_LIFETIME_SECS`, and its comment calls it “how long a provider keeps a prompt prefix warm after a send ended.” The clock starts when a provider pass ends. It is an assumption of the code, not an observation: nothing reads the provider’s cache, and whether a fork hits the cache is the provider’s decision.
+
+The timestamp lives in memory. A freshly forked agent has not sent anything, so it reports `warm: false` until its first send ends, and so does every agent after a restart.
+
+To fan out, fork the same mark several times while `warm` is true, and each fork starts from the same rows, with the same ids and content, that the model server has, by the code’s assumption, just processed. A test forks one mark twice and compares the two stores row for row.
+
+*Animation: warm: fork while the prefix is cached* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/forking/warm.mp4). A send ends and fork_points reports warm: true for the mark at row 6. Three forks of that mark start from the same rows 1 to 6 within the window. After 300 seconds without a send, fork_points reports warm: false.
+
+The branches can come from another agent. `fork {from: {agent, at}}` sends the same verb to that agent as a gated send ([send](/fantastic/foundations/protocol/messages/)). In the `agentic_resources` bundle, `spawn {role, from: {agent, at}}` forks `agent` at `at` and applies a role card over the copy. The caller must hold `fork` on the source or the spawn is refused `not_allowed`.
+
+#### Rust and Python
+
+The Rust runtime (`fork.rs`) and the Python runtime (`core.py`) implement the same rules. They share the fork check, the rows left out of a copy, the limit of 20 marks and the 300-second window.
+
+Sources: fork.rs: fork, mark, fork_points (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/fork.rs#L182); the fork check, `_fork_plan` (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core/core.py#L5223); MAX_MARKS and CACHE_LIFETIME_SECS (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/constants.rs#L188); the verb descriptions (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/verbs.rs#L62); when the send clock is set (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/agent_loop.rs#L351); tests: two forks of one mark (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/tests_fork.rs#L642); spawn from a fork point (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-agentic-resources/src/lib.rs#L893)
+
+### Foundations › Agents › AI agent › Model backends
+
+URL: https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/
+
+An AI agent does not know which model it talks to. Its record names a **backend**, a bundle that turns the conversation into one request to a provider and streams text back. Fantastic ships five: `anthropic_backend`, `vllm_backend`, `ollama_backend`, `responses_backend` and `foundation_models_backend`.
+
+This page covers what the five share, what each one adds, the three `caching` modes and the `transport_retries` setting. Folds, the history and marks are on [Context folding](/fantastic/foundations/agents/ai-agent/context-folding/) and [Forking and marks](/fantastic/foundations/agents/ai-agent/forking/).
+
+#### One surface, five providers
+
+The shared code is **ai-core**. It owns the verbs (`send` and the rest), the per-client history, the FIFO lock that serializes callers, prompt assembly and the status events. A backend supplies only a **provider**: messages in, content tokens out.
+
+> A provider is a PURE RAW-TEXT streamer: it takes plain chat messages (role system/user/assistant/…, text content) and yields content tokens (provider.rs)
+
+No backend uses a provider’s native tool API. The model writes its `<call name=…>` envelope as plain text, the provider streams that text through without reading it, and ai-core parses and routes it. Adding a provider therefore teaches it nothing about tools. A provider holds no agent state; its one protocol duty is to wrap the model’s reasoning channel in `<think>…</think>` once per turn, so a reasoning model’s turn does not read as empty.
+
+*Animation: Five backends, one agent surface* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/surface.mp4). An agent sends send to ai-core. ai-core hands the messages to the agent’s backend: anthropic, vllm, ollama, responses or foundation_models, each with its own wire (/v1/messages, /chat/completions, /api/chat, /v1/responses, or on-device). The backend streams raw text back, a <call> in it is parsed by ai-core, and the call is routed the same way for every provider.
+
+Every backend answers the same verbs because each one’s verb list starts from ai-core’s (Anthropic and vLLM add `usage`; Anthropic also adds `usage_reset` and `models`). `send` runs one turn on `text` and returns `{response, final, client_id}`. The call gate, refusals and ledger work as on any other agent; see [The call gate](/fantastic/foundations/protocol/call-gate/).
+
+Rust ships all five backends. Python ships four: it has no Foundation Models backend, because that one is Apple-only native code.
+
+#### What each backend adds
+
+| backend | request | record fields it requires | key |
+|---|---|---|---|
+| `anthropic_backend` | `POST` to the Messages URL, SSE | `endpoint`, `model` | optional `credentials`, sent as `x-api-key` |
+| `vllm_backend` | `POST {endpoint}/chat/completions` | `endpoint`, `kv_overflow` | optional `credentials`, sent as Bearer |
+| `ollama_backend` | `POST {endpoint}/api/chat`, line-delimited JSON | `endpoint` | optional `credentials`, sent as Bearer |
+| `responses_backend` | `POST` to the full `…/v1/responses` URL, SSE | `endpoint`, `model`, `credentials` | required, sent as Bearer |
+| `foundation_models_backend` | one on-device request | none | none: a `credentials` field is refused |
+
+Where a field can be read from the server, the backend reads it before a turn and writes it into the record: `max_tokens` and `context_window` from the API for Anthropic, the served `model`, `max_tokens`, `context_window` and `kv_slots` for vLLM, and the `model` from `GET /api/tags` for Ollama. A key is read from a credential store at each request and sent only to the ref’s host; the record holds the name, never the secret ([Security](/fantastic/foundations/protocol/security/)).
+
+#### Anthropic
+
+One top-level `system` string joins every system message, and consecutive turns of one role are merged. `max_tokens` goes on every request because the API requires it. With `thinking_budget` set (at least 1024, below `max_tokens`) the thinking streams first, wrapped in `<think>`. A stream that ends without `message_stop` did not finish, and an `error` event is raised with the API’s own type and message. The agent also counts tokens, side calls included, in its own `usage.json`; the `usage` and `usage_reset` verbs read and zero them, and `models` lists what the key can use.
+
+#### vLLM
+
+The backend talks to the server directly, with no proxy. It reads both `delta.reasoning_content` and `delta.content`, since reading `content` alone drops whole turns of a reasoning model. It sends one system message, at index 0. A stream that ends with no `finish_reason` is an error, never a completion. `server_dialect` (`vllm`, `strata` or `llamacpp`) says how the server names its thinking budget and is set, never guessed.
+
+vLLM also gets a **session table** per endpoint. `kv_slots` is how many conversations may be live there, and `kv_overflow` decides what happens when all are: `evict` rotates the least-recently-used conversation out, `reject` refuses the newcomer with `KvSlotsFull`. A slot frees itself after `kv_ttl` idle seconds (default 1800). The code calls this bookkeeping: it frees no GPU memory and sees only this kernel’s traffic. A side call, such as a fold summary, takes no slot.
+
+#### Ollama
+
+The backend reads both the `thinking` and the `content` field of each line and wraps the thinking in `<think>`. Optional fields include `num_ctx`, `num_predict`, `think` and `stream_idle_seconds`. A non-2xx answer fails the turn as `<error> (status code: n)`.
+
+#### OpenAI Responses
+
+The backend is stateless: `store:false`, and the whole conversation goes with every pass, as `instructions` plus typed message items. It guesses no host and no model, and `credentials` is required. A `function_call` item in the output is a loud error, because tools are never native. `max_tokens` is sent as `max_output_tokens` and defaults to 8192.
+
+#### Apple Foundation Models
+
+The on-device system model runs through a Swift core linked into the Rust crate. A record that names `endpoint`, `model` or `credentials` is refused at the write, since none of them means anything here. The context window is the model’s own, and a record may name only a smaller one. If the model is unavailable, the turn fails loud, naming why (device not eligible, Apple Intelligence not enabled, model not ready, or not macOS 26+). It is checked first in the turn, and nothing falls back to another backend. The backend is registered on every platform, and the failure appears when an agent uses it.
+
+#### Caching modes
+
+The `caching` field decides how the model’s view of the history is built. `cleanup` is the default.
+
+| mode | the view |
+|---|---|
+| `none` | every stored row, in order, never trimmed |
+| `cleanup` | superseded whole-state reads, repeated reply bodies and used docs drop out; no markers |
+| `provider_cache` | `none`’s history plus two markers: the end of the **primer** row (`cache_primer_until`) and the end of the last fold or clear row |
+
+ai-core only flags the two messages. The backend turns the flags into its own markers, and only in `provider_cache`. Anthropic is the only backend that declares it. It sends ephemeral `cache_control` markers on the system block, on the block that ends the primer row, on the block that ends the last fold, and one top-level automatic marker: at most four. In every other mode the body carries none.
+
+*Animation: caching: one history, three views* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/caching.mp4). Rows 1 to 6 are stored, and row 5 is a fold. none sends all six. cleanup drops rows 3 and 4 from the view. provider_cache sends all six with a marker after the primer row (2) and one at the last fold (5). Only anthropic turns the markers into cache_control; vllm, ollama, responses and foundation_models refuse the mode.
+
+A backend that cannot cache refuses the mode, at the write and again at the turn.
+
+the refusal at the write (vLLM, Ollama, Responses and Foundation Models say the same with their own name):
+
+```
+responses_backend cannot do provider caching: caching=provider_cache is refused — use none or cleanup
+```
+
+The primer row and every row before it are pinned in any mode: `context_fold` will not fold a range that starts at or before it. Why old bytes never move, and how folds use this, is on [Context folding](/fantastic/foundations/agents/ai-agent/context-folding/).
+
+#### Transport retries
+
+Each provider error carries a `transport` flag. It is true when the failure is the link, not the model or the request: a connect failure, a stream that stalls or drops, or a transient gateway error. A stalled stream is detected by the **idle clock**, `stream_idle_seconds` (default 60), which covers the response headers and every read of the body.
+
+The record field `transport_retries` is an int from 0 to 5, and 0 is the default, which means off. When a pass fails with a transport error and retries remain, ai-core stores a notice row, emits a `status` event with phase `retrying`, waits, and runs the pass again.
+
+what each retry leaves (message illustrative):
+
+```
+[retry 1/2] the link dropped (<message>) — retrying the turn
+status: {phase: "retrying", detail: {attempt: 1, of: 2, error: "<message>"}}
+```
+
+*Animation: transport_retries: a visible retry* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/retries.mp4). With transport_retries: 2, pass 1 fails with HTTP 503. A notice row “[retry 1/2] the link dropped” is stored, a retrying status goes out, and after 2 s pass 2 runs. It fails too: notice row 2 of 2, a 4 s wait, and pass 3 succeeds. With the budget spent, the next failure would end the turn.
+
+The wait doubles: 2 s, 4 s, 8 s and so on. The notice row is stored in the history, so the model reads it on the next pass and the operator sees it. A `cancel` that lands during the wait ends the turn. A failure that is not a transport failure, or a transport failure after the last retry, ends the turn with the error as usual. Rust and Python do the same.
+
+#### What each backend calls a transport failure
+
+| backend | retried by transport_retries |
+|---|---|
+| `anthropic_backend` | connect failure or timeout, a dropped stream, HTTP 502, 503, 504 and 529 |
+| `vllm_backend` | a stall, a dropped stream, HTTP 502, 503 and 504 |
+| `ollama_backend` | a failed request, a stall or a broken stream; an HTTP error status is not retried |
+| `responses_backend` | a failed request, and HTTP 502, 503 or 504 once its own retries are spent |
+| `foundation_models_backend` | none: the code marks no failure as a link failure |
+
+The Responses backend has a retry of its own, below this one. A 502, 503, 504 or 520 to 524 whose body is not JSON, which is a CDN or proxy error page, is retried twice inside the request, waiting 1.5 s times the attempt number. A 4xx, or a 5xx with a JSON body, stays loud.
+
+The field’s hint lists 502, 503 and 504. The Anthropic code also treats 529 (overloaded) as transport, so this page follows the code.
+
+Sources: The provider seam: provider.rs (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/provider.rs#L1); The caching modes: caching.rs (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/caching.rs#L1); The retry loop: verbs.rs (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/verbs.rs#L1288); transport_retries in the record schema (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/schema.rs#L195); anthropic_backend (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-anthropic-backend/src/lib.rs#L1); vllm_backend (Rust) and its session table (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-vllm-backend/src/lib.rs#L136); The Responses backend’s own retry (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-responses-backend/src/lib.rs#L62); The Python backends (https://github.com/aisixteen/fantastic/tree/main/src/lib/python/bundled_agents/ai)
+
+### Foundations › Agents › Memory stores
+
+URL: https://aisixteen.com/fantastic/foundations/agents/memory-stores/
+
+A **memory store** is an agent that keeps rows for other agents. An AI agent’s conversation lives in one, and so do the kernel’s own execution rows. Two ship: `ram_store`, which holds everything in RAM, and `sqlite_store`, which keeps it in one SQLite file.
+
+This page covers what both share, how rows are keyed, what happens to a fold’s refs when a row is deleted, the file behind `sqlite_store`, and how a record picks its store. What a fold is and how an AI agent uses one is on [Context folding](/fantastic/foundations/agents/ai-agent/context-folding/).
+
+#### One surface, two stores
+
+Both stores exist in Rust and in Python and answer the same verbs. A caller cannot tell them apart except by one field: in the code’s words, `sqlite_store` gives “the SAME verbs, arguments, replies and refusals” as `ram_store`, and is `durable: true`.
+
+| verb | what |
+|---|---|
+| `append {rows}` | add rows under your key, all or none |
+| `read {after?, limit?, kinds?, match?, from_last_kind?, order?}` | your rows, oldest first by default |
+| `search {query, ids?}` | the lines that mention something: a case-insensitive substring, line by line |
+| `prune {before_id | ids, keep?}` | delete your rows; fold refs on them go too |
+| `inject {tables}` · `dump` | replace or capture the whole store |
+
+Row ids are the kernel’s. A row carries the integer the kernel minted, or none, and the store then takes the next one from the kernel’s counter. A store never numbers rows on its own. An id that is not a positive integer is refused with `bad_arg`.
+
+`ram_store` keeps its tables as maps in RAM, shaped like the SQLite ones, with the same keys, uniqueness and cascades. `reflect` tells the two apart: `durable: false` for `ram_store`, and `durable: true` plus its `path` for `sqlite_store`, with the number of `owners` and `rows` in both.
+
+Both runtimes replay one shared corpus, `contract/memory_store/cases.json`, and must answer every step as written. See [The contract](/fantastic/foundations/protocol/contract/). The store is an ordinary agent, so the [call gate](/fantastic/foundations/protocol/call-gate/) decides who may call any of its verbs, `inject` and `dump` included.
+
+#### Rows are keyed by owner
+
+Every row is stored under `(owner, id)`. The owner is not a field the caller writes. The store takes it from who is calling: `<kernel guid>|<agent id>`, or `<kernel guid>|kernel` for the operator and the kernel’s own bookkeeping. A caller writes and reads its own rows only.
+
+> there is no `owner` field to forge. (sqlite_store readme)
+
+The shared cases show it. `alice` and `bob` each append row `101` and both succeed, because the keys differ. An `append` that carries `owner: "g1|bob"` still lands under the caller, and the extra field is ignored. A second `101` from the same owner is refused with `reason: "exists"` and the id.
+
+A store that is asked before the kernel has a guid refuses with `not_found` and the hint “boot the kernel root first (it mints the guid)”.
+
+*Animation: Rows are keyed by who wrote them* (https://aisixteen.com/fantastic/foundations/agents/memory-stores/owners.mp4). alice appends row 101 and it lands under g1|alice. bob appends 101 too and it lands under g1|bob, with no clash. alice then sends an append that carries owner "g1|bob" and row 5; the field is ignored and 5 lands under g1|alice. Each caller reads only its own rows.
+
+#### Fold refs cascade
+
+A fold is a row with a `refs` list naming the rows it covers. The store keeps the list in a `fold_refs` table. In `sqlite_store`, its foreign keys cascade on delete, and the connection runs with `PRAGMA foreign_keys = ON`. `ram_store` mirrors the same cascade in its maps.
+
+An `append` checks `refs` before it writes anything. Each ref must name a row of the same owner, from earlier or in the same batch. Otherwise the whole append is refused with `not_found`. A `refs` that is not a list of ids is refused with `bad_arg`.
+
+Pruning a member removes it from every fold that names it. The fold row stays, with a shorter list. In the shared case, rows `1` and `2` sit under fold `3`, and row `4` is a note. `prune {before_id: 2}` deletes row `1` and the fold now reads `refs: [2]`. `prune {ids: [2]}` leaves `refs: []`. Pruning a fold row itself removes its member list and keeps the members.
+
+from the shared case; ids illustrative:
+
+```
+prune {before_id: 2}   →  {pruned: 1}   fold 3: refs [2]
+prune {ids: [2]}       →  {pruned: 1}   fold 3: refs []
+```
+
+`keep` lists row kinds that survive a prune. `sqlite_store` has one more table, `ref_lists`, so that a fold whose members are all gone (`refs: []`) is distinguishable from a row with no list at all.
+
+*Animation: Prune cascades to fold refs* (https://aisixteen.com/fantastic/foundations/agents/memory-stores/cascade.mp4). Fold row 3 names rows 1 and 2 in refs. prune before_id 2 deletes row 1 and the fold now reads refs [2]. prune ids [2] deletes row 2 and the fold stays with refs []. Row 4, a note, is untouched.
+
+#### One file per store
+
+A `sqlite_store` agent keeps everything in one SQLite file. Its record needs a `path`, which has no default. The path is relative to the kernel’s project directory, never absolute and never containing `..`. Symlinks are followed and the result must still be inside. A kernel without a project directory, an in-memory one, refuses the store.
+
+On first use the store creates the directory and the file, sets WAL mode, `synchronous=NORMAL`, `secure_delete` on and a five-second busy timeout, and creates its tables and an FTS5 trigram index for `search`. Every verb is one transaction under one lock per store, and a refusal rolls it back. Two `sqlite_store` agents with two paths are two files.
+
+`prune` also removes the text from disk. Deleted bytes are overwritten, and after a prune that deleted rows the store checkpoints and truncates the WAL, “so the text leaves `memory.db` and its `-wal` at once.”
+
+A kernel stop keeps the file. The host closes each store after the kernel’s last flush and checkpoints the WAL into it. `delete_agent` on the store is different: it deletes the file together with its `-wal` and `-shm`, as a `ram_store`’s tables do.
+
+*Animation: One file per store* (https://aisixteen.com/fantastic/foundations/agents/memory-stores/file.mp4). An open sqlite_store is the file at its path, memory.db, with memory.db-wal and memory.db-shm beside it. A kernel stop folds the WAL into the file and keeps memory.db. delete_agent removes memory.db and both siblings.
+
+#### What survives a restart
+
+Nothing in a `ram_store` survives its process. A restarted `sqlite_store` reads its tables straight back: the kernel’s ledger, dead letters and named-call dedup, and every AI agent’s memory. The full picture, including the guid that the row keys depend on, is on [State and durability](/fantastic/foundations/kernel/state/). The ledger itself is on [Ledger and dead letters](/fantastic/foundations/protocol/ledger/).
+
+Rows are keyed by the kernel guid. A kernel that does not keep its guid across restarts never finds its old rows, whichever store it uses.
+
+#### Which store is used is configuration
+
+Nothing is built in. The root’s `memory_store_id` names the store for the kernel’s execution rows, and `kernel_start` refuses without one ([Lifecycle](/fantastic/foundations/kernel/lifecycle/)). An AI agent names its own in `memory_store_id`, a required field. With none, it fails at boot and at its first turn, and nothing falls back to RAM.
+
+The store is reached like any agent: the AI agent needs `can_call` on the store, and the store needs a `callable_by` naming the agent.
+
+The `fantastic` CLI wires both kinds. Its blueprint, applied once to a fresh store, creates `kernel_memory`, a `ram_store` that the root names, and `memory`, a `sqlite_store` at `.fantastic/memory.db` that every AI agent uses. The comments say why: the kernel’s own rows stay in RAM so no keystroke or read touches disk, and the AI agents’ chats, folds and recall survive restarts. Their rows are keyed `<guid>|<agent>`, so agents never mix.
+
+the CLI blueprint, abridged:
+
+```
+- id: kernel_memory
+  handler_module: ram_store.tools
+- id: memory
+  handler_module: sqlite_store.tools
+  path: .fantastic/memory.db
+```
+
+So in the shipped CLI, a restart loses the kernel’s ledger history and its dead letters from a stop, but not an AI agent’s conversation. Pointing the root’s `memory_store_id` at a `sqlite_store` changes that.
+
+*Animation: Which store is configuration* (https://aisixteen.com/fantastic/foundations/agents/memory-stores/choose.mp4). The root’s memory_store_id names kernel_memory, a ram_store. An AI agent’s memory_store_id names memory, a sqlite_store. The verbs are the same on both. After a restart the RAM store is empty and the SQLite store’s rows are read back from its file.
+
+Sources: sqlite_store (Rust): schema, path, pragmas, delete (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-sqlite-store/src/lib.rs#L64); ram_store (Rust): owner key, verbs, cascade (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ram-store/src/lib.rs#L1); sqlite_store readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/memory/sqlite_store/src/sqlite_store/readme.md#L1); ram_store readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/memory/ram_store/src/ram_store/readme.md#L1); shared cases for every store (https://github.com/aisixteen/fantastic/blob/main/contract/memory_store/cases.json#L46); the CLI blueprint: both stores (https://github.com/aisixteen/fantastic/blob/main/src/tui/blueprint.yaml#L35); ai_core: the store an AI agent names (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core/core.py#L586)
+
+### Foundations › Agents › Credential store
+
+URL: https://aisixteen.com/fantastic/foundations/agents/credential-store/
+
+An agent that calls a model API needs a key, but the key does not belong in the agent’s record. The **credential store** keeps it somewhere else. The record names the store and the ref (`credentials: {store, ref}`), never the value; the store hands the value out when asked, and only for the host the key belongs to.
+
+This page follows one key through the store: how its ref and host are declared, how a consumer reads it on every request, and where its value rests. For the idea of credentials by reference within the whole security model, see [Security](/fantastic/foundations/protocol/security/).
+
+#### A ref, its host and its value
+
+A credential is a **ref** such as `openai/main`. It holds named **fields** (`api_key`) and is bound to one **host**. The store is an agent like any other, so its refs live on its own record under `refs`, and the verbs below are verbs on that agent.
+
+| verb | what it does |
+|---|---|
+| `set {ref, fields}` | stores or rotates the value of a declared ref; takes no `host` |
+| `get {ref, host?}` | answers `{ref, host, fields}`; a `host` that is not the ref’s is refused |
+| `list` | the declared refs: ref, host and field names, never a value |
+| `forget {ref}` | drops the value and keeps the declaration |
+
+The host is not an argument of `set`. Only `update_agent` on the store’s own record declares a ref, and it writes the whole `refs` map, so it must repeat every ref you keep. Each ref must carry a `host`; without one the write is refused with “the one host this ref’s value may be sent to”.
+
+A `set` that names a host is refused with `bad_arg`. A `set` for a ref nobody declared answers `no such ref`. When a `set` succeeds, the store writes `{host, fields}` to its backend, with the host taken from the declaration, and puts only the sorted field names back on the record.
+
+declare, then set (illustrative ids):
+
+```
+update_agent creds  refs: {"openai/main": {"host": "api.openai.com"}}
+set {"ref": "openai/main", "fields": {"api_key": "…"}}
+→ {"ref": "openai/main", "host": "api.openai.com", "fields": ["api_key"], "stored": true}
+```
+
+*Animation: Declare, then set* (https://aisixteen.com/fantastic/foundations/agents/credential-store/declare.mp4). The store creds starts with an empty record. update_agent declares the ref openai/main with the host api.openai.com. A set that names a host is refused with bad_arg: set takes no host. A set with fields stores the value at rest beside the declared host, and the record gains only the field name api_key.
+
+A host is compared after normalising: a URL is cut to its `host[:port]` and the text is lowercased. A `get` may therefore pass the full endpoint URL, not just a bare host.
+
+#### Read on every request
+
+A consumer names its key on its own record as `credentials: {store, ref}`. An AI backend reads it before every request: it sends the store `get` with the `ref` and the endpoint it is about to call as `host`. The read is that agent’s own send, so the [call gate](/fantastic/foundations/protocol/call-gate/) applies to it like any other: the agent’s `can_call` must name the store, and the store’s `callable_by` must name the agent.
+
+The store answers only if the endpoint’s host is the one the ref is bound to. Otherwise it refuses, “ref is bound to host … refused, nothing read”, and the request does not go out. Nothing is cached, so a key rotated with one `set` is used by the next request, with no restart.
+
+the refusal (illustrative hosts):
+
+```
+get {"ref": "openai/main", "host": "https://evil.example/v1"}
+→ credential_store: ref 'openai/main' is bound to host 'api.openai.com',
+  not 'evil.example' — refused, nothing read
+```
+
+A `forget` drops the value and leaves the ref declared, so the next `get` answers `not_found`: the ref “has no value in the backend”. A `set` stores a value again. A ref is declared and removed through `update_agent` on the store’s record, which writes the whole refs map.
+
+*Animation: Read on every request* (https://aisixteen.com/fantastic/foundations/agents/credential-store/rotate.mp4). An AI agent sends get with the ref and the host it is about to call, and the store answers key-A, which is sent to api.openai.com. One set stores key-B, and the next request carries key-B with no restart. forget drops the value and keeps the ref declared, so the next get answers not_found.
+
+A record with no `credentials` has no key. That suits a local server that needs none. A backend that cannot run without a key marks the field required and refuses a record that lacks it. A key that cannot be sent as an HTTP header (a control or non-ASCII character, or whitespace at an edge) is refused too, and the refusal names the ref, not the value.
+
+#### Where the value rests
+
+The `backend` field on the store’s record chooses where values rest. It must be `file`, `keychain` or `env`; the default is `file`.
+
+| backend | how it holds a value |
+|---|---|
+| `file` (default) | one YAML file, `{refs: {ref: {host, fields}}}`, at `<home>/user/credentials/<store id>.yaml`, or at an absolute path in `file` |
+| `keychain` | one item per ref in the OS keychain: service `keychain_namespace` (default `fantastic`), account `<store id>/<ref>`, the item holding `{host, fields}` as JSON |
+| `env` | read-only: each ref maps its fields to environment variables, `{host, env: {api_key: VAR}}` |
+
+#### The file
+
+The home is `FANTASTIC_HOME`, or `~/.fantastic` when it is unset. A `file` must be absolute (`/…` or `~…`); a relative path is refused when the record is written. The store writes the file with mode 0600.
+
+It reads the file only if it is a regular file owned by this user with no group or other permission bits. The check runs on the one open the data is read from (`O_NOFOLLOW`, then `fstat` of that descriptor), so the file cannot be swapped between the check and the read. Anything else is refused with “refused, nothing read”.
+
+#### The keychain
+
+The Python runtime reaches the keychain through the `keyring` package. The Rust runtime uses the macOS and iOS Keychain and the Windows Credential Manager. On any other operating system, a Rust call fails with “the keychain backend has no OS keychain … choose backend file or env”.
+
+#### The environment
+
+The `env` backend keeps no value at rest, so `set` and `forget` are refused as read-only. A `get` reads the variables the ref names, and fails if one is unset or empty. The ref’s declared host still pins every read.
+
+*Animation: Where the value rests* (https://aisixteen.com/fantastic/foundations/agents/credential-store/backends.mp4). The file backend holds a YAML file at <home>/user/credentials/<id>.yaml, mode 0600. The keychain backend holds one item per ref, service fantastic, account <id>/<ref>. The env backend holds nothing: the ref names a variable. File and keychain take set, get, list and forget; env takes get and list.
+
+File and keychain store the host beside the value. A stored value whose host differs from the declaration, or that has none, is refused with the same host-mismatch answer. A store elsewhere that declares the same id and ref with another host therefore reads nothing from it.
+
+#### Who may ask, and what is recorded
+
+A store has no per-ref access lists. Any caller the call gate admits may `set`, `get` or `forget` a declared ref, so grant a caller access to the store narrowly, for example `["get"]` for a backend that only reads. The store’s guidance is not to give a credential to an AI agent’s prompt, and to give it to a bundle that sends it.
+
+The value rides the call, so the kernel records it as `[secret]`. The field values of a `set` payload and of a `get` reply show `[secret]` in the ledger, the memory store and the state stream, while the caller receives the value whole. A `list` shows refs, hosts and field names only. Across connected kernels, the calling side marks the values as secret too.
+
+#### In the fantastic app
+
+The `fantastic` app keeps all provider keys in one store agent with the id `credentials`. Its backend follows the user’s key mode: **plain** is the `file` backend, one 0600 file in the user’s home; **secure** is the `keychain` backend. Until a mode is chosen there is no store and no key can be stored, and the mode cannot change while keys are stored under the other one.
+
+A key’s ref is `<provider>/<host>`, for example `responses/api.openai.com`. The app declares the ref on the store, then sends `set` with the key marked secret. It then grants the AI agent `get` on the store and the store’s `callable_by` the agent, which are the two ends the call gate needs.
+
+Sources: credential_store readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-credential-store/src/readme.md#L1); credential_store (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-credential-store/src/lib.rs#L1); credential_store (Python, canonical) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/security/credential_store/src/credential_store/tools.py#L1); the Rust keychain, by OS (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-credential-store/src/sys/keychain.rs#L1); how an AI backend reads its key (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/credentials.rs#L154); the credential store test spec (https://github.com/aisixteen/fantastic/blob/main/contract/agentic/specs/credential_store.yaml#L1); the app’s key handling (https://github.com/aisixteen/fantastic/blob/main/src/tui/src/kern/keys.rs#L1); the app’s key modes (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-user-home-store/src/secrets.rs#L1)
 
 ### Foundations › Canvas: an app built on fantastic
 

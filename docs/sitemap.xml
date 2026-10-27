@@ -35,7 +35,12 @@
   <url><loc>https://aisixteen.com/fantastic/foundations/kernel/tasks/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/kernel/state/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/agents/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/ai-agent/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/ai-agent/forking/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/memory-stores/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/credential-store/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/canvas/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/build/</loc></url>
 </urlset>
