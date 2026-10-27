@@ -32,7 +32,39 @@ Sitemap: ${ORIGIN}/sitemap.xml
 
 const md = (s) => String(s).replace(/\n+/g, ' ').trim()
 
-export function llmsFullTxt({ apps, fantastic: f }) {
+// A Foundations article as Markdown: the same blocks the page renders, with each animation
+// given as its title, caption and file.
+function articleMd(a, videos) {
+  const url = `${ORIGIN}/fantastic/foundations/${a.slug}/`
+  const block = (b) => {
+    if (typeof b === 'string') return b
+    if (b.h3) return `#### ${b.h3}`
+    if (b.code) return `${b.label ? `${b.label}:\n\n` : ''}\`\`\`\n${b.code}\n\`\`\``
+    if (b.list) return b.list.map((x) => `- ${x}`).join('\n')
+    if (b.ol) return b.ol.map((x, i) => `${i + 1}. ${x}`).join('\n')
+    if (b.quote) return `> ${b.quote}${b.cite ? ` (${b.cite})` : ''}`
+    if (b.note) return b.note
+    if (b.table) return [`| ${b.table.head.join(' | ')} |`, `|${b.table.head.map(() => '---').join('|')}|`, ...b.table.rows.map((r) => `| ${r.join(' | ')} |`)].join('\n')
+    if (b.video) {
+      const v = videos[b.video]
+      const name = b.video.split('_').slice(1).join('_')
+      return `*Animation: ${v.title}* (${url}${name}.mp4). ${v.caption}`
+    }
+    return ''
+  }
+  return `### ${a.n}. ${a.title}
+
+URL: ${url}
+
+${a.lead.join('\n\n')}
+
+${a.sections.map((sec) => `#### ${sec.title}\n\n${sec.blocks.map(block).join('\n\n')}`).join('\n\n')}
+
+Sources: ${a.sources.map(([label, href]) => `${label} (${href})`).join('; ')}
+`
+}
+
+export function llmsFullTxt({ apps, fantastic: f, foundations, videos }) {
   const out = []
   out.push(`# AISixteen — full site text
 
@@ -96,6 +128,17 @@ Commands:
 
 ${f.commands.map(([c, w]) => `- \`${c}\` — ${w}`).join('\n')}
 `)
+
+  // Foundations
+  if (foundations) {
+    out.push(`## ${foundations.headline}
+
+URL: ${ORIGIN}/fantastic/foundations/
+
+${foundations.lead}
+`)
+    for (const a of foundations.articles) out.push(articleMd(a, videos))
+  }
 
   // Apps
   out.push(`## Apps

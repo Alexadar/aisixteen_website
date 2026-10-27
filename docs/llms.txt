@@ -32,6 +32,11 @@ Full text of the site for LLMs: https://aisixteen.com/llms-full.txt
 ## Developer software
 - [Aisixteen Fantastic](https://aisixteen.com/fantastic/): An open-source (AGPL-3.0-or-later), alpha-stage kernel of agents, built from scratch layer by layer — models, programs, files, shells, a browser canvas and the human are all agents in one tree, reached with one call, `send`; every agent describes itself via `reflect`. Available today: the `fantastic` CLI, one static binary for macOS and Linux (arm64, x86_64) and Windows (x86_64), with a terminal UI, a browser canvas and an MCP server for coding CLIs; and the kernel library in Python (reference), Rust, Swift and TypeScript, kept identical by a shared contract corpus. In development, not released: an Apple client (SwiftUI) and a relay. On the public roadmap (https://github.com/orgs/aisixteen/projects/1), not shipped: a Tauri desktop app with Home and skins (in progress), then fantastic OS, a Debian headless kiosk image with system agents (planned). Free; install with `cargo install fantastic` (crates.io: https://crates.io/crates/fantastic) or a prebuilt binary; source at https://github.com/aisixteen/fantastic. Unlike the apps above it is not on the App Store.
 
+## Foundations (how Fantastic works)
+- [Foundations](https://aisixteen.com/fantastic/foundations/): Articles on how Aisixteen Fantastic works underneath, one mechanism each, with short animations; they follow the Rust and Python source on the main branch.
+- [1. Kernel: agents and messaging](https://aisixteen.com/fantastic/foundations/kernel/): Agents and the tree, the one verb `send` (a batch answered in order with `{pid, status, result}`), the two-sided call gate (`can_call` and `callable_by`), tasks with `ps` and `cancel`, the ledger and dead letters, and what survives a restart.
+- [2. Context folding](https://aisixteen.com/fantastic/foundations/context-folding/): Conversation rows in a memory store (`ram_store`, `sqlite_store`), folds as appended rows with refs, folds of folds, `context_fold`, `context_recall`, `context_clear`, `context_forget`, `fork` and `mark`, and why the prompt prefix stays byte-identical.
+
 ## Contact
 - Email: info@aisixteen.com
 - Website: https://aisixteen.com

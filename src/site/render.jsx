@@ -1,6 +1,7 @@
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { Home, Landing, NotFound, FantasticPage } from './components.jsx'
+import { FoundationsIndex, FoundationsArticle, articleUrl, videoFiles } from './foundations.jsx'
 import { SITE, appStoreUrl, faqsOf, claimOf } from './theme.js'
 
 const esc = (s) => String(s)
@@ -15,7 +16,7 @@ const ORG = {
   email: SITE.email,
 }
 
-function doc({ title, description, canonical, ogImage, jsonld = [], robots = 'index, follow, max-image-preview:large', body }) {
+function doc({ title, description, canonical, ogImage, ogType = 'website', extraMeta = '', jsonld = [], robots = 'index, follow, max-image-preview:large', body }) {
   const ld = jsonld.map((o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`).join('\n')
   const img = ogImage ? `\n<meta property="og:image" content="${ogImage}">\n<meta name="twitter:image" content="${ogImage}">` : ''
   return `<!DOCTYPE html>
@@ -27,14 +28,14 @@ function doc({ title, description, canonical, ogImage, jsonld = [], robots = 'in
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="${canonical}">
 <meta name="robots" content="${robots}">
-<meta property="og:type" content="website">
+<meta property="og:type" content="${ogType}">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${canonical}">
 <meta property="og:site_name" content="${SITE.name}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(title)}">
-<meta name="twitter:description" content="${esc(description)}">${img}
+<meta name="twitter:description" content="${esc(description)}">${img}${extraMeta}
 <link rel="icon" type="image/png" href="/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -169,5 +170,96 @@ export function renderNotFound({ year }) {
     robots: 'noindex, follow',
     jsonld: [ORG],
     body: renderToStaticMarkup(<NotFound year={year} />),
+  })
+}
+
+/* ---------------- /fantastic/foundations/ ---------------- */
+// One TechArticle per article, with a BreadcrumbList and a VideoObject per Manim clip.
+// Every value mirrors text visible on the page.
+
+const FOUNDATIONS_URL = `${SITE.origin}/fantastic/foundations/`
+const isoDuration = (s) => { const t = Math.round(s); return `PT${t >= 60 ? `${Math.floor(t / 60)}M` : ''}${t % 60}S` }
+const crumbs = (items) => ({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map(([name, item], i) => ({ '@type': 'ListItem', position: i + 1, name, item })),
+})
+const publisher = { '@type': 'Organization', name: SITE.name, url: SITE.origin, logo: { '@type': 'ImageObject', url: `${SITE.origin}/logo.png` } }
+const ogOf = (a) => `${SITE.origin}${articleUrl(a)}og.jpg`
+const clipsOf = (a) => a.sections.flatMap((s) => s.blocks).filter((b) => b.video).map((b) => b.video)
+
+function videoLd(a, slug, meta, v, uploadDate) {
+  const f = videoFiles(a, slug)
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: v.title,
+    description: v.caption,
+    thumbnailUrl: `${SITE.origin}${f.poster}`,
+    contentUrl: `${SITE.origin}${f.mp4}`,
+    uploadDate,
+    duration: isoDuration(meta.duration),
+    width: meta.width,
+    height: meta.height,
+    isFamilyFriendly: true,
+    inLanguage: 'en',
+    publisher,
+  }
+}
+
+export function renderFoundationsIndex(f, { year, meta, videos, modified }) {
+  const collection = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: f.headline,
+    description: f.description,
+    url: FOUNDATIONS_URL,
+    inLanguage: 'en',
+    isPartOf: { '@type': 'WebSite', name: SITE.name, url: SITE.origin },
+    about: { '@type': 'SoftwareApplication', name: 'Aisixteen Fantastic', url: `${SITE.origin}/fantastic/` },
+    dateModified: modified,
+    hasPart: f.articles.map((a) => ({ '@type': 'TechArticle', headline: a.headline, url: `${SITE.origin}${articleUrl(a)}` })),
+  }
+  return doc({
+    title: 'Foundations — how Aisixteen Fantastic works | AISixteen',
+    description: f.description,
+    canonical: FOUNDATIONS_URL,
+    ogImage: ogOf(f.articles[0]),
+    jsonld: [ORG, collection, crumbs([['AISixteen', `${SITE.origin}/`], ['Fantastic', `${SITE.origin}/fantastic/`], ['Foundations', FOUNDATIONS_URL]])],
+    body: renderToStaticMarkup(<FoundationsIndex f={f} meta={meta} videos={videos} year={year} />),
+  })
+}
+
+export function renderFoundationsArticle(f, a, { year, meta, videos, modified }) {
+  const url = `${SITE.origin}${articleUrl(a)}`
+  const published = `${f.published}T00:00:00+00:00`
+  const article = {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: a.headline,
+    name: a.title,
+    description: a.description,
+    url,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    image: ogOf(a),
+    datePublished: f.published,
+    dateModified: modified,
+    author: { '@type': 'Organization', name: SITE.name, url: SITE.origin },
+    publisher,
+    inLanguage: 'en',
+    isPartOf: { '@type': 'CollectionPage', name: f.headline, url: FOUNDATIONS_URL },
+    about: a.about.map((name) => ({ '@type': 'Thing', name })),
+    video: clipsOf(a).map((slug) => ({ '@type': 'VideoObject', name: videos[slug].title, contentUrl: `${SITE.origin}${videoFiles(a, slug).mp4}` })),
+  }
+  const clips = clipsOf(a).map((slug) => videoLd(a, slug, meta[slug], videos[slug], published))
+  return doc({
+    title: `${a.title} — Foundations of Aisixteen Fantastic | AISixteen`,
+    description: a.description,
+    canonical: url,
+    ogImage: ogOf(a),
+    ogType: 'article',
+    extraMeta: `\n<meta property="article:published_time" content="${f.published}">\n<meta property="article:modified_time" content="${modified}">\n<meta property="article:section" content="Foundations">`,
+    jsonld: [ORG, article, crumbs([['AISixteen', `${SITE.origin}/`], ['Fantastic', `${SITE.origin}/fantastic/`], ['Foundations', FOUNDATIONS_URL], [a.title, url]]), ...clips],
+    body: renderToStaticMarkup(<FoundationsArticle f={f} a={a} meta={meta} videos={videos} year={year} modified={modified} />),
   })
 }

@@ -174,3 +174,60 @@
     t.style.setProperty('--my', (e.clientY - r.top) + 'px');
   }, { passive: true });
 })();
+
+// Foundations clips: muted loops that play while on screen. With reduced motion nothing plays
+// on its own: the poster shows, with the play button under it. Without JS the native
+// controls stay and the button stays hidden (it is in the layout either way, so nothing moves).
+(function () {
+  var vids = document.querySelectorAll('[data-fd-video]');
+  if (!vids.length) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  vids.forEach(function (v) {
+    var b = document.querySelector('[data-fd-toggle="' + v.id.replace(/-video$/, '') + '"]');
+    if (!b) return;
+    var name = (v.getAttribute('aria-label') || 'Animation').replace(/^Animation: /, '');
+    b.setAttribute('aria-controls', v.id);
+    function sync() {
+      var playing = !v.paused;
+      b.classList.toggle('is-playing', playing);
+      b.setAttribute('aria-label', (playing ? 'Pause the animation: ' : 'Play the animation: ') + name);
+    }
+    function toggle() {
+      if (v.paused) { v.dataset.user = 'play'; v.play().catch(function () {}); }
+      else { v.dataset.user = 'pause'; v.pause(); }
+    }
+    v.removeAttribute('controls');
+    b.addEventListener('click', toggle);
+    v.addEventListener('click', toggle);
+    v.addEventListener('play', sync);
+    v.addEventListener('pause', sync);
+    b.classList.add('is-ready');
+    sync();
+  });
+  if (reduce || !('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      var v = e.target;
+      if (e.isIntersecting) { if (v.dataset.user !== 'pause') v.play().catch(function () {}); }
+      else if (!v.paused) v.pause();
+    });
+  }, { threshold: 0.5 });
+  vids.forEach(function (v) { io.observe(v); });
+})();
+
+// Foundations: mark the section being read in the article's menu.
+(function () {
+  var links = document.querySelectorAll('.fd-toc a');
+  if (!links.length || !('IntersectionObserver' in window)) return;
+  var byId = {};
+  links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      links.forEach(function (a) { a.classList.remove('is-active'); });
+      var a = byId[e.target.id];
+      if (a) a.classList.add('is-active');
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  Object.keys(byId).forEach(function (id) { var s = document.getElementById(id); if (s) io.observe(s); });
+})();
