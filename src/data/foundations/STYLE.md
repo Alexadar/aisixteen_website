@@ -30,7 +30,7 @@ start from it: re-check every claim, rewrite it to this guide, and delete `seed:
    every fact you will use as `claim — path:line`, and record where the docs disagree with the code.
 2. **Text.** Fill `articles/K.js`: headline, description, summary, cover, about, lead,
    sections, sources, clips. Each sentence must be backed by a fact in the sheet.
-3. **Clips.** Write 3 to 5 scenes in `anim/foundations/K.py` (a pillar or section page has 1).
+3. **Clips.** Write 3 to 5 scenes in `anim/foundations/K.py` (a pillar page has 1; an article that also has children, like AI agent, still has 3 to 5 and the page lists its children under “In this part”).
    List them in `CLIPS = {"name": "SceneClass"}` and set `OG = "name"`. Place each clip with
    `{ video: 'name' }`, and give its title and caption in `clips.name` of `K.js`.
    To reuse a clip that another article owns, use `{ video: 'name', from: 'otherkey' }`.

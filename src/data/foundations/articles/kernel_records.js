@@ -43,7 +43,7 @@ export default {
         'The tree does not carry messages. The kernel keeps one flat map from id to agent, which the Rust kernel calls its only routing table. A send looks its target id up in that map and does not walk from parent to child.',
         'The tree answers a different question: who owns what. It decides what `delete_agent` takes with it, because a delete cascades depth first through the subtree. It decides what the `$parent` and `$subtree` keys of a grant mean, because `$subtree` is every agent below the holder. And it decides what `reflect` shows. The root cannot be deleted.',
         { video: 'tree' },
-        'On disk the tree mirrors the ownership. Each agent is an `agent.yaml` in its own folder, and its children are folders below it, in a container named by the root record’s `children_dir` field, `agents` by default, the same for every agent in the tree. The tree lives in `.fantastic/` of the folder the kernel runs in. The `kernel_state` root writes the records, not `create_agent` itself, and only through a `file_bridge` rooted at `.fantastic`; with none, the records stay in memory. [State and durability](/fantastic/foundations/kernel/state/) covers that wiring.',
+        'On disk the tree mirrors the ownership. Each agent is an `agent.yaml` in its own folder, and its children are folders below it, in a container named by the root record’s `children_dir` field, `agents` by default, the same for every agent in the tree. The tree lives in `.fantastic/` of the folder the kernel runs in. The `kernel_state` root writes the records, not `create_agent` itself, and only through a `file_bridge` rooted at `.fantastic`. The `fantastic` CLI wires one on its first start: its seed writes a `store` agent (`file_bridge.tools`, `root: .fantastic`, `allow: ["."]`), so by default the tree and its records are saved under `.fantastic/`. Only when no such store exists do the records stay in memory, and the terminal then warns that nothing survives a restart. [State and durability](/fantastic/foundations/kernel/state/) covers that wiring.',
       ],
     },
     {
@@ -78,6 +78,7 @@ export default {
     ['reflect flags (Rust)', src('src/lib/rust/crates/fantastic-kernel/src/reflect.rs', 300)],
     ['show_subtrees and ignore_subtrees', src('src/lib/rust/crates/fantastic-kernel/src/docs.rs', 271)],
     ['the built-in reflect manual', src('src/lib/rust/crates/bundles/fantastic-core/src/docs/reflect.md')],
+    ['the CLI’s first-start seed: the store agent', src('src/tui/src/boot/seed.rs', 322)],
     ['the Rust kernel crate', tree('src/lib/rust/crates/fantastic-kernel/src')],
   ],
   clips: {

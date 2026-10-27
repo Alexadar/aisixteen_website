@@ -70,6 +70,7 @@ export default {
       title: 'What survives a restart',
       blocks: [
         'The answer depends on which two agents you wired, a `file_bridge` rooted at `.fantastic` and a memory store.',
+        'The `fantastic` CLI wires the first one for you. Its first-start seed writes a `store` agent, a `file_bridge` (`file_bridge.tools`) with `root: .fantastic` and `allow: ["."]`, so by default the tree and its records are saved under `.fantastic/`. The terminal’s `volatile()` check is true only when no such store exists, and then the statusline warns: “no store wired — rows will not survive a restart.”',
         { table: { head: ['what', 'survives when', 'otherwise'], rows: [
           ['The agent tree, and bundle sidecars such as a scheduler’s schedules', 'a `file_bridge` is rooted at `.fantastic`', 'gone; only the seeded root record is on disk'],
           ['The kernel’s `guid` and the id counter', 'the root record is persisted, which also needs that `file_bridge`', 'a new guid, and ids restart from 1'],
@@ -81,7 +82,7 @@ export default {
         'A durable store alone is not enough. Its rows are keyed by the guid, so a kernel with a `sqlite_store` but no `file_bridge` gets a new guid on every boot and never finds its old rows. Wire both.',
         { h3: 'Two limits' },
         'A call that is in flight when the process dies has no settle row. Re-sending it runs it again, unless the send gave it a name that already settled. On a graceful stop, the drain settles interrupted calls as `cancelled`, which makes them dead letters. Replaying an interrupted turn to where it stopped is not built.',
-        { note: 'Keep the records store and your data apart. The `file_bridge` that persists records can rewrite any record, including its own grants, so grant it to nobody but the root. Put the files your agents read and write in a second `file_bridge`.' },
+        { note: 'Keep the records store and your data apart. The `file_bridge` that persists records can rewrite any record, including its own grants, so grant it as narrowly as you can: the CLI’s seed lists only `user` in its `callable_by`. The files your agents read and write go through a second `file_bridge`, which the seed also writes: `files`, rooted at the project folder.' },
       ],
     },
   ],
@@ -91,6 +92,9 @@ export default {
     ['_kernel.py: the counter, kernel_start, load', src('src/lib/python/kernel/_kernel.py', 485)],
     ['rows.rs: the counter in the Rust kernel', src('src/lib/rust/crates/fantastic-kernel/src/rows.rs', 11)],
     ['persistence.rs: find_store_for and the record writer', src('src/lib/rust/crates/fantastic-kernel/src/persistence.rs', 163)],
+    ['seed.rs: the CLI’s first-start seed and its store agent', src('src/tui/src/boot/seed.rs', 322)],
+    ['blueprint.yaml: the seeded store and files agents', src('src/tui/blueprint.yaml', 79)],
+    ['host.rs: volatile()', src('src/tui/src/kern/host.rs', 622)],
     ['sqlite_store readme', src('src/lib/python/bundled_agents/memory/sqlite_store/src/sqlite_store/readme.md')],
     ['ram_store readme', src('src/lib/python/bundled_agents/memory/ram_store/src/ram_store/readme.md')],
   ],

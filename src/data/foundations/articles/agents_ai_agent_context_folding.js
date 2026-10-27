@@ -5,13 +5,13 @@ import { src } from '../lib.js'
 
 export default {
   headline: 'Context folding: a long conversation in a finite window',
-  description: 'How a Fantastic AI agent keeps a long conversation inside a finite context window without losing it: rows in a memory store, folds that are appended rows with refs, levels, recall, clear, forget and fork, and why the prompt prefix stays byte-identical.',
-  summary: 'Memory as rows in a store, folds as appended rows with refs, folds of folds, recall, clear and forget, fork, and why the prefix stays byte-identical for the prompt cache.',
+  description: 'How a Fantastic AI agent keeps a long conversation inside a finite context window without losing it: rows in a memory store, folds that are appended rows with refs, levels, recall, clear and forget, and why the prompt prefix stays byte-identical.',
+  summary: 'Memory as rows in a store, folds as appended rows with refs, folds of folds, recall, clear and forget, and why the prefix stays byte-identical for the prompt cache.',
   cover: { clip: 'fold' },
   about: ['Aisixteen Fantastic', 'LLM context window', 'Prompt caching', 'Conversation memory'],
   lead: [
     'A model reads a finite window, and an agent that works for hours outgrows it. Something has to give. Folding is Fantastic’s way of giving without losing anything: a finished stretch of work collapses into one row that names what it hides, and in the code’s words “the history becomes a tree of marks the model walks down as far as it needs.”',
-    'This article covers the storage under it, the fold row itself, levels, the verbs that fold, recall, clear, forget and fork, and the reason old bytes never move: the provider’s prompt cache. Folding is opt-in, with `context_strategy: fold`; the default strategy is `compact`.',
+    'This article covers the storage under it, the fold row itself, levels, the verbs that fold, recall, clear and forget, and the reason old bytes never move: the provider’s prompt cache. Starting a new agent from this one’s prefix, with `fork` and `mark`, has [its own page](/fantastic/foundations/agents/ai-agent/forking/). Folding is opt-in, with `context_strategy: fold`; the default strategy is `compact`.',
   ],
   sections: [
     {
@@ -88,17 +88,6 @@ export default {
       ],
     },
     {
-      id: 'fork',
-      title: 'fork and mark: reuse a prefix',
-      blocks: [
-        '`fork {at, name?, id?}` starts a new agent from this one’s first rows. The fork gets the same card (handler, model, endpoint, system prompt, memory store, context settings, `can_call`) and a copy of every row with id ≤ `at`, **under its own key with the same ids**, plus every fold whose members all fall at or before `at`, in one all-or-nothing append. It answers `{id, copied, at}`.',
-        { quote: 'Rows are never edited and the provider’s prompt cache compares bytes, not storage, so the fork re-appends the parent’s rows under its OWN key with their original ids and hits the parent’s cache.', cite: 'fork.rs' },
-        'After that the two are separate: “Later rows, folds and forgets on either side never reach the other.” A fork point must be clean, and a bad one is refused with a reason: `no_such_row`, `cuts_turn` (inside a turn, or one still owed a reply), `cuts_fold` (some of a fold’s members before `at`, some after), `parent_mid_turn`, or `store_refused`, which leaves no agent behind.',
-        { video: 'fork' },
-        '`mark {label, note?, version?}` records a turn boundary outside any fold, a point `fork` always accepts; an agent keeps its last 20 marks. `fork_points` lists them with `rows_after` and a `warm` flag, true while the agent’s last send is younger than 300 seconds, the code’s assumption of how long a provider keeps a prefix warm.',
-      ],
-    },
-    {
       id: 'recall',
       title: 'Recall: rebuilding the view',
       blocks: [
@@ -149,10 +138,6 @@ export default {
     cache: {
       title: 'Why folds append, never edit',
       caption: 'A prompt cache compares bytes from the start. Appending a row keeps the whole old prompt as a cached prefix; cutting rows from the front moves everything after the cut; a fold misses from its anchor on but keeps the rows before it, and because the fold row persists, the next turn appends after the same bytes again.',
-    },
-    fork: {
-      title: 'fork: a new agent on the same prefix',
-      caption: 'mark labels a turn boundary. fork at row 5 is refused with cuts_turn; fork at 6 starts a new agent with a copy of rows 1 to 6 under its own key, with the same ids, so its first prompt has the parent’s bytes. After that the two histories diverge.',
     },
     forget: {
       title: 'clear starts over; forget deletes',

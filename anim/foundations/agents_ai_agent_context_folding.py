@@ -1,8 +1,8 @@
-"""Foundations — Agents › AI agent › Context folding. Five clips, each one mechanism of ai_core + the memory stores.
+"""Foundations — Agents › AI agent › Context folding. Four clips, each one mechanism of ai_core + the memory stores.
 
 Every step drawn here is a behaviour on origin/main (Rust and Python twins): folds are
 appended rows with refs, the view renders a fold at its anchor, three adjacent folds at the
-head fold as a group, fork copies rows under a new key with the same ids, clear deletes
+head fold as a group, clear deletes
 nothing and forget deletes only rows no longer visible. Row ids are illustrative.
 """
 from manim import *  # noqa: F403
@@ -13,7 +13,7 @@ from common import (
 )
 
 # Clips of this article: clip name -> scene class. Files: media/fantastic/foundations/<path>/<clip>.*
-CLIPS = {"fold": "CF1Fold", "levels": "CF2Levels", "cache": "CF3Cache", "fork": "CF4Fork", "forget": "CF5Forget"}
+CLIPS = {"fold": "CF1Fold", "levels": "CF2Levels", "cache": "CF3Cache", "forget": "CF5Forget"}
 # The clip whose final frame becomes the article's og.jpg (social card).
 OG = "fold"
 
@@ -231,64 +231,6 @@ class CF3Cache(FScene):
         self.say("The fold row persists, so the next turn sends the same bytes again: appends hit.", color=INK)
         s4 = strip(["sys", 1, 2, 3, "fold", 7, 8, 9], ys[4], ["hit"] * 7 + ["miss"])
         self.play(FadeIn(name("next turn", ys[4])), FadeIn(s4, shift=DOWN * 0.1), run_time=0.6)
-        self.finish(2.4)
-
-
-class CF4Fork(FScene):
-    """mark a turn boundary; fork {at} copies rows <= at under a new key with the same ids."""
-
-    TITLE = "fork: a new agent on the same prefix"
-
-    def construct(self):
-        self.play(FadeIn(self.header()), run_time=0.4)
-        X0 = -4.6
-        AY, FY = 1.0, -1.25
-        self.play(FadeIn(lane_label("agent", AY)), run_time=0.2)
-        rows = [cell(i) for i in range(1, 11)]
-        place_row(rows, X0, AY)
-        turns = [(0, 3), (3, 6), (6, 10)]
-        self.say("An agent's history: rows grouped in turns.")
-        self.play(LaggedStart(*[FadeIn(r, shift=LEFT * 0.15) for r in rows], lag_ratio=0.1), run_time=1.1)
-        tb = VGroup(*[bracket(rows[a:b], DIM, f"turn", up=False, size=16) for a, b in turns])
-        self.play(FadeIn(tb), run_time=0.4)
-
-        # mark at a turn boundary
-        bx = (rows[5].get_right()[0] + rows[6].get_left()[0]) / 2
-        flag = VGroup(Line([bx, AY - 0.45, 0], [bx, AY + 0.75, 0], color=VIOLET, stroke_width=3),
-                      mono('mark "draft-ready"', 19, VIOLET).move_to([bx + 1.3, AY + 0.9, 0]))
-        self.say('mark {label: "draft-ready"} pins a turn boundary that fork always accepts.')
-        self.play(FadeIn(flag), run_time=0.5)
-        self.wait(0.5)
-
-        # a cut inside a turn is refused
-        cx = rows[4].get_center()[0]
-        cur = Triangle(color=RED, fill_opacity=1).scale(0.12).rotate(PI).move_to([cx, AY + 0.55, 0])
-        err = mono('fork {"at": 5}  ->  reason: "cuts_turn"', 20, RED).move_to([0.6, -0.2, 0])
-        self.say("fork at row 5 would cut a turn in half: refused, cuts_turn.")
-        self.play(FadeIn(cur), FadeIn(err), run_time=0.4)
-        self.wait(0.9)
-        self.play(FadeOut(cur), FadeOut(err), run_time=0.3)
-
-        # fork at the mark: rows 1..6 copied under the fork's own key, same ids
-        cmd = mono('fork {"at": 6}', 21, AMBER).move_to([0.6, -0.2, 0])
-        self.say("fork at 6: a new agent gets a copy of rows 1 to 6, with the same ids.")
-        self.play(FadeIn(cmd), FadeIn(lane_label("fork", FY)), run_time=0.4)
-        copies = [r.copy() for r in rows[:6]]
-        targets = [r.copy().move_to([r.get_center()[0], FY, 0]) for r in rows[:6]]
-        for c in copies:
-            self.add(c)
-        self.play(*[c.animate.move_to(t) for c, t in zip(copies, targets)], run_time=0.9)
-        same = bracket(copies, GREEN, "same bytes: the parent's cache hits", up=False, size=18)
-        self.play(FadeIn(same), *[c.tinted(GREEN, 0.2) for c in copies], run_time=0.5)
-        self.wait(0.6)
-
-        # diverge: one kernel counter -> new rows take new ids on each side
-        self.say("Then they diverge. Later rows, folds and forgets on one side never reach the other.", color=INK)
-        a_new = [cell(i, color=CYAN) for i in (11, 12)]
-        place_row(a_new, rows[-1].get_right()[0] + GAP, AY)
-        f_new = [cell(i, color=CYAN) for i in (13, 14)]
-        place_row(f_new, copies[-1].get_right()[0] + GAP, FY)
-        self.play(LaggedStart(FadeIn(a_new[0]), FadeIn(f_new[0]), FadeIn(a_new[1]), FadeIn(f_new[1]), lag_ratio=0.3), run_time=1.0)
         self.finish(2.4)
 
 

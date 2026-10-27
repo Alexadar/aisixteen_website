@@ -124,9 +124,10 @@ export async function loadFoundations(root) {
     }
     const htmlIds = n.clips.map((c) => c.htmlId)
     if (new Set(htmlIds).size !== htmlIds.length) fail(`${n.key}: two clips with the same name on one page`)
-    const leaf = n.children.length === 0
-    if (leaf && (n.clips.length < 3 || n.clips.length > 5)) fail(`${n.key}: an article shows 3 to 5 clips (has ${n.clips.length})`)
-    if (!leaf && n.clips.length < 1) fail(`${n.key}: a pillar or section page shows one clip`)
+    // A pillar (top level) is an overview with one clip. Every other page is an article with
+    // 3 to 5, including one that also has children (AI agent: an article and a section).
+    if (n.depth > 0 && (n.clips.length < 3 || n.clips.length > 5)) fail(`${n.key}: an article shows 3 to 5 clips (has ${n.clips.length})`)
+    if (n.depth === 0 && n.clips.length < 1) fail(`${n.key}: a pillar page shows one clip`)
     n.cover = resolveClip(a.cover, n)
     if (n.cover) n.og = ogOf(n.cover.owner, n)
   }
