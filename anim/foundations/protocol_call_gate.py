@@ -20,7 +20,7 @@ OG = "gate"
 class K2Gate(FScene):
     """Two keys, one door: egress (sender's can_call) and ingress (target's callable_by)."""
 
-    EYEBROW = "Fantastic kernel"
+    EYEBROW = "Protocol · Call gate"
     TITLE = "The call gate: both ends must grant"
 
     def construct(self):

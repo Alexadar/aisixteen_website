@@ -28,7 +28,7 @@ export default {
     },
   ],
   sources: [
-    ['README.md: folder bundles', src('README.md', 60)],
+    ['README.md: folder bundles', src('README.md', 341)],
     ['bundles.md', src('src/tui/docs/bundles.md', 3)],
     ['the python agent starter', src('src/tui/starters/python_agent/agent.py', 1)],
     ['bundle.rs: the Bundle trait', src('src/lib/rust/crates/fantastic-kernel/src/bundle.rs', 50)],

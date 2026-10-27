@@ -33,7 +33,7 @@ export default {
           ['`unknown_agent`', 'no agent has that id', '`agent_count`, `agents`'],
           ['`missing_arg`', 'a required argument is absent', '`arg`'],
           ['`bad_arg`', 'an argument is present but wrong', '`arg`'],
-          ['`invalid_meta`', 'the bundle’s own `validate_meta` refused', ''],
+          ['`invalid_meta`', 'a record field failed its write-time check: a bad grant map, or the bundle’s own `validate_meta`', '`id` on update'],
           ['`locked`', 'the agent has `delete_lock` set', '`blocked_by`, `id`'],
           ['`not_here`', 'a kernel verb was sent to an agent other than the root', '`verb`'],
           ['`exists`', 'the id is already taken', '`id`'],
@@ -50,7 +50,7 @@ export default {
       id: 'gate',
       title: 'Reading a gate refusal',
       blocks: [
-        'The call gate refuses with `unauthorized` and says which half failed in `side`. The sender’s `can_call` is checked first, so a call with neither half granted reports `egress`. If egress passes, the target’s `callable_by` is checked and a failure there reports `ingress`.',
+        'The [call gate](/fantastic/foundations/protocol/call-gate/) refuses with `unauthorized` and says which half failed in `side`. The sender’s `can_call` is checked first, so a call with neither half granted reports `egress`. If egress passes, the target’s `callable_by` is checked and a failure there reports `ingress`.',
         { code: '{"error": "a may not call \'reflect\' on b", "reason": "unauthorized",\n "hint": "grants come from above ...", "side": "egress"}\n{"error": "b does not accept \'reflect\' from a", "reason": "unauthorized",\n "hint": "grants come from above ...", "side": "ingress"}', label: 'the two gate refusals (hint cut short)' },
         'Both refusals carry the same hint: “grants come from above — an ancestor (update_agent on an agent in its subtree) or the operator writes can_call and callable_by; an agent never raises its own.” The `side` tells the reader whose grant to change: the sender’s reach on `egress`, the target’s acceptance on `ingress`.',
         'A target on another kernel, written `<guid>|<agent>`, is checked at egress only, because the other kernel decides whether it accepts the call. Its hint says to name the agent in `can_call`, as `{"<agent>": [...]}` or `{"<guid>|*": [...]}`.',
@@ -60,9 +60,9 @@ export default {
       id: 'arrives',
       title: 'How a refusal arrives',
       blocks: [
-        'A refusal is a result, not an exception. In a batch of sends, each item gets its own outcome, in input order. An item the kernel refuses before dispatch, such as an unknown agent or a gate denial, settles `failed`, has no task id, and its `result` is the refusal. The other items still run.',
+        'A refusal is a result, not an exception. [Messages and verbs](/fantastic/foundations/protocol/messages/) lists the five statuses an item can end in. In a batch of sends, each item gets its own outcome, in input order. An item the kernel refuses before dispatch, such as an unknown agent or a gate denial, settles `failed` with `pid: null`, and its `result` is the refusal. The other items still run.',
         'A handler that runs and answers with a truthy `error` settles `errored`, with its reply kept as the result. A call that outlives its own deadline settles `timed_out`, and its result is a `timeout` refusal that carries the `task_id`. A non-positive `timeout` is itself refused, as `bad_arg`.',
-        'A dead letter’s settle row keeps the refusal’s `error`, `reason` and `side`, with strings cut to 500 characters, so the same fields are there when the ledger is read later.',
+        'A [dead letter](/fantastic/foundations/protocol/ledger/)’s settle row keeps the refusal’s `error`, `reason` and `side`, with strings cut to 500 characters, so the same fields are there when the ledger is read later.',
       ],
     },
     {

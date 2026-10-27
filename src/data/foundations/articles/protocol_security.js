@@ -20,18 +20,18 @@ export default {
         'The baseline on both fields of every agent is `{"$self": "*"}`: the agent itself and nothing else. An absent or empty grant denies. Every other edge is a line someone wrote.',
         { code: 'worker.can_call     {"$self": "*", "store": ["get"]}\nstore.callable_by   {"$self": "*", "worker": ["get"]}', label: 'one edge, written on both ends (illustrative ids)' },
         'The refusal teaches where grants come from: “grants come from above — an ancestor (update_agent on an agent in its subtree) or the operator writes can_call and callable_by; an agent never raises its own.” An agent that tries to widen its own record is refused unless it holds `update_agent` on the root, and that is itself a grant.',
-        'Sends made by the operator (the CLI, a transport handing in a frame) skip the gate. Identity inside the kernel comes only from dispatch: the sends a handler makes, and the tasks it spawns, are that agent’s.',
+        'Sends made by the operator (the CLI, a transport handing in a frame) skip the gate. Identity inside the kernel comes only from dispatch: the sends a handler makes, and the tasks it spawns, are that agent’s. A wire leg sends what it receives onward as itself, so the gate judges the leg ([Transports](/fantastic/foundations/protocol/transports/)).',
         { video: 'reach' },
       ],
     },
     {
       id: 'spawn',
-      title: 'Spawning inherits nothing',
+      title: 'A new agent inherits nothing',
       blocks: [
         'A child made by `create_agent` gets the same baseline as any agent: `{"$self": "*"}` on both fields. It does not receive its parent’s reach, and it is not granted `$parent` or `$subtree`. Any wider grant is written into the new record explicitly.',
         '`create_agent` itself needs a grant on the root, on both ends. The child’s `boot` is kernel bookkeeping, run as the child, and is never a send checked against the creator’s grants.',
         'A program started by an `exec_bridge` agent acts as that agent. Its sends carry the runner’s identity, its reach is the runner’s `can_call`, and a target must list the runner in `callable_by`. You grant the runner, not the program.',
-        { note: 'The code checks the shape of grants written at create time, not whether they exceed the creator’s own. Whoever holds `create_agent` or `update_agent` on the root can write any grants, so that grant is the one to hand out with care.' },
+        { note: 'The code checks the shape of grants written at create time, not whether they exceed the creator’s own. Whoever holds `create_agent` or `update_agent` on the root can write any grants, so that grant is the one to hand out with care. The `spawn` verb of `agentic_resources` does check: it cannot hand out more than the spawner holds ([Call gate and grants](/fantastic/foundations/protocol/call-gate/)).' },
       ],
     },
     {

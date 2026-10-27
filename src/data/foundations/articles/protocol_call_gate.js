@@ -24,7 +24,7 @@ export default {
         { code: 'a.can_call     {"$self": "*", "b": ["reflect"]}\nb.callable_by  {"$self": "*", "a": ["reflect"]}', label: 'a may send reflect to b, one way (illustrative ids)' },
         'The edge is one-way. These two lines let `a` call `b`, and nothing lets `b` call `a`. For that, `b` needs its own `can_call` and `a` its own `callable_by`.',
         { video: 'gate' },
-        'The gate judges agent sends. A send made outside every dispatch, such as the CLI, the cold bootstrap, a test driver or a transport handing in an inbound frame, is an **operator send** and skips the gate. The kernel’s own bookkeeping does too. Identity comes only from dispatch: a send made inside an agent’s handler, or in a task that handler spawned, is that agent’s.',
+        'The gate judges agent sends. A send made outside every dispatch, such as the CLI, the cold bootstrap, a test driver or a transport handing in an inbound frame, is an **operator send** and skips the gate. A wire leg that receives a frame then sends the item onward as itself, so the gate judges the leg ([Transports](/fantastic/foundations/protocol/transports/)). The kernel’s own bookkeeping does too. Identity comes only from dispatch: a send made inside an agent’s handler, or in a task that handler spawned, is that agent’s.',
       ],
     },
     {
@@ -55,7 +55,7 @@ export default {
         'Each end keeps its own list. If `a` holds `"*"` on `b` but `b` lists only `reflect`, a `ps` from `a` passes egress and is refused at ingress.',
         { video: 'verbs' },
         { code: '{"error": "a may not call \'ps\' on b", "reason": "unauthorized", "side": "egress", "hint": "…"}\n{"error": "b does not accept \'ps\' from a", "reason": "unauthorized", "side": "ingress", "hint": "…"}', label: 'the two refusals (hint shortened)' },
-        'The refusal names the failing half in `side`. A send with neither half granted reports `egress`, because egress is checked first.',
+        'The refusal names the failing half in `side`. A send with neither half granted reports `egress`, because egress is checked first. [Refusals](/fantastic/foundations/protocol/refusals/) covers the shape every refusal shares.',
       ],
     },
     {
@@ -72,7 +72,7 @@ export default {
       title: 'Grants on spawn',
       blocks: [
         'The `spawn` verb of the `agentic_resources` bundle creates a worker from a **card**. The card’s `grants` on tools are written on both ends of each edge: into the worker’s `can_call` and into the tool’s `callable_by`. The worker can call its tools without further setup.',
-        'A spawn cannot hand out more than the spawner holds. Before anything is created, `spawn` checks every verb the card lists on a tool against the spawner’s own `can_call`, with the same matching the gate uses. The grant `"*"` needs the spawner to hold `"*"`. If a verb is missing, the spawn is refused with `not_allowed`, and nothing is created. An operator spawn has no spawner, so there is nothing to check.',
+        'A spawn cannot hand out more than the spawner holds. Before anything is created, `spawn` checks every verb the card lists on a tool against the spawner’s own `can_call`, with the same matching the gate uses. The grant `"*"` needs the spawner to hold `"*"`. If a verb is missing, the spawn is refused with `not_allowed`, and nothing is created. An operator spawn has no spawner, so there is nothing to check. Plain `create_agent` makes no such check; [Security](/fantastic/foundations/protocol/security/) explains what that means.',
         { video: 'spawn' },
         { code: 'spawn: lead may not grant \'write\' on \'files\' (role \'…\')', label: 'the not_allowed reason (role elided)' },
         'The spawn is all or nothing. A tool id that is not an agent is skipped. If a write to a tool’s `callable_by` is refused, the edits already made are taken back, the half-made worker is removed, and the reply is `grant_failed`. Only literal agent ids in the card are applied as tool grants; `$` tokens and `<guid>|` keys are not.',

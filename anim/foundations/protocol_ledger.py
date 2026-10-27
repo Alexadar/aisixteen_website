@@ -23,7 +23,7 @@ OG = "ledger"
 class K5Ledger(FScene):
     """Executions: call + settle rows, flush to the store, a dead letter, restart, dedup, ack."""
 
-    EYEBROW = "Fantastic kernel"
+    EYEBROW = "Protocol"
     TITLE = "Every call is an execution"
 
     def construct(self):

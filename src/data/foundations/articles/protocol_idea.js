@@ -39,7 +39,7 @@ export default {
         'Every call goes through the kernel. In the Rust source, “the kernel’s `agents` map is the only routing table”, and `send` resolves the target id there directly. The Python kernel does the same with its flat `ctx.agents` dict, and bundles never call each other’s handler functions.',
         'A call to an agent three levels deep is resolved the same way as a call to one at the top: by its id, with no walk through the agents in between. Agents address each other by id and hold no references to one another.',
         { video: 'table' },
-        'The kernel also does the bookkeeping that makes the exchange safe. Every call is checked by the two-sided call gate, and every call runs as a task you can list with `ps` and stop with `cancel`. Both are covered in later pages of this pillar.',
+        'The kernel also does the bookkeeping that makes the exchange safe. Every call is checked by the two-sided call gate, and every call runs as a task you can list with `ps` and stop with `cancel`. [Call gate and grants](/fantastic/foundations/protocol/call-gate/) covers the first, and [Messages and verbs](/fantastic/foundations/protocol/messages/) covers tasks, `ps` and `cancel`.',
       ],
     },
     {
@@ -66,7 +66,7 @@ export default {
         { code: '[{"target": "kernel", "payload": {"type": "reflect"}}]', label: 'one call: send to the kernel' },
         'Every call is a batch: a list of items, each `{target, payload}`. The kernel runs them concurrently and answers a list of `{pid, status, result}` in input order. There is deliberately no single-call form, so one call is a batch of one.',
         { video: 'reflect' },
-        'The two runtimes keep this the same. The Rust kernel (`fantastic-kernel`) and the Python kernel (`kernel/`) both implement the agent record, the one routing table and the `reflect` and `docs` verbs.',
+        'The two runtimes keep this the same. The Rust kernel (`fantastic-kernel`) and the Python kernel (`kernel/`) both implement the agent record, the one routing table and the `reflect` and `docs` verbs. [Messages and verbs](/fantastic/foundations/protocol/messages/) covers the batch, its statuses and both verbs in full.',
       ],
     },
   ],

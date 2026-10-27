@@ -5,7 +5,7 @@ import { src } from '../lib.js'
 export default {
   headline: 'The protocol: one message model for people, models and programs',
   description: 'The Aisixteen Fantastic protocol: every person, model and program is an agent that answers verbs, every interaction is one batch send, and a two-sided call gate decides who may call whom. The articles in this part cover each piece.',
-  summary: 'One message model shared by humans, models and programs: verbs, batch send, the two-sided call gate, refusals, the ledger, transports and the shared contract.',
+  summary: 'One message model shared by humans, models and programs: verbs, batch send, the two-sided call gate, security, refusals, the ledger, transports and the shared contract.',
   cover: { clip: 'gate', from: 'protocol_call_gate' },
   about: ['Aisixteen Fantastic', 'Message passing', 'Agent protocol', 'Access control'],
   lead: [
@@ -27,7 +27,7 @@ export default {
   ],
   sources: [
     ['THESIS.md', src('THESIS.md', 5)],
-    ['README.md: agents and send', src('README.md', 15)],
+    ['README.md: agents and send', src('README.md', 16)],
     ['README.md: the protocol is the API', src('README.md', 22)],
     ['README.md: one batch send', src('README.md', 27)],
     ['README.md: the call gate', src('README.md', 45)],

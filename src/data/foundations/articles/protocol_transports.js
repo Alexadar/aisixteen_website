@@ -33,7 +33,7 @@ export default {
       title: 'In process: the caller is the agent',
       blocks: [
         'An agent’s handler sends by calling `kernel.send` with a list of items, in Rust and in Python. The kernel knows the caller: it is the agent whose dispatch makes the send, or the operator when no dispatch is running.',
-        'This is the only carrier where the caller is the sender itself. The call gate judges it with the sender’s own `can_call` and the target’s `callable_by`, as the call gate article describes.',
+        'This is the only carrier where the caller is the sender itself. The call gate judges it with the sender’s own `can_call` and the target’s `callable_by`, as [Call gate and grants](/fantastic/foundations/protocol/call-gate/) describes.',
       ],
     },
     {

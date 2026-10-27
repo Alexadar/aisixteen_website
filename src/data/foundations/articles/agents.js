@@ -28,7 +28,7 @@ export default {
     },
   ],
   sources: [
-    ['README.md: what’s in the box', src('README.md', 48)],
+    ['README.md: what’s in the box', src('README.md', 49)],
     ['README.md: memory', src('README.md', 47)],
     ['ai_core (Python)', src('src/lib/python/bundled_agents/ai/ai_core/src/ai_core')],
   ],

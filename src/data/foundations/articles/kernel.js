@@ -28,7 +28,7 @@ export default {
   sources: [
     ['THESIS.md', src('THESIS.md', 5)],
     ['README.md: agents and send', src('README.md', 42)],
-    ['README.md: kernel services', src('README.md', 62)],
+    ['README.md: kernel services', src('README.md', 63)],
     ['system-verbs.md (the kernel verbs)', src('src/lib/rust/crates/bundles/fantastic-core/src/docs/system-verbs.md', 5)],
     ['rows.rs: a port of the Python kernel', src('src/lib/rust/crates/fantastic-kernel/src/rows.rs', 4)],
     ['bundle.rs: the Bundle trait', src('src/lib/rust/crates/fantastic-kernel/src/bundle.rs', 50)],

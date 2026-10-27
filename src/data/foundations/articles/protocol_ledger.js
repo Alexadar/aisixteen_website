@@ -37,7 +37,7 @@ export default {
       id: 'dead-letters',
       title: 'Dead letters and ack_deadletter',
       blocks: [
-        'An execution has one of five ending statuses. `completed` and `errored` mean the handler ran and answered, so they are not dead letters. `failed`, `timed_out` and `cancelled` are. A handler that raises or panics settles `failed`, a call that passes its deadline settles `timed_out`, and a `cancel` settles `cancelled`.',
+        'An execution has one of [five ending statuses](/fantastic/foundations/protocol/messages/). `completed` and `errored` mean the handler ran and answered, so they are not dead letters. `failed`, `timed_out` and `cancelled` are. A handler that raises or panics settles `failed`, a call that passes its deadline settles `timed_out`, and a `cancel` settles `cancelled`.',
         'A call that is refused before it starts is different. A denial at the call gate or an unknown target returns a `failed` outcome to the caller, but the kernel has not opened an execution, so it writes no rows and creates no dead letter.',
         'Retries come first. An item may set `retries`, and the kernel sends a `failed` or `timed_out` call again under the same id while the budget lasts. A `cancelled` call is never retried. When the last attempt ends badly, the execution settles and is a dead letter.',
         { h3: 'The event' },

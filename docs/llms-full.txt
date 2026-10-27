@@ -158,7 +158,7 @@ What the protocol promises is written down once, as data. The `contract/` folder
 
 In this part: The idea (https://aisixteen.com/fantastic/foundations/protocol/idea/); Messages and verbs (https://aisixteen.com/fantastic/foundations/protocol/messages/); Call gate and grants (https://aisixteen.com/fantastic/foundations/protocol/call-gate/); Security (https://aisixteen.com/fantastic/foundations/protocol/security/); Refusals (https://aisixteen.com/fantastic/foundations/protocol/refusals/); Ledger and dead letters (https://aisixteen.com/fantastic/foundations/protocol/ledger/); Transports (https://aisixteen.com/fantastic/foundations/protocol/transports/); The contract (https://aisixteen.com/fantastic/foundations/protocol/contract/)
 
-Sources: THESIS.md (https://github.com/aisixteen/fantastic/blob/main/THESIS.md#L5); README.md: agents and send (https://github.com/aisixteen/fantastic/blob/main/README.md#L15); README.md: the protocol is the API (https://github.com/aisixteen/fantastic/blob/main/README.md#L22); README.md: one batch send (https://github.com/aisixteen/fantastic/blob/main/README.md#L27); README.md: the call gate (https://github.com/aisixteen/fantastic/blob/main/README.md#L45); contract/README.md (https://github.com/aisixteen/fantastic/blob/main/contract/README.md#L3)
+Sources: THESIS.md (https://github.com/aisixteen/fantastic/blob/main/THESIS.md#L5); README.md: agents and send (https://github.com/aisixteen/fantastic/blob/main/README.md#L16); README.md: the protocol is the API (https://github.com/aisixteen/fantastic/blob/main/README.md#L22); README.md: one batch send (https://github.com/aisixteen/fantastic/blob/main/README.md#L27); README.md: the call gate (https://github.com/aisixteen/fantastic/blob/main/README.md#L45); contract/README.md (https://github.com/aisixteen/fantastic/blob/main/contract/README.md#L3)
 
 ### Foundations › Protocol › The idea
 
@@ -200,7 +200,7 @@ A call to an agent three levels deep is resolved the same way as a call to one a
 
 *Animation: Routing by id, not by tree* (https://aisixteen.com/fantastic/foundations/protocol/idea/table.mp4). The tree on the left has kernel, notes and, under notes, a worker. The table on the right lists every agent id once. A send to worker is looked up in the table and delivered directly, without passing through notes.
 
-The kernel also does the bookkeeping that makes the exchange safe. Every call is checked by the two-sided call gate, and every call runs as a task you can list with `ps` and stop with `cancel`. Both are covered in later pages of this pillar.
+The kernel also does the bookkeeping that makes the exchange safe. Every call is checked by the two-sided call gate, and every call runs as a task you can list with `ps` and stop with `cancel`. [Call gate and grants](/fantastic/foundations/protocol/call-gate/) covers the first, and [Messages and verbs](/fantastic/foundations/protocol/messages/) covers tasks, `ps` and `cancel`.
 
 #### Three kinds of peer
 
@@ -234,7 +234,7 @@ Every call is a batch: a list of items, each `{target, payload}`. The kernel run
 
 *Animation: Every agent answers reflect* (https://aisixteen.com/fantastic/foundations/protocol/idea/reflect.mp4). The same send, {"type": "reflect"}, goes to kernel, user and ai in one batch. Each answers with its id and a sentence, and the replies come back in input order. The sentences shown are illustrative, and the kernel’s is shortened.
 
-The two runtimes keep this the same. The Rust kernel (`fantastic-kernel`) and the Python kernel (`kernel/`) both implement the agent record, the one routing table and the `reflect` and `docs` verbs.
+The two runtimes keep this the same. The Rust kernel (`fantastic-kernel`) and the Python kernel (`kernel/`) both implement the agent record, the one routing table and the `reflect` and `docs` verbs. [Messages and verbs](/fantastic/foundations/protocol/messages/) covers the batch, its statuses and both verbs in full.
 
 Sources: THESIS.md (https://github.com/aisixteen/fantastic/blob/main/THESIS.md); README.md: the idea in one call (https://github.com/aisixteen/fantastic/blob/main/README.md#L27); Rust Agent: the only node type (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/agent.rs#L1); Rust routing: the only table (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/send.rs#L5); Python Agent: routing and lifecycle (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_agent.py#L1); the user agent (terminal app) (https://github.com/aisixteen/fantastic/blob/main/src/tui/bundles/fantastic-user/src/lib.rs#L1); py_agent: a program as an agent (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-py-agent/src/lib.rs#L1); AI backends: one pass per send (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/lib.rs#L1)
 
@@ -267,15 +267,15 @@ Each registered item is a task with its own integer `pid`. The kernel mints ever
 
 #### What an item may carry
 
-Besides `target` and `payload`, an item may carry an `id` that names the execution, a `timeout` in seconds and a `retries` budget. The kernel never defaults the timeout: absent means wait forever. When a timeout expires, the kernel kills the item through the same path as `cancel`, so the target’s cleanup hook runs. The ledger page covers `id` and `retries`.
+Besides `target` and `payload`, an item may carry an `id` that names the execution, a `timeout` in seconds and a `retries` budget. The kernel never defaults the timeout: absent means wait forever. When a timeout expires, the kernel kills the item through the same path as `cancel`, so the target’s cleanup hook runs. [Ledger and dead letters](/fantastic/foundations/protocol/ledger/) covers `id` and `retries`.
 
 #### What happens to an item
 
-Before any handler runs, the kernel checks each item in a fixed order: the target is a non-empty string, the payload is an object, then `timeout`, `payload.type`, `id` and `retries`. A missing `target`, `payload` or `payload.type` is refused as `missing_arg`; a `type` that is not a non-empty string is refused as `bad_arg`.
+Before any handler runs, the kernel checks each item in a fixed order: the target is a non-empty string, the payload is an object, then `timeout`, `payload.type`, `id` and `retries`. A missing `target`, `payload` or `payload.type` is refused as `missing_arg`; a `type` that is not a non-empty string is refused as `bad_arg`. Every refusal has the one shape described in [Refusals](/fantastic/foundations/protocol/refusals/).
 
 The kernel then resolves the target. `"kernel"` names the root, any other string is an agent id, and `<guid>|<agent id>` names an agent on a connected kernel. An id that names no agent is refused as `unknown_agent`, and the refusal lists the live ids.
 
-Next comes the call gate, which judges every send an agent makes, whatever the verb, `reflect` included. A send from outside any agent, such as the command line, is ungated. The call gate page covers the rule.
+Next comes the call gate, which judges every send an agent makes, whatever the verb, `reflect` included. A send from outside any agent, such as the command line, is ungated. [Call gate and grants](/fantastic/foundations/protocol/call-gate/) covers the rule.
 
 #### Where a verb is answered
 
@@ -299,7 +299,7 @@ The code calls the status strings the contract. Every item settles in exactly on
 
 Failure is a status, so a caller reads `status` instead of parsing `result`. Truthiness follows Python: `error: 0`, `[]`, `{}` and `""` are falsy, so a reply carrying one of them settles `completed`.
 
-Nothing propagates out of `send`. A panic settles as `failed`, a cancel as `cancelled`, and the caller always gets an answer. Only `failed` and `timed_out` are ever retried, and only within the `retries` the caller declared. `cancelled` is never retried; in the code’s words, “an operator kill is an absorbing decision, not a transient.”
+Nothing propagates out of `send`. A panic settles as `failed`, a cancel as `cancelled`, and the caller always gets an answer. Only `failed` and `timed_out` are ever retried, and only within the `retries` the caller declared. `cancelled` is never retried; in the code’s words, “an operator kill is an absorbing decision, not a transient.” An execution that ends `failed`, `timed_out` or `cancelled` is a dead letter; an item refused before dispatch is not. [Ledger and dead letters](/fantastic/foundations/protocol/ledger/) explains why.
 
 The Python kernel replies with `{pid, status, result}` and adds `attempts` after a retry and `name` for a named item. The Rust kernel always includes `attempts` as well.
 
@@ -357,7 +357,7 @@ The edge is one-way. These two lines let `a` call `b`, and nothing lets `b` call
 
 *Animation: The call gate: both ends must grant* (https://aisixteen.com/fantastic/foundations/protocol/call-gate/gate.mp4). Agent a sends reflect to b. The send is refused at egress until a’s can_call names b, then at ingress until b’s callable_by names a. With both grants it passes, one way, for that verb only. Operator sends skip the gate.
 
-The gate judges agent sends. A send made outside every dispatch, such as the CLI, the cold bootstrap, a test driver or a transport handing in an inbound frame, is an **operator send** and skips the gate. The kernel’s own bookkeeping does too. Identity comes only from dispatch: a send made inside an agent’s handler, or in a task that handler spawned, is that agent’s.
+The gate judges agent sends. A send made outside every dispatch, such as the CLI, the cold bootstrap, a test driver or a transport handing in an inbound frame, is an **operator send** and skips the gate. A wire leg that receives a frame then sends the item onward as itself, so the gate judges the leg ([Transports](/fantastic/foundations/protocol/transports/)). The kernel’s own bookkeeping does too. Identity comes only from dispatch: a send made inside an agent’s handler, or in a task that handler spawned, is that agent’s.
 
 #### What a grant map holds
 
@@ -392,7 +392,7 @@ the two refusals (hint shortened):
 {"error": "b does not accept 'ps' from a", "reason": "unauthorized", "side": "ingress", "hint": "…"}
 ```
 
-The refusal names the failing half in `side`. A send with neither half granted reports `egress`, because egress is checked first.
+The refusal names the failing half in `side`. A send with neither half granted reports `egress`, because egress is checked first. [Refusals](/fantastic/foundations/protocol/refusals/) covers the shape every refusal shares.
 
 #### Where grants come from
 
@@ -406,7 +406,7 @@ When an agent is deleted, its id is removed from every grant that named it. A ne
 
 The `spawn` verb of the `agentic_resources` bundle creates a worker from a **card**. The card’s `grants` on tools are written on both ends of each edge: into the worker’s `can_call` and into the tool’s `callable_by`. The worker can call its tools without further setup.
 
-A spawn cannot hand out more than the spawner holds. Before anything is created, `spawn` checks every verb the card lists on a tool against the spawner’s own `can_call`, with the same matching the gate uses. The grant `"*"` needs the spawner to hold `"*"`. If a verb is missing, the spawn is refused with `not_allowed`, and nothing is created. An operator spawn has no spawner, so there is nothing to check.
+A spawn cannot hand out more than the spawner holds. Before anything is created, `spawn` checks every verb the card lists on a tool against the spawner’s own `can_call`, with the same matching the gate uses. The grant `"*"` needs the spawner to hold `"*"`. If a verb is missing, the spawn is refused with `not_allowed`, and nothing is created. An operator spawn has no spawner, so there is nothing to check. Plain `create_agent` makes no such check; [Security](/fantastic/foundations/protocol/security/) explains what that means.
 
 *Animation: Spawn grants stay within the spawner* (https://aisixteen.com/fantastic/foundations/protocol/call-gate/spawn.mp4). lead holds only read on files. A card that grants read and write is refused with not_allowed and creates nothing. A card that grants read creates worker as lead’s child, and writes worker’s can_call and files’ callable_by.
 
@@ -443,11 +443,11 @@ store.callable_by   {"$self": "*", "worker": ["get"]}
 
 The refusal teaches where grants come from: “grants come from above — an ancestor (update_agent on an agent in its subtree) or the operator writes can_call and callable_by; an agent never raises its own.” An agent that tries to widen its own record is refused unless it holds `update_agent` on the root, and that is itself a grant.
 
-Sends made by the operator (the CLI, a transport handing in a frame) skip the gate. Identity inside the kernel comes only from dispatch: the sends a handler makes, and the tasks it spawns, are that agent’s.
+Sends made by the operator (the CLI, a transport handing in a frame) skip the gate. Identity inside the kernel comes only from dispatch: the sends a handler makes, and the tasks it spawns, are that agent’s. A wire leg sends what it receives onward as itself, so the gate judges the leg ([Transports](/fantastic/foundations/protocol/transports/)).
 
 *Animation: No grant, no reach* (https://aisixteen.com/fantastic/foundations/protocol/security/reach.mp4). Agent worker starts with only itself in can_call. Its get to store is refused. The operator writes both ends of the edge: worker.can_call names store, and store.callable_by names worker. The same send now passes, for get only. A third agent, other, was never named, and stays out of reach.
 
-#### Spawning inherits nothing
+#### A new agent inherits nothing
 
 A child made by `create_agent` gets the same baseline as any agent: `{"$self": "*"}` on both fields. It does not receive its parent’s reach, and it is not granted `$parent` or `$subtree`. Any wider grant is written into the new record explicitly.
 
@@ -455,7 +455,7 @@ A child made by `create_agent` gets the same baseline as any agent: `{"$self": "
 
 A program started by an `exec_bridge` agent acts as that agent. Its sends carry the runner’s identity, its reach is the runner’s `can_call`, and a target must list the runner in `callable_by`. You grant the runner, not the program.
 
-The code checks the shape of grants written at create time, not whether they exceed the creator’s own. Whoever holds `create_agent` or `update_agent` on the root can write any grants, so that grant is the one to hand out with care.
+The code checks the shape of grants written at create time, not whether they exceed the creator’s own. Whoever holds `create_agent` or `update_agent` on the root can write any grants, so that grant is the one to hand out with care. The `spawn` verb of `agentic_resources` does check: it cannot hand out more than the spawner holds ([Call gate and grants](/fantastic/foundations/protocol/call-gate/)).
 
 #### Credentials: by reference, bound to a host
 
@@ -573,7 +573,7 @@ The codes are a **closed set**. A new code is a deliberate addition to one list,
 | `unknown_agent` | no agent has that id | `agent_count`, `agents` |
 | `missing_arg` | a required argument is absent | `arg` |
 | `bad_arg` | an argument is present but wrong | `arg` |
-| `invalid_meta` | the bundle’s own `validate_meta` refused |  |
+| `invalid_meta` | a record field failed its write-time check: a bad grant map, or the bundle’s own `validate_meta` | `id` on update |
 | `locked` | the agent has `delete_lock` set | `blocked_by`, `id` |
 | `not_here` | a kernel verb was sent to an agent other than the root | `verb` |
 | `exists` | the id is already taken | `id` |
@@ -589,7 +589,7 @@ The kernel doc lists nine codes. The code lists more, and the code is the source
 
 #### Reading a gate refusal
 
-The call gate refuses with `unauthorized` and says which half failed in `side`. The sender’s `can_call` is checked first, so a call with neither half granted reports `egress`. If egress passes, the target’s `callable_by` is checked and a failure there reports `ingress`.
+The [call gate](/fantastic/foundations/protocol/call-gate/) refuses with `unauthorized` and says which half failed in `side`. The sender’s `can_call` is checked first, so a call with neither half granted reports `egress`. If egress passes, the target’s `callable_by` is checked and a failure there reports `ingress`.
 
 the two gate refusals (hint cut short):
 
@@ -606,11 +606,11 @@ A target on another kernel, written `<guid>|<agent>`, is checked at egress only,
 
 #### How a refusal arrives
 
-A refusal is a result, not an exception. In a batch of sends, each item gets its own outcome, in input order. An item the kernel refuses before dispatch, such as an unknown agent or a gate denial, settles `failed`, has no task id, and its `result` is the refusal. The other items still run.
+A refusal is a result, not an exception. [Messages and verbs](/fantastic/foundations/protocol/messages/) lists the five statuses an item can end in. In a batch of sends, each item gets its own outcome, in input order. An item the kernel refuses before dispatch, such as an unknown agent or a gate denial, settles `failed` with `pid: null`, and its `result` is the refusal. The other items still run.
 
 A handler that runs and answers with a truthy `error` settles `errored`, with its reply kept as the result. A call that outlives its own deadline settles `timed_out`, and its result is a `timeout` refusal that carries the `task_id`. A non-positive `timeout` is itself refused, as `bad_arg`.
 
-A dead letter’s settle row keeps the refusal’s `error`, `reason` and `side`, with strings cut to 500 characters, so the same fields are there when the ledger is read later.
+A [dead letter](/fantastic/foundations/protocol/ledger/)’s settle row keeps the refusal’s `error`, `reason` and `side`, with strings cut to 500 characters, so the same fields are there when the ledger is read later.
 
 #### How a caller recovers
 
@@ -670,7 +670,7 @@ The view is scoped to the caller. An agent sees only the executions it originate
 
 #### Dead letters and ack_deadletter
 
-An execution has one of five ending statuses. `completed` and `errored` mean the handler ran and answered, so they are not dead letters. `failed`, `timed_out` and `cancelled` are. A handler that raises or panics settles `failed`, a call that passes its deadline settles `timed_out`, and a `cancel` settles `cancelled`.
+An execution has one of [five ending statuses](/fantastic/foundations/protocol/messages/). `completed` and `errored` mean the handler ran and answered, so they are not dead letters. `failed`, `timed_out` and `cancelled` are. A handler that raises or panics settles `failed`, a call that passes its deadline settles `timed_out`, and a `cancel` settles `cancelled`.
 
 A call that is refused before it starts is different. A denial at the call gate or an unknown target returns a `failed` outcome to the caller, but the kernel has not opened an execution, so it writes no rows and creates no dead letter.
 
@@ -740,7 +740,7 @@ The in-process form and MCP return the full outcome with its `status`. The WebSo
 
 An agent’s handler sends by calling `kernel.send` with a list of items, in Rust and in Python. The kernel knows the caller: it is the agent whose dispatch makes the send, or the operator when no dispatch is running.
 
-This is the only carrier where the caller is the sender itself. The call gate judges it with the sender’s own `can_call` and the target’s `callable_by`, as the call gate article describes.
+This is the only carrier where the caller is the sender itself. The call gate judges it with the sender’s own `can_call` and the target’s `callable_by`, as [Call gate and grants](/fantastic/foundations/protocol/call-gate/) describes.
 
 #### WebSocket and REST: the leg is the caller
 
@@ -910,7 +910,7 @@ Every item of a send is a kernel task. The task table works like Unix: `ps` list
 
 There are two host kernels, Rust and Python. The Rust kernel’s files describe themselves as rule-for-rule ports of the Python kernel, “which is canonical.” The main difference is how bundles load: Rust crates implement a `Bundle` trait, Python finds handler modules through entry points.
 
-Sources: THESIS.md (https://github.com/aisixteen/fantastic/blob/main/THESIS.md#L5); README.md: agents and send (https://github.com/aisixteen/fantastic/blob/main/README.md#L42); README.md: kernel services (https://github.com/aisixteen/fantastic/blob/main/README.md#L62); system-verbs.md (the kernel verbs) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-core/src/docs/system-verbs.md#L5); rows.rs: a port of the Python kernel (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/rows.rs#L4); bundle.rs: the Bundle trait (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/bundle.rs#L50); _bundles.py: entry points (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_bundles.py#L1)
+Sources: THESIS.md (https://github.com/aisixteen/fantastic/blob/main/THESIS.md#L5); README.md: agents and send (https://github.com/aisixteen/fantastic/blob/main/README.md#L42); README.md: kernel services (https://github.com/aisixteen/fantastic/blob/main/README.md#L63); system-verbs.md (the kernel verbs) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-core/src/docs/system-verbs.md#L5); rows.rs: a port of the Python kernel (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/rows.rs#L4); bundle.rs: the Bundle trait (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/bundle.rs#L50); _bundles.py: entry points (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_bundles.py#L1)
 
 ### Foundations › Agents
 
@@ -929,7 +929,7 @@ The AI agent keeps a long conversation in a finite window by folding it: a finis
 
 *Animation: A fold is a new row* (https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/fold.mp4). context_fold over rows 3 to 8 appends one fold row (13) to the store, with refs to its members; nothing is deleted. In the view the fold sits at its anchor, row 3, in place of its members, and everything before the range keeps its exact bytes.
 
-Sources: README.md: what’s in the box (https://github.com/aisixteen/fantastic/blob/main/README.md#L48); README.md: memory (https://github.com/aisixteen/fantastic/blob/main/README.md#L47); ai_core (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core)
+Sources: README.md: what’s in the box (https://github.com/aisixteen/fantastic/blob/main/README.md#L49); README.md: memory (https://github.com/aisixteen/fantastic/blob/main/README.md#L47); ai_core (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/ai/ai_core/src/ai_core)
 
 ### Foundations › Agents › AI agent › Context folding
 
@@ -1126,7 +1126,7 @@ A new verb is a function passed to `fa.serve` and a line in `bundle.yaml` `verbs
 
 Folder bundles are one way in. Below them, a Rust bundle is a crate implementing the kernel’s `Bundle` trait, linked into the binary at build time, and the Python kernel finds its bundles through entry points.
 
-Sources: README.md: folder bundles (https://github.com/aisixteen/fantastic/blob/main/README.md#L60); bundles.md (https://github.com/aisixteen/fantastic/blob/main/src/tui/docs/bundles.md#L3); the python agent starter (https://github.com/aisixteen/fantastic/blob/main/src/tui/starters/python_agent/agent.py#L1); bundle.rs: the Bundle trait (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/bundle.rs#L50)
+Sources: README.md: folder bundles (https://github.com/aisixteen/fantastic/blob/main/README.md#L341); bundles.md (https://github.com/aisixteen/fantastic/blob/main/src/tui/docs/bundles.md#L3); the python agent starter (https://github.com/aisixteen/fantastic/blob/main/src/tui/starters/python_agent/agent.py#L1); bundle.rs: the Bundle trait (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/bundle.rs#L50)
 
 ## Apps
 
