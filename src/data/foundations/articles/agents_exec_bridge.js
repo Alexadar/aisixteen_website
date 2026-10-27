@@ -79,7 +79,7 @@ export default {
       title: 'What the bridge does not do',
       blocks: [
         'The allowlist names which commands run. It does not contain them. A permitted `python3` still has `open()`, `socket` and `subprocess`. The readme says it plainly: opening this leg grants local code execution to whoever can reach it. Stronger containment would need an operating-system mechanism and is not built.',
-        'The bridge starts commands. A folder with a program that answers its own verbs is a different mechanism, covered in [Kernel › Bundles](/fantastic/foundations/kernel/bundles/#folder-bundles).',
+        'The bridge starts commands. A folder with a program that answers its own verbs is a different mechanism, covered in [Program agents](/fantastic/foundations/agents/program-agents/) and [Kernel › Bundles](/fantastic/foundations/kernel/bundles/#folder-bundles). Such a program talks to the kernel over this same wire.',
         { note: 'You open the bridge with `ingress_rule=allow_all_ingress`. Both runtimes refuse `password_ingress` on this edge when it is written: a process edge has no wire envelope, so no frame can present a token.' },
       ],
     },

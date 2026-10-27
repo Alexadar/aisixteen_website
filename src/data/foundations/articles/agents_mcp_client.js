@@ -88,7 +88,7 @@ export default {
   clips: {
     tools: {
       title: 'Tools become verbs',
-      caption: 'The agent gh holds the url of a remote MCP server. boot sends server/discover, and the server answers. boot then sends tools/list and gets four tool names. docs of=gh lists three as verbs with their signatures (create_issue, list_issues, add_label); reflect is skipped because the kernel answers that verb.',
+      caption: 'The agent gh holds the url of a remote MCP server. boot sends server/discover, and the server answers. boot then sends tools/list and gets four tool names. docs of=gh lists three as verbs with their signatures (create_issue, list_issues, add_label); reflect is skipped, because the agent answers that verb itself.',
     },
     call: {
       title: 'A send is a tools/call',

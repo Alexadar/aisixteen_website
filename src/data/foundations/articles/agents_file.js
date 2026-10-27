@@ -16,7 +16,7 @@ export default {
       id: 'bridge',
       title: 'A folder with verbs',
       blocks: [
-        'A file bridge is an agent whose record names a `root` folder and may carry a `readonly` flag. The disk itself lies outside the trust domain, so the bridge is the gate: it checks the caller, the clamp and the `allow` list, and only then touches the disk. A new bridge is sealed, and a path it does not expose answers `not_found`. [Security](/fantastic/foundations/protocol/security/#edges) explains both rules, so this page assumes a bridge that is open and exposes the path in question.',
+        'A file bridge is an agent whose record names a `root` folder, clamped inside the directory the kernel runs in, and may carry a `readonly` flag. The disk itself lies outside the trust domain, so the bridge is the gate: it checks the caller, the clamp and the `allow` list, and only then touches the disk. A new bridge is sealed, and a path it does not expose answers `not_found`. [Security](/fantastic/foundations/protocol/security/#edges) explains both rules, so this page assumes a bridge that is open and exposes the path in question.',
         'The verb table has 17 entries, the same in the Rust and Python runtimes. Besides `reflect` and `boot`, they fall into five groups.',
         { table: { head: ['group', 'verbs'], rows: [
           ['text documents', '`read`, `write`, `edit`, `append`, `undo`'],

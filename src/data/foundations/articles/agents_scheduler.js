@@ -9,7 +9,7 @@ export default {
   about: ['Aisixteen Fantastic', 'Task scheduling', 'Recurring jobs'],
   lead: [
     'The **scheduler** is an agent that repeats a send. You give it a target, a payload and an interval in seconds; it sends that payload to that target every interval, and keeps a record of each fire.',
-    'This page follows one schedule: how it is added, how a fire goes out, and when the loop wakes. The Rust and Python runtimes answer the same verbs in the same way. Its schedules persist as described in [State and persistence](/fantastic/foundations/kernel/state/).',
+    'This page follows one schedule: how it is added, how a fire goes out, and when the loop wakes. The Rust and Python runtimes answer the same verbs in the same way. Its schedules persist as described in [State and durability](/fantastic/foundations/kernel/state/).',
   ],
   sections: [
     {

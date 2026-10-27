@@ -40,7 +40,7 @@ export default {
       id: 'wire-legs',
       title: 'WebSocket and REST: the leg is the caller',
       blocks: [
-        'A **leg** is an agent that owns one wire face. `web_ws` mounts `ws://host/<id>/ws` on a parent `web` agent, and `web_rest` mounts `POST /<id>/<target>` and `GET /<id>/_reflect`. Both exist in the Rust and the Python runtime.',
+        'A **leg** is an agent that owns one wire face. `web_ws` mounts `ws://host/<id>/ws` on a parent `web` agent, and `web_rest` mounts `POST /<id>/<target>` and `GET /<id>/_reflect`. Both exist in the Rust and the Python runtime. [Web agents](/fantastic/foundations/agents/web/) covers the `web` host that mounts them.',
         'The loop that reads a socket or serves a request runs outside every dispatch, so anything it sent would count as the operator’s. The code avoids that. The loop hands the admitted frame to its leg as an inbound verb (`inbound_call` for a call), and the leg sends the item onward as itself.',
         { quote: 'Whoever is on the other end of the wire is not an identity in this kernel; the leg is.', cite: 'fantastic-io-bridge, inbound.rs' },
         'So the leg’s `can_call` and the target’s `callable_by` decide the call, and everyone admitted through one leg is one caller. A frame also passes the leg’s **ingress rule** first. A leg is sealed until you open it: an unset rule refuses every inbound frame, with the reason “edge sealed by policy”.',
@@ -60,7 +60,7 @@ export default {
         'A `ws_bridge` agent dials another kernel’s `web_ws` leg at `ws://<host>:<port>/<peer_id>/ws`. To call across, you send the bridge a `forward` item with the remote `target` and the `payload` to run there. The bridge ships it as a plain `call` frame, waits for the matching `reply`, and returns the data.',
         'The far side needs no bridge. It sees the same frame a browser would send, so its leg judges the call: its ingress rule, its `can_call` and the target’s `callable_by`. A bridge is sealed by default like any leg, and an inbound call over it is served as the bridge leg.',
         { video: 'bridge' },
-        'Frame ids are `<leg id>-<boot nonce>-<n>`, fresh at each boot, so a restarted bridge never reuses an id the peer already settled. `watch_remote` also streams a remote agent’s events onto the bridge’s inbox. A `relay_connector` does the same work through a relay router, reaching the partner by its GUID instead of a host and port.',
+        'Frame ids are `<leg id>-<boot nonce>-<n>`, fresh at each boot, so a restarted bridge never reuses an id the peer already settled. `watch_remote` also streams a remote agent’s events onto the bridge’s inbox ([Bridge](/fantastic/foundations/agents/bridge/) follows the frames). A `relay_connector` does the same work through a relay router, reaching the partner by its GUID instead of a host and port.',
         { note: 'The bridge does not reconnect on its own after a transport failure. `reconnect` is a verb, so the failure stays visible.' },
       ],
     },
@@ -70,7 +70,7 @@ export default {
       blocks: [
         'The Rust program `fantastic mcp` is an MCP server over stdio, protocol 2025-11-25, with two tools: `reflect` and `send`. The `send` tool takes `{items: [{target, payload, timeout?}]}` and returns `[{pid, status, result}]`, the same batch as in process. If a kernel already runs in the directory, `fantastic mcp` attaches to it over `.fantastic/cli/mcp.sock`; otherwise it runs the kernel itself.',
         'MCP is a leg too. A persisted agent named `mcp` receives each batch through `inbound_send` and sends it as itself. It starts with grants on every agent, and the human narrows them with `update_agent`. Each tool call is a kernel task that `ps` lists, and MCP’s `notifications/cancelled` cancels it.',
-        'The other direction is the `mcp_client` agent, in Rust and Python. It connects to one remote MCP server and makes each of that server’s tools a verb of the agent, so `send {type: <tool>, …}` becomes a `tools/call`.',
+        'The other direction is the `mcp_client` agent, in Rust and Python. It connects to one remote MCP server and makes each of that server’s tools a verb of the agent, so `send {type: <tool>, …}` becomes a `tools/call`. [MCP client](/fantastic/foundations/agents/mcp-client/) covers that agent.',
       ],
     },
     {

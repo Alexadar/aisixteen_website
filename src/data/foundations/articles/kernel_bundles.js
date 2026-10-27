@@ -62,7 +62,7 @@ export default {
         ] },
         { video: 'folder' },
         'Each instance, made with `create_agent handler_module=notes`, is a full agent. The kernel starts the program when the instance boots and kills it when the instance is deleted or the kernel stops. The program first says `{"op": "hello", "verbs": [...]}`; those verbs must equal the `verbs` in `bundle.yaml`, or the instance stops and says why. After that the kernel sends it `{"op": "call", ...}` and the program answers `{"op": "result", ...}`.',
-        'Nothing respawns a program that exits. `reload_bundle {name}`, a root verb, re-reads the folder and restarts every live instance of it. If the new `bundle.yaml` no longer loads, the call is refused and the live instances keep the previous load.',
+        '[Program agents](/fantastic/foundations/agents/program-agents/) follows the running program: its wire, `hello`, calls and how it stops. Nothing respawns a program that exits. `reload_bundle {name}`, a root verb, re-reads the folder and restarts every live instance of it. If the new `bundle.yaml` no longer loads, the call is refused and the live instances keep the previous load.',
         { note: 'The program runs with the user’s OS rights. Its own subprocesses, files and network do not pass the call gate; only the verbs that reach it do.' },
       ],
     },

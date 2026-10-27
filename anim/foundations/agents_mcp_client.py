@@ -65,7 +65,7 @@ class McpTools(FScene):
             ("create_issue   args: title:str (req), body:str?", GREEN),
             ("list_issues    args: state:str?", GREEN),
             ("add_label      args: issue:int (req), name:str (req)", GREEN),
-            ("reflect        skipped: the kernel answers that verb", RED),
+            ("reflect        skipped: this bundle answers that verb", RED),
         ], size=18).move_to(pc).align_to(pc, LEFT).shift(RIGHT * 0.4)
         self.play(FadeIn(pc), FadeIn(pt), FadeIn(lst), gh.tinted(GREEN, 0.3), run_time=0.7)
         self.wait(0.6)

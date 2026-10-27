@@ -8,7 +8,7 @@ const PY = 'src/lib/python/bundled_agents/io/py_agent/src/py_agent'
 export default {
   headline: 'Program agents: a process that answers the bundle’s verbs',
   description: 'How an Aisixteen Fantastic py_agent program works: the wire it speaks, hello, call and result, emit and send, and what happens when the process stops.',
-  summary: 'a program says hello with its verbs, answers calls, can send and emit, and stops with a reason.',
+  summary: 'A program says hello with its verbs, answers calls, can send and emit, and stops with a reason.',
   cover: { clip: 'call' },
   about: ['Aisixteen Fantastic', 'Agents', 'Inter-process communication'],
   lead: [

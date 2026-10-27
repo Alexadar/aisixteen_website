@@ -50,7 +50,7 @@ export default {
           '**Abort.** The kernel stops the tasks leaves first, with no wait in between, so a parent cannot resume between its child’s death and its own.',
         ] },
         { video: 'cancel' },
-        'The hooks are where real resources go. An `exec_bridge` job’s `on_cancel` kills the job’s child process. An AI backend’s `on_cancel` closes the stopped turn: its open parts abort and its status goes to `done` with reason `cancelled`.',
+        'The hooks are where real resources go. An [`exec_bridge`](/fantastic/foundations/agents/exec-bridge/#jobs) job’s `on_cancel` kills the job’s child process. An AI backend’s `on_cancel` closes the stopped turn: its open parts abort and its status goes to `done` with reason `cancelled`.',
         'The caller that was waiting on the cancelled send is not killed. Its item settles with status `cancelled` and the reply `{"cancelled": true}`. Nothing raises out of `send`. A caller that is itself inside the dying subtree does not resume either. It waits for its own stop.',
         'Two cases go the same way as `cancel`. A send with its own `timeout` kills its task through the same front door, so hooks run first, and its item settles as `timed_out`. And the kernel’s own service tasks, such as the loop that flushes the ledger to the memory store, refuse `cancel` with a `bad_arg` refusal. They stay listed in `ps` until the kernel stops. See [Ledger and dead letters](/fantastic/foundations/protocol/ledger/) for what a cancelled item leaves behind.',
       ],

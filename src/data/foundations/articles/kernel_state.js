@@ -72,7 +72,7 @@ export default {
         'The answer depends on which two agents you wired, a `file_bridge` rooted at `.fantastic` and a memory store.',
         'The `fantastic` CLI wires the first one for you. Its first-start seed writes a `store` agent, a `file_bridge` (`file_bridge.tools`) with `root: .fantastic` and `allow: ["."]`, so by default the tree and its records are saved under `.fantastic/`. The terminal’s `volatile()` check is true only when no such store exists, and then the statusline warns: “no store wired — rows will not survive a restart.”',
         { table: { head: ['what', 'survives when', 'otherwise'], rows: [
-          ['The agent tree, and bundle sidecars such as a scheduler’s schedules', 'a `file_bridge` is rooted at `.fantastic`', 'gone; only the seeded root record is on disk'],
+          ['The agent tree, and bundle sidecars such as a [scheduler](/fantastic/foundations/agents/scheduler/)’s schedules', 'a `file_bridge` is rooted at `.fantastic`', 'gone; only the seeded root record is on disk'],
           ['The kernel’s `guid` and the id counter', 'the root record is persisted, which also needs that `file_bridge`', 'a new guid, and ids restart from 1'],
           ['Settled named executions, dead letters and acknowledgements', 'the memory store is durable, like `sqlite_store`', 'gone with the process'],
           ['Open `await_set` waits', 'the memory store is durable', 'gone with the process'],

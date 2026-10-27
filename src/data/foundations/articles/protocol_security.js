@@ -30,8 +30,8 @@ export default {
       blocks: [
         'A child made by `create_agent` gets the same baseline as any agent: `{"$self": "*"}` on both fields. It does not receive its parent’s reach, and it is not granted `$parent` or `$subtree`. Any wider grant is written into the new record explicitly.',
         '`create_agent` itself needs a grant on the root, on both ends. The child’s `boot` is kernel bookkeeping, run as the child, and is never a send checked against the creator’s grants.',
-        'A program started by an `exec_bridge` agent acts as that agent. Its sends carry the runner’s identity, its reach is the runner’s `can_call`, and a target must list the runner in `callable_by`. You grant the runner, not the program.',
-        { note: 'The code checks the shape of grants written at create time, not whether they exceed the creator’s own. Whoever holds `create_agent` or `update_agent` on the root can write any grants, so that grant is the one to hand out with care. The `spawn` verb of `agentic_resources` does check: it cannot hand out more than the spawner holds ([Call gate and grants](/fantastic/foundations/protocol/call-gate/)).' },
+        'A program started by an `exec_bridge` agent acts as that agent. Its sends carry the runner’s identity, its reach is the runner’s `can_call`, and a target must list the runner in `callable_by`. You grant the runner, not the program ([Exec bridge](/fantastic/foundations/agents/exec-bridge/#wire)).',
+        { note: 'The code checks the shape of grants written at create time, not whether they exceed the creator’s own. Whoever holds `create_agent` or `update_agent` on the root can write any grants, so that grant is the one to hand out with care. The `spawn` verb of `agentic_resources` does check: it cannot hand out more than the spawner holds ([Call gate and grants](/fantastic/foundations/protocol/call-gate/#spawn), [Agentic resources and tasks](/fantastic/foundations/agents/agentic-resources/)).' },
       ],
     },
     {
@@ -58,7 +58,7 @@ export default {
       id: 'edges',
       title: 'The process and file edges',
       blocks: [
-        'Two bridges cross out of the kernel: `exec_bridge` runs commands, and `file_bridge` reads and writes files. Both are **sealed by default**. A freshly created leg refuses every verb except discovery with `{reason: "unauthorized"}` until an operator opens it with `update_agent <id> ingress_rule=allow_all_ingress`. Both runtimes refuse `password_ingress` on these edges: a process edge has no wire envelope, so no frame can present a token.',
+        'Two bridges cross out of the kernel: `exec_bridge` runs commands, and `file_bridge` reads and writes files. [Exec bridge](/fantastic/foundations/agents/exec-bridge/) and [File agent](/fantastic/foundations/agents/file/) cover what each does once it is open. Both are **sealed by default**. A freshly created leg refuses every verb except discovery with `{reason: "unauthorized"}` until an operator opens it with `update_agent <id> ingress_rule=allow_all_ingress`. Both runtimes refuse `password_ingress` on these edges: a process edge has no wire envelope, so no frame can present a token.',
         { h3: 'exec_bridge: the allowlist is the law' },
         'Even open, `start` runs a command only if the whole line, `command` plus `args` joined, fully matches one regex in the record’s `allowed` list. There is no default list, no per-call override, and an empty list runs nothing. The one exception is the record’s `shell` field, which permits exactly the child’s own shell line on a PTY job. A request that matches nothing is refused with the patterns in the message.',
         'Where and with what a command runs also belongs to the record. A per-call `env` or `cwd` is refused, `cwd` is required, and the child’s environment is built from the record: the kernel variables named in `inherit_env` (none by default) plus the record’s own `env`.',

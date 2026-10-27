@@ -71,7 +71,7 @@ export default {
       id: 'spawn',
       title: 'Grants on spawn',
       blocks: [
-        'The `spawn` verb of the `agentic_resources` bundle creates a worker from a **card**. The card’s `grants` on tools are written on both ends of each edge: into the worker’s `can_call` and into the tool’s `callable_by`. The worker can call its tools without further setup.',
+        'The `spawn` verb of the `agentic_resources` bundle ([Agentic resources and tasks](/fantastic/foundations/agents/agentic-resources/)) creates a worker from a **card**. The card’s `grants` on tools are written on both ends of each edge: into the worker’s `can_call` and into the tool’s `callable_by`. The worker can call its tools without further setup.',
         'A spawn cannot hand out more than the spawner holds. Before anything is created, `spawn` checks every verb the card lists on a tool against the spawner’s own `can_call`, with the same matching the gate uses. The grant `"*"` needs the spawner to hold `"*"`. If a verb is missing, the spawn is refused with `not_allowed`, and nothing is created. An operator spawn has no spawner, so there is nothing to check. Plain `create_agent` makes no such check; [Security](/fantastic/foundations/protocol/security/) explains what that means.',
         { video: 'spawn' },
         { code: 'spawn: lead may not grant \'write\' on \'files\' (role \'…\')', label: 'the not_allowed reason (role elided)' },

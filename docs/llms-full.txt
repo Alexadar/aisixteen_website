@@ -404,7 +404,7 @@ When an agent is deleted, its id is removed from every grant that named it. A ne
 
 #### Grants on spawn
 
-The `spawn` verb of the `agentic_resources` bundle creates a worker from a **card**. The card’s `grants` on tools are written on both ends of each edge: into the worker’s `can_call` and into the tool’s `callable_by`. The worker can call its tools without further setup.
+The `spawn` verb of the `agentic_resources` bundle ([Agentic resources and tasks](/fantastic/foundations/agents/agentic-resources/)) creates a worker from a **card**. The card’s `grants` on tools are written on both ends of each edge: into the worker’s `can_call` and into the tool’s `callable_by`. The worker can call its tools without further setup.
 
 A spawn cannot hand out more than the spawner holds. Before anything is created, `spawn` checks every verb the card lists on a tool against the spawner’s own `can_call`, with the same matching the gate uses. The grant `"*"` needs the spawner to hold `"*"`. If a verb is missing, the spawn is refused with `not_allowed`, and nothing is created. An operator spawn has no spawner, so there is nothing to check. Plain `create_agent` makes no such check; [Security](/fantastic/foundations/protocol/security/) explains what that means.
 
@@ -453,9 +453,9 @@ A child made by `create_agent` gets the same baseline as any agent: `{"$self": "
 
 `create_agent` itself needs a grant on the root, on both ends. The child’s `boot` is kernel bookkeeping, run as the child, and is never a send checked against the creator’s grants.
 
-A program started by an `exec_bridge` agent acts as that agent. Its sends carry the runner’s identity, its reach is the runner’s `can_call`, and a target must list the runner in `callable_by`. You grant the runner, not the program.
+A program started by an `exec_bridge` agent acts as that agent. Its sends carry the runner’s identity, its reach is the runner’s `can_call`, and a target must list the runner in `callable_by`. You grant the runner, not the program ([Exec bridge](/fantastic/foundations/agents/exec-bridge/#wire)).
 
-The code checks the shape of grants written at create time, not whether they exceed the creator’s own. Whoever holds `create_agent` or `update_agent` on the root can write any grants, so that grant is the one to hand out with care. The `spawn` verb of `agentic_resources` does check: it cannot hand out more than the spawner holds ([Call gate and grants](/fantastic/foundations/protocol/call-gate/)).
+The code checks the shape of grants written at create time, not whether they exceed the creator’s own. Whoever holds `create_agent` or `update_agent` on the root can write any grants, so that grant is the one to hand out with care. The `spawn` verb of `agentic_resources` does check: it cannot hand out more than the spawner holds ([Call gate and grants](/fantastic/foundations/protocol/call-gate/#spawn), [Agentic resources and tasks](/fantastic/foundations/agents/agentic-resources/)).
 
 #### Credentials: by reference, bound to a host
 
@@ -493,7 +493,7 @@ The store’s own guidance is not to give a credential to an AI agent’s prompt
 
 #### The process and file edges
 
-Two bridges cross out of the kernel: `exec_bridge` runs commands, and `file_bridge` reads and writes files. Both are **sealed by default**. A freshly created leg refuses every verb except discovery with `{reason: "unauthorized"}` until an operator opens it with `update_agent <id> ingress_rule=allow_all_ingress`. Both runtimes refuse `password_ingress` on these edges: a process edge has no wire envelope, so no frame can present a token.
+Two bridges cross out of the kernel: `exec_bridge` runs commands, and `file_bridge` reads and writes files. [Exec bridge](/fantastic/foundations/agents/exec-bridge/) and [File agent](/fantastic/foundations/agents/file/) cover what each does once it is open. Both are **sealed by default**. A freshly created leg refuses every verb except discovery with `{reason: "unauthorized"}` until an operator opens it with `update_agent <id> ingress_rule=allow_all_ingress`. Both runtimes refuse `password_ingress` on these edges: a process edge has no wire envelope, so no frame can present a token.
 
 #### exec_bridge: the allowlist is the law
 
@@ -746,7 +746,7 @@ This is the only carrier where the caller is the sender itself. The call gate ju
 
 #### WebSocket and REST: the leg is the caller
 
-A **leg** is an agent that owns one wire face. `web_ws` mounts `ws://host/<id>/ws` on a parent `web` agent, and `web_rest` mounts `POST /<id>/<target>` and `GET /<id>/_reflect`. Both exist in the Rust and the Python runtime.
+A **leg** is an agent that owns one wire face. `web_ws` mounts `ws://host/<id>/ws` on a parent `web` agent, and `web_rest` mounts `POST /<id>/<target>` and `GET /<id>/_reflect`. Both exist in the Rust and the Python runtime. [Web agents](/fantastic/foundations/agents/web/) covers the `web` host that mounts them.
 
 The loop that reads a socket or serves a request runs outside every dispatch, so anything it sent would count as the operator’s. The code avoids that. The loop hands the admitted frame to its leg as an inbound verb (`inbound_call` for a call), and the leg sends the item onward as itself.
 
@@ -780,7 +780,7 @@ The far side needs no bridge. It sees the same frame a browser would send, so it
 
 *Animation: Kernel to kernel with forward* (https://aisixteen.com/fantastic/foundations/protocol/transports/bridge.mp4). On kernel A, agent a sends the bridge a forward item for target src on the other kernel. The bridge ships a call frame with an illustrative id (bridge-1-1) to kernel B’s web_ws leg. B’s leg judges the call and answers with a reply frame. The bridge returns the data to a, which settles completed.
 
-Frame ids are `<leg id>-<boot nonce>-<n>`, fresh at each boot, so a restarted bridge never reuses an id the peer already settled. `watch_remote` also streams a remote agent’s events onto the bridge’s inbox. A `relay_connector` does the same work through a relay router, reaching the partner by its GUID instead of a host and port.
+Frame ids are `<leg id>-<boot nonce>-<n>`, fresh at each boot, so a restarted bridge never reuses an id the peer already settled. `watch_remote` also streams a remote agent’s events onto the bridge’s inbox ([Bridge](/fantastic/foundations/agents/bridge/) follows the frames). A `relay_connector` does the same work through a relay router, reaching the partner by its GUID instead of a host and port.
 
 The bridge does not reconnect on its own after a transport failure. `reconnect` is a verb, so the failure stays visible.
 
@@ -790,7 +790,7 @@ The Rust program `fantastic mcp` is an MCP server over stdio, protocol 2025-11-2
 
 MCP is a leg too. A persisted agent named `mcp` receives each batch through `inbound_send` and sends it as itself. It starts with grants on every agent, and the human narrows them with `update_agent`. Each tool call is a kernel task that `ps` lists, and MCP’s `notifications/cancelled` cancels it.
 
-The other direction is the `mcp_client` agent, in Rust and Python. It connects to one remote MCP server and makes each of that server’s tools a verb of the agent, so `send {type: <tool>, …}` becomes a `tools/call`.
+The other direction is the `mcp_client` agent, in Rust and Python. It connects to one remote MCP server and makes each of that server’s tools a verb of the agent, so `send {type: <tool>, …}` becomes a `tools/call`. [MCP client](/fantastic/foundations/agents/mcp-client/) covers that agent.
 
 #### What the carrier changes
 
@@ -1209,7 +1209,7 @@ Folders are read at boot, before the agent tree loads, so an instance’s handle
 
 Each instance, made with `create_agent handler_module=notes`, is a full agent. The kernel starts the program when the instance boots and kills it when the instance is deleted or the kernel stops. The program first says `{"op": "hello", "verbs": [...]}`; those verbs must equal the `verbs` in `bundle.yaml`, or the instance stops and says why. After that the kernel sends it `{"op": "call", ...}` and the program answers `{"op": "result", ...}`.
 
-Nothing respawns a program that exits. `reload_bundle {name}`, a root verb, re-reads the folder and restarts every live instance of it. If the new `bundle.yaml` no longer loads, the call is refused and the live instances keep the previous load.
+[Program agents](/fantastic/foundations/agents/program-agents/) follows the running program: its wire, `hello`, calls and how it stops. Nothing respawns a program that exits. `reload_bundle {name}`, a root verb, re-reads the folder and restarts every live instance of it. If the new `bundle.yaml` no longer loads, the call is refused and the live instances keep the previous load.
 
 The program runs with the user’s OS rights. Its own subprocesses, files and network do not pass the call gate; only the verbs that reach it do.
 
@@ -1294,7 +1294,7 @@ Dropping a task frees no operating-system resource: a child process or a socket 
 
 *Animation: cancel: a task and its subtree* (https://aisixteen.com/fantastic/foundations/kernel/tasks/cancel.mp4). cancel on task 42 first runs every on_cancel hook in its subtree while the tasks are alive: a child process is killed and a generation is closed. Then the tasks abort, leaves first. The sibling 45 and the parent 41 keep running. cancel answers cancelled true with the killed ids, and the waiting send settles as cancelled.
 
-The hooks are where real resources go. An `exec_bridge` job’s `on_cancel` kills the job’s child process. An AI backend’s `on_cancel` closes the stopped turn: its open parts abort and its status goes to `done` with reason `cancelled`.
+The hooks are where real resources go. An [`exec_bridge`](/fantastic/foundations/agents/exec-bridge/#jobs) job’s `on_cancel` kills the job’s child process. An AI backend’s `on_cancel` closes the stopped turn: its open parts abort and its status goes to `done` with reason `cancelled`.
 
 The caller that was waiting on the cancelled send is not killed. Its item settles with status `cancelled` and the reply `{"cancelled": true}`. Nothing raises out of `send`. A caller that is itself inside the dying subtree does not resume either. It waits for its own stop.
 
@@ -1424,7 +1424,7 @@ The `fantastic` CLI wires the first one for you. Its first-start seed writes a `
 
 | what | survives when | otherwise |
 |---|---|---|
-| The agent tree, and bundle sidecars such as a scheduler’s schedules | a `file_bridge` is rooted at `.fantastic` | gone; only the seeded root record is on disk |
+| The agent tree, and bundle sidecars such as a [scheduler](/fantastic/foundations/agents/scheduler/)’s schedules | a `file_bridge` is rooted at `.fantastic` | gone; only the seeded root record is on disk |
 | The kernel’s `guid` and the id counter | the root record is persisted, which also needs that `file_bridge` | a new guid, and ids restart from 1 |
 | Settled named executions, dead letters and acknowledgements | the memory store is durable, like `sqlite_store` | gone with the process |
 | Open `await_set` waits | the memory store is durable | gone with the process |
@@ -1452,8 +1452,10 @@ Everything in Fantastic is an agent, so what it can do is the set of agents it s
 
 - **AI agents** over vLLM, Ollama, the OpenAI Responses API and Anthropic’s Messages API, plus Apple’s on-device model on macOS. Tool calling is Fantastic’s own prompt-taught `<call>` grammar, not a provider tool API, so any capable model drives the same verbs. [AI agent](/fantastic/foundations/agents/ai-agent/) follows one turn, and [Model backends](/fantastic/foundations/agents/ai-agent/backends/) the five providers.
 - **Memory**: every message lives in a [memory store](/fantastic/foundations/agents/memory-stores/) agent. AI agents fold, recall and page their own history.
-- **IO legs**: `file_bridge` for files, edits, streams and watches; `exec_bridge` for allow-listed commands and terminals; `web_ws` and `web_rest` for the browser and HTTP; `ws_bridge` from one kernel to another; `mcp_client` for a remote MCP server’s tools as verbs.
-- **Kernel services**: a scheduler, and [credentials by reference](/fantastic/foundations/agents/credential-store/), with keys bound to one host.
+- **IO legs**: the [file agent](/fantastic/foundations/agents/file/) (`file_bridge`) for files, edits, streams and watches; the [exec bridge](/fantastic/foundations/agents/exec-bridge/) for allowlisted commands, terminals and a control wire back to the kernel; the [web host](/fantastic/foundations/agents/web/) with its `web_ws` and `web_rest` legs for the browser and HTTP; the [bridge](/fantastic/foundations/agents/bridge/) (`ws_bridge`) from one kernel to another; and the [MCP client](/fantastic/foundations/agents/mcp-client/) for a remote MCP server’s tools as verbs.
+- **Programs**: a [program agent](/fantastic/foundations/agents/program-agents/) is a process that answers its folder bundle’s verbs over the exec bridge’s control wire.
+- **Kernel services**: the [scheduler](/fantastic/foundations/agents/scheduler/) for recurring sends, the [static loader](/fantastic/foundations/agents/static-loader/) for a roster declared in `fantastic.yaml`, and [credentials by reference](/fantastic/foundations/agents/credential-store/), with keys bound to one host.
+- **Teams**: [agentic resources and tasks](/fantastic/foundations/agents/agentic-resources/) spawn agents from role cards under limits and record who holds each task. Both are off by default.
 
 The AI agent keeps a long conversation in a finite window by folding it: a finished stretch of work becomes one appended row that names what it hides.
 
@@ -2211,7 +2213,7 @@ A drive verb (`write`, `resize`, `paste_image`, `stop`, `interrupt` or `clear`) 
 
 The allowlist names which commands run. It does not contain them. A permitted `python3` still has `open()`, `socket` and `subprocess`. The readme says it plainly: opening this leg grants local code execution to whoever can reach it. Stronger containment would need an operating-system mechanism and is not built.
 
-The bridge starts commands. A folder with a program that answers its own verbs is a different mechanism, covered in [Kernel › Bundles](/fantastic/foundations/kernel/bundles/#folder-bundles).
+The bridge starts commands. A folder with a program that answers its own verbs is a different mechanism, covered in [Program agents](/fantastic/foundations/agents/program-agents/) and [Kernel › Bundles](/fantastic/foundations/kernel/bundles/#folder-bundles). Such a program talks to the kernel over this same wire.
 
 You open the bridge with `ingress_rule=allow_all_ingress`. Both runtimes refuse `password_ingress` on this edge when it is written: a process edge has no wire envelope, so no frame can present a token.
 
@@ -2227,7 +2229,7 @@ This page covers what a file bridge can do once it is open: text verbs that guar
 
 #### A folder with verbs
 
-A file bridge is an agent whose record names a `root` folder and may carry a `readonly` flag. The disk itself lies outside the trust domain, so the bridge is the gate: it checks the caller, the clamp and the `allow` list, and only then touches the disk. A new bridge is sealed, and a path it does not expose answers `not_found`. [Security](/fantastic/foundations/protocol/security/#edges) explains both rules, so this page assumes a bridge that is open and exposes the path in question.
+A file bridge is an agent whose record names a `root` folder, clamped inside the directory the kernel runs in, and may carry a `readonly` flag. The disk itself lies outside the trust domain, so the bridge is the gate: it checks the caller, the clamp and the `allow` list, and only then touches the disk. A new bridge is sealed, and a path it does not expose answers `not_found`. [Security](/fantastic/foundations/protocol/security/#edges) explains both rules, so this page assumes a bridge that is open and exposes the path in question.
 
 The verb table has 17 entries, the same in the Rust and Python runtimes. Besides `reflect` and `boot`, they fall into five groups.
 
@@ -2358,7 +2360,7 @@ The agent keeps what the server said in memory, per instance. `reflect` answers 
 
 After `boot`, `docs of=<agent>` lists the server’s tools as the agent’s own verbs. Each entry is built from the tool’s `inputSchema` and `description`: a signature such as `args: title:str (req), body:str?.` followed by the description, or `No args.` when the schema has no properties.
 
-*Animation: Tools become verbs* (https://aisixteen.com/fantastic/foundations/agents/mcp-client/tools.mp4). The agent gh holds the url of a remote MCP server. boot sends server/discover, and the server answers. boot then sends tools/list and gets four tool names. docs of=gh lists three as verbs with their signatures (create_issue, list_issues, add_label); reflect is skipped because the kernel answers that verb.
+*Animation: Tools become verbs* (https://aisixteen.com/fantastic/foundations/agents/mcp-client/tools.mp4). The agent gh holds the url of a remote MCP server. boot sends server/discover, and the server answers. boot then sends tools/list and gets four tool names. docs of=gh lists three as verbs with their signatures (create_issue, list_issues, add_label); reflect is skipped, because the agent answers that verb itself.
 
 A grant names tools like any other verb, for example `can_call {gh: ["create_issue"]}`. The [call gate](/fantastic/foundations/protocol/call-gate/) therefore decides, per tool, who may run it. The agent’s notes say it plainly: a tool runs on the remote server with the key’s rights, so the grant on each tool is the consent.
 
@@ -2649,7 +2651,7 @@ URL: https://aisixteen.com/fantastic/foundations/agents/scheduler/
 
 The **scheduler** is an agent that repeats a send. You give it a target, a payload and an interval in seconds; it sends that payload to that target every interval, and keeps a record of each fire.
 
-This page follows one schedule: how it is added, how a fire goes out, and when the loop wakes. The Rust and Python runtimes answer the same verbs in the same way. Its schedules persist as described in [State and persistence](/fantastic/foundations/kernel/state/).
+This page follows one schedule: how it is added, how a fire goes out, and when the loop wakes. The Rust and Python runtimes answer the same verbs in the same way. Its schedules persist as described in [State and durability](/fantastic/foundations/kernel/state/).
 
 #### A schedule is a record with an interval
 
@@ -2957,7 +2959,7 @@ the refusal (illustrative values):
  "reason": "all roles together are at the limit (2 running, max 2)"}
 ```
 
-`scope` is `role` or `total` for the registry’s caps; `running` and `max` give the count and the cap that stopped the spawn. [Refusals](/fantastic/foundations/protocol/refusals/) covers the shape refusals share.
+`scope` is `role` or `total` for the registry’s caps; `running` and `max` give the count and the cap that stopped the spawn. Both bundles refuse in a shape of their own: `error` is a short code such as `limit`, `unknown_tier` or `already_held`, and `reason` is a sentence. The kernel’s [common refusal shape](/fantastic/foundations/protocol/refusals/) is the other way round, with the code in `reason`.
 
 *Animation: Limits count every agent* (https://aisixteen.com/fantastic/foundations/agents/agentic-resources/limits.mp4). The total limit is 2. Two spawns create w1 and w2. A third spawn is refused with limit, scope total, 2 running, max 2. w1 reports done, and the third spawn is still refused. After delete_agent on w1, the count drops to 1 and the spawn creates w3.
 
