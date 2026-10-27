@@ -4,9 +4,29 @@
     "width": 1280,
     "height": 720,
     "bytes": {
-      "mp4": 151307,
-      "webm": 157968,
-      "webp": 31734
+      "mp4": 150979,
+      "webm": 155971,
+      "webp": 31230
+    }
+  },
+  "reflect": {
+    "duration": 10.93,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 174189,
+      "webm": 151695,
+      "webp": 46420
+    }
+  },
+  "statuses": {
+    "duration": 12.43,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 211796,
+      "webm": 168124,
+      "webp": 36234
     }
   }
 }

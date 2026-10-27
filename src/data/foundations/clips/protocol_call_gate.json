@@ -4,9 +4,29 @@
     "width": 1280,
     "height": 720,
     "bytes": {
-      "mp4": 195515,
-      "webm": 180178,
-      "webp": 30854
+      "mp4": 196674,
+      "webm": 179892,
+      "webp": 30538
+    }
+  },
+  "spawn": {
+    "duration": 11.0,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 150826,
+      "webm": 140327,
+      "webp": 35078
+    }
+  },
+  "verbs": {
+    "duration": 16.97,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 152396,
+      "webm": 150999,
+      "webp": 24800
     }
   }
 }

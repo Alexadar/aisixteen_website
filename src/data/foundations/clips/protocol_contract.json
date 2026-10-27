@@ -1,0 +1,32 @@
+{
+  "legs": {
+    "duration": 9.07,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 193371,
+      "webm": 155570,
+      "webp": 41854
+    }
+  },
+  "named": {
+    "duration": 8.7,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 106652,
+      "webm": 104129,
+      "webp": 26092
+    }
+  },
+  "replay": {
+    "duration": 10.07,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 151562,
+      "webm": 142772,
+      "webp": 33886
+    }
+  }
+}

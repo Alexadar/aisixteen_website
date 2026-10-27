@@ -1,0 +1,32 @@
+{
+  "branch": {
+    "duration": 8.3,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 91952,
+      "webm": 97705,
+      "webp": 37824
+    }
+  },
+  "recover": {
+    "duration": 11.4,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 112757,
+      "webm": 113342,
+      "webp": 13934
+    }
+  },
+  "shape": {
+    "duration": 10.5,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 104549,
+      "webm": 107992,
+      "webp": 24460
+    }
+  }
+}

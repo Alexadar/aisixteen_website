@@ -1,0 +1,32 @@
+{
+  "peers": {
+    "duration": 12.83,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 114622,
+      "webm": 113154,
+      "webp": 19724
+    }
+  },
+  "reflect": {
+    "duration": 9.53,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 102429,
+      "webm": 96913,
+      "webp": 27036
+    }
+  },
+  "table": {
+    "duration": 10.5,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 99684,
+      "webm": 98668,
+      "webp": 22320
+    }
+  }
+}

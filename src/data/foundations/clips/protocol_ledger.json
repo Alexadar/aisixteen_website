@@ -1,12 +1,32 @@
 {
-  "ledger": {
-    "duration": 14.77,
+  "deadletter": {
+    "duration": 11.1,
     "width": 1280,
     "height": 720,
     "bytes": {
-      "mp4": 173261,
-      "webm": 175072,
-      "webp": 29584
+      "mp4": 127598,
+      "webm": 117509,
+      "webp": 23984
+    }
+  },
+  "ledger": {
+    "duration": 15.07,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 186728,
+      "webm": 177112,
+      "webp": 30854
+    }
+  },
+  "stop": {
+    "duration": 9.9,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 117851,
+      "webm": 123472,
+      "webp": 29252
     }
   }
 }

@@ -1,0 +1,32 @@
+{
+  "credential": {
+    "duration": 14.47,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 163267,
+      "webm": 161918,
+      "webp": 27824
+    }
+  },
+  "edges": {
+    "duration": 18.43,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 161709,
+      "webm": 163687,
+      "webp": 30936
+    }
+  },
+  "reach": {
+    "duration": 14.6,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 154853,
+      "webm": 148764,
+      "webp": 29404
+    }
+  }
+}
