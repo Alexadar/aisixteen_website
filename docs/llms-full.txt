@@ -910,7 +910,531 @@ Every item of a send is a kernel task. The task table works like Unix: `ps` list
 
 There are two host kernels, Rust and Python. The Rust kernel’s files describe themselves as rule-for-rule ports of the Python kernel, “which is canonical.” The main difference is how bundles load: Rust crates implement a `Bundle` trait, Python finds handler modules through entry points.
 
+In this part: Agents as records (https://aisixteen.com/fantastic/foundations/kernel/records/); Lifecycle (https://aisixteen.com/fantastic/foundations/kernel/lifecycle/); Bundles and twin runtimes (https://aisixteen.com/fantastic/foundations/kernel/bundles/); Tasks and waiting (https://aisixteen.com/fantastic/foundations/kernel/tasks/); State and durability (https://aisixteen.com/fantastic/foundations/kernel/state/)
+
 Sources: THESIS.md (https://github.com/aisixteen/fantastic/blob/main/THESIS.md#L5); README.md: agents and send (https://github.com/aisixteen/fantastic/blob/main/README.md#L42); README.md: kernel services (https://github.com/aisixteen/fantastic/blob/main/README.md#L63); system-verbs.md (the kernel verbs) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-core/src/docs/system-verbs.md#L5); rows.rs: a port of the Python kernel (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/rows.rs#L4); bundle.rs: the Bundle trait (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/bundle.rs#L50); _bundles.py: entry points (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_bundles.py#L1)
+
+### Foundations › Kernel › Agents as records
+
+URL: https://aisixteen.com/fantastic/foundations/kernel/records/
+
+In Fantastic a model, a program, a shell and the human at the keyboard are all agents in one tree, reached the same way. The kernel knows an agent by one small thing: its record.
+
+This page shows what a record holds, how the records form one tree, and how the `reflect` verb reads that tree back without flooding a caller with text.
+
+#### The record
+
+An agent is a **record** plus the **bundle** that answers its verbs. The record has an `id`, unique across the whole tree, and a `handler_module` that names the bundle. Every other field sits flat at the top level of the record. A `parent_id` says who owns the agent; the root has none.
+
+Those flat fields are how a bundle is configured: a `display_name`, a `description`, a port, a root folder. The kernel does not nest them under a `meta` key. In the Rust kernel the record is a struct with `id`, `handler_module`, `parent_id` and a map for everything else.
+
+a record (illustrative id):
+
+```
+id              file_bridge_3f9a1c
+handler_module  file_bridge.tools
+display_name    files
+can_call        {"$self": "*"}
+callable_by     {"$self": "*"}
+parent_id       kernel_state
+```
+
+The key order is part of the record. Both runtimes write `id`, `handler_module`, the other fields and then `parent_id`. The parent comes last because the tree decides where an agent sits: a `parent_id` that leaked into the flat fields must not shadow it.
+
+*Animation: An agent is a record* (https://aisixteen.com/fantastic/foundations/kernel/records/record.mp4). create_agent names the bundle file_bridge.tools and the owner kernel_state, and sends no id. The kernel mints file_bridge_3f9a1c, copies display_name from the payload, stamps can_call and callable_by, and writes parent_id last.
+
+#### Where a record comes from
+
+The kernel verb `create_agent` makes a record. It requires a `handler_module` and a `parent_id`. Placement is stated, never inferred from who sent the call: `parent_id` names the owner, which can be the caller’s own id or `kernel_state` for a top-level agent. The reserved address `kernel` stands for the root here too.
+
+create_agent (illustrative values):
+
+```
+[{"target": "kernel", "payload": {"type": "create_agent",
+  "handler_module": "file_bridge.tools",
+  "parent_id": "kernel_state", "display_name": "files"}}]
+```
+
+Every field in the payload except `type`, `id`, `handler_module` and `parent_id` becomes a flat field of the record. If the payload has no `id`, the kernel mints one as `<bundle>_<hex6>`: the second-last dotted segment of the handler module, then six random hex digits. `file_bridge.tools` gives `file_bridge_3f9a1c`. An id that is already taken is refused with `exists`. An id becomes a folder name, so it must be one safe path segment.
+
+A write is judged before it lands. The names `root_path`, `ctx` and `parent` are reserved for the kernel’s own wiring, and a record may not carry them. The shape of `can_call` and `callable_by` is checked, and the bundle may add its own `validate_meta` check. A refused write comes back as a refusal in the [common shape](/fantastic/foundations/protocol/refusals/), with a `reason` such as `bad_arg` or `invalid_meta`.
+
+The `handler_module` is fixed once the agent exists: `update_agent` refuses it. Two fields are stamped on every record when the kernel builds the agent: `can_call` and `callable_by`, each starting as `{"$self": "*"}`, merged under any grant the record already carries. They are the two halves of the [call gate](/fantastic/foundations/protocol/call-gate/).
+
+Comments in the Rust and Python kernels still describe the starting grants as `$self`, `$parent` and `$subtree`. The constants in both runtimes hold `{"$self": "*"}` only, and this page follows the constants.
+
+#### One tree
+
+Every agent has exactly one parent. The root has the id `kernel_state` and no parent, and every other agent sits below it. An agent’s children keep their creation order.
+
+The tree does not carry messages. The kernel keeps one flat map from id to agent, which the Rust kernel calls its only routing table. A send looks its target id up in that map and does not walk from parent to child.
+
+The tree answers a different question: who owns what. It decides what `delete_agent` takes with it, because a delete cascades depth first through the subtree. It decides what the `$parent` and `$subtree` keys of a grant mean, because `$subtree` is every agent below the holder. And it decides what `reflect` shows. The root cannot be deleted.
+
+*Animation: One tree, one flat map* (https://aisixteen.com/fantastic/foundations/kernel/records/tree.mp4). Five agents sit in one tree under kernel_state. The kernel also keeps a flat map from id to agent. A send from writer to files is resolved in that map, not by walking the tree. The tree shows ownership: team’s subtree is team, writer and reviewer.
+
+On disk the tree mirrors the ownership. Each agent is an `agent.yaml` in its own folder, and its children are folders below it, in a container named by the root record’s `children_dir` field, `agents` by default, the same for every agent in the tree. The kernel the `fantastic` command starts keeps all of this in `.fantastic/` of the folder it runs in. The root loader writes the records, not `create_agent` itself, so a kernel with no loader keeps its records in memory only.
+
+#### reflect: the tree on demand
+
+`reflect` is the discovery verb, and every agent answers it with the same core fields. The reply says what the agent is, not how to call it: its `id`, a one-line `sentence`, `parent_id`, `handler_module`, `display_name`, a `description` if the record has one, then the flat fields of the record. It also repeats the agent’s `can_call` and `callable_by`, so an agent can read its own reach without trying calls. Like any send, a reflect passes the [call gate](/fantastic/foundations/protocol/call-gate/) first.
+
+On the root, `reflect` adds the fields that belong to the whole kernel: `runtime` (`rust` in the Rust kernel), `peers` (the kernels this one is connected to), `env` and `version`. The root’s loader adds more, such as the kernel’s `guid`.
+
+#### The tree flag
+
+By default a reflect carries the agent’s whole subtree under `tree`. That is fine for a first look and too much afterwards, so three flags shape it.
+
+| flag | what the reply holds |
+|---|---|
+| `tree=all` (the default) | the nested subtree. Each node is `{id, sentence?, description?, mode?, task?, children}`, and a node’s `sentence` comes from the agent itself |
+| `tree=ids` | a flat list of every id below, depth first, the agent first. It pages with `limit` and `after`, and `next` is the cursor |
+| `detail=full` | with `tree=all`, a wiring node instead: `{id, parent_id, handler_module, display_name, description?, children}` plus the posture fields `ingress_rule`, `egress_rule`, `auth`, `root`, `allow`, `can_call` and `callable_by` where the record has them |
+| `ignore_subtrees=[ids]` | each named branch becomes `{id, pruned: n}`, where n counts the agents the branch holds, itself included |
+| `show_subtrees=[ids]` | only those branches, as a list. An id inside another shown id is covered by it. Show applies first, then ignore inside it |
+
+A `tree` value other than `all` or `ids` leaves the tree out. The built-in manual writes that as `tree=none`. An id in `show_subtrees` or `ignore_subtrees` that is not in the reflected agent’s tree is refused with `bad_arg`, and the hint says that `tree=ids` lists the ids.
+
+reflect with a pruned branch (illustrative id):
+
+```
+[{"target": "kernel", "payload": {"type": "reflect",
+  "tree": "all", "ignore_subtrees": ["team"]}}]
+```
+
+*Animation: reflect: look without flooding* (https://aisixteen.com/fantastic/foundations/kernel/records/reflect.mp4). tree=ids returns every id below, depth first. ignore_subtrees=["team"] folds that branch to {id: "team", pruned: 3}. bundles=ids lists the kinds of agent that can be created. show_subtrees=["team"] answers with only the team branch.
+
+#### The bundles flag
+
+The kinds of agent that can be created are bundles, and `reflect` lists them on request. `bundles=ids` gives the names. `bundles=all` gives each one as `{name, handler_module}`, plus a `schema` when the bundle publishes one, so the fields a record of that kind takes can be read before any agent of it exists. The list also holds the folder bundles of this kernel’s root, and it pages with `limit` and `after`, with `bundles_next` as the cursor.
+
+A scan that stays cheap is `tree=ids` with `bundles=ids`. A caller then reflects one id at a time, or uses `show_subtrees` and `ignore_subtrees` once it knows which part of the tree it works on. A reflect that is refused is never decorated with a tree.
+
+Sources: README.md: everything is an agent (https://github.com/aisixteen/fantastic/blob/main/README.md#L16); the record and the agent (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/agent.rs#L52); create_agent and id minting (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/lifecycle.rs#L51); the record in Python (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_agent.py#L632); reflect flags (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/reflect.rs#L300); show_subtrees and ignore_subtrees (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/docs.rs#L271); the built-in reflect manual (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-core/src/docs/reflect.md); the Rust kernel crate (https://github.com/aisixteen/fantastic/tree/main/src/lib/rust/crates/fantastic-kernel/src)
+
+### Foundations › Kernel › Lifecycle
+
+URL: https://aisixteen.com/fantastic/foundations/kernel/lifecycle/
+
+An agent lives from the `create_agent` that makes its record to the `delete_agent` that removes it, and the kernel around it starts and stops. Each step is one kernel verb, and the Rust and Python runtimes do the same thing.
+
+This page follows that order: create, update, delete, then the start sequence, the two stop verbs and what a restart reads back. The record that these verbs write is described in [Agents as records](/fantastic/foundations/kernel/records/).
+
+#### Kernel verbs belong to the root
+
+The kernel answers fourteen verbs: `create_agent`, `update_agent`, `delete_agent`, `list_agents`, `ps`, `cancel`, `ledger`, `ack_deadletter`, `await_set`, `await_cancel`, `kernel_start`, `shutdown_agents`, `kernel_stop` and `docs`. This page covers the lifecycle ones; [Tasks and waiting](/fantastic/foundations/kernel/tasks/) covers `ps`, `cancel` and the waits.
+
+Only the root agent answers them. The agent a call names is the **operand**, not the actor: `create_agent` names the new agent’s parent, `delete_agent` the agent to remove. A kernel verb sent to any other agent is refused with `reason: "not_here"`, and the hint says to address `kernel` and to name the agent in `parent_id` or `id`.
+
+They take the same [call gate](/fantastic/foundations/protocol/call-gate/) as any other send, against the root. Whoever holds a verb on the root holds it for every agent.
+
+#### create_agent: placement is always stated
+
+`create_agent` needs two arguments, `handler_module` and `parent_id`. There is no default parent: the call does not guess from who sent it. A missing `parent_id` is refused with `reason: "missing_arg"` and a hint to name the agent that will own the new one, “your own id for a tool you keep, or the root (‘kernel_state’) for a top-level agent”. The reserved name `kernel` also works for the root.
+
+create a child of lead (illustrative ids):
+
+```
+[{"target": "kernel", "payload": {"type": "create_agent",
+  "handler_module": "ram_store.tools", "parent_id": "lead"}}]
+```
+
+The `id` is optional. Without one, the kernel mints `<bundle>_<6 hex digits>` from the handler module’s second-to-last dotted segment, for example `ram_store_a3f9c1`. An id that is already in use is refused with `reason: "exists"`. Every other field in the payload becomes the new record’s meta, and the keys the substrate owns (`root_path`, `ctx`, `parent`) are refused.
+
+*Animation: create_agent: placement is stated* (https://aisixteen.com/fantastic/foundations/kernel/lifecycle/create.mp4). A create_agent with no parent_id is refused with missing_arg. With parent_id "lead" the child is registered under lead with a minted id, ram_store_a3f9c1, booted by the kernel before the reply, and the reply is its record. The ids are illustrative.
+
+The kernel checks the meta before it creates anything: a grant map of the wrong shape, or a value the bundle’s own check rejects, is refused with `invalid_meta`. A `handler_module` that no installed bundle provides is not refused; the record is made and it answers no domain verbs until the bundle exists.
+
+The new agent is registered under its parent, then booted at once. The kernel runs the child’s `boot` itself, as the child and without the call gate, before the reply. If the boot fails, the kernel prints the failure and the agent still exists. The reply is the new record, and the parent gets an `agent_created` message.
+
+#### update_agent: a field is replaced, not merged
+
+`update_agent` takes an `id` and any fields to set. Every field the call names is replaced, and a field it does not name is untouched. A dict field is therefore sent whole. The verb’s own doc puts it this way: “Granting one edge reads like a PATCH and behaves like a PUT.”
+
+a map is replaced whole (illustrative):
+
+```
+before  can_call {"$self": "*", "a": ["reflect"]}
+send    update_agent id=x can_call={"b": ["reflect"]}
+after   can_call {"b": ["reflect"]}
+```
+
+To grant one more edge, restate every key to keep, including the baseline `$self`; the keys left out are gone. [Call gate and grants](/fantastic/foundations/protocol/call-gate/) explains the maps.
+
+Some fields cannot be set. `handler_module` is fixed at create, because swapping it would leave a running agent whose state belongs to the old bundle. The substrate keys `root_path`, `ctx` and `parent` are refused too, and `parent_id` is ignored: where an agent sits comes from the tree, not from its meta. These checks run before the id is looked up.
+
+The kernel checks grant maps and the bundle’s own rules for the new values, and refuses with `invalid_meta` when they fail. On success the reply is `updated: true`, the `id` and the new record, and the caller gets an `agent_updated` message that lists the changed field names. The root can be updated like any agent, which is how it gets its `memory_store_id` below.
+
+#### delete_agent: the whole subtree, deepest first
+
+`delete_agent` takes an `id` and removes that agent and everything below it. The root cannot be deleted: it owns persistence and answers the kernel verbs, so deleting it would leave no kernel. That is a `bad_arg` refusal.
+
+Before it deletes anything, the kernel walks the subtree for `delete_lock`. If the target or any descendant carries `delete_lock: true`, the whole delete is refused with `reason: "locked"`. The refusal names the first blocker in `blocked_by`, and its hint is “clear the lock with update_agent, then delete again”. Nothing has changed at that point.
+
+*Animation: delete_agent: the whole subtree* (https://aisixteen.com/fantastic/foundations/kernel/lifecycle/delete.mp4). delete_agent on team is refused because reviewer carries delete_lock. After update_agent clears it, the delete cascades deepest first, each agent running its on_delete hook, and the deleted ids are pruned from x’s can_call.
+
+The cascade then runs per node, children first. For each agent the kernel runs the bundle’s `on_delete` hook, as that agent, then detaches the agent from its parent and drops it from the tree. A hook that raises is printed and the cascade goes on, so a delete cannot be blocked from inside.
+
+- **Memory.** An AI agent’s `on_delete` removes its persisted rows from the memory store. `keep_memory: true` on the delete, the literal `true` only, keeps the rows of every agent in that subtree, for that one delete.
+- **Grants.** After the cascade, every deleted id is removed from every other agent’s `can_call` and `callable_by`. An agent created later under the same id inherits no old edge.
+- **Reply.** `deleted: true` and the `id`. The caller gets an `agent_deleted` message.
+
+#### kernel_start: the order of boot
+
+Loading a tree and booting it are two steps. The loader builds the agents from their records, and `kernel_start` runs the start sequence. The daemon runs the sequence once its tree is loaded, and it is also a verb an operator can send.
+
+The sequence needs a **memory store**: the root’s `memory_store_id` must name an agent. The kernel keeps its execution rows there (the [ledger](/fantastic/foundations/protocol/ledger/), dead letters and named-call dedup), and there is no built-in default. Without one, the verb fails loud, and the hint is the fix:
+
+the hint, verbatim:
+
+```
+create_agent parent_id=<root> handler_module=ram_store.tools id=memory
+update_agent id=<root> memory_store_id=memory
+```
+
+*Animation: kernel_start: the order of boot* (https://aisixteen.com/fantastic/foundations/kernel/lifecycle/start.mp4). kernel_start on a root with no memory_store_id is refused. After update_agent names memory, the root boots (1), then memory (2), the kernel probes the store (3) and starts the flusher, then lead (4) and web (5) boot in registration order. The reply lists booted in that order.
+
+1. Boot the root. Its boot gives the kernel a `guid` when the record has none.
+2. Boot the memory store, before anyone who might call it.
+3. Probe the store with a `read` as the operator. If it refuses the kernel, `kernel_start` refuses now, not on the first flush.
+4. Write the reserved `next_id` bound to the root record, start the flusher that moves execution rows into the store, and restore the open `await_set` waits.
+5. Boot every other agent in registration order, then complete the waits that are already due.
+
+The reply is `started: true`, the `store` id and `booted`, the ids that booted in order. A second call is idempotent: it answers `started: true` and `already: true` with the store. If the root or the store fails to boot, `kernel_start` is refused. Any other agent that fails to boot is printed, and the sequence goes on. AI agents boot lazily: they read their own store on their first turn.
+
+#### Stopping: shutdown_agents and kernel_stop
+
+Two verbs stop things, and both are root-only. `shutdown_agents` stops the agents and leaves the process running. `kernel_stop` stops the whole process.
+
+- **Drain.** `shutdown_agents` first refuses new work with `reason: "draining"`. A send made from inside work that is already live still passes.
+- **Tell.** Every agent whose bundle declares a `shutdown` verb is sent `shutdown`, all at once, each with a 30-second bound. In the Python runtime an AI agent gets it as a message to persist what matters, and its tools still work.
+- **Quiet.** The kernel waits up to 10 seconds for in-flight work. Whatever is left is cancelled through the normal `cancel` path, so `on_cancel` hooks run and subtrees die with their roots. Then it waits up to 2 seconds for each cancelled call to record its ending.
+
+The reply is `drained: true`, `shut` (the ids told) and `cancelled`. The kernel keeps serving afterwards, so reads and `ledger` still work, until the process exits. A second call answers the same shape and shuts nothing new.
+
+*Animation: shutdown_agents and kernel_stop* (https://aisixteen.com/fantastic/foundations/kernel/lifecycle/stop.mp4). shutdown_agents drains the kernel, sends shutdown to lead and web, and cancels task 7 that is still in flight. The reply lists shut and cancelled. kernel_stop then acknowledges, and about 100 ms later calls settle, the last rows flush, hooks run, the lock is released and the process exits 0. The ids are illustrative.
+
+`kernel_stop` acknowledges first with `{"type": "kernel_stop", "ok": true}`. About 100 ms later, after the reply is on the wire, it asks the daemon to stop. The daemon then does the full teardown: drain, let every call settle (done, or cancelled into the dead letters), flush the last rows into the store, run each agent’s shutdown hook, release `.fantastic/lock.yaml` and exit 0. SIGINT and SIGTERM take the same path. Without a running serve loop, such as a one-shot CLI call, there is nothing to stop and the verb only acknowledges.
+
+#### Restart is a new process
+
+The kernel has no restart verb. A restart is `kernel_stop` followed by a new daemon, and the second start reads back what the first one persisted.
+
+1. Take `.fantastic/lock.yaml`. One kernel runs per workdir; a lock whose holder died is taken over.
+2. Read the root record from `.fantastic/agent.yaml` and every agent record under the children directory. A virgin workdir gets a fresh root.
+3. Validate the records first. A bad id, a reserved key, a duplicate or an orphan refuses the boot. A record whose `handler_module` is not installed in this runtime is logged and skipped, together with its subtree.
+4. Build the tree, then run `kernel_start` as above. With no `memory_store_id` on the root, the daemon tears down, releases the lock and exits with an error.
+
+Records come back because the root’s loader writes them to disk as agents are created and updated. The memory store is a separate matter: a `ram_store`, as in the example above, holds its rows in RAM and loses them with the process. What a store keeps across a restart is the subject of [State and durability](/fantastic/foundations/kernel/state/).
+
+The headless Rust daemon starts only when the tree contains a `web.tools` agent. With nothing to serve, it exits quietly with code 0 and takes no lock.
+
+Sources: kernel_verbs.rs: the fourteen verbs, their docs, shutdown_agents and kernel_stop (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/send/kernel_verbs.rs#L14); lifecycle.rs: create_agent, delete_agent, the cascade and grant pruning (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/lifecycle.rs#L127); executions.rs: Kernel::start, the start sequence (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/executions.rs#L193); kernel.rs: shutdown_agents and the graceful shutdown (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/kernel.rs#L488); bootstrap.rs: lock, read the tree, build it (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/bootstrap.rs#L1); _agent.py: the Python kernel verbs, delete and cascade (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_agent.py#L2695); _kernel.py: the Python start and shutdown_agents (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_kernel.py#L662); main.rs: the daemon, start to exit (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-cli/src/main.rs#L608)
+
+### Foundations › Kernel › Bundles and twin runtimes
+
+URL: https://aisixteen.com/fantastic/foundations/kernel/bundles/
+
+An agent is a record, and its record names a `handler_module`. The **bundle** behind that name is the code that answers the agent’s own verbs. Every kernel keeps its bundles in a catalog and resolves the name against it.
+
+Fantastic ships kernels in more than one language. This page compares the Rust and the Python kernels; a TypeScript kernel also exists and reports runtime `"ts"`. The Rust and Python kernels fill that catalog differently, but a caller sends the same messages to either (see [Messages and verbs](/fantastic/foundations/protocol/messages/) and [Call gate and grants](/fantastic/foundations/protocol/call-gate/)).
+
+#### One bundle per handler module
+
+A send to an agent first meets the **kernel verbs**: `create_agent`, `delete_agent`, `update_agent`, `list_agents`, `ps`, `cancel`, `ledger`, `ack_deadletter`, `kernel_start`, `shutdown_agents`, `kernel_stop`, `await_set`, `await_cancel` and `docs`. The kernel answers these itself, at the root. They are the same fourteen in Rust and in Python.
+
+Any other verb goes to the agent’s bundle. In Python the kernel calls `handler(id, payload, agent)` in the module that `handler_module` names. In Rust the registry returns the `Bundle` that is registered under that string, and the kernel calls its `handle`.
+
+one name, two ways in:
+
+```
+file_bridge.tools        # a handler_module, as stored in an agent's record
+handler(id, payload, agent)   # Python: the callable in that module
+Bundle::handle(...)           # Rust: the method of the registered bundle
+```
+
+A bundle can also hook the agent’s life: Rust’s `Bundle` has `on_delete`, `on_cancel` and `on_shutdown`, each a no-op by default.
+
+#### Rust: linked at build time
+
+A Rust bundle is a crate that implements the `Bundle` trait. The file that defines the trait states it plainly: “Bundles aren’t dynamically loaded — every Rust bundle is a crate linked into the binary at compile time.”
+
+The `fantastic` binary builds a `BundleRegistry` in `register_default_bundles()` and calls `register("file_bridge.tools", …)` for each bundle it ships. To add a bundle to a build, add its crate to the workspace and register it there. The `exec_bridge` and `py_agent` bundles register only when the `full` feature is on, and the CLI builds with `full` by default.
+
+A name that no registered bundle answers is refused with Python’s own text, `No module named 'absent_bundle'` for the handler module `absent_bundle.tools`. A caller sees one message from both kernels.
+
+*Animation: From handler_module to code* (https://aisixteen.com/fantastic/foundations/kernel/bundles/resolve.mp4). A send reaches an agent whose record says handler_module file_bridge.tools. In the Rust kernel the registry holds a crate linked at build time under that string. In the Python kernel the fantastic.bundles entry-point catalog names the module. Both reach the bundle. A name absent_bundle.tools is in neither, and both answer No module named absent_bundle.
+
+#### Python: found by entry point
+
+A Python bundle is “anything with a `handler(id, payload, agent)` callable” in its module. A package publishes it in the `fantastic.bundles` entry-point group, for example `file_bridge = "file_bridge.tools"`.
+
+The kernel resolves a `handler_module` only from that catalog. It never imports an arbitrary name from `sys.path`, so a `create_agent` cannot make the kernel run a module that no package published. A name outside the catalog fails as `No module named '<package>'`.
+
+The catalog is read live. A name the kernel has not seen re-scans the entry points once, so a bundle installed while the kernel runs resolves on its first lookup. Test and probe modules that have no entry point register through `register_unlisted`: they dispatch, but never appear in the catalog.
+
+Both kernels list their bundles in `reflect bundles=all`: the entry points in Python, the installed registry entries in Rust. Unlisted test bundles stay out of it.
+
+#### Folder bundles: a new kind of agent without a rebuild
+
+A **folder bundle** is a folder `bundles/<name>/` inside a kernel’s root (`.fantastic/`) that holds a `bundle.yaml`. It extends a bundled agent named by `base`. On main the one base a folder can extend is `py_agent`. The folder’s name becomes the `handler_module` of its instances.
+
+Both runtimes load folder bundles, with the same rules. A folder bundle needs no entry point in Python and no new crate in Rust. The `py_agent` base it extends is itself a bundle: a registered crate in Rust (under `full`) and a bundled module in Python.
+
+bundles/notes/bundle.yaml (illustrative):
+
+```
+base: py_agent
+sentence: Keeps short notes.
+command: [python3, agent.py]
+verbs:
+  add: "args: text:str (req). Returns {id}."
+```
+
+Folders are read at boot, before the agent tree loads, so an instance’s handler resolves. A folder that fails any check is listed in `reflect bundles=all` with an `error` and is never loaded. The checks are, in order:
+
+1. The folder name uses letters, digits, `_` and `-`, and starts with a letter or `_`.
+2. The name is not a built-in bundle’s name: “a folder may not shadow it.”
+3. `bundle.yaml` exists, parses, and is a mapping.
+4. `base` is present: the bundled agent it extends.
+5. `sentence` is present: one line saying what the bundle is.
+6. `base` names a bundled agent that a folder can extend.
+7. The base accepts the rest: for `py_agent`, a `command` (the program’s argv, run with the folder as its working directory) and a `verbs` map from verb to doc. `reflect`, `boot` and `shutdown` are reserved.
+
+*Animation: A folder bundle loads at boot* (https://aisixteen.com/fantastic/foundations/kernel/bundles/folder.mp4). At boot the kernel reads bundles/notes/bundle.yaml. It checks the folder name, that notes is not a built-in bundle, and that base py_agent and a sentence are present; the bundle registers. create_agent with handler_module notes makes an instance. The kernel starts the program, which says hello with its verbs, and the verbs match bundle.yaml.
+
+Each instance, made with `create_agent handler_module=notes`, is a full agent. The kernel starts the program when the instance boots and kills it when the instance is deleted or the kernel stops. The program first says `{"op": "hello", "verbs": [...]}`; those verbs must equal the `verbs` in `bundle.yaml`, or the instance stops and says why. After that the kernel sends it `{"op": "call", ...}` and the program answers `{"op": "result", ...}`.
+
+Nothing respawns a program that exits. `reload_bundle {name}`, a root verb, re-reads the folder and restarts every live instance of it. If the new `bundle.yaml` no longer loads, the call is refused and the live instances keep the previous load.
+
+The program runs with the user’s OS rights. Its own subprocesses, files and network do not pass the call gate; only the verbs that reach it do.
+
+#### Twin runtimes: same verbs, different loading
+
+The Rust and Python kernels answer the same fourteen kernel verbs, and Rust’s verb docs are written to mirror Python’s. A client that talks to one can talk to the other. The root `reflect` reports which one it reached in its `runtime` field; the TypeScript kernel reports `"ts"` there and is not covered on this page.
+
+|  | Rust | Python |
+|---|---|---|
+| built-in bundles reach the kernel | crates linked at compile time, registered in `register_default_bundles()` | entry points in the `fantastic.bundles` group |
+| a bundle is | a `Bundle` trait implementation | a module with `handler(id, payload, agent)` |
+| an unknown handler module | `No module named '…'` | `No module named '…'` |
+| folder bundles (`base: py_agent`) | yes | yes |
+| kernel verbs | the same 14 | the same 14 |
+| root `reflect` reports `runtime` | `"rust"` | `"python"` |
+
+*Animation: Rust and Python, one set of verbs* (https://aisixteen.com/fantastic/foundations/kernel/bundles/twin.mp4). The same reflect is sent to a Rust kernel and a Python kernel. The root reflect reports a runtime field with the same field names and order in both, and only its value differs: rust in one and python in the other. This clip shows the Rust and Python kernels; a TypeScript kernel also exists. Below them sit the same fourteen kernel verbs.
+
+Sources: Rust: the Bundle trait and registry (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/bundle.rs#L1); Rust: register_default_bundles() (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-cli/src/main.rs#L45); Python: bundle discovery (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_bundles.py#L1); Python: the system verbs (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_agent.py#L129); Rust: folder bundle loader (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-core/src/folders.rs#L31); Python: folder bundle loader (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/loader/kernel_state/src/kernel_state/tools.py#L123); py_agent, the folder base (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/io/py_agent/src/py_agent/tools.py#L1); py_agent, the folder base (Rust) (https://github.com/aisixteen/fantastic/tree/main/src/lib/rust/crates/bundles/fantastic-py-agent)
+
+### Foundations › Kernel › Tasks and waiting
+
+URL: https://aisixteen.com/fantastic/foundations/kernel/tasks/
+
+Every send that is running right now is a **task**. The kernel keeps them in one table, so any caller with the grant can list work in flight, stop it, or wait for a group of agents to finish.
+
+This page covers the task table and `ps`, `cancel` of a task and everything below it, and `await_set`, which wakes a lead once for a whole set of reports. The Rust and Python runtimes implement the same behaviour. How a send is checked first is on [Call gate and grants](/fantastic/foundations/protocol/call-gate/).
+
+#### The task table and ps
+
+A task is one in-flight dispatch, not an agent. When a send reaches its target, the kernel adds a row to the **task table** for it and removes the row when the dispatch ends. The row is made before the handler runs, so a task can be stopped from its first moment.
+
+Tasks form a tree. A send made inside a handler is a child of that handler’s task. A send made outside every dispatch, such as one from the CLI or a test, has no parent and is a root, “like a process spawned by init.” Work that a bundle forks out of a dispatch, such as an exec job’s output pump, is registered as a task too, so it also shows up in the table and can be cancelled.
+
+A task id is a plain integer from the kernel’s one id counter. It is the same number that an outcome carries as its `pid`, so the id in `ps` is the id you give `cancel`. ([Messages and verbs](/fantastic/foundations/protocol/messages/) covers outcomes.)
+
+`ps` answers with the whole table, kernel-wide, oldest row first, unless you page it. Each row has five fields:
+
+ps (shape, illustrative values):
+
+```
+{"tasks": [{"id": 42, "agent": "planner", "parent": 41,
+            "verb": "run", "started_at": 1790000000.5}],
+ "next": null}
+```
+
+| field | meaning |
+|---|---|
+| `id` | the task’s number |
+| `agent` | the agent that is handling the dispatch |
+| `parent` | the task that made this send, or `null` for a root |
+| `verb` | the verb being handled |
+| `started_at` | seconds since the epoch |
+
+*Animation: ps: the task table* (https://aisixteen.com/fantastic/foundations/kernel/tasks/ps.mp4). Five tasks run: 41 lead, its children 42 planner and 45 notes, and below 42 the tasks 43 exec_bridge and 44 model. The operator sends ps to kernel. The reply lists one row per task, oldest first, with id, agent, parent and verb. The last row, 46, is the ps dispatch itself. The parent column ties each row back to its place in the tree. Ids, agents and verbs are illustrative.
+
+`ps` lists its own row, because it is a dispatch like any other. A reply can be paged: `limit` and an `after` cursor work as in `list_agents`, and `next` is `null` when no further page exists. The table is live, so a row that finishes while you page may be missed.
+
+When a task ends, its surviving children move up to its parent. Work that outlives the dispatch that started it therefore stays inside its caller’s subtree, where `cancel` on the caller still reaches it.
+
+`ps` and `cancel` are kernel verbs: the root answers them, so they are sent to `kernel`. They pass the same call gate as any other verb. An agent that holds the grant can read `ps` and cancel another agent’s runaway work.
+
+#### cancel: a task and its subtree
+
+`cancel {task_id}` kills that task and every task below it, children first, “like a process group.” The id may be an integer, its decimal string, or the name the caller gave its own execution. It answers with the ids it killed:
+
+cancel (illustrative ids):
+
+```
+[{"target": "kernel", "payload": {"type": "cancel", "task_id": 42}}]
+→ {"cancelled": true, "killed": [43, 44, 42]}
+```
+
+An unknown or finished id is not an error. The answer is `{"cancelled": false, "killed": []}`. A missing `task_id` is refused with the usual shape ([Refusals](/fantastic/foundations/protocol/refusals/)).
+
+#### Two phases
+
+Dropping a task frees no operating-system resource: a child process or a socket stays open. So `cancel` runs in two phases, named after SIGTERM and SIGKILL.
+
+1. **Hooks.** The kernel marks every task in the subtree as dying. It then awaits each agent’s bundle `on_cancel` hook, with all tasks still alive, so no handler sees a half-killed group. A hook runs as its own agent. If a hook fails, the error is logged and the kill goes on: cancel cannot be refused by a bundle.
+2. **Abort.** The kernel stops the tasks leaves first, with no wait in between, so a parent cannot resume between its child’s death and its own.
+
+*Animation: cancel: a task and its subtree* (https://aisixteen.com/fantastic/foundations/kernel/tasks/cancel.mp4). cancel on task 42 first runs every on_cancel hook in its subtree while the tasks are alive: a child process is killed and a generation is closed. Then the tasks abort, leaves first. The sibling 45 and the parent 41 keep running. cancel answers cancelled true with the killed ids, and the waiting send settles as cancelled.
+
+The hooks are where real resources go. An `exec_bridge` job’s `on_cancel` kills the job’s child process. An AI backend’s `on_cancel` closes the stopped turn: its open parts abort and its status goes to `done` with reason `cancelled`.
+
+The caller that was waiting on the cancelled send is not killed. Its item settles with status `cancelled` and the reply `{"cancelled": true}`. Nothing raises out of `send`. A caller that is itself inside the dying subtree does not resume either. It waits for its own stop.
+
+Two cases go the same way as `cancel`. A send with its own `timeout` kills its task through the same front door, so hooks run first, and its item settles as `timed_out`. And the kernel’s own service tasks, such as the loop that flushes the ledger to the memory store, refuse `cancel` with a `bad_arg` refusal. They stay listed in `ps` until the kernel stops. See [Ledger and dead letters](/fantastic/foundations/protocol/ledger/) for what a cancelled item leaves behind.
+
+#### await_set: one wake for a set
+
+A lead that waits for several workers would otherwise wake on every report and send its whole context again each time. `await_set {ids, timeout_s?, label?}` replaces that with one wake. It is a kernel verb, sent to `kernel` by the agent that wants to wait, and it answers at once:
+
+await_set (illustrative ids):
+
+```
+[{"target": "kernel", "payload": {"type": "await_set",
+  "ids": ["w1", "w2", "w3"], "timeout_s": 60}}]
+→ {"wait_id": 50, "label": null, "ids": ["w1", "w2", "w3"], "timeout_s": 60}
+```
+
+The `wait_id` is another number from the kernel’s id counter. `label` is an optional string that comes back in the final message. The verb refuses an operator send, since nobody could be woken. It also refuses a missing or empty `ids`, an id that names no agent, the caller’s own id, a `timeout_s` that is not a positive number, and a `label` that is not a string.
+
+The signal each worker sends is a plain message, `{"type": "report", "state": ..., "result": ...}`, sent to the lead. No `report` verb is involved. While the wait is open, a report from a named agent is held instead of delivered, and the reporter is answered at once with `{"held": true, "wait_id": 50}`, so it never blocks on the lead. A second report from the same agent replaces its first.
+
+*Animation: await_set: one wake for a set* (https://aisixteen.com/fantastic/foundations/kernel/tasks/await.mp4). A lead sends await_set for w1, w2 and w3 with a timeout of 60 seconds and gets wait_id 50 back at once. Each worker then sends a report. The kernel holds each one and answers the worker held, and the count at the lead goes from 0 to 3 of 3. With all three in, the lead receives one message with wait_id 50, a done entry per worker, an empty missing list and timed_out false. Ids are illustrative.
+
+When every named agent has reported, or `timeout_s` passes, the lead receives one message:
+
+the one message:
+
+```
+{"type": "send", "text": "<the same body as compact JSON>",
+ "wait_id": 50, "label": null,
+ "done": [{"id": "w1", "state": ..., "result": ...}, ...],
+ "missing": [], "timed_out": false}
+```
+
+`done` follows the order of `ids`, and `text` is the body as compact JSON, for a model to read. After a timeout, `done` holds the agents that reported, `missing` names the rest and `timed_out` is `true`. The last report and the timer cannot both win: the kernel claims the wait once, so the lead is woken once.
+
+`await_cancel {wait_id}` drops the caller’s own wait. The reports it held are then delivered one by one, each as its own message from the agent that sent it, in the order they were held. The answer is `{"cancelled": true, "wait_id": 50, "released": 2}`. A wait that is unknown, or belongs to another agent, answers `{"cancelled": false, "wait_id": ..., "released": 0}`.
+
+A wait is stored as rows in the kernel’s memory store, so it survives a restart: on start the kernel rebuilds each open wait, completes the ones already due, and re-arms the timers of the rest. A kernel that is stopping delivers nothing and leaves the wait open for the next start. If the lead has left the tree, nobody is woken.
+
+Sources: tasks.rs: the task table, ps rows and cancel (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/tasks.rs#L1); kernel_verbs.rs: ps, cancel and the kernel verb docs (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/send/kernel_verbs.rs#L14); _kernel.py: task_rows and cancel_task (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_kernel.py#L1235); await_set.rs: held reports, the one message, restore (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/await_set.rs#L1); _await.py: await_set (Python) (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_await.py#L1); exec_bridge on_cancel: SIGKILL of a job (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-exec-bridge/src/lib.rs#L606); ai_core on_cancel: closing a stopped turn (Rust) (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/bundles/fantastic-ai-core/src/verbs.rs#L229)
+
+### Foundations › Kernel › State and durability
+
+URL: https://aisixteen.com/fantastic/foundations/kernel/state/
+
+Two different things can survive a restart. The **tree** is the agents and their records. The **rows** are the kernel’s execution rows and each AI agent’s conversation. They live in different places and persist through different agents, so a kernel can keep one and lose the other.
+
+This page covers the `kernel_state` root that owns the tree, the single id counter that names everything, and what a restart and a crash leave behind. The ledger and dead letters are on [their own page](/fantastic/foundations/protocol/ledger/).
+
+#### The kernel_state root
+
+The root of every tree is an agent with the id `kernel_state` and the handler module `kernel_state.tools`. It owns the `.fantastic/` directory: it turns records into `agent.yaml` files, maps the tree to paths and writes changes. The reserved address `kernel` always names this root, whatever its id.
+
+A new directory has no root record. The bootstrap seeds one, `{id: kernel_state, handler_module: kernel_state.tools}`, and writes it to `.fantastic/agent.yaml` when the first mode takes the directory lock. A root `agent.yaml` that exists but does not parse is never written over: the boot stops and asks you to fix or remove it.
+
+#### The tree needs a file_bridge
+
+The root does not write the children of the tree by itself. It writes them only through a **provider** that it discovers: a `file_bridge` agent anywhere below the root whose `root` resolves to `.fantastic`. If several match, the shallowest wins. Each change is written 150 ms after it happens, to a temporary file that is then renamed over `agent.yaml`.
+
+With no provider, nothing is written. The tree lives in RAM and is lost on restart, and there is no direct-write fallback. A provider that refuses, for example because its `allow` list does not cover the records, fails loudly: the refusal goes to stderr and the root’s `reflect` shows it.
+
+root reflect: wired, or RAM (illustrative id):
+
+```
+{"persistence": {"provider": "store"}}
+{"persistence": {"provider": null}}
+```
+
+On a graceful stop, the root writes its last pending records before the agents are torn down, while the provider is still alive. The stop never deletes records, so the next boot rehydrates the tree. A record whose bundle this runtime does not have is skipped with one line on stderr, together with its subtree. The record stays on disk, and a build that has the bundle loads it later.
+
+#### The guid
+
+The root also mints the kernel’s instance `guid` once, at boot, and keeps it in the root record. With a provider, later boots read it back unchanged. Without one, the guid exists only in memory, and the next boot mints a new one.
+
+#### One counter names everything
+
+A call, a forked task, a settle row, a wait and an AI agent’s conversation row all take their id from one **counter**, a 64-bit integer that starts at 1. The same number is what `ps` lists, what `cancel` takes, what a reply is tagged with and what a store row is keyed by.
+
+The counter is kernel-wide and only goes up. If id `a` is smaller than id `b`, `a` was created first, across all agents. An id is never reused, so a stale `cancel` on an old id kills nothing.
+
+*Animation: One counter names everything* (https://aisixteen.com/fantastic/foundations/kernel/state/ids.mp4). A call takes id 41, a forked task 42 and its settle row 43, all from the same counter. Each id is larger than the one before, across agents, and none is reused. The root record holds only the reserved bound, next_id: 1001.
+
+#### Reserved in blocks of 1000
+
+The kernel reserves ids in blocks of 1000 and keeps only the upper bound, `next_id`, in the root record next to `guid`.
+
+1. A load resumes at the root record’s `next_id`, never lower, and reserves its first block in memory. A load writes nothing.
+2. `kernel_start` writes that bound into the root record.
+3. When a started kernel mints an id at or past the bound, it reserves the next 1000 and writes the new bound.
+
+the root record (illustrative):
+
+```
+next_id: 1001     # ids up to 1000 may have been handed out
+next_id: 2001     # written when id 1001 is minted
+```
+
+So a restart begins at the stored bound, and ids below it are not issued again. The bound reaches disk through the same debounced write (150 ms) as any other record change. After a crash, up to one block of ids is skipped. The gaps are harmless because ids are opaque.
+
+*Animation: Ids reserved in blocks* (https://aisixteen.com/fantastic/foundations/kernel/state/reserve.mp4). The root record holds next_id: 1001. When the kernel mints id 1001 it reserves the next block and writes next_id: 2001. The process crashes after id 1500. On restart the counter resumes at 2001, so ids 1501 to 2000 are skipped and none is issued twice.
+
+The guid and the counter persist together. A root that is not durable mints a new guid on its next boot. Every store key starts with the guid, so the new keys cannot collide with the ids that restart from 1. The one case the kernel cannot defend is an old `agent.yaml` restored under the same guid, which moves the counter backwards. That is for the administrator to prevent.
+
+#### Rows live in a memory store
+
+The kernel keeps no conversation and no message log in the tree. Its execution rows (`call`, `settle`, `task`, `ack`, and the rows of an `await_set` wait) are minted in RAM and flushed, 150 ms after a change, into the **memory store** that the root record names in `memory_store_id`. Each AI agent names its own store for its turns, folds and views.
+
+`kernel_start` refuses when the root names no store, and there is no default. The start sequence boots the root first, which supplies the guid, then the store, which is probed to confirm that it serves the operator. Then it writes the id bound, starts the flusher, rebuilds the open waits, and boots every other agent in registration order.
+
+Every row in a store is keyed `<kernel guid>|<agent id>`, and `<guid>|kernel` is the operator and the kernel’s own bookkeeping. Two stores ship with the kernel, and they answer the same verbs:
+
+| store | durable | after a restart |
+|---|---|---|
+| `ram_store` | no | empty: everything it holds ends with the process |
+| `sqlite_store` | yes | one SQLite file; the rows are read back |
+
+The same store holds the data that gives a restart its meaning: the ledger, dead letters, named-call dedup and every AI agent’s memory. A reply’s body is not stored, only a one-line `origin` that says what to re-read.
+
+The ledger is trimmed once it passes `ledger_cap` (1,000,000 rows by default in Python), oldest settled executions first. A dead letter that nobody has acknowledged is kept.
+
+#### What survives a restart
+
+The answer depends on which two agents you wired, a `file_bridge` rooted at `.fantastic` and a memory store.
+
+| what | survives when | otherwise |
+|---|---|---|
+| The agent tree, and bundle sidecars such as a scheduler’s schedules | a `file_bridge` is rooted at `.fantastic` | gone; only the seeded root record is on disk |
+| The kernel’s `guid` and the id counter | the root record is persisted, which also needs that `file_bridge` | a new guid, and ids restart from 1 |
+| Settled named executions, dead letters and acknowledgements | the memory store is durable, like `sqlite_store` | gone with the process |
+| Open `await_set` waits | the memory store is durable | gone with the process |
+| An AI agent’s conversation | its memory store is durable | gone with the process |
+
+*Animation: What survives a restart* (https://aisixteen.com/fantastic/foundations/kernel/state/restart.mp4). Before the restart, the kernel has an agent tree on disk through a file_bridge, a ram_store and a sqlite_store. After the restart the tree is back and so are the rows in sqlite_store. The rows in ram_store are gone.
+
+A durable store alone is not enough. Its rows are keyed by the guid, so a kernel with a `sqlite_store` but no `file_bridge` gets a new guid on every boot and never finds its old rows. Wire both.
+
+#### Two limits
+
+A call that is in flight when the process dies has no settle row. Re-sending it runs it again, unless the send gave it a name that already settled. On a graceful stop, the drain settles interrupted calls as `cancelled`, which makes them dead letters. Replaying an interrupted turn to where it stopped is not built.
+
+Keep the records store and your data apart. The `file_bridge` that persists records can rewrite any record, including its own grants, so grant it to nobody but the root. Put the files your agents read and write in a second `file_bridge`.
+
+Sources: kernel_state/tools.py: provider discovery, flush loop, guid (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/loader/kernel_state/src/kernel_state/tools.py#L329); persistence.md: durable state, memory stores, the counter (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/loader/kernel_state/src/kernel_state/docs/persistence.md#L5); _kernel.py: the counter, kernel_start, load (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/kernel/_kernel.py#L485); rows.rs: the counter in the Rust kernel (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/rows.rs#L11); persistence.rs: find_store_for and the record writer (https://github.com/aisixteen/fantastic/blob/main/src/lib/rust/crates/fantastic-kernel/src/persistence.rs#L163); sqlite_store readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/memory/sqlite_store/src/sqlite_store/readme.md); ram_store readme (https://github.com/aisixteen/fantastic/blob/main/src/lib/python/bundled_agents/memory/ram_store/src/ram_store/readme.md)
 
 ### Foundations › Agents
 

@@ -1,4 +1,14 @@
 {
+  "await": {
+    "duration": 11.63,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 154005,
+      "webm": 128919,
+      "webp": 32622
+    }
+  },
   "cancel": {
     "duration": 12.4,
     "width": 1280,
@@ -7,6 +17,16 @@
       "mp4": 154066,
       "webm": 149555,
       "webp": 31832
+    }
+  },
+  "ps": {
+    "duration": 10.03,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 137347,
+      "webm": 131930,
+      "webp": 36406
     }
   }
 }

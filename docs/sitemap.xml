@@ -29,6 +29,11 @@
   <url><loc>https://aisixteen.com/fantastic/foundations/protocol/transports/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/protocol/contract/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/kernel/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/kernel/records/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/kernel/lifecycle/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/kernel/bundles/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/kernel/tasks/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/kernel/state/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/agents/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/foundations/canvas/</loc></url>

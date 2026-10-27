@@ -1,0 +1,32 @@
+{
+  "ids": {
+    "duration": 9.73,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 109125,
+      "webm": 111628,
+      "webp": 28176
+    }
+  },
+  "reserve": {
+    "duration": 11.8,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 114075,
+      "webm": 108218,
+      "webp": 22394
+    }
+  },
+  "restart": {
+    "duration": 9.03,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "mp4": 115737,
+      "webm": 97027,
+      "webp": 32170
+    }
+  }
+}
