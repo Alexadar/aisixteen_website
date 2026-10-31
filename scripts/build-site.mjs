@@ -29,11 +29,12 @@ await build({
   external: ['react', 'react-dom', 'react-dom/server'],
   logLevel: 'warning',
 })
-const { renderHome, renderLanding, renderNotFound, renderFantastic, renderFoundationsIndex, renderFoundationsPage, renderFoundationsComing, renderRedirect } = await import(pathToFileURL(bundlePath).href)
+const { renderHome, renderLanding, renderNotFound, renderFantastic, renderTeam, renderFoundationsIndex, renderFoundationsPage, renderFoundationsComing, renderRedirect } = await import(pathToFileURL(bundlePath).href)
 const { apps, featuredSlug } = await import(pathToFileURL(join(siteSrc, '..', 'data', 'apps.js')).href)
 const { fantastic } = await import(pathToFileURL(join(siteSrc, '..', 'data', 'fantastic.js')).href)
 // Foundations: the #443 tree (src/data/foundations/registry.json) and each article's own data
 // file and clip manifest. Throws, listing every problem, on a missing file, caption or render.
+const { team } = await import(pathToFileURL(join(siteSrc, '..', 'data', 'team.js')).href)
 const F = await loadFoundations(root)
 
 // 2) Decorate apps with build-time facts: a multi-device carousel that rotates through
@@ -92,6 +93,7 @@ const written = []
 written.push(write('index.html', renderHome(decorated, featured, { year, fantastic })))
 for (const app of decorated) written.push(write(`${app.slug}/index.html`, renderLanding(app, decorated, { year, fantastic })))
 written.push(write(`${fantastic.slug}/index.html`, renderFantastic(fantastic, { year })))
+written.push(write(`${team.slug}/index.html`, renderTeam(team, { year })))
 const fdOpts = { year, modified: buildDate }
 written.push(write('fantastic/foundations/index.html', renderFoundationsIndex(F, fdOpts)))
 for (const n of F.published) written.push(write(`${n.url.slice(1)}index.html`, renderFoundationsPage(F, n, fdOpts)))
@@ -129,7 +131,7 @@ if (fs.existsSync(join(media, 'logo.png'))) fs.copyFileSync(join(media, 'logo.pn
 
 // Sitemap of every indexable page (redirect stubs and 404 excluded). No <lastmod>:
 // a build date on every URL would be inaccurate, and Google ignores unreliable lastmod.
-const indexable = ['', ...decorated.map((a) => `${a.slug}/`), `${fantastic.slug}/`,
+const indexable = ['', ...decorated.map((a) => `${a.slug}/`), `${fantastic.slug}/`, `${team.slug}/`,
   'fantastic/foundations/', ...F.published.map((n) => n.url.slice(1))]
 fs.writeFileSync(join(docs, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -137,7 +139,7 @@ ${indexable.map((p) => `  <url><loc>https://aisixteen.com/${p}</loc></url>`).joi
 </urlset>
 `)
 fs.writeFileSync(join(docs, 'robots.txt'), robotsTxt())
-fs.writeFileSync(join(docs, 'llms-full.txt'), llmsFullTxt({ apps: decorated, fantastic, foundations: F }))
+fs.writeFileSync(join(docs, 'llms-full.txt'), llmsFullTxt({ apps: decorated, fantastic, team, foundations: F }))
 // IndexNow (Bing, Yandex, Seznam…; Bing's index feeds ChatGPT search and Copilot):
 // the key file must be served at the site root. Ping with `npm run indexnow` after a deploy.
 const indexNowKey = fs.readFileSync(join(root, 'indexnow-key.txt'), 'utf8').trim()

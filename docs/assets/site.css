@@ -1198,3 +1198,45 @@ img { display: block; max-width: 100%; }
 .fd-kids__text { font-size: 14.5px; line-height: 1.55; color: var(--muted); }
 .fd-kids__soon { font: 600 11px/1.4 var(--mono); letter-spacing: .9px; text-transform: uppercase; color: var(--dim); }
 .fd-kids .is-planned .fd-kids__t { color: var(--muted); }
+
+/* ---------- /team/ ---------- */
+.tm-grid { display: grid; gap: 16px; }
+.tm-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tm-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.tm-card { position: relative; min-width: 0; padding: 28px; border-radius: 22px; border: 1px solid rgba(255, 255, 255, .08); background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .015)); }
+.tm-card__tag { margin: 0 0 10px; font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.tm-card__title { margin: 0 0 12px; font: 700 21px/1.25 var(--display); letter-spacing: -.01em; }
+.tm-card__text { margin: 0; font-size: 15px; line-height: 1.65; color: var(--muted); }
+.tm-card__text code, .tm-list code, .tm-ui__point code { font-family: var(--mono); font-size: .9em; color: #cfe3ff; }
+.tm-card__n { display: grid; place-items: center; width: 34px; height: 34px; margin-bottom: 14px; border-radius: 50%; font: 700 14px/1 var(--mono); color: var(--accent); border: 2px solid var(--accent); }
+.tm-list { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.tm-list li { position: relative; padding-left: 20px; font-size: 14px; line-height: 1.55; color: var(--ink); }
+.tm-list li::before { content: ""; position: absolute; left: 2px; top: .6em; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.tm-what { display: grid; gap: 20px; max-width: 760px; }
+.tm-flow { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; counter-reset: tmf; }
+.tm-flow li { counter-increment: tmf; padding: 9px 14px; border-radius: 999px; font-size: 14px; border: 1px solid rgba(255, 255, 255, .12); background: rgba(255, 255, 255, .04); }
+.tm-flow li::before { content: counter(tmf) "  "; font: 600 12px var(--mono); color: var(--accent); }
+.tm-flow__note { margin: 0 0 28px; font-size: 14px; color: var(--dim); max-width: 70ch; }
+.tm-ui { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 24px; align-items: start; }
+.tm-ui__points { margin: 0; display: grid; gap: 4px; }
+.tm-ui__point { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.tm-ui__point dt { margin: 0 0 4px; font: 700 13px/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.tm-ui__point dd { margin: 0; font-size: 15px; line-height: 1.6; color: var(--muted); }
+.tm-shot { margin: 0; min-width: 0; }
+.tm-shot__box { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 300px; padding: 28px; text-align: center; border-radius: 18px; border: 2px dashed rgba(255, 255, 255, .22); background: repeating-linear-gradient(135deg, rgba(255, 255, 255, .03) 0 12px, transparent 12px 24px); color: var(--muted); font-size: 14px; line-height: 1.55; }
+.tm-shot__box strong { font: 700 20px/1.2 var(--display); color: var(--ink); }
+.tm-shot__badge { padding: 4px 10px; border-radius: 999px; font: 600 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--st-soon); border: 1px solid var(--st-soon); }
+.tm-shot__cap { margin-top: 12px; font-size: 13px; color: var(--dim); }
+.tm-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.tm-step { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 18px; padding: 26px; border-radius: 22px; border: 1px solid rgba(255, 255, 255, .08); background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .015)); }
+.tm-step .tm-card__n { margin: 0; }
+.tm-step__body { min-width: 0; display: grid; gap: 12px; }
+.tm-step__body .tm-card__title { margin: 0; }
+.tm-related { margin-left: auto; margin-right: auto; }
+.tm-final { padding-top: 150px; }
+@media (max-width: 900px) { .tm-grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tm-ui { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 640px) {
+  .tm-grid--2, .tm-grid--3 { grid-template-columns: minmax(0, 1fr); }
+  .tm-card, .tm-step { padding: 20px; }
+  .tm-step { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+}

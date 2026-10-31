@@ -66,7 +66,7 @@ Sources: ${a.sources.map(([label, href]) => `${label} (${href})`).join('; ')}
 `
 }
 
-export function llmsFullTxt({ apps, fantastic: f, foundations }) {
+export function llmsFullTxt({ apps, fantastic: f, team: t, foundations }) {
   const out = []
   out.push(`# AISixteen — full site text
 
@@ -129,6 +129,54 @@ Or ask a coding agent (Claude Code, Codex, Gemini CLI): "${f.agentPrompt}"
 Commands:
 
 ${f.commands.map(([c, w]) => `- \`${c}\` — ${w}`).join('\n')}
+`)
+
+  // Fantastic Team
+  out.push(`## ${t.fullName}
+
+URL: ${ORIGIN}/${t.slug}/
+Source: ${t.repo} · Roadmap: ${t.roadmap} · Board: ${t.board}
+Status: ${t.status}. License: ${t.license}.
+
+${t.tagline} ${t.heroSub}
+
+### ${t.what.title}
+
+${t.what.lead} ${t.what.text} Kinds of work: ${t.what.kinds.join(', ')}. ${t.what.note}
+
+### ${t.modes.title}
+
+${t.modes.lead}
+
+${t.modes.cards.map((c) => `- **${c.name}** (${c.tag}): ${c.text} ${c.points.join('; ')}.`).join('\n')}
+
+### ${t.how.title}
+
+${t.how.lead}
+
+${t.how.parts.map((p) => `- **${p.title}**: ${p.text}`).join('\n')}
+
+Path of a task: ${t.how.flow.join(' > ')}. ${t.how.flowNote}
+
+### ${t.ui.title}
+
+${t.ui.lead}
+
+${t.ui.points.map((p) => `- **${p.term}**: ${p.text}`).join('\n')}
+
+${t.ui.appNote} A screenshot is not yet on the page.
+
+### ${t.diff.title}
+
+${t.diff.items.map((d) => `- **${d.title}**: ${d.text}`).join('\n')}
+
+### ${t.start.title}
+
+${t.start.lead}
+
+${t.start.steps.map((s) => `${s.n}. **${s.title}.**\n\n\`\`\`\n${s.code}\n\`\`\`\n\n${s.note}`).join('\n\n')}
+
+${t.statusNote}
 `)
 
   // Foundations

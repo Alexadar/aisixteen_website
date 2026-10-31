@@ -28,7 +28,7 @@ export default {
           '[A bundle](/fantastic/foundations/build/bundle/): the handler, verb docs, record checks and hooks, in Python or Rust.',
           '[A program agent](/fantastic/foundations/build/program-agent/): the starter folder, a new verb, save to reload, copy to release.',
           '[A view](/fantastic/foundations/build/view/): `panel.html`, the cell’s grant, and what the terminal UI shows instead.',
-          '[Example: Team](/fantastic/foundations/build/team/): a public product built on fantastic, with role cards, a project lead and a cadencer.',
+          '[Example: Team](/fantastic/foundations/build/team/): a public product built on fantastic, with role cards, a project lead and a cadencer (the product has its own page, [Fantastic Team](/team/)).',
         ] },
       ],
     },

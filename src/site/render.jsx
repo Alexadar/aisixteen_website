@@ -1,6 +1,7 @@
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { Home, Landing, NotFound, FantasticPage } from './components.jsx'
+import { TeamPage } from './team.jsx'
 import { FoundationsIndex, FoundationsPage, FoundationsComing, BASE } from './foundations.jsx'
 import { SITE, appStoreUrl, faqsOf, claimOf } from './theme.js'
 
@@ -159,6 +160,42 @@ export function renderFantastic(f, { year }) {
     ogImage: `${SITE.origin}/${v.poster}`,
     jsonld: [ORG, softwareApp, sourceCode, video],
     body: renderToStaticMarkup(<FantasticPage f={f} year={year} />),
+  })
+}
+
+// Fantastic Team: free open-source developer software, alpha, built from source; no
+// rating, release or price beyond free is asserted. Every value mirrors visible text.
+export function renderTeam(t, { year }) {
+  const url = `${SITE.origin}/${t.slug}/`
+  const softwareApp = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: t.fullName,
+    description: t.summary,
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Linux, macOS',
+    url,
+    sameAs: [t.repo],
+    license: 'https://www.gnu.org/licenses/agpl-3.0.html',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher: { '@type': 'Organization', name: SITE.name, url: SITE.origin },
+  }
+  const sourceCode = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareSourceCode',
+    name: t.fullName,
+    codeRepository: t.repo,
+    license: 'https://www.gnu.org/licenses/agpl-3.0.html',
+    programmingLanguage: 'Rust',
+    targetProduct: { '@type': 'SoftwareApplication', name: t.fullName, url },
+  }
+  return doc({
+    title: `${t.name} — unattended team work, a team of AI agents | AISixteen`,
+    description: t.summary,
+    canonical: url,
+    ogImage: `${SITE.origin}/logo.png`,
+    jsonld: [ORG, softwareApp, sourceCode, crumbs([['AISixteen', `${SITE.origin}/`], ['Fantastic Team', url]])],
+    body: renderToStaticMarkup(<TeamPage t={t} year={year} />),
   })
 }
 

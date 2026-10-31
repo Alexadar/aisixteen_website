@@ -10,7 +10,7 @@ export default {
   cover: { clip: 'plan' },
   about: ['Aisixteen Fantastic', 'Multi-agent teams', 'Role cards'],
   lead: [
-    '[fantastic_team](https://github.com/aisixteen/fantastic_team) is a separate, public program built on fantastic. Its README describes it as unattended team work: you queue tasks, a team of AI workers takes them, and you review what comes back. It is an example of what the pieces on the other pages make when you put them together.',
+    '[fantastic_team](https://github.com/aisixteen/fantastic_team) is a separate, public program built on fantastic. Its product page is [Fantastic Team](/team/). Its README describes it as unattended team work: you queue tasks, a team of AI workers takes them, and you review what comes back. It is an example of what the pieces on the other pages make when you put them together.',
     'This page follows four parts of it: how `team.yaml` turns role cards into agents, what the `project_lead` card grants and asks, how the lead records its work in the task registry, and what the cadencer sends back up. Everything about fantastic itself is covered on the pages linked in each section; this page shows Team’s use of it. The statements about Team come from its repository at the commit named in the sources.',
   ],
   sections: [
