@@ -62,12 +62,12 @@ export const team = {
       {
         key: 'reuse',
         title: 'Versioned reuse',
-        text: 'With each task the lead records the versions it was done against: repository, branch and commit, the version of the issue, and the mark an agent was forked from. Before reusing earlier work, the GitHub connector reports what changed since: commits, files and whether the issue changed. The lead decides whether to fork from the earlier mark, to reuse its context and cache. Measuring the saving is still to come.',
+        text: 'With each task the lead records the versions it was done against: repository, branch and commit, the version of the issue, and the mark an agent was forked from. Before reusing earlier work, the GitHub connector reports what changed since: commits, files and whether the issue changed. The lead decides whether to fork from the earlier mark, to reuse its context and cache.',
       },
       {
         key: 'cadencer',
         title: 'A cadencer',
-        text: 'On a timer, the cadencer sends each lead a short digest of the level directly below it. A worker that holds a task and stops making progress is marked as stalled, with its idle time. A sub-lead\'s line rolls up its whole subtree. It is on by default and can be switched off in `team.yaml` or from the UI.',
+        text: 'On a timer, the cadencer sends each lead a short digest of its own children. A worker that holds a task and stops making progress is marked as stalled, with its idle time. It is on by default and can be switched off in `team.yaml` or from the UI.',
       },
     ],
     flow: ['Task source', 'Task registry', 'Lead', 'Roles registry', 'Workers', 'Draft pull request'],
@@ -75,10 +75,10 @@ export const team = {
   },
   ui: {
     title: 'The interface',
-    lead: 'Two columns. On the left, the team as a tree of agents. On the right, the view of the agent you clicked.',
+    lead: 'Two columns, in the roles setup. On the left, the team as a tree of agents. On the right, the view of the agent you clicked.',
     points: [
       { term: 'Left', text: 'The agent tree: the lead first, then the agents it spawned, indented by depth, with each one\'s state.' },
-      { term: 'Right', text: 'The clicked agent\'s view: its chat, its sidecars as cards, and optional canvases. The lead\'s view also shows the plan, the task registry\'s rows, above its chat.' },
+      { term: 'Right', text: 'The opened agent\'s chat. A card appears in the chat where an agent embedded one, and a Canvas button shows when the agent has a canvas. The lead\'s view also shows the plan, the task registry\'s rows, above its chat.' },
       { term: 'Served locally', text: 'Start the binary with `--port N` and the UI is served on `127.0.0.1:N`. Nothing is exposed beyond your machine.' },
       { term: 'Wrapped by the app', text: 'The desktop app is a thin window over that same page. It has no logic of its own.' },
     ],
@@ -122,7 +122,7 @@ export const team = {
         n: 4,
         title: 'Run it and hand it a first task',
         code: './target/release/fantastic_team --dir ./my-team --port 8123',
-        note: 'In the repo the team serves, label an issue `team-ready` and add a comment that starts with `## SPEC` and holds the task. The team opens a draft pull request. You review it on GitHub; merging stays with you.',
+        note: 'In the repo the team serves, label an issue `team-ready` and add a comment that starts with `## SPEC` and holds the task. The label and the comment must come from the maintainer (the comment may also come from your GitHub App); others are ignored. The team opens a draft pull request. You review it on GitHub; merging stays with you.',
       },
     ],
   },

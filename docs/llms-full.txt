@@ -151,17 +151,17 @@ A lead plans, a registry says which agents may exist, and a task registry record
 
 - **A lead and a roles registry**: The lead is an AI agent configured in `team.yaml`, working from a directive. It starts every agent with `spawn` on the roles registry, after it asks the registry how many agents exist. Roles are cards, one file each: a name, a purpose, a tier and the agents it may call. A tier is the name of a template in `team.yaml`, so a card never names a model. The registry enforces limits: a spawn past a limit is refused.
 - **A task registry between agents and task sources**: Tasks live in a task registry that sits between your agents and the places tasks come from, such as GitHub issues. It records each task, who holds it, and every reassignment. It makes no outbound call and syncs nothing by itself: the lead pushes updates to the source through the source's own connector.
-- **Versioned reuse**: With each task the lead records the versions it was done against: repository, branch and commit, the version of the issue, and the mark an agent was forked from. Before reusing earlier work, the GitHub connector reports what changed since: commits, files and whether the issue changed. The lead decides whether to fork from the earlier mark, to reuse its context and cache. Measuring the saving is still to come.
-- **A cadencer**: On a timer, the cadencer sends each lead a short digest of the level directly below it. A worker that holds a task and stops making progress is marked as stalled, with its idle time. A sub-lead's line rolls up its whole subtree. It is on by default and can be switched off in `team.yaml` or from the UI.
+- **Versioned reuse**: With each task the lead records the versions it was done against: repository, branch and commit, the version of the issue, and the mark an agent was forked from. Before reusing earlier work, the GitHub connector reports what changed since: commits, files and whether the issue changed. The lead decides whether to fork from the earlier mark, to reuse its context and cache.
+- **A cadencer**: On a timer, the cadencer sends each lead a short digest of its own children. A worker that holds a task and stops making progress is marked as stalled, with its idle time. It is on by default and can be switched off in `team.yaml` or from the UI.
 
 Path of a task: Task source > Task registry > Lead > Roles registry > Workers > Draft pull request. Workers hold no forge credentials. Delivery goes through a connector agent that owns the credentials and the rules.
 
 ### The interface
 
-Two columns. On the left, the team as a tree of agents. On the right, the view of the agent you clicked.
+Two columns, in the roles setup. On the left, the team as a tree of agents. On the right, the view of the agent you clicked.
 
 - **Left**: The agent tree: the lead first, then the agents it spawned, indented by depth, with each one's state.
-- **Right**: The clicked agent's view: its chat, its sidecars as cards, and optional canvases. The lead's view also shows the plan, the task registry's rows, above its chat.
+- **Right**: The opened agent's chat. A card appears in the chat where an agent embedded one, and a Canvas button shows when the agent has a canvas. The lead's view also shows the plan, the task registry's rows, above its chat.
 - **Served locally**: Start the binary with `--port N` and the UI is served on `127.0.0.1:N`. Nothing is exposed beyond your machine.
 - **Wrapped by the app**: The desktop app is a thin window over that same page. It has no logic of its own.
 
@@ -225,7 +225,7 @@ Optional, and only needed for pull requests, comments, labels and reading issues
 ./target/release/fantastic_team --dir ./my-team --port 8123
 ```
 
-In the repo the team serves, label an issue `team-ready` and add a comment that starts with `## SPEC` and holds the task. The team opens a draft pull request. You review it on GitHub; merging stays with you.
+In the repo the team serves, label an issue `team-ready` and add a comment that starts with `## SPEC` and holds the task. The label and the comment must come from the maintainer (the comment may also come from your GitHub App); others are ignored. The team opens a draft pull request. You review it on GitHub; merging stays with you.
 
 Alpha. The first version's code is complete, and the end-to-end testing phase comes next, then a release. There are no releases yet. Expect sharp edges.
 

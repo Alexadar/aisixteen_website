@@ -20,7 +20,7 @@ const PLANNED = TREE.filter((n) => n.status === 'planned')
 const READING = [FD, ...PUBLISHED.map(urlOf)] // previous/next order
 const FOUNDATIONS = READING
 const REDIRECTS = Object.entries(REG.redirects || {}).map(([from, to]) => [`${FD}${from}/`, `${FD}${to}/`])
-const PAGES = ['/', '/fantastic/', ...FOUNDATIONS, ...PLANNED.slice(0, 1).map(urlOf), '/aircore/', '/404.html']
+const PAGES = ['/', '/fantastic/', '/team/', ...FOUNDATIONS, ...PLANNED.slice(0, 1).map(urlOf), '/aircore/', '/404.html']
 const isMobile = (info) => info.project.name.startsWith('mobile')
 const widthsFor = (info) => (isMobile(info) ? [360, 390, 430] : [360, 390, 768, 1024, 1280, 1440, 1920])
 
@@ -72,7 +72,7 @@ test.describe('no sideways scroll', () => {
 })
 
 test.describe('nothing moves after load', () => {
-  for (const path of ['/', '/fantastic/', ...FOUNDATIONS]) {
+  for (const path of ['/', '/fantastic/', '/team/', ...FOUNDATIONS]) {
     test(path, async ({ page }, info) => {
       for (const width of isMobile(info) ? [390] : [390, 1440]) {
         await page.setViewportSize({ width, height: 900 })
