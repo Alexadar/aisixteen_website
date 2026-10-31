@@ -1,0 +1,29 @@
+{
+  "choose": {
+    "duration": 8.8,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 82840,
+      "webp": 24232
+    }
+  },
+  "grant": {
+    "duration": 10.6,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 104813,
+      "webp": 25890
+    }
+  },
+  "tui": {
+    "duration": 8.0,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 100430,
+      "webp": 29970
+    }
+  }
+}

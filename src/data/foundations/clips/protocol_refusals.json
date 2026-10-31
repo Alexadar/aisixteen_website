@@ -1,0 +1,29 @@
+{
+  "branch": {
+    "duration": 8.3,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 98895,
+      "webp": 39110
+    }
+  },
+  "recover": {
+    "duration": 11.4,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 116676,
+      "webp": 14836
+    }
+  },
+  "shape": {
+    "duration": 10.5,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 110362,
+      "webp": 25426
+    }
+  }
+}

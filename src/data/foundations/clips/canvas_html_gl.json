@@ -1,0 +1,29 @@
+{
+  "connector": {
+    "duration": 12.8,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 123164,
+      "webp": 24988
+    }
+  },
+  "gl_scene": {
+    "duration": 10.23,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 98973,
+      "webp": 22366
+    }
+  },
+  "html_set": {
+    "duration": 11.0,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 112588,
+      "webp": 22508
+    }
+  }
+}

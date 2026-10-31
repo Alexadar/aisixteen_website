@@ -32,7 +32,41 @@ Sitemap: ${ORIGIN}/sitemap.xml
 
 const md = (s) => String(s).replace(/\n+/g, ' ').trim()
 
-export function llmsFullTxt({ apps, fantastic: f }) {
+// A published Foundations page as Markdown: the same blocks the page renders, each animation
+// given as its title, caption and file, then its published children. Planned pages are left out.
+function articleMd(n) {
+  const a = n.article
+  const url = `${ORIGIN}${n.url}`
+  const block = (b) => {
+    if (typeof b === 'string') return b
+    if (b.h3) return `#### ${b.h3}`
+    if (b.code) return `${b.label ? `${b.label}:\n\n` : ''}\`\`\`\n${b.code}\n\`\`\``
+    if (b.list) return b.list.map((x) => `- ${x}`).join('\n')
+    if (b.ol) return b.ol.map((x, i) => `${i + 1}. ${x}`).join('\n')
+    if (b.quote) return `> ${b.quote}${b.cite ? ` (${b.cite})` : ''}`
+    if (b.note) return b.note
+    if (b.table) return [`| ${b.table.head.join(' | ')} |`, `|${b.table.head.map(() => '---').join('|')}|`, ...b.table.rows.map((r) => `| ${r.join(' | ')} |`)].join('\n')
+    if (b.video) {
+      const c = b.resolved
+      return `*Animation: ${c.title}* (${ORIGIN}${c.files.webm}). ${c.caption}`
+    }
+    return ''
+  }
+  const path = ['Foundations', ...n.ancestors.map((x) => x.title), n.title].join(' › ')
+  const kids = n.children.filter((c) => c.status === 'published')
+  return `### ${path}
+
+URL: ${url}
+
+${a.lead.join('\n\n')}
+
+${a.sections.map((sec) => `#### ${sec.title}\n\n${sec.blocks.map(block).join('\n\n')}`).join('\n\n')}
+${kids.length ? `\nIn this part: ${kids.map((c) => `${c.title} (${ORIGIN}${c.url})`).join('; ')}\n` : ''}
+Sources: ${a.sources.map(([label, href]) => `${label} (${href})`).join('; ')}
+`
+}
+
+export function llmsFullTxt({ apps, fantastic: f, team: t, foundations }) {
   const out = []
   out.push(`# AISixteen — full site text
 
@@ -96,6 +130,65 @@ Commands:
 
 ${f.commands.map(([c, w]) => `- \`${c}\` — ${w}`).join('\n')}
 `)
+
+  // Fantastic Team
+  out.push(`## ${t.fullName}
+
+URL: ${ORIGIN}/${t.slug}/
+Source: ${t.repo} · Roadmap: ${t.roadmap} · Board: ${t.board}
+Status: ${t.status}. License: ${t.license}.
+
+${t.tagline} ${t.heroSub}
+
+### ${t.what.title}
+
+${t.what.lead} ${t.what.text} Kinds of work: ${t.what.kinds.join(', ')}. ${t.what.note}
+
+### ${t.modes.title}
+
+${t.modes.lead}
+
+${t.modes.cards.map((c) => `- **${c.name}** (${c.tag}): ${c.text} ${c.points.join('; ')}.`).join('\n')}
+
+### ${t.how.title}
+
+${t.how.lead}
+
+${t.how.parts.map((p) => `- **${p.title}**: ${p.text}`).join('\n')}
+
+Path of a task: ${t.how.flow.join(' > ')}. ${t.how.flowNote}
+
+### ${t.ui.title}
+
+${t.ui.lead}
+
+${t.ui.points.map((p) => `- **${p.term}**: ${p.text}`).join('\n')}
+
+${t.ui.appNote} A screenshot is not yet on the page.
+
+### ${t.diff.title}
+
+${t.diff.items.map((d) => `- **${d.title}**: ${d.text}`).join('\n')}
+
+### ${t.start.title}
+
+${t.start.lead}
+
+${t.start.steps.map((s) => `${s.n}. **${s.title}.**\n\n\`\`\`\n${s.code}\n\`\`\`\n\n${s.note}`).join('\n\n')}
+
+${t.statusNote}
+`)
+
+  // Foundations
+  if (foundations) {
+    out.push(`## ${foundations.hub.headline}
+
+URL: ${ORIGIN}/fantastic/foundations/
+
+${foundations.hub.lead}
+`)
+    for (const n of foundations.published) out.push(articleMd(n))
+  }
 
   // Apps
   out.push(`## Apps

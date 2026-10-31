@@ -18,4 +18,53 @@
   <url><loc>https://aisixteen.com/storypole/</loc></url>
   <url><loc>https://aisixteen.com/aircore/</loc></url>
   <url><loc>https://aisixteen.com/fantastic/</loc></url>
+  <url><loc>https://aisixteen.com/team/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/protocol/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/protocol/idea/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/protocol/messages/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/protocol/call-gate/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/protocol/security/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/protocol/refusals/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/protocol/ledger/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/protocol/transports/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/protocol/contract/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/kernel/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/kernel/records/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/kernel/lifecycle/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/kernel/bundles/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/kernel/tasks/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/kernel/state/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/ai-agent/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/ai-agent/context-folding/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/ai-agent/forking/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/ai-agent/backends/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/memory-stores/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/credential-store/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/exec-bridge/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/file/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/mcp-client/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/web/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/bridge/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/scheduler/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/program-agents/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/static-loader/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/agents/agentic-resources/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/canvas/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/canvas/user/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/canvas/canvas/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/canvas/views/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/canvas/html-gl/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/canvas/skin/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/canvas/cabinet/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/canvas/web-mcp/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/canvas/home-store/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/canvas/page/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/canvas/system/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/build/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/build/bundle/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/build/program-agent/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/build/view/</loc></url>
+  <url><loc>https://aisixteen.com/fantastic/foundations/build/team/</loc></url>
 </urlset>

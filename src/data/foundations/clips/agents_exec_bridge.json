@@ -1,0 +1,29 @@
+{
+  "jobs": {
+    "duration": 10.8,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 115307,
+      "webp": 34756
+    }
+  },
+  "terminal": {
+    "duration": 13.4,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 127313,
+      "webp": 21868
+    }
+  },
+  "wire": {
+    "duration": 13.4,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 122606,
+      "webp": 24794
+    }
+  }
+}

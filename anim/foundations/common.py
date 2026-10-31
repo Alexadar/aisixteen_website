@@ -1,0 +1,156 @@
+"""Shared look for the Foundations animations: the site's colours and type.
+
+Colours come from src/site/site.css (:root). Text is Space Grotesk (titles), Inter (prose)
+and JetBrains Mono (code), registered from anim/.fonts (fetched by anim/render.sh, not
+committed). No LaTeX: every label is a Text.
+"""
+import inspect
+import json
+from pathlib import Path
+
+import manimpango
+from manim import (
+    BOLD, DOWN, LEFT, NORMAL, RIGHT, UP, UL, ORIGIN,
+    Arrow, Circle, Create, DashedLine, Dot, FadeIn, FadeOut, Line, Rectangle,
+    RoundedRectangle, Scene, Text, VGroup, config, linear, smooth, rate_functions,
+)
+
+FONTS = Path(__file__).resolve().parent.parent / ".fonts"
+REGISTRY = Path(__file__).resolve().parents[2] / "src" / "data" / "foundations" / "registry.json"
+for _f in sorted(FONTS.glob("*.ttf")):
+    manimpango.register_font(str(_f))
+
+# site.css tokens
+BG = "#0b1020"
+PANEL = "#121a31"
+PANEL_HI = "#18223f"
+INK = "#e6e9f2"
+MUTED = "#aab2c8"
+DIM = "#8891a8"
+FAINT = "#4d5672"
+LINE = "#2b3555"
+BRAND = "#7c5cff"
+CYAN = "#55d3ff"
+BLUE = "#3d82d8"
+GREEN = "#4fc27a"
+VIOLET = "#b48cff"
+AMBER = "#f2c94c"
+RED = "#ff6b81"
+
+DISPLAY = "Space Grotesk"
+BODY = "Inter"
+MONO = "JetBrains Mono"
+
+config.background_color = BG
+config.frame_rate = 30
+
+
+def txt(s, size=26, color=INK, weight=NORMAL, font=BODY):
+    return Text(s, font=font, font_size=size, color=color, weight=weight)
+
+
+def mono(s, size=22, color=INK, weight=NORMAL):
+    return Text(s, font=MONO, font_size=size, color=color, weight=weight)
+
+
+def card(w, h, stroke=LINE, fill=PANEL, r=0.16, sw=2, opacity=1.0):
+    return RoundedRectangle(corner_radius=r, width=w, height=h, stroke_color=stroke,
+                            stroke_width=sw, fill_color=fill, fill_opacity=opacity)
+
+
+class Node(VGroup):
+    """A rounded box with a centred mono label: an agent, a task, a row."""
+
+    def __init__(self, label, w=None, h=0.62, color=BLUE, size=22, fill_alpha=0.16, text_color=INK, font=MONO):
+        self.label = Text(label, font=font, font_size=size, color=text_color)
+        width = w if w is not None else self.label.width + 0.5
+        self.box = RoundedRectangle(corner_radius=0.12, width=width, height=h, stroke_color=color,
+                                    stroke_width=2.4, fill_color=color, fill_opacity=fill_alpha)
+        self.label.move_to(self.box)
+        super().__init__(self.box, self.label)
+        self.color_ = color
+
+    def tinted(self, color, alpha=0.22):
+        """An animation target: the same node in another colour."""
+        return self.box.animate.set_stroke(color).set_fill(color, opacity=alpha)
+
+
+def pill(s, color=GREEN, size=20):
+    t = mono(s, size=size, color=color)
+    b = RoundedRectangle(corner_radius=0.17, width=t.width + 0.36, height=t.height + 0.24,
+                         stroke_color=color, stroke_width=1.6, fill_color=color, fill_opacity=0.12)
+    t.move_to(b)
+    return VGroup(b, t)
+
+
+def connector(a, b, color=LINE, sw=2.2):
+    """An elbow-free tree edge from the bottom of a to the top of b."""
+    return Line(a.get_bottom(), b.get_top(), color=color, stroke_width=sw)
+
+
+def panel(title, w, h, x, y=0.15):
+    """A titled panel: a card at (x, y) with a small mono title above its top-left corner."""
+    c = card(w, h).move_to([x, y, 0])
+    t = mono(title, size=17, color=DIM).next_to(c, UP, buff=0.14).align_to(c, LEFT).shift(RIGHT * 0.06)
+    return c, t
+
+
+def eyebrow(pillar, article=None):
+    """THE clip eyebrow format, used by every clip: "<Pillar> · <Article>", or "<Pillar>" alone
+    on a pillar page. Both are the registry's `short` names; FScene.header() upper-cases it."""
+    return pillar if not article or article == pillar else f"{pillar} · {article}"
+
+
+def eyebrow_for(key):
+    """The eyebrow of article `key`, from registry.json: its pillar (the root of its branch) and
+    its own short name. Intermediate sections are skipped: "Agents · Context folding"."""
+    nodes = {n["key"]: n for n in json.loads(REGISTRY.read_text())["nodes"]}
+    if key not in nodes:
+        raise KeyError(f"{key!r} is not in {REGISTRY.name}; the scene file must be named <key>.py")
+    root = nodes[key]
+    while root["parent"]:
+        root = nodes[root["parent"]]
+    return eyebrow(root["short"], None if root is nodes[key] else nodes[key]["short"])
+
+
+class FScene(Scene):
+    """A Foundations clip: eyebrow + title top left, one narration line at the bottom.
+
+    The eyebrow is not set by hand: header() derives it from the scene file's name (the article
+    key) with eyebrow_for(), so every clip reads "<Pillar> · <Article>". Set only TITLE.
+    """
+
+    TITLE = ""
+
+    def header(self):
+        if getattr(self, "EYEBROW", None) is not None:
+            raise TypeError(f"{type(self).__name__}: do not set EYEBROW; it comes from eyebrow_for(<file key>)")
+        key = Path(inspect.getfile(type(self))).stem
+        eb = mono(eyebrow_for(key).upper(), size=19, color="#8dbbff")
+        dot = Dot(radius=0.045, color=CYAN).next_to(eb, LEFT, buff=0.16)
+        ti = txt(self.TITLE, size=38, weight=BOLD, font=DISPLAY)
+        g = VGroup(VGroup(dot, eb), ti).arrange(DOWN, aligned_edge=LEFT, buff=0.16)
+        g.to_corner(UL, buff=0.5)
+        self.add(g)
+        self._note = None
+        return g
+
+    def say(self, s, wait=0.0, color=MUTED):
+        """Swap the narration line (bottom centre)."""
+        new = txt(s, size=28, color=color)
+        if new.width > 13.2:
+            new.scale_to_fit_width(13.2)
+        new.move_to([0, -3.42, 0])
+        if self._note is None:
+            self.play(FadeIn(new, shift=UP * 0.12), run_time=0.45)
+        else:
+            self.play(FadeOut(self._note, shift=UP * 0.12), FadeIn(new, shift=UP * 0.12), run_time=0.45)
+        self._note = new
+        if wait:
+            self.wait(wait)
+
+    def finish(self, hold=2.2):
+        """Hold the final state (the poster frame), then fade to the background so the loop is seamless."""
+        self.wait(hold)
+        self.play(*[FadeOut(m) for m in self.mobjects], run_time=0.6)
+        self.wait(0.25)

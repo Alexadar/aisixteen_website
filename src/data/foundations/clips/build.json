@@ -1,0 +1,11 @@
+{
+  "bundle": {
+    "duration": 12.43,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 129002,
+      "webp": 26708
+    }
+  }
+}

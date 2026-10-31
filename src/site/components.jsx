@@ -60,6 +60,7 @@ export const Footer = ({ year }) => (
         <b>Links</b>
         <a className="nav__link" href="/#apps">All apps</a>
         <a className="nav__link" href="/fantastic/">Fantastic</a>
+        <a className="nav__link" href="/fantastic/foundations/">Foundations</a>
         <a className="nav__link" href="/#privacy">Privacy</a>
         <a className="nav__link" href={`mailto:${SITE.email}`}>Contact</a>
       </div>
@@ -405,11 +406,11 @@ export const Landing = ({ app, more, fantastic, year }) => (
 )
 
 // `code` spans in README-sourced copy.
-const Md = ({ children }) => String(children).split('`').map((part, i) => (i % 2 ? <code key={i}>{part}</code> : part))
+export const Md = ({ children }) => String(children).split('`').map((part, i) => (i % 2 ? <code key={i}>{part}</code> : part))
 
 const fmtTime = (t) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}`
 
-const CopyLine = ({ code }) => (
+export const CopyLine = ({ code }) => (
   <div className="fx-install-line">
     <span className="fx-hero__prompt">$</span>
     <code>{code}</code>
@@ -443,7 +444,7 @@ const HeroVideo = ({ v }) => (
 const Chip = ({ f, s }) => <span className={`fx-chip fx-chip--${s}`}>{f.statuses[s].label}</span>
 
 // Section header used across the landing: mono eyebrow, big title, optional lead.
-const Head = ({ eyebrow, title, lead, center = false, id }) => (
+export const Head = ({ eyebrow, title, lead, center = false, id }) => (
   <header className={`fl-head${center ? ' fl-head--center' : ''}`} data-reveal="">
     <p className="fl-eyebrow"><span className="fl-eyebrow__dot" />{eyebrow}</p>
     <h2 className="fl-title" id={id}>{title}</h2>
@@ -456,7 +457,7 @@ const StarIcon = () => (
     <path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" />
   </svg>
 )
-const GitHubCta = ({ f, label = 'Star on GitHub', primary = false }) => (
+export const GitHubCta = ({ f, label = 'Star on GitHub', primary = false }) => (
   <a className={`btn ${primary ? 'btn--primary' : 'btn--ghost'} fl-gh`} href={f.repo} target="_blank" rel="noreferrer">
     <GitHubIcon /> {label} {!primary && <StarIcon />}
   </a>
@@ -733,6 +734,11 @@ const Kernel = ({ f }) => {
             <p className="fl-tile__text">{f.security}</p>
           </div>
         </article>
+        <a className="fl-tile fl-tile--wide fl-foundations" data-reveal="" href="/fantastic/foundations/">
+          <span className="fl-tile__kicker">Foundations</span>
+          <span className="fl-foundations__title">How it works, one mechanism at a time <span className="card__arrow">&rarr;</span></span>
+          <span className="fl-tile__text">Articles with short animations: 1. Kernel: agents and messaging · 2. Context folding.</span>
+        </a>
       </div>
     </section>
   )
@@ -777,7 +783,8 @@ const Canvas = ({ f }) => (
 
 const Build = ({ f }) => (
   <section className="fl-section" id="build" aria-labelledby="build-title">
-    <Head eyebrow="What you can build" id="build-title" title={<>Whatever you imagine.<br /><span className="grad">Built with an AI.</span></>} />
+    <Head eyebrow="What you can build" id="build-title" title={<>Whatever you imagine.<br /><span className="grad">Built with an AI.</span></>}
+      lead={<>Already built on it: <a className="fx-link" href="/team/">Fantastic Team</a>, unattended team work where a team of AI agents takes your queued tasks and hands back results to review.</>} />
     <div className="fl-build">
       {f.build.map((b) => (
         <article className={`fl-build__card fl-build--${b.key}`} key={b.key} data-reveal="">
@@ -907,7 +914,8 @@ export const FantasticPage = ({ f, year }) => (
         <p className="fl-hero__meta fl-in" style={{ '--d': '.3s' }}>
           <img src={asset(f.icon)} alt="" width="20" height="20" /> {f.fullName} · {f.status} · macOS, Linux &amp; Windows ·{' '}
           <a className="fx-link" href={f.crate} target="_blank" rel="noreferrer">crates.io</a> ·{' '}
-          <a className="fx-link" href={f.roadmap} target="_blank" rel="noreferrer">roadmap</a>
+          <a className="fx-link" href={f.roadmap} target="_blank" rel="noreferrer">roadmap</a> ·{' '}
+          <a className="fx-link" href="/fantastic/foundations/">how it works</a>
         </p>
         <div className="fl-hero__video fl-in" style={{ '--d': '.38s' }}><HeroVideo v={f.video} /></div>
       </section>

@@ -1,0 +1,38 @@
+{
+  "chain": {
+    "duration": 11.0,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 103169,
+      "webp": 17854
+    }
+  },
+  "nudge": {
+    "duration": 10.9,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 113681,
+      "webp": 28442
+    }
+  },
+  "pass": {
+    "duration": 11.1,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 119917,
+      "webp": 30422
+    }
+  },
+  "pause": {
+    "duration": 12.67,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 103398,
+      "webp": 20146
+    }
+  }
+}

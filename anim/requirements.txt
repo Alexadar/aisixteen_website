@@ -1,0 +1,2 @@
+# Manim Community for the Foundations animations (anim/render.sh installs it into anim/.venv).
+manim==0.22.0

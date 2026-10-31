@@ -1,0 +1,38 @@
+{
+  "cascade": {
+    "duration": 9.63,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 88463,
+      "webp": 20552
+    }
+  },
+  "choose": {
+    "duration": 8.23,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 93495,
+      "webp": 30000
+    }
+  },
+  "file": {
+    "duration": 7.63,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 88242,
+      "webp": 21250
+    }
+  },
+  "owners": {
+    "duration": 9.6,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 96033,
+      "webp": 19538
+    }
+  }
+}

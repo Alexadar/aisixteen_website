@@ -1,0 +1,29 @@
+{
+  "background": {
+    "duration": 10.27,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 112241,
+      "webp": 24366
+    }
+  },
+  "skin": {
+    "duration": 9.7,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 115759,
+      "webp": 21406
+    }
+  },
+  "three": {
+    "duration": 9.23,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 125930,
+      "webp": 32440
+    }
+  }
+}

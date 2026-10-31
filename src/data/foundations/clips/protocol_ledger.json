@@ -1,0 +1,29 @@
+{
+  "deadletter": {
+    "duration": 11.1,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 119036,
+      "webp": 24760
+    }
+  },
+  "ledger": {
+    "duration": 15.07,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 177676,
+      "webp": 30890
+    }
+  },
+  "stop": {
+    "duration": 9.9,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 125549,
+      "webp": 29948
+    }
+  }
+}

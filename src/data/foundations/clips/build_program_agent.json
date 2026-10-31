@@ -1,0 +1,29 @@
+{
+  "save": {
+    "duration": 8.83,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 85242,
+      "webp": 26304
+    }
+  },
+  "scaffold": {
+    "duration": 8.73,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 100224,
+      "webp": 28438
+    }
+  },
+  "verb": {
+    "duration": 9.23,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 108136,
+      "webp": 23750
+    }
+  }
+}

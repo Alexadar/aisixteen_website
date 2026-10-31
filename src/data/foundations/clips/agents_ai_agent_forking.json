@@ -1,0 +1,29 @@
+{
+  "folds": {
+    "duration": 10.93,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 118081,
+      "webp": 28604
+    }
+  },
+  "fork": {
+    "duration": 14.53,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 175655,
+      "webp": 35652
+    }
+  },
+  "warm": {
+    "duration": 11.63,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 118590,
+      "webp": 31890
+    }
+  }
+}

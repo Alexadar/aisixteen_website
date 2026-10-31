@@ -1,0 +1,38 @@
+{
+  "checks": {
+    "duration": 8.5,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 93408,
+      "webp": 33004
+    }
+  },
+  "docs": {
+    "duration": 8.13,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 93546,
+      "webp": 35852
+    }
+  },
+  "record": {
+    "duration": 8.93,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 111516,
+      "webp": 31072
+    }
+  },
+  "twin": {
+    "duration": 8.9,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 103894,
+      "webp": 31392
+    }
+  }
+}

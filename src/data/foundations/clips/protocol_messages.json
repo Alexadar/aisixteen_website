@@ -1,0 +1,29 @@
+{
+  "batch": {
+    "duration": 14.87,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 158855,
+      "webp": 32244
+    }
+  },
+  "reflect": {
+    "duration": 10.93,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 153570,
+      "webp": 47826
+    }
+  },
+  "statuses": {
+    "duration": 10.0,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 149439,
+      "webp": 37286
+    }
+  }
+}

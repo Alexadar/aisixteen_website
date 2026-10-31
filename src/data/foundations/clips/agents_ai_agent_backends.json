@@ -1,0 +1,29 @@
+{
+  "caching": {
+    "duration": 9.4,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 122493,
+      "webp": 35080
+    }
+  },
+  "retries": {
+    "duration": 9.83,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 132862,
+      "webp": 31676
+    }
+  },
+  "surface": {
+    "duration": 10.7,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 139160,
+      "webp": 32202
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "create": {
+    "duration": 10.8,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 147273,
+      "webp": 46504
+    }
+  },
+  "delete": {
+    "duration": 13.1,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 168710,
+      "webp": 40156
+    }
+  },
+  "start": {
+    "duration": 13.23,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 163951,
+      "webp": 45916
+    }
+  },
+  "stop": {
+    "duration": 13.93,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 179521,
+      "webp": 42820
+    }
+  }
+}

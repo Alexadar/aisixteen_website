@@ -1,0 +1,29 @@
+{
+  "frames": {
+    "duration": 13.27,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 111491,
+      "webp": 20034
+    }
+  },
+  "lifetime": {
+    "duration": 9.9,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 100893,
+      "webp": 21544
+    }
+  },
+  "watch": {
+    "duration": 11.43,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 97116,
+      "webp": 21514
+    }
+  }
+}

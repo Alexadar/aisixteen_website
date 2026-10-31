@@ -1,0 +1,29 @@
+{
+  "cards": {
+    "duration": 9.53,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 117927,
+      "webp": 32906
+    }
+  },
+  "limits": {
+    "duration": 12.1,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 114520,
+      "webp": 21246
+    }
+  },
+  "tasks": {
+    "duration": 10.0,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 107357,
+      "webp": 25014
+    }
+  }
+}

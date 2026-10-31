@@ -1,0 +1,29 @@
+{
+  "forward": {
+    "duration": 10.3,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 113470,
+      "webp": 23792
+    }
+  },
+  "gate": {
+    "duration": 9.53,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 100457,
+      "webp": 19712
+    }
+  },
+  "inquiry": {
+    "duration": 10.1,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 110529,
+      "webp": 21730
+    }
+  }
+}

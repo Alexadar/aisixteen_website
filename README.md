@@ -127,3 +127,28 @@ reveals, the /fantastic/ reel, the video), that the reel keeps one size on every
 drawings inside it, and that no script throws. Install the browsers once with
 `npx playwright install chromium firefox webkit`, or run one, e.g. `--project=chromium`.
 The `Layout tests` workflow runs all of them on every pull request.
+
+## Foundations (articles and Manim animations)
+
+`/fantastic/foundations/` is a tree of pages (GitHub issue aisixteen/fantastic#443). The tree is
+`src/data/foundations/registry.json` (key, path, title, parent, order, status published|planned);
+each page's text is its own file `src/data/foundations/articles/<key>.js`; pages are rendered by
+`src/site/foundations.jsx`, loaded and checked by `scripts/foundations-data.mjs` (the build fails
+loudly on a missing file, caption or clip). Planned pages get a noindex placeholder and stay out of
+the sitemap and `llms-full.txt`. How to write a page: `src/data/foundations/STYLE.md`.
+
+Each article's animations are [Manim Community](https://www.manim.community/) scenes in
+`anim/foundations/<key>.py` (shared look in `common.py`), each file declaring its `CLIPS` and `OG`:
+
+```bash
+anim/render.sh --list                     # every article and its clips
+anim/render.sh --article protocol_call_gate   # every clip of one article
+anim/render.sh protocol_call_gate/gate    # one clip
+anim/render.sh --preview --article canvas # quick 480p contact sheets in anim/.out/<key>/, nothing published
+```
+
+It needs `uv`, `ffmpeg` and `curl`; it creates `anim/.venv`, fetches the site's fonts into
+`anim/.fonts`, renders at 1080p and writes a 720p H.264 MP4, a VP9 WebM and a WebP poster per clip
+(and `og.jpg` for the `OG` clip) to `media/fantastic/foundations/<path>/`, plus that article's
+durations in `src/data/foundations/clips/<key>.json`. Only those final files are committed; the
+venv, fonts, Manim's media dir and raw renders are gitignored. Then `npm run build` as usual.

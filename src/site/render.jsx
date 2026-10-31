@@ -1,6 +1,8 @@
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { Home, Landing, NotFound, FantasticPage } from './components.jsx'
+import { TeamPage } from './team.jsx'
+import { FoundationsIndex, FoundationsPage, FoundationsComing, BASE } from './foundations.jsx'
 import { SITE, appStoreUrl, faqsOf, claimOf } from './theme.js'
 
 const esc = (s) => String(s)
@@ -15,7 +17,7 @@ const ORG = {
   email: SITE.email,
 }
 
-function doc({ title, description, canonical, ogImage, jsonld = [], robots = 'index, follow, max-image-preview:large', body }) {
+function doc({ title, description, canonical, ogImage, ogType = 'website', extraMeta = '', jsonld = [], robots = 'index, follow, max-image-preview:large', body }) {
   const ld = jsonld.map((o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`).join('\n')
   const img = ogImage ? `\n<meta property="og:image" content="${ogImage}">\n<meta name="twitter:image" content="${ogImage}">` : ''
   return `<!DOCTYPE html>
@@ -27,14 +29,14 @@ function doc({ title, description, canonical, ogImage, jsonld = [], robots = 'in
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="${canonical}">
 <meta name="robots" content="${robots}">
-<meta property="og:type" content="website">
+<meta property="og:type" content="${ogType}">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${canonical}">
 <meta property="og:site_name" content="${SITE.name}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(title)}">
-<meta name="twitter:description" content="${esc(description)}">${img}
+<meta name="twitter:description" content="${esc(description)}">${img}${extraMeta}
 <link rel="icon" type="image/png" href="/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -161,6 +163,42 @@ export function renderFantastic(f, { year }) {
   })
 }
 
+// Fantastic Team: free open-source developer software, alpha, built from source; no
+// rating, release or price beyond free is asserted. Every value mirrors visible text.
+export function renderTeam(t, { year }) {
+  const url = `${SITE.origin}/${t.slug}/`
+  const softwareApp = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: t.fullName,
+    description: t.summary,
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Linux, macOS',
+    url,
+    sameAs: [t.repo],
+    license: 'https://www.gnu.org/licenses/agpl-3.0.html',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher: { '@type': 'Organization', name: SITE.name, url: SITE.origin },
+  }
+  const sourceCode = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareSourceCode',
+    name: t.fullName,
+    codeRepository: t.repo,
+    license: 'https://www.gnu.org/licenses/agpl-3.0.html',
+    programmingLanguage: 'Rust',
+    targetProduct: { '@type': 'SoftwareApplication', name: t.fullName, url },
+  }
+  return doc({
+    title: `${t.name} — unattended team work, a team of AI agents | AISixteen`,
+    description: t.summary,
+    canonical: url,
+    ogImage: `${SITE.origin}/logo.png`,
+    jsonld: [ORG, softwareApp, sourceCode, crumbs([['AISixteen', `${SITE.origin}/`], ['Fantastic Team', url]])],
+    body: renderToStaticMarkup(<TeamPage t={t} year={year} />),
+  })
+}
+
 export function renderNotFound({ year }) {
   return doc({
     title: 'Page not found — AISixteen',
@@ -170,4 +208,137 @@ export function renderNotFound({ year }) {
     jsonld: [ORG],
     body: renderToStaticMarkup(<NotFound year={year} />),
   })
+}
+
+/* ---------------- /fantastic/foundations/ ---------------- */
+// Every published page is a TechArticle with a BreadcrumbList (the full tree path) and a
+// VideoObject per Manim clip, referenced from the article by @id. Every value mirrors text
+// visible on the page. Planned pages are noindex placeholders; old URLs get a redirect page.
+
+const ORIGIN = SITE.origin
+const FOUNDATIONS_URL = `${ORIGIN}${BASE}`
+const isoDuration = (s) => { const t = Math.round(s); return `PT${t >= 60 ? `${Math.floor(t / 60)}M` : ''}${t % 60}S` }
+const crumbs = (items) => ({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map(([name, item], i) => ({ '@type': 'ListItem', position: i + 1, name, item })),
+})
+const crumbPath = (n) => [['AISixteen', `${ORIGIN}/`], ['Fantastic', `${ORIGIN}/fantastic/`], ['Foundations', FOUNDATIONS_URL],
+  ...n.ancestors.map((a) => [a.title, `${ORIGIN}${a.url}`]), [n.title, `${ORIGIN}${n.url}`]]
+const publisher = { '@type': 'Organization', name: SITE.name, url: ORIGIN, logo: { '@type': 'ImageObject', url: `${ORIGIN}/logo.png` } }
+const videoId = (c) => `${ORIGIN}${c.files.webm}#video`
+
+function videoLd(c, uploadDate) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    '@id': videoId(c),
+    name: c.title,
+    description: c.caption,
+    thumbnailUrl: `${ORIGIN}${c.files.poster}`,
+    contentUrl: `${ORIGIN}${c.files.webm}`,
+    encodingFormat: 'video/webm',
+    uploadDate,
+    duration: isoDuration(c.meta.duration),
+    width: c.meta.width,
+    height: c.meta.height,
+    isFamilyFriendly: true,
+    inLanguage: 'en',
+    publisher,
+  }
+}
+
+export function renderFoundationsIndex(F, { year, modified }) {
+  const collection = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: F.hub.headline,
+    description: F.hub.description,
+    url: FOUNDATIONS_URL,
+    inLanguage: 'en',
+    isPartOf: { '@type': 'WebSite', name: SITE.name, url: ORIGIN },
+    about: { '@type': 'SoftwareApplication', name: 'Aisixteen Fantastic', url: `${ORIGIN}/fantastic/` },
+    dateModified: modified,
+    hasPart: F.published.map((n) => ({ '@type': 'TechArticle', headline: n.article.headline, url: `${ORIGIN}${n.url}` })),
+  }
+  return doc({
+    title: 'Foundations — how Aisixteen Fantastic works | AISixteen',
+    description: F.hub.description,
+    canonical: FOUNDATIONS_URL,
+    ogImage: `${ORIGIN}${F.hub.og}`,
+    jsonld: [ORG, collection, crumbs([['AISixteen', `${ORIGIN}/`], ['Fantastic', `${ORIGIN}/fantastic/`], ['Foundations', FOUNDATIONS_URL]])],
+    body: renderToStaticMarkup(<FoundationsIndex F={F} year={year} />),
+  })
+}
+
+export function renderFoundationsPage(F, n, { year, modified }) {
+  const a = n.article
+  const url = `${ORIGIN}${n.url}`
+  const published = `${F.hub.published}T00:00:00+00:00`
+  const parent = n.ancestors[n.ancestors.length - 1]
+  const article = {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: a.headline,
+    name: n.title,
+    description: a.description,
+    url,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    image: `${ORIGIN}${n.og}`,
+    datePublished: F.hub.published,
+    dateModified: modified,
+    author: { '@type': 'Organization', name: SITE.name, url: ORIGIN },
+    publisher,
+    inLanguage: 'en',
+    isPartOf: parent
+      ? { '@type': 'WebPage', name: parent.title, url: `${ORIGIN}${parent.url}` }
+      : { '@type': 'CollectionPage', name: F.hub.headline, url: FOUNDATIONS_URL },
+    about: a.about.map((name) => ({ '@type': 'Thing', name })),
+    video: n.clips.map((c) => ({ '@id': videoId(c) })),
+  }
+  const seen = new Set()
+  const clips = n.clips.filter((c) => !seen.has(c.key) && seen.add(c.key)).map((c) => videoLd(c, published))
+  return doc({
+    title: `${n.title} — Foundations of Aisixteen Fantastic | AISixteen`,
+    description: a.description,
+    canonical: url,
+    ogImage: `${ORIGIN}${n.og}`,
+    ogType: 'article',
+    extraMeta: `\n<meta property="article:published_time" content="${F.hub.published}">\n<meta property="article:modified_time" content="${modified}">\n<meta property="article:section" content="Foundations">`,
+    jsonld: [ORG, article, crumbs(crumbPath(n)), ...clips],
+    body: renderToStaticMarkup(<FoundationsPage F={F} n={n} year={year} modified={modified} />),
+  })
+}
+
+export function renderFoundationsComing(F, n, { year }) {
+  return doc({
+    title: `${n.title} (coming) — Foundations of Aisixteen Fantastic | AISixteen`,
+    description: `${n.title}: a planned page of Foundations, the series on how Aisixteen Fantastic works. Not written yet.`,
+    canonical: `${ORIGIN}${n.url}`,
+    ogImage: `${ORIGIN}${n.pillar.og || F.hub.og}`,
+    robots: 'noindex, follow',
+    jsonld: [ORG, crumbs(crumbPath(n))],
+    body: renderToStaticMarkup(<FoundationsComing F={F} n={n} year={year} />),
+  })
+}
+
+// An old URL: a static redirect page (meta refresh, canonical to the new place, noindex).
+export function renderRedirect(to, title) {
+  const href = `${ORIGIN}${to}`
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moved: ${esc(title)} | AISixteen</title>
+<link rel="canonical" href="${href}">
+<meta name="robots" content="noindex, follow">
+<meta http-equiv="refresh" content="0; url=${to}">
+<style>body{margin:0;padding:40px 20px;background:#0b1020;color:#e6e9f2;font:16px/1.6 system-ui,sans-serif}a{color:#55d3ff}</style>
+</head>
+<body>
+<p>This page has moved to <a href="${to}">${esc(title)}</a>.</p>
+</body>
+</html>
+`
 }

@@ -1,0 +1,29 @@
+{
+  "peers": {
+    "duration": 12.83,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 115030,
+      "webp": 20490
+    }
+  },
+  "reflect": {
+    "duration": 9.53,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 98331,
+      "webp": 27750
+    }
+  },
+  "table": {
+    "duration": 10.5,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 101135,
+      "webp": 23116
+    }
+  }
+}

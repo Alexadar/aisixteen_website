@@ -1,0 +1,29 @@
+{
+  "folder": {
+    "duration": 11.8,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 135289,
+      "webp": 27984
+    }
+  },
+  "resolve": {
+    "duration": 9.87,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 125396,
+      "webp": 31924
+    }
+  },
+  "twin": {
+    "duration": 8.03,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 110377,
+      "webp": 43638
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "layers": {
+    "duration": 10.8,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 110147,
+      "webp": 20070
+    }
+  },
+  "lock": {
+    "duration": 9.3,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 96987,
+      "webp": 24706
+    }
+  },
+  "refusal": {
+    "duration": 9.37,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 104763,
+      "webp": 25406
+    }
+  }
+}

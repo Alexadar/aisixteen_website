@@ -1,0 +1,29 @@
+{
+  "closed": {
+    "duration": 9.8,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 110113,
+      "webp": 21276
+    }
+  },
+  "hydrate": {
+    "duration": 8.9,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 93219,
+      "webp": 31294
+    }
+  },
+  "reapply": {
+    "duration": 9.97,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 139055,
+      "webp": 34662
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "apply": {
+    "duration": 9.13,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 80854,
+      "webp": 23388
+    }
+  },
+  "blueprint": {
+    "duration": 11.43,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 122767,
+      "webp": 28174
+    }
+  },
+  "guard": {
+    "duration": 10.83,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 113886,
+      "webp": 29120
+    }
+  }
+}

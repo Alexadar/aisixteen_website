@@ -1,0 +1,29 @@
+{
+  "legs": {
+    "duration": 9.07,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 158137,
+      "webp": 42822
+    }
+  },
+  "named": {
+    "duration": 8.7,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 105518,
+      "webp": 26970
+    }
+  },
+  "replay": {
+    "duration": 10.07,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 145752,
+      "webp": 34730
+    }
+  }
+}

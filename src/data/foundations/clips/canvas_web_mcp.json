@@ -1,0 +1,29 @@
+{
+  "config_file": {
+    "duration": 9.1,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 111321,
+      "webp": 33952
+    }
+  },
+  "inquiry": {
+    "duration": 10.3,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 114302,
+      "webp": 21918
+    }
+  },
+  "two_layers": {
+    "duration": 11.07,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 122793,
+      "webp": 23382
+    }
+  }
+}

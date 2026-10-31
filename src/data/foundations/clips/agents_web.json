@@ -1,0 +1,38 @@
+{
+  "duplicates": {
+    "duration": 9.3,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 106480,
+      "webp": 28740
+    }
+  },
+  "file": {
+    "duration": 12.9,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 129025,
+      "webp": 29018
+    }
+  },
+  "guard": {
+    "duration": 13.8,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 132540,
+      "webp": 22498
+    }
+  },
+  "mount": {
+    "duration": 11.23,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 129088,
+      "webp": 32512
+    }
+  }
+}

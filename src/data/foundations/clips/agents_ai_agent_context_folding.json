@@ -1,0 +1,38 @@
+{
+  "cache": {
+    "duration": 12.47,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 168268,
+      "webp": 45758
+    }
+  },
+  "fold": {
+    "duration": 13.97,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 195802,
+      "webp": 43976
+    }
+  },
+  "forget": {
+    "duration": 12.5,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 169739,
+      "webp": 37094
+    }
+  },
+  "levels": {
+    "duration": 14.2,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 176480,
+      "webp": 28848
+    }
+  }
+}

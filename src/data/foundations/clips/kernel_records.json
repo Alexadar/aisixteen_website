@@ -1,0 +1,29 @@
+{
+  "record": {
+    "duration": 10.97,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 142404,
+      "webp": 41322
+    }
+  },
+  "reflect": {
+    "duration": 11.5,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 161400,
+      "webp": 32876
+    }
+  },
+  "tree": {
+    "duration": 12.0,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 117950,
+      "webp": 27504
+    }
+  }
+}

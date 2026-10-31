@@ -1,0 +1,29 @@
+{
+  "bridge": {
+    "duration": 12.63,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 115195,
+      "webp": 22092
+    }
+  },
+  "carriers": {
+    "duration": 13.0,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 167563,
+      "webp": 31364
+    }
+  },
+  "legs": {
+    "duration": 12.43,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 119600,
+      "webp": 30842
+    }
+  }
+}

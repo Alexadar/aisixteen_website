@@ -1,0 +1,29 @@
+{
+  "edit": {
+    "duration": 11.8,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 116437,
+      "webp": 24802
+    }
+  },
+  "text": {
+    "duration": 12.7,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 139704,
+      "webp": 29018
+    }
+  },
+  "watch": {
+    "duration": 11.2,
+    "width": 1280,
+    "height": 720,
+    "bytes": {
+      "webm": 116183,
+      "webp": 27806
+    }
+  }
+}
