@@ -93,6 +93,9 @@ export function renderHome(apps, featured, { year, fantastic, posts }) {
     ogImage: `${SITE.origin}/logo.png`,
     ogImageAlt: 'AISixteen logo',
     jsonld: [ORG, WEBSITE, itemList],
+    // Old App Store marketing links point at home anchors (e.g. /#ephemeris-sky): forward an app's
+    // anchor to that app's page before paint. Section anchors (#privacy, #apps…) are not app slugs.
+    extraHead: `\n<script>(function(){var s=${JSON.stringify(apps.map((a) => a.slug))},h=location.hash.slice(1);if(s.indexOf(h)>=0)location.replace('/'+h+'/')})()</script>`,
     body: renderToStaticMarkup(<Home apps={apps} featured={featured} fantastic={fantastic} posts={posts} year={year} />),
   })
 }
