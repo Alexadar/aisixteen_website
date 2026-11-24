@@ -327,3 +327,68 @@ export const apps = [
 
 // The app spotlighted in the home hero's "Featured" card.
 export const featuredSlug = 'ephemeris-sky'
+
+// App-specific questions, shown first in each app page's FAQ (and mirrored in FAQPage JSON-LD).
+// Every answer restates the app's own store description or README — no prices, no ratings.
+const QA = {
+  'ephemeris-sky': [
+    { q: 'Which house systems does Ephemeris Sky support?', a: 'Six: Placidus, Koch, Whole Sign, Equal, Campanus and Regiomontanus. The Ascendant, Midheaven, Descendant and IC are computed with all twelve cusps, drawn on the wheel and listed by sign and degree.' },
+    { q: 'How accurate are the planetary positions?', a: 'Positions are geocentric and tropical, referred to the equinox of date. They are validated against NASA/JPL Horizons across 1900–2100: better than 7 arcminutes for every body, typically under 2.' },
+    { q: 'What if the birth time is unknown?', a: 'Positions still compute. Houses and angles are left out, with an explanation, rather than calculated from an assumed noon, and Moon contacts carry the range the missing time leaves open.' },
+    { q: 'Does Ephemeris Sky write horoscopes or predictions?', a: 'No. It computes positions, aspects, houses, dignities, returns and cycle dates and shows the numbers. It does not interpret a chart or predict anything.' },
+  ],
+  'kerf-calc': [
+    { q: 'How precise is the feet-inch-fraction math?', a: 'You enter dimensions as you read them off a tape, for example 8\' 4-1/2", and read the result to the fraction you set, from 1/8 down to 1/64. Area and volume work on the same tape: 10\' × 8\' is 80 sq ft, and × 4" is 26.67 cu ft.' },
+    { q: 'Which calculators are in Kerf Calc?', a: 'Framing (common, hip, valley and jack rafters; stairs with riser, tread and headroom checks; right angle and pitch), concrete (slabs, footings and columns in yards, bags and trucks, with a waste allowance), rebar (ASTM A615 sizes, weights and laps), materials (roofing squares, drywall, paint, block, brick, pavers, board feet, compound miter) and unit conversion.' },
+    { q: 'Does Kerf Calc replace the building code or an engineer?', a: 'No. It is a field calculator. Each tool shows its formula and the code or standard it cites, and you still verify against the code adopted where you build.' },
+  ],
+  'earth-around': [
+    { q: 'Where does Earth Around get its data?', a: 'From public feeds: NOAA\'s Space Weather Prediction Center for the G, R and S scales, solar wind, Bz and GOES X-ray flux, and GFZ for the Hp30 index.' },
+    { q: 'What is Hp30, and how is it different from Kp?', a: 'Kp is the planetary geomagnetic index published for 3-hour intervals. Hp30 is a Kp-like index from GFZ with a 30-minute cadence, so a short, sharp disturbance shows up sooner than it does in Kp.' },
+    { q: 'Does a high aurora chance mean I will see the aurora?', a: 'Not by itself. Earth Around shows tonight\'s aurora chance and the view line; whether you see anything also depends on darkness and cloud where you stand.' },
+  ],
+  'marine-nav': [
+    { q: 'How does Marine Nav predict tides with no signal?', a: 'It carries NOAA\'s published harmonic constants for its stations and runs the harmonic synthesis on the device. Times are shown in the station\'s own time zone, labelled.' },
+    { q: 'What are the limits of the predictions?', a: 'Tides are the astronomical tide only, with no storm surge or wind effect. Currents are along the major axis only. Declination is the core field of the World Magnetic Model 2025. The app is an aid to planning, not a substitute for official tide tables, charts or prudent seamanship.' },
+    { q: 'What has it been checked against?', a: 'Tides and currents against NOAA\'s own published predictions, declination against the official WMM2025 test values, distance and bearing against Vincenty\'s and Karney\'s published geodesic test data, and sight reduction against the worked example in Bowditch.' },
+  ],
+  'truecourse-e6b': [
+    { q: 'What does the wind triangle solve?', a: 'Heading, groundspeed, wind-correction angle, and the crosswind and headwind components, with a live vector diagram. It can also derive the wind aloft from a measured track and groundspeed.' },
+    { q: 'Where do the formulas come from?', a: 'From published sources: the FAA-H-8083 handbooks and the ICAO Standard Atmosphere. True airspeed is computed from calibrated airspeed with pressure altitude and temperature.' },
+  ],
+  storypole: [
+    { q: 'Does Storypole measure with the camera?', a: 'No. There is no camera and no AR ruler. Storypole does the math on a measurement you already took with a real tape.' },
+    { q: 'Which on-center spacings does the layout tool mark?', a: '16", 19.2" and 24", with the odd last bay stated. Equal spacing gives the full list of marks to pull, not just a count.' },
+    { q: 'Where do the reference values come from?', a: 'The Reference tab names the standard behind each sourced value, including NIST PS 20-20 for dressed lumber sizes and NBS Handbook 100 for wire gauge. Values with no published source are labelled as derived: 19.2" on center is 96" ÷ 5.' },
+  ],
+  aircore: [
+    { q: 'Which air properties can AirCore solve from?', a: 'Any two of seven: dry bulb, wet bulb, dew point, relative humidity, humidity ratio, enthalpy and specific volume. The rest of the moist-air state is solved and plotted on a psychrometric chart.' },
+    { q: 'What does AirCore not do?', a: 'It computes air properties and sizes. It has no fitting library and does not do load calculations.' },
+    { q: 'What is the psychrometric math checked against?', a: 'Against CoolProp and IAPWS-95 reference values, which are independent of the relations the app implements, and against published psychrometric-table anchors.' },
+  ],
+  par: [
+    { q: 'Which calculators are in Par?', a: 'Ten: time value of money, amortization, bonds, cash flow, day count, depreciation, percent, rate conversion, real estate and statistics.' },
+    { q: 'What does “cites its sources” mean?', a: 'Each displayed result names the authority its method follows, such as the US Treasury, CFPB Regulation Z and Regulation DD, the IRS or NIST, so a number can be checked rather than taken on trust.' },
+  ],
+  'golden-ratio-calculator': [
+    { q: 'How are the three values related?', a: 'The whole is the greater part plus the lesser part. The greater part is the whole × 0.618, the lesser part is the whole × 0.382, and the whole is the greater part × 1.618. Enter any one and the other two follow.' },
+  ],
+}
+apps.forEach((a) => { a.qa = QA[a.slug] || [] })
+
+// One line under each blog index title (also its meta description). Max 160 characters.
+const BLOG_INTRO = {
+  'ephemeris-sky': 'How ephemerides, house systems and chart geometry work, explained as astronomy and arithmetic. No interpretation, no predictions.',
+  'typing-mill': 'How touch typing is learned and how typing speed is measured, with the research behind the advice.',
+  'kerf-calc': 'Construction math worked by hand: feet-inch fractions, stair layout to code, and the allowances a cut list needs.',
+  'earth-around': 'What the space-weather numbers mean: Kp, the NOAA scales, Hp30, solar wind and Bz, and what they say about tonight\'s aurora.',
+  'marine-nav': 'How tide and current predictions are computed, what they leave out, and how to read them safely.',
+  'truecourse-e6b': 'The E6B calculations worked by hand: density altitude, the wind triangle and crosswind components.',
+  par: 'Loan and yield arithmetic worked by hand: payments, amortization, APR, APY and day-count conventions.',
+  storypole: 'Layout on the job site: on-center spacing, equal spacing, and the real sizes of lumber.',
+  aircore: 'Air-side HVAC math: where the rule-of-thumb factors come from and how elevation changes them.',
+  'overtone-lab': 'Audio and room-acoustics calculations worked through: reverberation time, room modes and where each formula stops being valid.',
+  'golden-ratio-calculator': 'The golden ratio as arithmetic: the constants, the three multiplications, and honest notes on where it is and is not found.',
+  'indox-text': 'On-device text summarization: how it works, what it is good for and how to verify that nothing is uploaded.',
+}
+apps.forEach((a) => { a.blogIntro = BLOG_INTRO[a.slug] })

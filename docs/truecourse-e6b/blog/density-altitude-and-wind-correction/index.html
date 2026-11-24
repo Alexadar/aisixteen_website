@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How do you calculate density altitude and wind correction angle?</title>
+<meta name="description" content="Pressure altitude, density altitude, wind correction angle, groundspeed and crosswind component worked by hand, with the rule of thumb beside the exact value.">
+<link rel="canonical" href="https://aisixteen.com/truecourse-e6b/blog/density-altitude-and-wind-correction/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b1020">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How do you calculate density altitude and wind correction angle?">
+<meta property="og:description" content="Pressure altitude, density altitude, wind correction angle, groundspeed and crosswind component worked by hand, with the rule of thumb beside the exact value.">
+<meta property="og:url" content="https://aisixteen.com/truecourse-e6b/blog/density-altitude-and-wind-correction/">
+<meta property="og:site_name" content="AISixteen">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How do you calculate density altitude and wind correction angle?">
+<meta name="twitter:description" content="Pressure altitude, density altitude, wind correction angle, groundspeed and crosswind component worked by hand, with the rule of thumb beside the exact value.">
+<meta property="og:image" content="https://aisixteen.com/truecourse/screenshot.png">
+<meta property="og:image:alt" content="TrueCourse E6B screenshot">
+<meta name="twitter:image" content="https://aisixteen.com/truecourse/screenshot.png">
+<meta name="apple-itunes-app" content="app-id=6788926819">
+<meta property="article:published_time" content="2026-11-24">
+<meta property="article:modified_time" content="2026-11-24">
+<meta name="author" content="AISixteen">
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="apple-touch-icon" href="/logo.png">
+<link rel="preload" href="/assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css?v=0e7f320f3e">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348},"description":"Independent developer of Aisixteen Fantastic, an open-source kernel of agents, and of small, fast, private apps for iPhone, iPad, Mac and Apple Watch.","email":"info@aisixteen.com","sameAs":["https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206","https://github.com/aisixteen"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","@id":"https://aisixteen.com/truecourse-e6b/blog/density-altitude-and-wind-correction/#post","mainEntityOfPage":{"@type":"WebPage","@id":"https://aisixteen.com/truecourse-e6b/blog/density-altitude-and-wind-correction/"},"headline":"How do you calculate density altitude and wind correction angle?","description":"Pressure altitude, density altitude, wind correction angle, groundspeed and crosswind component worked by hand, with the rule of thumb beside the exact value.","datePublished":"2026-11-24","dateModified":"2026-11-24","inLanguage":"en","wordCount":995,"image":["https://aisixteen.com/truecourse/screenshot.png","https://aisixteen.com/truecourse/screenshot-960.webp"],"author":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"},"publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348}},"isPartOf":{"@type":"Blog","@id":"https://aisixteen.com/truecourse-e6b/blog/#blog","name":"TrueCourse E6B guides"},"about":{"@type":"SoftwareApplication","@id":"https://aisixteen.com/truecourse-e6b/#app","name":"TrueCourse E6B","description":"A modern E6B flight computer for student pilots, GA pilots, and CFIs — the digital whiz wheel you are taught to use for the FAA knowledge exam and every flight after it. Solve the wind triangle, true airspeed and Mach, density and pressure altitude, nav log, fuel, climb and descent, and weight & balance with a live CG envelope. Every number comes from validated, published formulas (FAA-H-8083 handbooks and the ICAO Standard Atmosphere).","applicationCategory":"UtilitiesApplication","operatingSystem":"iOS, iPadOS, macOS","url":"https://aisixteen.com/truecourse-e6b/","installUrl":"https://apps.apple.com/app/id6788926819","image":"https://aisixteen.com/truecourse/screenshot.png","publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"}}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisixteen.com/"},{"@type":"ListItem","position":2,"name":"TrueCourse E6B","item":"https://aisixteen.com/truecourse-e6b/"},{"@type":"ListItem","position":3,"name":"Guides","item":"https://aisixteen.com/truecourse-e6b/blog/"},{"@type":"ListItem","position":4,"name":"How do you calculate density altitude and wind correction angle?","item":"https://aisixteen.com/truecourse-e6b/blog/density-altitude-and-wind-correction/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the formula for density altitude?","acceptedAnswer":{"@type":"Answer","text":"A common approximation is pressure altitude + 120 × (outside air temperature − standard temperature), in feet and °C. Standard temperature is 15 °C minus 2 °C per 1,000 ft of pressure altitude."}},{"@type":"Question","name":"How do you calculate crosswind quickly?","acceptedAnswer":{"@type":"Answer","text":"Multiply the wind speed by the sine of the angle between the wind and the runway: half the wind at 30°, about 70% at 45°, nearly all of it at 60° and beyond."}},{"@type":"Question","name":"Does humidity affect density altitude?","acceptedAnswer":{"@type":"Answer","text":"Yes, slightly. Humid air is less dense than dry air at the same pressure and temperature, so it raises density altitude. The standard formulas ignore it."}}]}</script>
+</head>
+<body>
+<div class="page acc" style="--accent:#2fd4e8"><a class="skip" href="#main">Skip to content</a><header class="site-header"><div class="site-header__inner"><a class="brand" href="/" aria-label="AISixteen home"><img src="/logo-96.webp" alt="" width="28" height="32"/><span class="brand__name">AISixteen</span></a><nav class="nav" aria-label="Main"><a class="nav__link" href="/#apps">Apps</a><a class="nav__link" href="/#guides">Guides</a><a class="nav__link" href="/fantastic/">Fantastic</a><a class="btn btn--primary btn--sm nav__cta" href="mailto:info@aisixteen.com">Get in touch</a></nav></div></header><main id="main"><nav class="crumbs wrap" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/truecourse-e6b/">TrueCourse E6B</a></li><li><a href="/truecourse-e6b/blog/">Guides</a></li><li><span aria-current="page">How do you calculate density altitude and wind correction angle?</span></li></ol></nav><div class="wrap"><article class="article"><header class="article__head"><a class="byapp" href="/truecourse-e6b/"><img src="/truecourse/icon-160.webp" alt="" width="28" height="28"/>TrueCourse E6B</a><h1 class="article__title">How do you calculate density altitude and wind correction angle?</h1><p class="article__meta"><span>By AISixteen</span><span>Published <time dateTime="2026-11-24">November 24, 2026</time></span><span>5 min read</span></p><p class="answer"><b>Short answer</b>Pressure altitude is field elevation plus 1,000 ft for each inch the altimeter setting is below 29.92. Density altitude is roughly pressure altitude plus 120 ft for every °C above standard temperature. Wind correction angle is the angle whose sine is wind speed × sin(wind angle) ÷ true airspeed.</p></header><nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">In this guide</h2><ol><li><a href="#how-do-you-find-pressure-altitude">How do you find pressure altitude?</a></li><li><a href="#how-do-you-find-density-altitude">How do you find density altitude?</a></li><li><a href="#how-do-you-solve-the-wind-triangle">How do you solve the wind triangle?</a></li><li><a href="#how-do-you-find-the-crosswind-component-for-landing">How do you find the crosswind component for landing?</a></li><li><a href="#why-does-true-airspeed-differ-from-indicated-airspeed">Why does true airspeed differ from indicated airspeed?</a></li><li><a href="#where-does-truecourse-e6b-fit">Where does TrueCourse E6B fit?</a></li><li><a href="#frequently-asked-questions">Frequently asked questions</a></li><li><a href="#sources">Sources</a></li></ol></nav><div class="prose"><p>These are the calculations an E6B flight computer exists for, and the ones a knowledge test expects you to understand. Working each once by hand shows what the computer is doing and gives you a way to catch a mis-keyed entry.</p>
+<figure class="figure"><img src="/truecourse/screenshot-960.webp" alt="TrueCourse E6B wind triangle solving a heading of 104 degrees with a vector diagram" width="960" height="600" loading="lazy" decoding="async"><figcaption>TrueCourse E6B: the wind triangle with its vector diagram.</figcaption></figure>
+<h2 id="how-do-you-find-pressure-altitude">How do you find pressure altitude?</h2>
+<p>Pressure altitude is what the altimeter reads when it is set to 29.92 inHg. From the current setting:</p>
+<p><strong>Pressure altitude = field elevation + (29.92 − altimeter setting) × 1,000</strong></p>
+<p>Example: field elevation 5,000 ft, altimeter 29.72. The difference is 0.20 inHg, worth 200 ft. Pressure altitude = <strong>5,200 ft</strong>. A setting above 29.92 lowers it instead.</p>
+<p>The 1,000 ft per inch figure is an approximation that holds well near sea level and is the one the FAA handbooks teach.</p>
+<h2 id="how-do-you-find-density-altitude">How do you find density altitude?</h2>
+<p>Density altitude is pressure altitude corrected for temperature: the altitude in the standard atmosphere where the air is as thin as the air you are in. The aircraft performs as if it were there.</p>
+<ol>
+<li><strong>Standard temperature</strong> at your pressure altitude: 15 °C at sea level, falling 2 °C per 1,000 ft. At 5,200 ft: 15 − 10.4 = <strong>4.6 °C</strong>.</li>
+<li><strong>Deviation</strong> from standard: with 30 °C outside, 30 − 4.6 = <strong>25.4 °C</strong> warmer.</li>
+<li><strong>Rule of thumb:</strong> 120 ft for each °C. 25.4 × 120 = 3,048 ft.</li>
+</ol>
+<p>Density altitude ≈ 5,200 + 3,048 = <strong>about 8,250 ft</strong>.</p>
+<p>On a warm afternoon the aeroplane at a 5,000 ft airport takes off as if the runway were at 8,250 ft: a longer ground roll, a slower climb and less power from a normally aspirated engine.</p>
+<p>The 120 ft rule is linear, and the real relationship is not. Computed from the ICAO Standard Atmosphere, the density altitude for this case is about 8,050 ft, some 200 ft lower than the rule of thumb. Here the rule errs on the cautious side, and the size of the gap changes with altitude and temperature, which is one reason to use a computed value for performance planning. Humidity raises density altitude a little and is in neither figure.</p>
+<h2 id="how-do-you-solve-the-wind-triangle">How do you solve the wind triangle?</h2>
+<p>You know your true course, your true airspeed, and the wind. You want the heading to hold and the groundspeed you will make.</p>
+<p>Worked example: true course 090°, true airspeed 120 kt, wind from 160° at 30 kt.</p>
+<ol>
+<li><strong>Wind angle</strong> between the course and the wind direction: 160 − 90 = 70°, from the right.</li>
+<li><strong>Wind correction angle:</strong> sin(WCA) = 30 × sin 70° ÷ 120 = 0.235, so WCA = <strong>13.6°</strong>. The wind is from the right, so correct to the right.</li>
+<li><strong>True heading:</strong> 090 + 13.6 = <strong>104°</strong>.</li>
+<li><strong>Groundspeed:</strong> 120 × cos 13.6° − 30 × cos 70° = 116.6 − 10.3 = <strong>106 kt</strong>.</li>
+</ol>
+<p>The formulas:</p>
+<ul>
+<li><strong>WCA = arcsin( wind speed × sin(wind angle) ÷ TAS )</strong></li>
+<li><strong>Groundspeed = TAS × cos(WCA) − wind speed × cos(wind angle)</strong></li>
+</ul>
+<p>Then apply magnetic variation and compass deviation to turn the true heading into the one you fly.</p>
+<h2 id="how-do-you-find-the-crosswind-component-for-landing">How do you find the crosswind component for landing?</h2>
+<p>Same trigonometry, with the runway in place of the course.</p>
+<p><strong>Crosswind = wind speed × sin(angle between wind and runway)</strong>
+<strong>Headwind = wind speed × cos(angle)</strong></p>
+<div class="table-wrap" tabindex="0" role="group" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Angle off the runway</th>
+<th>Crosswind as a share of wind speed</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>10°</td>
+<td>17%</td>
+</tr>
+<tr>
+<td>20°</td>
+<td>34%</td>
+</tr>
+<tr>
+<td>30°</td>
+<td>50%</td>
+</tr>
+<tr>
+<td>45°</td>
+<td>71%</td>
+</tr>
+<tr>
+<td>60°</td>
+<td>87%</td>
+</tr>
+<tr>
+<td>90°</td>
+<td>100%</td>
+</tr>
+</tbody></table></div>
+<p>Runway 27 with the wind 300° at 20 kt: the angle is 30°, so the crosswind is <strong>10 kt</strong> and the headwind 17 kt. Compare the crosswind with the maximum demonstrated crosswind in your aircraft&#39;s handbook, and with your own limits. Runway numbers are magnetic, and tower and ATIS winds are magnetic; winds in METARs and forecasts are true.</p>
+<h2 id="why-does-true-airspeed-differ-from-indicated-airspeed">Why does true airspeed differ from indicated airspeed?</h2>
+<p>The airspeed indicator measures the pressure of the air hitting the pitot tube, and thin air pushes less. At altitude the aeroplane is moving faster through the air than the needle shows. A common approximation is that true airspeed is about 2% higher than calibrated airspeed for each 1,000 ft of density altitude. At a density altitude of 8,000 ft, 110 kt calibrated is about 124 kt true; the rule of thumb gives 128. The exact figure comes from the air density at your pressure altitude and temperature.</p>
+<h2 id="where-does-truecourse-e6b-fit">Where does TrueCourse E6B fit?</h2>
+<p><a href="/truecourse-e6b/">TrueCourse E6B</a> is an E6B flight computer for student pilots, GA pilots and CFIs. It solves the wind triangle with a live vector diagram (heading, groundspeed, wind correction angle and the crosswind and headwind components), true airspeed and Mach, density, pressure and true altitude, a nav log, fuel, climb and descent, and weight and balance with a CG envelope. Its numbers come from published formulas in the FAA-H-8083 handbooks and the ICAO Standard Atmosphere. It works offline with no account. It is a training and planning aid: the aircraft&#39;s flight manual and current official weather remain the authority for any flight.</p>
+<h2 id="frequently-asked-questions">Frequently asked questions</h2>
+<h3 id="what-is-the-formula-for-density-altitude">What is the formula for density altitude?</h3>
+<p>A common approximation is pressure altitude + 120 × (outside air temperature − standard temperature), in feet and °C. Standard temperature is 15 °C minus 2 °C per 1,000 ft of pressure altitude.</p>
+<h3 id="how-do-you-calculate-crosswind-quickly">How do you calculate crosswind quickly?</h3>
+<p>Multiply the wind speed by the sine of the angle between the wind and the runway: half the wind at 30°, about 70% at 45°, nearly all of it at 60° and beyond.</p>
+<h3 id="does-humidity-affect-density-altitude">Does humidity affect density altitude?</h3>
+<p>Yes, slightly. Humid air is less dense than dry air at the same pressure and temperature, so it raises density altitude. The standard formulas ignore it.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>FAA, <em>Pilot&#39;s Handbook of Aeronautical Knowledge</em> (FAA-H-8083-25), chapters on flight instruments, aircraft performance and navigation: <a href="https://www.faa.gov/regulations_policies/handbooks_manuals/aviation/phak" target="_blank" rel="noopener">faa.gov</a></li>
+<li>ICAO Doc 7488, <em>Manual of the ICAO Standard Atmosphere</em>.</li>
+</ul>
+</div><aside class="app-cta acc" style="--accent:#2fd4e8" aria-label="About TrueCourse E6B"><img class="app-cta__icon" src="/truecourse/icon-160.webp" alt="" width="72" height="72" loading="lazy" decoding="async"/><div><h2 class="app-cta__name">TrueCourse E6B</h2><p class="app-cta__text">The E6B you can trust on a checkride. On-device, no account, works offline.</p></div><div class="app-cta__actions"><a class="btn btn--appstore" href="https://apps.apple.com/app/id6788926819" target="_blank" rel="noreferrer" aria-label="Download TrueCourse E6B on the App Store"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M16.365 1.43c0 1.14-.42 2.2-1.12 2.98-.85.94-2.24 1.66-3.4 1.57-.13-1.1.44-2.28 1.1-3.02.75-.85 2.06-1.5 3.42-1.53zM20.44 17.1c-.55 1.27-.82 1.84-1.53 2.97-.99 1.57-2.38 3.53-4.1 3.54-1.53.02-1.92-1-4-1-2.07 0-2.5.98-4.03 1.02-1.72.03-3.03-1.7-4.02-3.27-2.77-4.4-3.06-9.55-1.35-12.3 1.21-1.94 3.13-3.08 4.93-3.08 1.84 0 2.99 1.01 4.5 1.01 1.47 0 2.36-1.01 4.5-1.01 1.6 0 3.3.87 4.5 2.38-3.96 2.17-3.31 7.82.6 9.62z"></path></svg><span class="as-lines"><span class="as-top">Download on the</span><span class="as-big">App Store</span></span></a><a class="tlink" href="/truecourse-e6b/">What TrueCourse E6B does</a></div></aside></article></div></main><footer class="site-footer"><div class="wrap"><div class="footer"><div><div class="footer__brand-row"><img src="/logo-96.webp" alt="" width="28" height="32"/><span>AISixteen</span></div><p>Small, fast, private apps for iPhone, iPad, Mac and Apple Watch, and Fantastic, an open-source kernel of agents.</p><a class="btn btn--ghost btn--sm" href="mailto:info@aisixteen.com">info@aisixteen.com</a></div><nav aria-label="Apps"><h2>Apps</h2><ul class="footer__apps"><li><a href="/ephemeris-sky/">Ephemeris Sky</a></li><li><a href="/overtone-lab/">Overtone Lab</a></li><li><a href="/indox-text/">Indox Text</a></li><li><a href="/typing-mill/">Typing Mill</a></li><li><a href="/golden-ratio-calculator/">Golden Ratio Calculator</a></li><li><a href="/golden-ratio-calculator-lite/">Golden Ratio Calculator Lite</a></li><li><a href="/big-pink-cat/">Big Pink Cat</a></li><li><a href="/skyscraper-frog/">Skyscraper Frog</a></li><li><a href="/monstro-shooter/">Monstro Shooter</a></li><li><a href="/kerf-calc/">Kerf Calc</a></li><li><a href="/truecourse-e6b/">TrueCourse E6B</a></li><li><a href="/earth-around/">Earth Around</a></li><li><a href="/marine-nav/">Marine Nav</a></li><li><a href="/par/">Par</a></li><li><a href="/storypole/">Storypole</a></li><li><a href="/aircore/">AirCore</a></li></ul></nav><nav aria-label="More"><h2>Guides</h2><ul><li><a href="/ephemeris-sky/blog/">Ephemeris Sky guides</a></li><li><a href="/overtone-lab/blog/">Overtone Lab guides</a></li><li><a href="/indox-text/blog/">Indox Text guides</a></li><li><a href="/typing-mill/blog/">Typing Mill guides</a></li><li><a href="/golden-ratio-calculator/blog/">Golden Ratio Calculator guides</a></li><li><a href="/kerf-calc/blog/">Kerf Calc guides</a></li><li><a href="/truecourse-e6b/blog/">TrueCourse E6B guides</a></li><li><a href="/earth-around/blog/">Earth Around guides</a></li><li><a href="/marine-nav/blog/">Marine Nav guides</a></li><li><a href="/par/blog/">Par guides</a></li><li><a href="/storypole/blog/">Storypole guides</a></li><li><a href="/aircore/blog/">AirCore guides</a></li></ul><h2 style="margin-top:22px">AISixteen</h2><ul><li><a href="/fantastic/">Fantastic</a></li><li><a href="/#privacy">Privacy</a></li><li><a href="https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206" target="_blank" rel="noreferrer">App Store developer page</a></li><li><a href="https://github.com/aisixteen" target="_blank" rel="noreferrer">GitHub</a></li></ul></nav></div><div class="footer__bottom"><span>© 2026 AISixteen</span><span>No accounts. No tracking.</span></div></div></footer></div>
+<script src="/assets/site.js?v=0e7f320f3e" defer></script>
+</body>
+</html>

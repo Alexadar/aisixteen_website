@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How do you add, subtract and divide feet, inches and fractions?</title>
+<meta name="description" content="Feet-inch-fraction math by hand: convert to inches, work in sixteenths, convert back. Worked examples, a decimal-to-fraction table and the saw-kerf allowance.">
+<link rel="canonical" href="https://aisixteen.com/kerf-calc/blog/feet-inch-fraction-math/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b1020">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How do you add, subtract and divide feet, inches and fractions?">
+<meta property="og:description" content="Feet-inch-fraction math by hand: convert to inches, work in sixteenths, convert back. Worked examples, a decimal-to-fraction table and the saw-kerf allowance.">
+<meta property="og:url" content="https://aisixteen.com/kerf-calc/blog/feet-inch-fraction-math/">
+<meta property="og:site_name" content="AISixteen">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How do you add, subtract and divide feet, inches and fractions?">
+<meta name="twitter:description" content="Feet-inch-fraction math by hand: convert to inches, work in sixteenths, convert back. Worked examples, a decimal-to-fraction table and the saw-kerf allowance.">
+<meta property="og:image" content="https://aisixteen.com/kerfcalc/screenshot.png">
+<meta property="og:image:alt" content="Kerf Calc screenshot">
+<meta name="twitter:image" content="https://aisixteen.com/kerfcalc/screenshot.png">
+<meta name="apple-itunes-app" content="app-id=6788179502">
+<meta property="article:published_time" content="2026-11-24">
+<meta property="article:modified_time" content="2026-11-24">
+<meta name="author" content="AISixteen">
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="apple-touch-icon" href="/logo.png">
+<link rel="preload" href="/assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css?v=0e7f320f3e">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348},"description":"Independent developer of Aisixteen Fantastic, an open-source kernel of agents, and of small, fast, private apps for iPhone, iPad, Mac and Apple Watch.","email":"info@aisixteen.com","sameAs":["https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206","https://github.com/aisixteen"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","@id":"https://aisixteen.com/kerf-calc/blog/feet-inch-fraction-math/#post","mainEntityOfPage":{"@type":"WebPage","@id":"https://aisixteen.com/kerf-calc/blog/feet-inch-fraction-math/"},"headline":"How do you add, subtract and divide feet, inches and fractions?","description":"Feet-inch-fraction math by hand: convert to inches, work in sixteenths, convert back. Worked examples, a decimal-to-fraction table and the saw-kerf allowance.","datePublished":"2026-11-24","dateModified":"2026-11-24","inLanguage":"en","wordCount":985,"image":["https://aisixteen.com/kerfcalc/screenshot.png","https://aisixteen.com/kerfcalc/screenshot-960.webp"],"author":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"},"publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348}},"isPartOf":{"@type":"Blog","@id":"https://aisixteen.com/kerf-calc/blog/#blog","name":"Kerf Calc guides"},"about":{"@type":"SoftwareApplication","@id":"https://aisixteen.com/kerf-calc/#app","name":"Kerf Calc","description":"Kerf Calc is the offline construction field calculator that just works — no account, no subscription. Punch feet-inch-fraction dimensions like a tape, then run rafters, stairs to code, concrete, rebar, roofing, drywall and more — each tool shows the exact formula and the code it cites (IRC, ASTM, NIST, ACI).","applicationCategory":"UtilitiesApplication","operatingSystem":"iOS, iPadOS, macOS","url":"https://aisixteen.com/kerf-calc/","installUrl":"https://apps.apple.com/app/id6788179502","image":"https://aisixteen.com/kerfcalc/screenshot.png","publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"}}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisixteen.com/"},{"@type":"ListItem","position":2,"name":"Kerf Calc","item":"https://aisixteen.com/kerf-calc/"},{"@type":"ListItem","position":3,"name":"Guides","item":"https://aisixteen.com/kerf-calc/blog/"},{"@type":"ListItem","position":4,"name":"How do you add, subtract and divide feet, inches and fractions?","item":"https://aisixteen.com/kerf-calc/blog/feet-inch-fraction-math/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is 0.625 inches as a fraction?","acceptedAnswer":{"@type":"Answer","text":"0.625\" is 5/8\". Multiply the decimal by 16 to get sixteenths: 0.625 × 16 = 10, and 10/16 reduces to 5/8."}},{"@type":"Question","name":"How many inches is 12 feet 2 and 1/4 inches?","acceptedAnswer":{"@type":"Answer","text":"146.25 inches: 12 × 12 = 144, plus 2.25."}},{"@type":"Question","name":"Should I measure in sixteenths or thirty-seconds?","acceptedAnswer":{"@type":"Answer","text":"Framing is normally laid out to the nearest 1/16\". Finish carpentry and cabinet work often go to 1/32\". Pick one precision for the job and round each mark from the exact value, not from the previous mark."}}]}</script>
+</head>
+<body>
+<div class="page acc" style="--accent:#c9e34a"><a class="skip" href="#main">Skip to content</a><header class="site-header"><div class="site-header__inner"><a class="brand" href="/" aria-label="AISixteen home"><img src="/logo-96.webp" alt="" width="28" height="32"/><span class="brand__name">AISixteen</span></a><nav class="nav" aria-label="Main"><a class="nav__link" href="/#apps">Apps</a><a class="nav__link" href="/#guides">Guides</a><a class="nav__link" href="/fantastic/">Fantastic</a><a class="btn btn--primary btn--sm nav__cta" href="mailto:info@aisixteen.com">Get in touch</a></nav></div></header><main id="main"><nav class="crumbs wrap" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/kerf-calc/">Kerf Calc</a></li><li><a href="/kerf-calc/blog/">Guides</a></li><li><span aria-current="page">How do you add, subtract and divide feet, inches and fractions?</span></li></ol></nav><div class="wrap"><article class="article"><header class="article__head"><a class="byapp" href="/kerf-calc/"><img src="/kerfcalc/icon-160.webp" alt="" width="28" height="28"/>Kerf Calc</a><h1 class="article__title">How do you add, subtract and divide feet, inches and fractions?</h1><p class="article__meta"><span>By AISixteen</span><span>Published <time dateTime="2026-11-24">November 24, 2026</time></span><span>4 min read</span></p><p class="answer"><b>Short answer</b>Convert every dimension to inches, do the arithmetic, then convert back: divide by 12 for the feet and multiply the decimal remainder by 16 for sixteenths. 8&#x27; 4-1/2&quot; + 3&#x27; 9-3/4&quot; is 100.5&quot; + 45.75&quot; = 146.25&quot;, which is 12&#x27; 2-1/4&quot;.</p></header><nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">In this guide</h2><ol><li><a href="#how-do-you-add-feet-inches-and-fractions-by-hand">How do you add feet, inches and fractions by hand?</a></li><li><a href="#how-do-you-turn-a-decimal-into-a-tape-fraction">How do you turn a decimal into a tape fraction?</a></li><li><a href="#how-do-you-divide-a-length-into-equal-parts-without-the-error-adding-up">How do you divide a length into equal parts without the error adding up?</a></li><li><a href="#how-do-feet-and-inches-multiply-into-area-and-volume">How do feet and inches multiply into area and volume?</a></li><li><a href="#what-is-saw-kerf-and-when-does-it-matter">What is saw kerf, and when does it matter?</a></li><li><a href="#how-do-inches-convert-to-millimetres-exactly">How do inches convert to millimetres exactly?</a></li><li><a href="#where-does-kerf-calc-fit">Where does Kerf Calc fit?</a></li><li><a href="#frequently-asked-questions">Frequently asked questions</a></li><li><a href="#sources">Sources</a></li></ol></nav><div class="prose"><p>A tape measure speaks in feet, inches and fractions; a pocket calculator speaks in decimals. Most layout mistakes happen in the translation between the two. This guide shows the method that always works, with numbers you can check.</p>
+<figure class="figure"><img src="/kerfcalc/screenshot-960.webp" alt="Kerf Calc rafter tool on Mac, showing the inputs, the formula and the cut length" width="960" height="600" loading="lazy" decoding="async"><figcaption>Kerf Calc on Mac: every tool works in feet, inches and fractions and shows its formula.</figcaption></figure>
+<h2 id="how-do-you-add-feet-inches-and-fractions-by-hand">How do you add feet, inches and fractions by hand?</h2>
+<p>Turn each measurement into inches, add, and turn the total back.</p>
+<ol>
+<li><strong>To inches:</strong> feet × 12 + inches + fraction. So 8&#39; 4-1/2&quot; is 96 + 4 + 0.5 = <strong>100.5&quot;</strong>, and 3&#39; 9-3/4&quot; is 36 + 9 + 0.75 = <strong>45.75&quot;</strong>.</li>
+<li><strong>Add:</strong> 100.5 + 45.75 = <strong>146.25&quot;</strong>.</li>
+<li><strong>Back to feet:</strong> 146.25 ÷ 12 = 12 with 2.25 left over. That is 12 feet and 2.25 inches.</li>
+<li><strong>Back to a fraction:</strong> 0.25 × 16 = 4 sixteenths = 1/4.</li>
+</ol>
+<p>Result: <strong>12&#39; 2-1/4&quot;</strong>.</p>
+<p>Subtraction is the same road. 12&#39; 2-1/4&quot; − 5&#39; 7-5/8&quot; is 146.25 − 67.625 = 78.625&quot;. That is 6 feet (72&quot;) plus 6.625&quot;, and 0.625 × 16 = 10 sixteenths = 5/8. Result: <strong>6&#39; 6-5/8&quot;</strong>.</p>
+<h2 id="how-do-you-turn-a-decimal-into-a-tape-fraction">How do you turn a decimal into a tape fraction?</h2>
+<p>Multiply the decimal part by the denominator you want and round to the nearest whole number. For sixteenths, multiply by 16.</p>
+<div class="table-wrap" tabindex="0" role="group" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Decimal inch</th>
+<th>× 16</th>
+<th>Fraction</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0.0625</td>
+<td>1</td>
+<td>1/16</td>
+</tr>
+<tr>
+<td>0.125</td>
+<td>2</td>
+<td>1/8</td>
+</tr>
+<tr>
+<td>0.1875</td>
+<td>3</td>
+<td>3/16</td>
+</tr>
+<tr>
+<td>0.25</td>
+<td>4</td>
+<td>1/4</td>
+</tr>
+<tr>
+<td>0.3125</td>
+<td>5</td>
+<td>5/16</td>
+</tr>
+<tr>
+<td>0.375</td>
+<td>6</td>
+<td>3/8</td>
+</tr>
+<tr>
+<td>0.4375</td>
+<td>7</td>
+<td>7/16</td>
+</tr>
+<tr>
+<td>0.5</td>
+<td>8</td>
+<td>1/2</td>
+</tr>
+<tr>
+<td>0.5625</td>
+<td>9</td>
+<td>9/16</td>
+</tr>
+<tr>
+<td>0.625</td>
+<td>10</td>
+<td>5/8</td>
+</tr>
+<tr>
+<td>0.6875</td>
+<td>11</td>
+<td>11/16</td>
+</tr>
+<tr>
+<td>0.75</td>
+<td>12</td>
+<td>3/4</td>
+</tr>
+<tr>
+<td>0.8125</td>
+<td>13</td>
+<td>13/16</td>
+</tr>
+<tr>
+<td>0.875</td>
+<td>14</td>
+<td>7/8</td>
+</tr>
+<tr>
+<td>0.9375</td>
+<td>15</td>
+<td>15/16</td>
+</tr>
+</tbody></table></div>
+<p>The same trick works for any precision: multiply by 32 for thirty-seconds or by 64 for sixty-fourths.</p>
+<h2 id="how-do-you-divide-a-length-into-equal-parts-without-the-error-adding-up">How do you divide a length into equal parts without the error adding up?</h2>
+<p>Divide in decimals, but lay out from running totals, not by stepping the rounded part.</p>
+<p>Take 12&#39; 2-1/4&quot; (146.25&quot;) split into 7 equal parts. 146.25 ÷ 7 = 20.892857&quot;. To the nearest sixteenth that is 20-7/8&quot; (20.875&quot;), which is 0.018&quot; short each time. Step 20-7/8&quot; seven times and you land at 146.125&quot;, a full 1/8&quot; short of the end.</p>
+<p>Instead, multiply first and round each mark on its own:</p>
+<div class="table-wrap" tabindex="0" role="group" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Mark</th>
+<th>Exact (in)</th>
+<th>On the tape</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>20.893</td>
+<td>20-7/8&quot;</td>
+</tr>
+<tr>
+<td>2</td>
+<td>41.786</td>
+<td>41-13/16&quot;</td>
+</tr>
+<tr>
+<td>3</td>
+<td>62.679</td>
+<td>62-11/16&quot;</td>
+</tr>
+<tr>
+<td>4</td>
+<td>83.571</td>
+<td>83-9/16&quot;</td>
+</tr>
+<tr>
+<td>5</td>
+<td>104.464</td>
+<td>104-7/16&quot;</td>
+</tr>
+<tr>
+<td>6</td>
+<td>125.357</td>
+<td>125-3/8&quot;</td>
+</tr>
+<tr>
+<td>7</td>
+<td>146.25</td>
+<td>146-1/4&quot;</td>
+</tr>
+</tbody></table></div>
+<p>Every mark is now within 1/32&quot; of true, and the last one lands exactly on the end.</p>
+<h2 id="how-do-feet-and-inches-multiply-into-area-and-volume">How do feet and inches multiply into area and volume?</h2>
+<p>Convert to decimal feet before you multiply. A slab 10&#39; × 8&#39; is 80 sq ft. At 4&quot; thick, the depth is 4 ÷ 12 = 0.3333 ft, so the volume is 80 × 0.3333 = <strong>26.67 cu ft</strong>. Concrete is ordered by the cubic yard, and a cubic yard is 27 cu ft: 26.67 ÷ 27 = <strong>0.99 cu yd</strong> before any waste allowance.</p>
+<p>Do not multiply feet by inches directly. 10&#39; × 8&#39; × 4 gives 320, which is neither cubic feet nor anything else.</p>
+<h2 id="what-is-saw-kerf-and-when-does-it-matter">What is saw kerf, and when does it matter?</h2>
+<p>Kerf is the width of material a saw blade turns into dust. A full-kerf 10&quot; table-saw blade removes about 1/8&quot;; a thin-kerf blade removes about 3/32&quot;. Every cut costs one kerf, so a cut list has to include it.</p>
+<p>Example: an 8-foot board (96&quot;) cut into 19&quot; pieces with a 1/8&quot; blade.</p>
+<ul>
+<li>Five pieces need 5 × 19&quot; = 95&quot;, plus four cuts between them: 4 × 1/8&quot; = 1/2&quot;. Total 95-1/2&quot;. It fits, with 1/2&quot; left.</li>
+<li>Six 16&quot; pieces need 96&quot; of wood plus five kerfs (5/8&quot;). The board is 5/8&quot; too short, even though 6 × 16 = 96.</li>
+</ul>
+<p>The general rule: <strong>stock needed = pieces × length + cuts × kerf</strong>.</p>
+<h2 id="how-do-inches-convert-to-millimetres-exactly">How do inches convert to millimetres exactly?</h2>
+<p>One inch is exactly 25.4 mm. This is a definition, not a rounding: the international yard was fixed at 0.9144 m in 1959. So 3/4&quot; is 19.05 mm and a sixteenth is 1.5875 mm. Going the other way, 100 mm is 3.937&quot;, just under 3-15/16&quot;.</p>
+<h2 id="where-does-kerf-calc-fit">Where does Kerf Calc fit?</h2>
+<p><a href="/kerf-calc/">Kerf Calc</a> is a field calculator that keeps the whole calculation in feet, inches and fractions. You enter dimensions the way you read them off the tape and read the result to the fraction you choose, from 1/8 down to 1/64. Area and volume work on the same tape. Each tool shows the formula it used. It works offline and has no account. It is a calculator, not a substitute for the code adopted where you build.</p>
+<p>Next: <a href="/kerf-calc/blog/stair-rise-and-run-to-code/">how to calculate stair rise and run to code</a>.</p>
+<h2 id="frequently-asked-questions">Frequently asked questions</h2>
+<h3 id="what-is-0-625-inches-as-a-fraction">What is 0.625 inches as a fraction?</h3>
+<p>0.625&quot; is 5/8&quot;. Multiply the decimal by 16 to get sixteenths: 0.625 × 16 = 10, and 10/16 reduces to 5/8.</p>
+<h3 id="how-many-inches-is-12-feet-2-and-1-4-inches">How many inches is 12 feet 2 and 1/4 inches?</h3>
+<p>146.25 inches: 12 × 12 = 144, plus 2.25.</p>
+<h3 id="should-i-measure-in-sixteenths-or-thirty-seconds">Should I measure in sixteenths or thirty-seconds?</h3>
+<p>Framing is normally laid out to the nearest 1/16&quot;. Finish carpentry and cabinet work often go to 1/32&quot;. Pick one precision for the job and round each mark from the exact value, not from the previous mark.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>NIST Special Publication 811, <em>Guide for the Use of the International System of Units</em>, Appendix B (the inch is exactly 25.4 mm): <a href="https://www.nist.gov/pml/special-publication-811" target="_blank" rel="noopener">nist.gov</a></li>
+</ul>
+</div><aside class="app-cta acc" style="--accent:#c9e34a" aria-label="About Kerf Calc"><img class="app-cta__icon" src="/kerfcalc/icon-160.webp" alt="" width="72" height="72" loading="lazy" decoding="async"/><div><h2 class="app-cta__name">Kerf Calc</h2><p class="app-cta__text">The field calculator that shows its work. On-device, no account, works offline.</p></div><div class="app-cta__actions"><a class="btn btn--appstore" href="https://apps.apple.com/app/id6788179502" target="_blank" rel="noreferrer" aria-label="Download Kerf Calc on the App Store"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M16.365 1.43c0 1.14-.42 2.2-1.12 2.98-.85.94-2.24 1.66-3.4 1.57-.13-1.1.44-2.28 1.1-3.02.75-.85 2.06-1.5 3.42-1.53zM20.44 17.1c-.55 1.27-.82 1.84-1.53 2.97-.99 1.57-2.38 3.53-4.1 3.54-1.53.02-1.92-1-4-1-2.07 0-2.5.98-4.03 1.02-1.72.03-3.03-1.7-4.02-3.27-2.77-4.4-3.06-9.55-1.35-12.3 1.21-1.94 3.13-3.08 4.93-3.08 1.84 0 2.99 1.01 4.5 1.01 1.47 0 2.36-1.01 4.5-1.01 1.6 0 3.3.87 4.5 2.38-3.96 2.17-3.31 7.82.6 9.62z"></path></svg><span class="as-lines"><span class="as-top">Download on the</span><span class="as-big">App Store</span></span></a><a class="tlink" href="/kerf-calc/">What Kerf Calc does</a></div></aside><section class="related" aria-labelledby="related-title"><h2 class="h2" id="related-title">More Kerf Calc guides</h2><ul class="posts posts--rows"><li><a class="post-card acc" href="/kerf-calc/blog/stair-rise-and-run-to-code/" style="--accent:#c9e34a"><h3 class="post-card__title">How do you calculate stair rise and run to code?</h3><p class="post-card__desc">Divide total rise by the maximum riser, round up, then divide back. A worked stair layout with the IRC and IBC limits for risers, treads, headroom and variation.</p><span class="post-card__meta"><time dateTime="2026-11-24">November 24, 2026</time> · 4 min read</span></a></li></ul></section></article></div></main><footer class="site-footer"><div class="wrap"><div class="footer"><div><div class="footer__brand-row"><img src="/logo-96.webp" alt="" width="28" height="32"/><span>AISixteen</span></div><p>Small, fast, private apps for iPhone, iPad, Mac and Apple Watch, and Fantastic, an open-source kernel of agents.</p><a class="btn btn--ghost btn--sm" href="mailto:info@aisixteen.com">info@aisixteen.com</a></div><nav aria-label="Apps"><h2>Apps</h2><ul class="footer__apps"><li><a href="/ephemeris-sky/">Ephemeris Sky</a></li><li><a href="/overtone-lab/">Overtone Lab</a></li><li><a href="/indox-text/">Indox Text</a></li><li><a href="/typing-mill/">Typing Mill</a></li><li><a href="/golden-ratio-calculator/">Golden Ratio Calculator</a></li><li><a href="/golden-ratio-calculator-lite/">Golden Ratio Calculator Lite</a></li><li><a href="/big-pink-cat/">Big Pink Cat</a></li><li><a href="/skyscraper-frog/">Skyscraper Frog</a></li><li><a href="/monstro-shooter/">Monstro Shooter</a></li><li><a href="/kerf-calc/">Kerf Calc</a></li><li><a href="/truecourse-e6b/">TrueCourse E6B</a></li><li><a href="/earth-around/">Earth Around</a></li><li><a href="/marine-nav/">Marine Nav</a></li><li><a href="/par/">Par</a></li><li><a href="/storypole/">Storypole</a></li><li><a href="/aircore/">AirCore</a></li></ul></nav><nav aria-label="More"><h2>Guides</h2><ul><li><a href="/ephemeris-sky/blog/">Ephemeris Sky guides</a></li><li><a href="/overtone-lab/blog/">Overtone Lab guides</a></li><li><a href="/indox-text/blog/">Indox Text guides</a></li><li><a href="/typing-mill/blog/">Typing Mill guides</a></li><li><a href="/golden-ratio-calculator/blog/">Golden Ratio Calculator guides</a></li><li><a href="/kerf-calc/blog/">Kerf Calc guides</a></li><li><a href="/truecourse-e6b/blog/">TrueCourse E6B guides</a></li><li><a href="/earth-around/blog/">Earth Around guides</a></li><li><a href="/marine-nav/blog/">Marine Nav guides</a></li><li><a href="/par/blog/">Par guides</a></li><li><a href="/storypole/blog/">Storypole guides</a></li><li><a href="/aircore/blog/">AirCore guides</a></li></ul><h2 style="margin-top:22px">AISixteen</h2><ul><li><a href="/fantastic/">Fantastic</a></li><li><a href="/#privacy">Privacy</a></li><li><a href="https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206" target="_blank" rel="noreferrer">App Store developer page</a></li><li><a href="https://github.com/aisixteen" target="_blank" rel="noreferrer">GitHub</a></li></ul></nav></div><div class="footer__bottom"><span>© 2026 AISixteen</span><span>No accounts. No tracking.</span></div></div></footer></div>
+<script src="/assets/site.js?v=0e7f320f3e" defer></script>
+</body>
+</html>
