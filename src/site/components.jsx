@@ -146,7 +146,7 @@ const PostCard = ({ post, showApp = false, level = 3 }) => {
 
 /* ---------------- home ---------------- */
 const AppCard = ({ app }) => (
-  <a className="card acc" href={`/${app.slug}/`} data-group={app.group} style={{ '--accent': app.accent }}>
+  <a className="card acc" id={app.slug} href={`/${app.slug}/`} data-group={app.group} style={{ '--accent': app.accent }}>
     <img className="card__shot" src={asset(app.shotSm)} alt={`${app.name} screenshot`} width="960" height="600" loading="lazy" decoding="async" />
     <div className="card__body">
       <div className="card__head">
