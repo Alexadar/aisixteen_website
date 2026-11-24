@@ -146,6 +146,14 @@ Turn any moment into a precise picture of the solar system. Ephemeris Sky comput
 
 Privacy: On-device, no account, works offline.
 
+**Which house systems does Ephemeris Sky support?** Six: Placidus, Koch, Whole Sign, Equal, Campanus and Regiomontanus. The Ascendant, Midheaven, Descendant and IC are computed with all twelve cusps, drawn on the wheel and listed by sign and degree.
+
+**How accurate are the planetary positions?** Positions are geocentric and tropical, referred to the equinox of date. They are validated against NASA/JPL Horizons across 1900–2100: better than 7 arcminutes for every body, typically under 2.
+
+**What if the birth time is unknown?** Positions still compute. Houses and angles are left out, with an explanation, rather than calculated from an assumed noon, and Moon contacts carry the range the missing time leaves open.
+
+**Does Ephemeris Sky write horoscopes or predictions?** No. It computes positions, aspects, houses, dignities, returns and cycle dates and shows the numbers. It does not interpret a chart or predict anything.
+
 **Does Ephemeris Sky work offline?** Yes. Every calculation runs on your device, so it works with no internet connection. Anything you save syncs through your own iCloud whenever a connection is available.
 
 **Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Ephemeris Sky from the App Store and open it.
@@ -238,6 +246,8 @@ Calculate any part of the golden ratio instantly. Perfect for designers, archite
 - Built for designers, architects & mathematicians
 
 Privacy: On-device, no account, works offline.
+
+**How are the three values related?** The whole is the greater part plus the lesser part. The greater part is the whole × 0.618, the lesser part is the whole × 0.382, and the whole is the greater part × 1.618. Enter any one and the other two follow.
 
 **Does Golden Ratio Calculator work offline?** Yes. Golden Ratio Calculator runs entirely on your device, so it works with no internet connection.
 
@@ -355,6 +365,12 @@ Kerf Calc is the offline construction field calculator that just works — no ac
 
 Privacy: On-device, no account, works offline.
 
+**How precise is the feet-inch-fraction math?** You enter dimensions as you read them off a tape, for example 8' 4-1/2", and read the result to the fraction you set, from 1/8 down to 1/64. Area and volume work on the same tape: 10' × 8' is 80 sq ft, and × 4" is 26.67 cu ft.
+
+**Which calculators are in Kerf Calc?** Framing (common, hip, valley and jack rafters; stairs with riser, tread and headroom checks; right angle and pitch), concrete (slabs, footings and columns in yards, bags and trucks, with a waste allowance), rebar (ASTM A615 sizes, weights and laps), materials (roofing squares, drywall, paint, block, brick, pavers, board feet, compound miter) and unit conversion.
+
+**Does Kerf Calc replace the building code or an engineer?** No. It is a field calculator. Each tool shows its formula and the code or standard it cites, and you still verify against the code adopted where you build.
+
 **Does Kerf Calc work offline?** Yes. Kerf Calc runs entirely on your device, so it works with no internet connection.
 
 **Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Kerf Calc from the App Store and open it.
@@ -378,6 +394,10 @@ A modern E6B flight computer for student pilots, GA pilots, and CFIs — the dig
 - Glass-cockpit readouts with a night mode · validated formulas, works offline
 
 Privacy: On-device, no account, works offline.
+
+**What does the wind triangle solve?** Heading, groundspeed, wind-correction angle, and the crosswind and headwind components, with a live vector diagram. It can also derive the wind aloft from a measured track and groundspeed.
+
+**Where do the formulas come from?** From published sources: the FAA-H-8083 handbooks and the ICAO Standard Atmosphere. True airspeed is computed from calibrated airspeed with pressure altitude and temperature.
 
 **Does TrueCourse E6B work offline?** Yes. TrueCourse E6B runs entirely on your device, so it works with no internet connection.
 
@@ -403,6 +423,12 @@ Earth Around watches the Sun for you. See whether a storm is happening right now
 
 Privacy: No account, no tracking — live NOAA data.
 
+**Where does Earth Around get its data?** From public feeds: NOAA's Space Weather Prediction Center for the G, R and S scales, solar wind, Bz and GOES X-ray flux, and GFZ for the Hp30 index.
+
+**What is Hp30, and how is it different from Kp?** Kp is the planetary geomagnetic index published for 3-hour intervals. Hp30 is a Kp-like index from GFZ with a 30-minute cadence, so a short, sharp disturbance shows up sooner than it does in Kp.
+
+**Does a high aurora chance mean I will see the aurora?** Not by itself. Earth Around shows tonight's aurora chance and the view line; whether you see anything also depends on darkness and cloud where you stand.
+
 **Does Earth Around need an internet connection?** Yes, for live readings. Earth Around pulls public NOAA feeds to show current conditions; previously loaded values stay visible offline.
 
 **Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Earth Around from the App Store and open it.
@@ -426,6 +452,12 @@ An offline navigation toolkit for sailors and navigators. Predict tide heights a
 - Great-circle distance & bearing · 100% offline
 
 Privacy: On-device, no account, works offline.
+
+**How does Marine Nav predict tides with no signal?** It carries NOAA's published harmonic constants for its stations and runs the harmonic synthesis on the device. Times are shown in the station's own time zone, labelled.
+
+**What are the limits of the predictions?** Tides are the astronomical tide only, with no storm surge or wind effect. Currents are along the major axis only. Declination is the core field of the World Magnetic Model 2025. The app is an aid to planning, not a substitute for official tide tables, charts or prudent seamanship.
+
+**What has it been checked against?** Tides and currents against NOAA's own published predictions, declination against the official WMM2025 test values, distance and bearing against Vincenty's and Karney's published geodesic test data, and sight reduction against the worked example in Bowditch.
 
 **Does Marine Nav work offline?** Yes. Marine Nav runs entirely on your device, so it works with no internet connection.
 
@@ -451,6 +483,10 @@ An offline financial calculator for people who must have one: loan officers, mor
 
 Privacy: On-device, no account, works offline.
 
+**Which calculators are in Par?** Ten: time value of money, amortization, bonds, cash flow, day count, depreciation, percent, rate conversion, real estate and statistics.
+
+**What does “cites its sources” mean?** Each displayed result names the authority its method follows, such as the US Treasury, CFPB Regulation Z and Regulation DD, the IRS or NIST, so a number can be checked rather than taken on trust.
+
 **Does Par work offline?** Yes. Par runs entirely on your device, so it works with no internet connection.
 
 **Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download Par from the App Store and open it.
@@ -474,6 +510,12 @@ A job-site calculator for carpenters, framers and remodelers. Run feet-inch-frac
 - Concrete takeoff, wire gauge and conversions · also on Apple Watch
 
 Privacy: On-device, no account, works offline.
+
+**Does Storypole measure with the camera?** No. There is no camera and no AR ruler. Storypole does the math on a measurement you already took with a real tape.
+
+**Which on-center spacings does the layout tool mark?** 16", 19.2" and 24", with the odd last bay stated. Equal spacing gives the full list of marks to pull, not just a count.
+
+**Where do the reference values come from?** The Reference tab names the standard behind each sourced value, including NIST PS 20-20 for dressed lumber sizes and NBS Handbook 100 for wire gauge. Values with no published source are labelled as derived: 19.2" on center is 96" ÷ 5.
 
 **Does Storypole work offline?** Yes. Storypole runs entirely on your device, so it works with no internet connection.
 
@@ -499,6 +541,12 @@ The air-side calculator for HVAC technicians, designers and contractors. Enter a
 
 Privacy: On-device, no account, works offline.
 
+**Which air properties can AirCore solve from?** Any two of seven: dry bulb, wet bulb, dew point, relative humidity, humidity ratio, enthalpy and specific volume. The rest of the moist-air state is solved and plotted on a psychrometric chart.
+
+**What does AirCore not do?** It computes air properties and sizes. It has no fitting library and does not do load calculations.
+
+**What is the psychrometric math checked against?** Against CoolProp and IAPWS-95 reference values, which are independent of the relations the app implements, and against published psychrometric-table anchors.
+
 **Does AirCore work offline?** Yes. AirCore runs entirely on your device, so it works with no internet connection.
 
 **Is there an account or subscription?** No. There's no sign-up, no login, and no subscription — just download AirCore from the App Store and open it.
@@ -506,3 +554,1553 @@ Privacy: On-device, no account, works offline.
 **What data does AirCore collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
 
 **Which devices are supported?** AirCore is available for iPhone, iPad, Mac & Apple Watch.
+
+## Guides
+
+### How do you read an ephemeris?
+
+URL: https://aisixteen.com/ephemeris-sky/blog/how-to-read-an-ephemeris/ · App: Ephemeris Sky (https://aisixteen.com/ephemeris-sky/) · Published: 2026-11-24
+
+Short answer: An ephemeris is a table of planetary positions for a fixed time each day, usually 00:00 UT. Find the date row, read each body's zodiac longitude in degrees and minutes, and interpolate between two rows for any other time of day after converting your local time to UT.
+
+An ephemeris (plural: ephemerides) is a table of where the Sun, Moon and planets are, computed for a regular step of time. Astronomers use one to point a telescope. Astrologers use one to draw a chart. The table is the same kind of object in both cases: numbers, not meanings.
+
+![Ephemeris Sky showing a saved natal chart wheel, as shown on the App Store](https://aisixteen.com/ephemeris_sky/screenshot-960.webp "A chart wheel is an ephemeris row drawn as a circle.")
+
+#### What does each column in an ephemeris mean?
+
+A printed astrological ephemeris has one row per day and one column per body.
+
+| Column | What it holds |
+|---|---|
+| Date | The calendar day. The positions are for one fixed moment on that day, stated on the page: midnight (00:00) or noon (12:00), in Universal Time. |
+| Sidereal time | The sidereal time at Greenwich at that moment. It is used to find the Ascendant and the houses. |
+| Sun, Moon, Mercury … Pluto | Each body's ecliptic longitude, written as degrees and minutes inside a zodiac sign: 14°♉32′ means 14 degrees 32 minutes of Taurus. |
+| R or D marks | R where a planet turns retrograde, D where it turns direct. |
+| Lunar node | The point where the Moon's orbit crosses the ecliptic, as mean or true node. |
+
+Signs are 30° each, starting from 0° Aries. So 14°32′ Taurus is 30° + 14°32′ = 44°32′ of absolute longitude. Software usually works in the absolute number and prints the sign form.
+
+#### Which time does an ephemeris use?
+
+Universal Time (UT), which for this purpose matches Greenwich Mean Time. Before you look anything up, convert your local clock time to UT, including daylight saving.
+
+Example: 10:30 in New York in July is Eastern Daylight Time, UT−4, so it is 14:30 UT on the same date. 22:30 in Tokyo is UT+9, so it is 13:30 UT. A late-evening time west of Greenwich can land on the *next* UT date: 21:00 in Los Angeles in winter (UT−8) is 05:00 UT the following day.
+
+Check whether your ephemeris is a midnight or a noon edition. Reading a noon table as if it were midnight puts the Moon about 6.5° out.
+
+#### How do you find a position between two rows?
+
+By linear interpolation. Take the motion over 24 hours and scale it by the fraction of the day that has passed.
+
+Worked example, Moon, midnight ephemeris:
+
+- Day 1, 00:00 UT: 12°00′ Taurus
+- Day 2, 00:00 UT: 25°12′ Taurus
+- Daily motion: 13°12′, which is 13.2°
+
+For 15:30 UT on day 1, the fraction of the day is 15.5 ÷ 24 = 0.6458. The Moon has moved 0.6458 × 13.2° = 8.525°, which is 8°31′. Add it to the starting position: **20°31′ Taurus**.
+
+Linear interpolation is good to a few arcminutes for the Moon and far better for everything else, because the other bodies move much more slowly:
+
+| Body | Typical daily motion |
+|---|---|
+| Moon | about 12° to 15° (mean 13°11′) |
+| Sun | about 1° (mean 0°59′) |
+| Mercury | up to about 2°, and backwards when retrograde |
+| Venus | up to about 1°15′ |
+| Mars | up to about 0°47′ |
+| Jupiter | up to about 0°14′ |
+| Saturn | up to about 0°08′ |
+
+When a planet is retrograde the next day's longitude is *smaller*. The method is the same; the motion is negative.
+
+#### What does retrograde mean in the table?
+
+A planet is retrograde when its longitude, seen from the Earth, is decreasing. Nothing reverses in space: the Earth and the planet are both moving around the Sun, and the line of sight between them swings backwards for a while, the way a slower car seems to drift back as you pass it. The days on which the motion changes direction are the stations. Mercury does this about three times a year, for roughly three weeks each time.
+
+#### Geocentric or heliocentric, tropical or sidereal?
+
+These two choices change every number in the table, so check them first.
+
+- **Geocentric** positions are as seen from the centre of the Earth. **Heliocentric** positions are as seen from the Sun. Chart work is geocentric.
+- **Tropical** longitude is measured from the March equinox point. **Sidereal** longitude is measured against the stars and currently differs by about 24°, the exact figure depending on the reference (ayanamsa) chosen.
+
+#### How accurate does an ephemeris need to be?
+
+For a chart, an arcminute or two is ample: the Sun moves one arcminute in about 24 minutes of time, and most birth times are not known that well. The practical reference for checking any ephemeris is NASA's JPL Horizons system, which serves positions from the same planetary solutions used for spacecraft navigation.
+
+#### Where does Ephemeris Sky fit?
+
+[Ephemeris Sky](https://aisixteen.com/ephemeris-sky/) computes the table on your device for any date and time, so there is nothing to interpolate. It gives geocentric, tropical positions referred to the equinox of date for the Sun, Moon and planets out to Pluto, with sign, degree and minute, daily motion and retrograde marked. Its positions are validated against JPL Horizons across 1900 to 2100: better than 7 arcminutes for every body, typically under 2. It works offline. It computes positions and shows the numbers; it does not interpret them or predict anything.
+
+Related: [Placidus, Koch and Whole Sign houses compared](https://aisixteen.com/ephemeris-sky/blog/house-systems-compared/).
+
+#### Frequently asked questions
+
+##### What time is an ephemeris calculated for?
+
+For one fixed moment each day, printed on the page: 00:00 or 12:00 Universal Time. Convert your local time to UT before you read it.
+
+##### How far does the Moon move in a day?
+
+Between about 12° and 15° of longitude, 13°11′ on average, which is why the Moon is the body that most needs interpolating.
+
+##### Is an ephemeris astronomy or astrology?
+
+The table itself is astronomy: computed positions. Astrology is one of the things people do with it.
+
+#### Sources
+
+- NASA Jet Propulsion Laboratory, Horizons System: [ssd.jpl.nasa.gov/horizons](https://ssd.jpl.nasa.gov/horizons/)
+- Jean Meeus, *Astronomical Algorithms*, 2nd edition (Willmann-Bell, 1998), chapters on sidereal time and interpolation.
+
+### What is the difference between Placidus, Koch and Whole Sign houses?
+
+URL: https://aisixteen.com/ephemeris-sky/blog/house-systems-compared/ · App: Ephemeris Sky (https://aisixteen.com/ephemeris-sky/) · Published: 2026-11-24
+
+Short answer: All house systems start from the same Ascendant; they differ in how they cut the sky into twelve. Whole Sign and Equal divide the ecliptic into even 30° parts. Placidus and Koch divide by time, Campanus and Regiomontanus by space, so their houses come out unequal.
+
+A house system is a rule for dividing the sky around an observer into twelve sectors. Every system needs the same three inputs: the date, the exact time and the place. What differs is the geometry of the cut. This guide describes that geometry and leaves interpretation aside.
+
+#### What do all house systems have in common?
+
+Two points, which are astronomy rather than convention:
+
+- The **Ascendant** is the degree of the ecliptic rising on the eastern horizon at that moment and place.
+- The **Midheaven (MC)** is the degree of the ecliptic crossing the meridian, due south or due north of the observer.
+
+Their opposite points are the Descendant and the IC. Because the Earth turns once in about 24 hours, the whole zodiac crosses the horizon in a day: on average a new degree rises every four minutes. That is why houses need an accurate time.
+
+#### How does each system divide the sky?
+
+| System | What is divided | Houses equal? | MC is the 10th cusp? |
+|---|---|---|---|
+| Whole Sign | The zodiac itself: the sign holding the Ascendant is the whole 1st house | Yes, 30° each | No, the MC falls wherever it falls |
+| Equal | The ecliptic, in 30° steps from the Ascendant degree | Yes, 30° each | No |
+| Placidus | Time: each cusp marks a third of the time a degree takes to go from horizon to meridian | No | Yes |
+| Koch | Time: the rising time of the Midheaven degree, trisected | No | Yes |
+| Campanus | Space: the prime vertical, in twelve 30° arcs | No | Yes |
+| Regiomontanus | Space: the celestial equator, in twelve 30° arcs | No | Yes |
+
+**Whole Sign** is the oldest and the simplest. If the Ascendant is 23° Leo, the 1st house is all of Leo, the 2nd all of Virgo, and so on. Cusps are always at 0° of a sign.
+
+**Equal** keeps the 30° houses but starts them at the Ascendant degree, so with 23° Leo rising every cusp is at 23° of its sign.
+
+**Placidus** is a time system. Any degree of the zodiac takes a certain time to climb from the horizon to the meridian (its diurnal semi-arc). Placidus puts the 12th and 11th cusps where degrees have completed one third and two thirds of that climb. It became the default of printed tables of houses, which is most of why it is the default of software today.
+
+**Koch** is also time-based but works from one arc only: the time the Midheaven degree itself took to rise to the meridian, divided in three, with the Ascendant computed for each of those moments.
+
+**Campanus** and **Regiomontanus** are space systems. Both cut a great circle into twelve equal 30° arcs and project the cuts onto the ecliptic through the north and south points of the horizon. Campanus cuts the prime vertical (the circle through east, zenith and west); Regiomontanus cuts the celestial equator.
+
+#### Why do houses come out so unequal at high latitudes?
+
+In the four quadrant systems above, the Ascendant and the MC are both fixed cusps, and the houses have to fill whatever angle lies between them. At the equator that angle stays near 90°. Further from the equator the ecliptic meets the horizon at a shallower angle, some signs rise quickly and others slowly, and the Ascendant–MC angle swings widely. A chart for 60° north can have one house of 15° and another of 50°.
+
+#### Why do Placidus and Koch fail near the poles?
+
+Inside the polar circles (beyond about 66.5° latitude) part of the ecliptic never rises or never sets. A degree that never crosses the horizon has no semi-arc to trisect, so Placidus and Koch cusps are undefined there. Whole Sign and Equal houses only need the Ascendant, so they still work wherever an Ascendant exists.
+
+#### What happens if the birth time is unknown?
+
+Then the Ascendant and MC are unknown, and with them every house cusp in every system. Positions of the planets can still be computed, because they change slowly over a day, with the Moon the most uncertain at about 13° per day. A common workaround is to draw the chart for noon, but that produces houses that look precise and are not. The honest alternative is to leave houses and angles out.
+
+#### Which house system should I use?
+
+There is no astronomical reason to prefer one. They are different conventions applied to the same sky, and practitioners choose by tradition and school. What can be said factually:
+
+- Whole Sign and Equal are the simplest and work at any latitude with an Ascendant.
+- Placidus is the most widely used default in modern Western software.
+- Planets near a cusp can sit in different houses under different systems, so a chart should always state which system it uses.
+
+#### Where does Ephemeris Sky fit?
+
+[Ephemeris Sky](https://aisixteen.com/ephemeris-sky/) computes the Ascendant, Midheaven, Descendant and IC and all twelve cusps in six systems: Placidus, Koch, Whole Sign, Equal, Campanus and Regiomontanus. Cusps and angles are drawn on the wheel and listed by sign and degree, and you can switch systems on the same chart to see what moves. When a birth time is unknown, it leaves houses and angles out and says why, rather than assuming noon. Everything is computed on the device. It shows the geometry; it does not interpret it.
+
+Related: [how to read an ephemeris](https://aisixteen.com/ephemeris-sky/blog/how-to-read-an-ephemeris/).
+
+#### Frequently asked questions
+
+##### Do different house systems change the planets' positions?
+
+No. Sign, degree and aspect are the same in every system. Only the house cusps move, and with them the house a planet falls in.
+
+##### Why is the Midheaven not always the 10th house cusp?
+
+In Whole Sign and Equal houses the cusps are set by the Ascendant alone, so the Midheaven is a separate point that can fall in the 9th, 10th or 11th house.
+
+##### How much does four minutes of birth time change the houses?
+
+About one degree of Ascendant on average, more for signs that rise quickly at your latitude.
+
+#### Sources
+
+- Jean Meeus, *Astronomical Algorithms*, 2nd edition (Willmann-Bell, 1998): sidereal time, the ecliptic and the horizon.
+- Ralph William Holden, *The Elements of House Division* (L. N. Fowler, 1977).
+
+### How do you calculate RT60 and room modes for a small room?
+
+URL: https://aisixteen.com/overtone-lab/blog/rt60-and-room-modes/ · App: Overtone Lab (https://aisixteen.com/overtone-lab/) · Published: 2026-11-24
+
+Short answer: RT60 by the Sabine equation is 0.161 × V ÷ A, with V the room volume in m³ and A the total absorption in m² sabins. Axial room modes fall at n × c ÷ (2 × L) for each dimension L. A 5 × 4 × 2.7 m room has first modes near 34, 43 and 64 Hz.
+
+Two calculations describe most of what a small room does to sound. Reverberation time says how long sound lingers. Room modes say which bass notes the room exaggerates or swallows. Both can be estimated from a tape measure and a table of absorption coefficients. This guide works them for one room.
+
+The example room is 5.0 m long, 4.0 m wide and 2.7 m high.
+
+#### What is RT60?
+
+RT60 is the time it takes for sound to decay by 60 dB after the source stops, which is a drop to one millionth of the original energy. It varies with frequency, so it is normally quoted per octave band (125 Hz, 250 Hz, 500 Hz, 1 kHz, 2 kHz, 4 kHz).
+
+#### How does the Sabine equation work?
+
+**RT60 = 0.161 × V ÷ A** (metric), or **RT60 = 0.049 × V ÷ A** (feet)
+
+- **V** is the room volume.
+- **A** is the total absorption: each surface's area multiplied by its absorption coefficient α, all added up. α runs from 0 (perfect reflector) to 1 (an open window).
+
+For the example room:
+
+1. **Volume:** 5 × 4 × 2.7 = **54 m³**.
+2. **Surface area:** floor 20 + ceiling 20 + two long walls 27 + two short walls 21.6 = **88.6 m²**.
+3. **Absorption:** suppose the surfaces average α = 0.15 at 500 Hz (painted plasterboard, a carpet, some furniture). A = 88.6 × 0.15 = **13.3 m² sabins**.
+4. **RT60:** 0.161 × 54 ÷ 13.3 = **0.65 s**.
+
+In a real calculation you do step 3 surface by surface and band by band, because materials differ enormously across frequency. Typical published coefficients:
+
+| Material | α at 125 Hz | α at 500 Hz | α at 2 kHz |
+|---|---|---|---|
+| Painted plasterboard on studs | 0.29 | 0.05 | 0.07 |
+| Carpet on concrete | 0.02 | 0.14 | 0.60 |
+| 50 mm mineral wool panel | 0.20 | 0.95 | 0.95 |
+| Glass window | 0.35 | 0.18 | 0.07 |
+
+The pattern is worth noticing: thin porous materials such as carpet absorb treble and almost no bass. A room treated only with them ends up dull and boomy at once.
+
+#### How much absorption does a target RT60 need?
+
+Rearrange the equation: **A = 0.161 × V ÷ RT60**.
+
+To bring the example room from 0.65 s to 0.35 s at 500 Hz, it needs A = 0.161 × 54 ÷ 0.35 = 24.8 m² sabins. It has 13.3, so it needs 11.5 more. A panel with α = 0.95 replacing a wall area with α = 0.05 adds 0.90 per square metre, so that is about **13 m²** of panels.
+
+#### When is the Sabine equation wrong?
+
+Sabine assumes a diffuse sound field: energy spread evenly and arriving from all directions. That holds in large, live rooms. It weakens when:
+
+- **The room is very absorbent.** Sabine predicts a non-zero RT60 even with α = 1 everywhere. The Eyring equation, RT60 = 0.161 × V ÷ (−S × ln(1 − ᾱ)), handles dead rooms better. For the example at ᾱ = 0.15 Eyring gives 0.60 s against Sabine's 0.65 s; the two diverge as absorption rises.
+- **Absorption is concentrated on one surface,** such as a carpeted floor with bare walls.
+- **The frequency is low** in a small room, where individual modes dominate. That is the next calculation.
+
+#### How do you calculate room modes?
+
+A mode is a standing wave: a frequency whose half-wavelength fits a whole number of times between two parallel surfaces. For one dimension L:
+
+**f = n × c ÷ (2 × L)**, with c the speed of sound, about 343 m/s at 20 °C, and n = 1, 2, 3…
+
+These are the axial modes, the strongest kind.
+
+| Dimension | 1st mode | 2nd | 3rd |
+|---|---|---|---|
+| Length 5.0 m | 34.3 Hz | 68.6 Hz | 102.9 Hz |
+| Width 4.0 m | 42.9 Hz | 85.8 Hz | 128.6 Hz |
+| Height 2.7 m | 63.5 Hz | 127.0 Hz | 190.6 Hz |
+
+At a modal frequency the pressure is highest at the walls and lowest at the centre of that dimension (for the first mode). So a listener in the exact middle of the room hears almost none of the 34 Hz and 43 Hz modes, which is why the centre of a room is a poor listening position.
+
+Look for coincidences. Here the height's second mode (127.0 Hz) sits next to the width's third (128.6 Hz), so expect a build-up near 128 Hz. Rooms whose dimensions are simple multiples of each other stack their modes on the same frequencies; a cube is the worst case.
+
+The full formula adds tangential and oblique modes, which involve two or three pairs of surfaces: f = (c ÷ 2) × √((p ÷ L)² + (q ÷ W)² + (r ÷ H)²).
+
+#### Where do modes stop mattering?
+
+Above the Schroeder frequency the modes overlap so densely that the room behaves statistically, and RT60 becomes the useful description:
+
+**f = 2000 × √(RT60 ÷ V)**
+
+For the example: 2000 × √(0.65 ÷ 54) = **about 220 Hz**. Below that, treat the room mode by mode, with placement and bass trapping. Above it, treat it with absorption and diffusion.
+
+#### Where does Overtone Lab fit?
+
+[Overtone Lab](https://aisixteen.com/overtone-lab/) is an offline audio calculator for engineers, musicians and instrument builders. It includes room reverberation by the Sabine equation and room modes, alongside tempo and delay times, SMPTE timecode, pitch and harmonics, string tension, filters and crossovers, and LUFS loudness to ITU-R BS.1770. Its formulas are validated against reference values. It runs on iPhone, iPad and Mac with no account.
+
+It calculates from the dimensions and coefficients you enter. A calculated RT60 is an estimate; a measurement in the finished room is the check.
+
+#### Frequently asked questions
+
+##### What is a good RT60 for a home studio or listening room?
+
+Small critical-listening rooms are commonly designed for roughly 0.2 to 0.4 s, kept even across frequency. Evenness matters more than the exact figure.
+
+##### What is the lowest room mode in a 5 m room?
+
+About 34 Hz: the speed of sound, 343 m/s, divided by twice the length.
+
+##### Does furniture change RT60?
+
+Yes. Sofas, bookshelves, curtains and people all add absorption, mostly at mid and high frequencies. An empty room measures longer than the same room in use.
+
+#### Sources
+
+- Heinrich Kuttruff, *Room Acoustics*, 6th edition (CRC Press, 2016): Sabine and Eyring equations, room modes, the Schroeder frequency.
+- ISO 3382-2:2008, *Acoustics: Measurement of room acoustic parameters, Part 2: Reverberation time in ordinary rooms*.
+- ITU-R Recommendation BS.1770, *Algorithms to measure audio programme loudness and true-peak audio level*: [itu.int](https://www.itu.int/rec/R-REC-BS.1770)
+
+### Can you summarize documents without uploading them?
+
+URL: https://aisixteen.com/indox-text/blog/summarize-documents-on-device/ · App: Indox Text (https://aisixteen.com/indox-text/) · Published: 2026-11-24
+
+Short answer: Yes. An on-device summarizer runs the language model on your own phone or computer, so the document is never sent to a server. You can confirm it by switching on Airplane Mode: a truly on-device tool keeps working. The trade-off is a smaller model than the largest cloud services use.
+
+Most summarizing tools work by sending your text to a company's servers, running a large model there, and sending the summary back. For a news article that is fine. For a contract, a medical letter, a draft or anything covered by a confidentiality agreement, the upload itself may be the problem. On-device summarization removes that step.
+
+![Indox Text start screen with two options, Summarize text and Summarize file](https://aisixteen.com/indoxtext/screenshot-960.webp "Indox Text: paste text or choose a text or PDF file.")
+
+#### What does on-device actually mean?
+
+It means the model's computation happens on the processor in your hand, not in a data centre. On Apple devices that is the CPU, the GPU and the Neural Engine, a part of the chip built for this kind of arithmetic. The text goes from the app's memory into the model and the summary comes back out, all inside the same device.
+
+| | Cloud summarizer | On-device summarizer |
+|---|---|---|
+| Where the text goes | To the provider's servers | Nowhere |
+| Works offline | No | Yes |
+| Account needed | Usually | Not necessarily |
+| Model size | Very large | Small enough to fit on the device |
+| Very long documents | Often handled in one pass | May need to be done in sections |
+| What you rely on for privacy | The provider's policy and security | The fact that nothing is sent |
+
+#### How can you check that nothing is uploaded?
+
+You do not have to take the claim on trust.
+
+1. **Airplane Mode.** Turn off Wi-Fi and mobile data and summarize something. If it works, the model is on the device.
+2. **The App Store privacy label.** Look for "Data Not Collected" on the app's page. Developers are responsible for the accuracy of this label.
+3. **No sign-in.** A tool with no account has nothing to attach your documents to.
+
+The first test is the strong one, because it is physical: with no connection there is no route for the text to leave.
+
+#### What is a summarizer actually doing?
+
+There are two broad methods, and they fail in different ways.
+
+- **Extractive** summarization picks the most important sentences from the original and returns them unchanged. It cannot invent anything, but the result can read as disjointed, and it cannot merge two ideas into one sentence.
+- **Abstractive** summarization writes new sentences that restate the content, the way a person would. It reads far better and compresses harder. Its weakness is that a generated sentence can state something the source did not say.
+
+Modern language-model summarizers are abstractive. That is why the output should be treated as a reading aid and not as a quotation.
+
+#### What is a summary good for, and what is it not?
+
+**Good for:**
+
+- Deciding whether a long document is worth reading in full.
+- Getting the shape of an article, report or thread before a meeting.
+- Recalling the gist of something you read weeks ago.
+- Working through a reading list faster.
+
+**Not a substitute for the source when:**
+
+- **Exact figures, dates and names matter.** Check them against the original.
+- **The wording is the point,** as in contracts, policies and legal or medical text. A summary drops the qualifiers ("unless", "except where") that carry the meaning.
+- **The document is long.** Every model can only consider a limited amount of text at once. Important material deep in a long file can be under-represented.
+- **You will quote it.** Quote the source, never the summary.
+
+#### How do you get a better summary?
+
+- **Give it clean text.** Menus, cookie banners and footers copied along with a web article dilute the result. Reader view in Safari strips them first.
+- **Summarize in sections.** For a long report, do each chapter separately, then read the summaries together.
+- **Check scanned PDFs.** A PDF made from a scan is a picture of text. It needs text recognition before any summarizer can read it.
+- **Verify what you will act on.** Find the sentence in the source that supports any claim you intend to rely on.
+
+#### Where does Indox Text fit?
+
+[Indox Text](https://aisixteen.com/indox-text/) summarizes articles, documents and web pages on iPhone, iPad and Mac, and has a Safari extension for pages you are reading. You paste or type text, or choose a text or PDF file. It runs on the device's CPU and Neural Engine and works offline, so what you summarize is not sent to a server. There is no account.
+
+As with any summarizer, read its output as a guide to the document, and go back to the original for anything you need to be exact about.
+
+#### Frequently asked questions
+
+##### Is on-device summarization private?
+
+Yes, in the direct sense that the text does not leave the device. You can verify it by using the tool in Airplane Mode.
+
+##### Are on-device summaries as good as cloud ones?
+
+For articles and ordinary documents they are useful and fast. The largest cloud models handle very long or highly technical documents better, at the cost of uploading them.
+
+##### Can a summary contain mistakes?
+
+Yes. Abstractive summarizers write new sentences and can occasionally state something the source does not. Check names, numbers and anything you will rely on.
+
+#### Sources
+
+- Apple, Core ML documentation (running machine-learning models on device): [developer.apple.com](https://developer.apple.com/documentation/coreml)
+- Apple, App privacy details on the App Store: [developer.apple.com](https://developer.apple.com/app-store/app-privacy-details/)
+
+### How do you learn touch typing?
+
+URL: https://aisixteen.com/typing-mill/blog/how-to-learn-touch-typing/ · App: Typing Mill (https://aisixteen.com/typing-mill/) · Published: 2026-11-24
+
+Short answer: Rest eight fingers on the home row (A S D F and J K L ;), give every key to one finger, and practise short sessions without looking at the keyboard. Go slowly enough to be accurate; speed follows once the key positions are automatic.
+
+Touch typing means typing by feel: each finger knows its keys, and your eyes stay on the text. It is a motor skill, learned the same way as a scale on a piano, by slow, correct repetition.
+
+![Typing Mill practice screen with a line of text, four difficulty levels and an on-screen keyboard](https://aisixteen.com/typingmill/screenshot-960.webp "Typing Mill: a line to type, four difficulty levels, and the keyboard below.")
+
+#### Where do your fingers go?
+
+On the home row. Left hand on **A S D F**, right hand on **J K L ;**, thumbs on the space bar. The F and J keys have a small raised bump so your index fingers can find them without looking. After every keystroke the finger returns home.
+
+From there each finger owns a diagonal column of keys on a standard QWERTY keyboard:
+
+| Finger | Left hand | Right hand |
+|---|---|---|
+| Little | Q A Z, plus Shift and Tab | P ; /, plus Shift, Enter and Backspace |
+| Ring | W S X | O L . |
+| Middle | E D C | I K , |
+| Index | R F V and T G B | U J M and Y H N |
+| Thumb | Space | Space |
+
+The index fingers do double duty with two columns each. Capital letters use the Shift key on the *opposite* hand: right Shift for a capital A, left Shift for a capital L.
+
+#### Why should you not look at the keyboard?
+
+Because looking is the habit that touch typing replaces. While your eyes find keys, your fingers never have to learn where they are. Looking at the screen instead does two things: your fingers build the position memory, and you see mistakes as you make them.
+
+It will feel slower than your old method for the first week or two. That dip is normal; you are replacing a fast bad habit with a slow good one.
+
+#### Should you practise for speed or for accuracy?
+
+Accuracy first. A wrong keystroke costs at least three: the error, the backspace and the correction. It also rehearses the wrong movement. Type at the pace where you make almost no mistakes, and let that pace rise by itself.
+
+A workable rule: if you are below roughly 95% correct, slow down.
+
+#### How long should you practise?
+
+Short and often beats long and rare. Ten to twenty minutes a day does more than two hours on a Sunday, because motor memory is consolidated between sessions, not during them. Stop when your accuracy falls; tired practice teaches tired habits.
+
+A simple progression:
+
+1. **Home row only.** Words like *sad, lads, flask, salad* until you never look down.
+2. **Add the top row,** then the bottom row, a few keys at a time.
+3. **Real words and sentences,** including capitals and punctuation.
+4. **Your own material:** emails, code, whatever you actually type.
+
+#### Do you have to use all ten fingers?
+
+It helps, but it is not the whole story. A 2016 study from Aalto University recorded 30 typists with motion capture and found that self-taught people using fewer fingers could be as fast as trained touch typists. What fast typists had in common was something else: they used the *same finger for the same key every time*, kept their hands still, and did not look down. A later Aalto study of 168,000 volunteers found that fast typists also made fewer errors and often pressed the next key before releasing the previous one.
+
+So the goal is consistency. The standard ten-finger map is the easiest consistent mapping to learn, because it is the one keyboards are designed around.
+
+#### Does posture matter?
+
+Yes, for comfort over hours rather than for speed. Keep your wrists straight rather than bent up, your elbows at roughly a right angle, and the screen at eye height so you are not tempted to look down. Take your hands off the keyboard when you stop to think.
+
+#### Where does Typing Mill fit?
+
+[Typing Mill](https://aisixteen.com/typing-mill/) is a typing practice app for iPhone, iPad and Mac. It gives you text to type across four difficulty levels, from beginner to expert, in an animated interface, with the keyboard shown on screen. It works offline and has no account. Use level one while you learn the positions and move up when you can type a level without looking down.
+
+Related: [how typing speed is measured in words per minute](https://aisixteen.com/typing-mill/blog/typing-speed-wpm-explained/).
+
+#### Frequently asked questions
+
+##### How long does it take to learn touch typing?
+
+Most people learn the key positions in a few weeks of short daily practice. Getting faster than your old hunt-and-peck speed usually takes a little longer.
+
+##### Which keys are the home row keys?
+
+A, S, D and F for the left hand and J, K, L and semicolon for the right, with both thumbs on the space bar.
+
+##### Why do F and J have bumps?
+
+So your index fingers can find the home row by touch and the other fingers fall into place beside them.
+
+#### Sources
+
+- Feit, Weir and Oulasvirta, "How We Type: Movement Strategies and Performance in Everyday Typing", CHI 2016: [userinterfaces.aalto.fi/how-we-type](https://userinterfaces.aalto.fi/how-we-type/)
+- Dhakal, Feit, Kristensson and Oulasvirta, "Observations on Typing from 136 Million Keystrokes", CHI 2018: [userinterfaces.aalto.fi/136Mkeystrokes](https://userinterfaces.aalto.fi/136Mkeystrokes/)
+
+### How is typing speed measured, and what is a good WPM?
+
+URL: https://aisixteen.com/typing-mill/blog/typing-speed-wpm-explained/ · App: Typing Mill (https://aisixteen.com/typing-mill/) · Published: 2026-11-24
+
+Short answer: Typing speed in words per minute (WPM) is the number of characters typed, divided by five, divided by the minutes taken. Net WPM subtracts uncorrected errors. In a study of 168,000 volunteers the average was about 52 WPM.
+
+"Words per minute" sounds obvious until you ask what a word is. *I* and *consequently* are both words. Typing tests solve this with a convention, and once you know it you can work out any typing score by hand.
+
+#### What counts as a word in WPM?
+
+Five characters. Every keystroke counts, including spaces and punctuation, and the total is divided by five. So the sentence *The quick brown fox* is 19 characters, or 3.8 standard words, even though it has four dictionary words.
+
+The formula:
+
+**Gross WPM = (characters typed ÷ 5) ÷ minutes**
+
+Example: 1,250 characters in 5 minutes is 1,250 ÷ 5 = 250 words, ÷ 5 minutes = **50 WPM**.
+
+#### What is the difference between gross and net WPM?
+
+Gross WPM counts everything you typed. Net WPM takes off the errors you left uncorrected:
+
+**Net WPM = gross WPM − (uncorrected errors ÷ minutes)**
+
+In the example above, 10 uncorrected errors over 5 minutes cost 2 WPM, so the net speed is **48 WPM**. Each error is treated as costing a whole word, which is deliberate: a document with a typo in it is not finished.
+
+Different tests apply the penalty differently, and some count only correctly typed words. That is why the same person scores differently on different sites. Compare your scores on one test, not across tests.
+
+#### How is typing accuracy calculated?
+
+**Accuracy = correct characters ÷ total characters typed × 100**
+
+If you typed 1,250 characters and 25 were wrong, your accuracy is 1,225 ÷ 1,250 = **98%**. Keystrokes you corrected still count as errors in most accuracy figures, because the backspace cost you time.
+
+#### How do WPM, CPM and KPH convert?
+
+They are the same measurement in different units.
+
+| Unit | Meaning | Conversion |
+|---|---|---|
+| WPM | Words per minute | characters per minute ÷ 5 |
+| CPM | Characters per minute | WPM × 5 |
+| KPH | Keystrokes per hour | WPM × 300 |
+
+So 40 WPM is 200 CPM and 12,000 KPH. A data-entry job advert asking for 10,000 KPH is asking for about 33 WPM. Numeric data entry is often quoted in KPH because the keystrokes are digits, not words.
+
+#### What is a good typing speed?
+
+The best public evidence is a 2018 study from Aalto University and the University of Cambridge, which collected 136 million keystrokes from 168,000 volunteers:
+
+- The **average was about 52 WPM**.
+- The fastest group typed well over 100 WPM.
+- Faster typists made **fewer** errors, not more.
+- Faster typists often pressed the next key before releasing the previous one.
+
+The volunteers chose to take an online typing test, so they probably type more than the general population; treat 52 as a generous average. As a rough guide for an adult who types daily: 40 WPM is functional, 60 is comfortable, and above 80 is fast. What a job needs depends on the job, so ask the employer which test and which figure they use.
+
+#### Does a one-minute test give a fair number?
+
+It gives a high one. Short tests reward a sprint and cover few of the awkward letter combinations. A three- or five-minute test on unfamiliar prose is closer to real work. Common words and lower-case text also score higher than text with capitals, numbers and punctuation, so check what a test contains before comparing two scores.
+
+#### How do you raise your WPM?
+
+Mostly by removing errors and hesitations rather than by moving your fingers faster.
+
+1. **Fix the mapping.** Use the same finger for the same key every time.
+2. **Stop looking down.** Each glance at the keyboard is a pause.
+3. **Practise at the edge of accuracy.** Slow down until you are near error-free, then let the pace creep up.
+4. **Drill your slow keys.** Everyone has a few: often the bottom row, numbers and the little-finger keys.
+5. **Practise a little every day.**
+
+The method is covered step by step in [how to learn touch typing](https://aisixteen.com/typing-mill/blog/how-to-learn-touch-typing/).
+
+#### Where does Typing Mill fit?
+
+[Typing Mill](https://aisixteen.com/typing-mill/) is for the practice itself: text to type across four difficulty levels on iPhone, iPad and Mac, offline and with no account. Raise the level when the current one no longer makes you hesitate.
+
+#### Frequently asked questions
+
+##### How many characters is one word in a typing test?
+
+Five, counting spaces and punctuation. Total characters divided by five gives the number of standard words.
+
+##### Is 50 WPM good?
+
+It is close to the average of about 52 WPM found among 168,000 online volunteers, and enough for most office work.
+
+##### What is 10,000 KPH in WPM?
+
+About 33 WPM. Divide keystrokes per hour by 300.
+
+#### Sources
+
+- Dhakal, Feit, Kristensson and Oulasvirta, "Observations on Typing from 136 Million Keystrokes", CHI 2018: [userinterfaces.aalto.fi/136Mkeystrokes](https://userinterfaces.aalto.fi/136Mkeystrokes/)
+
+### How do you calculate the golden ratio?
+
+URL: https://aisixteen.com/golden-ratio-calculator/blog/how-to-calculate-the-golden-ratio/ · App: Golden Ratio Calculator (https://aisixteen.com/golden-ratio-calculator/) · Published: 2026-11-24
+
+Short answer: The golden ratio φ is (1 + √5) ÷ 2 = 1.6180339887. To split a length in golden proportion, multiply it by 0.618 for the larger part and by 0.382 for the smaller. To extend a length, multiply it by 1.618. A 960 px width splits into 593 px and 367 px.
+
+Two lengths are in the golden ratio when the whole is to the larger part as the larger part is to the smaller. That single sentence produces one number, and three multiplications cover every practical use of it.
+
+![Golden Ratio Calculator with three linked fields a, b and c and the ratio constants below](https://aisixteen.com/goldencalc/screenshot-960.webp "Golden Ratio Calculator: enter any one of the three values and the other two follow.")
+
+#### What is the golden ratio exactly?
+
+Call the larger part *a* and the smaller part *b*. The definition is (a + b) ÷ a = a ÷ b. Setting that common ratio to φ gives the equation φ² = φ + 1, whose positive solution is:
+
+**φ = (1 + √5) ÷ 2 = 1.6180339887…**
+
+It is irrational: the decimals never end or repeat. Three constants do all the work:
+
+| Constant | Value | Meaning |
+|---|---|---|
+| φ | 1.6180339887 | whole ÷ larger part, and larger ÷ smaller |
+| 1 ÷ φ | 0.6180339887 | larger part ÷ whole (also φ − 1) |
+| 1 ÷ φ² | 0.3819660113 | smaller part ÷ whole (also 2 − φ) |
+
+Note that 0.618 + 0.382 = 1, as it must: the two parts make the whole.
+
+#### How do you split a length into golden sections?
+
+Multiply the whole by 0.618 and by 0.382.
+
+- **960 px layout:** 960 × 0.618 = 593 px for the main column, 960 × 0.382 = 367 px for the sidebar.
+- **A 2.40 m wall:** 1.483 m and 0.917 m.
+- **A whole of 33,333:** 20,600.93 and 12,732.07.
+
+Check any result by dividing: 593 ÷ 367 = 1.616, as close as whole pixels allow.
+
+#### How do you go from one part to the others?
+
+| You know | Larger part | Smaller part | Whole |
+|---|---|---|---|
+| The whole, *c* | c × 0.618 | c × 0.382 | c |
+| The larger part, *a* | a | a × 0.618 | a × 1.618 |
+| The smaller part, *b* | b × 1.618 | b | b × 2.618 |
+
+Example: a photo's main subject area is 500 mm wide and you want the full frame in golden proportion to it. Whole = 500 × 1.618 = 809 mm; the remaining strip is 309 mm.
+
+#### How do you build a golden rectangle?
+
+A golden rectangle has sides in the ratio 1 : 1.618. Fix one side and multiply or divide.
+
+- Height 1,000 px → width 1,618 px (landscape), or width 618 px (portrait).
+- A 16:9 screen has a ratio of 1.778 and a 3:2 photo has 1.5, so neither is golden; 16:10 (1.6) is the closest common screen shape.
+
+Cut a square off a golden rectangle and the piece left over is another, smaller golden rectangle. Repeating this is the construction behind the familiar spiral.
+
+#### How is the golden ratio used for type and spacing?
+
+As a modular scale: pick a base size and multiply by φ for each step.
+
+| Step | Size from a 16 px base |
+|---|---|
+| Small | 10 px (16 ÷ 1.618 = 9.9) |
+| Body | 16 px |
+| Subhead | 26 px (25.9) |
+| Heading | 42 px (41.9) |
+| Display | 68 px (67.8) |
+
+The jumps are large, which suits posters and landing pages more than dense interfaces. Many designers use √φ (about 1.272) for a gentler scale with a step in between: 16, 20, 26, 33, 42.
+
+#### How does the Fibonacci sequence relate to it?
+
+In the sequence 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89… each number is the sum of the two before it, and the ratio of neighbours closes in on φ:
+
+| Ratio | Value |
+|---|---|
+| 8 ÷ 5 | 1.6000 |
+| 13 ÷ 8 | 1.6250 |
+| 21 ÷ 13 | 1.6154 |
+| 55 ÷ 34 | 1.6176 |
+| 89 ÷ 55 | 1.6182 |
+
+That makes Fibonacci numbers handy whole-number stand-ins: a 5 : 8 or 8 : 13 split is a golden split to within about 1%.
+
+#### Is the golden ratio really the secret of beauty?
+
+The mathematics is exact; many popular claims about it are not. The mathematician George Markowsky reviewed the best-known ones in 1992 and found that the supposed golden proportions of the Parthenon and the Great Pyramid depend on choosing which points to measure, and that experiments do not show people reliably preferring the golden rectangle over nearby shapes. A4 and the other ISO paper sizes use 1 : √2 (1.414), not φ.
+
+Where φ does appear in nature, it has a mechanical reason. Many plants set each new leaf or seed about 137.5° around the stem from the last, the "golden angle" (360° ÷ φ²), which packs them efficiently.
+
+A fair summary: the golden ratio is a pleasant, well-behaved proportion and a convenient way to choose two related sizes. It is a tool, not a law.
+
+#### Where does Golden Ratio Calculator fit?
+
+[Golden Ratio Calculator](https://aisixteen.com/golden-ratio-calculator/) has three linked fields: the larger part, the smaller part and the whole. Type any one and the other two update at once, using the constants 0.6180339887, 0.3819660113 and 1.6180339887, which you can also copy. It runs on your device with no account.
+
+#### Frequently asked questions
+
+##### What is the golden ratio to 10 decimal places?
+
+1.6180339887. Its reciprocal is 0.6180339887 and the reciprocal of its square is 0.3819660113.
+
+##### What is 61.8% and 38.2%?
+
+The golden split of a whole: the larger part is 61.8% and the smaller is 38.2%. The larger divided by the smaller is 1.618.
+
+##### Is 16:9 a golden rectangle?
+
+No. 16:9 is 1.778. A golden rectangle is 1.618, closest to the 16:10 shape.
+
+#### Sources
+
+- George Markowsky, "Misconceptions about the Golden Ratio", *The College Mathematics Journal* 23 (1), 1992.
+- Mario Livio, *The Golden Ratio: The Story of Phi* (Broadway Books, 2002).
+
+### How do you add, subtract and divide feet, inches and fractions?
+
+URL: https://aisixteen.com/kerf-calc/blog/feet-inch-fraction-math/ · App: Kerf Calc (https://aisixteen.com/kerf-calc/) · Published: 2026-11-24
+
+Short answer: Convert every dimension to inches, do the arithmetic, then convert back: divide by 12 for the feet and multiply the decimal remainder by 16 for sixteenths. 8' 4-1/2" + 3' 9-3/4" is 100.5" + 45.75" = 146.25", which is 12' 2-1/4".
+
+A tape measure speaks in feet, inches and fractions; a pocket calculator speaks in decimals. Most layout mistakes happen in the translation between the two. This guide shows the method that always works, with numbers you can check.
+
+![Kerf Calc rafter tool on Mac, showing the inputs, the formula and the cut length](https://aisixteen.com/kerfcalc/screenshot-960.webp "Kerf Calc on Mac: every tool works in feet, inches and fractions and shows its formula.")
+
+#### How do you add feet, inches and fractions by hand?
+
+Turn each measurement into inches, add, and turn the total back.
+
+1. **To inches:** feet × 12 + inches + fraction. So 8' 4-1/2" is 96 + 4 + 0.5 = **100.5"**, and 3' 9-3/4" is 36 + 9 + 0.75 = **45.75"**.
+2. **Add:** 100.5 + 45.75 = **146.25"**.
+3. **Back to feet:** 146.25 ÷ 12 = 12 with 2.25 left over. That is 12 feet and 2.25 inches.
+4. **Back to a fraction:** 0.25 × 16 = 4 sixteenths = 1/4.
+
+Result: **12' 2-1/4"**.
+
+Subtraction is the same road. 12' 2-1/4" − 5' 7-5/8" is 146.25 − 67.625 = 78.625". That is 6 feet (72") plus 6.625", and 0.625 × 16 = 10 sixteenths = 5/8. Result: **6' 6-5/8"**.
+
+#### How do you turn a decimal into a tape fraction?
+
+Multiply the decimal part by the denominator you want and round to the nearest whole number. For sixteenths, multiply by 16.
+
+| Decimal inch | × 16 | Fraction |
+|---|---|---|
+| 0.0625 | 1 | 1/16 |
+| 0.125 | 2 | 1/8 |
+| 0.1875 | 3 | 3/16 |
+| 0.25 | 4 | 1/4 |
+| 0.3125 | 5 | 5/16 |
+| 0.375 | 6 | 3/8 |
+| 0.4375 | 7 | 7/16 |
+| 0.5 | 8 | 1/2 |
+| 0.5625 | 9 | 9/16 |
+| 0.625 | 10 | 5/8 |
+| 0.6875 | 11 | 11/16 |
+| 0.75 | 12 | 3/4 |
+| 0.8125 | 13 | 13/16 |
+| 0.875 | 14 | 7/8 |
+| 0.9375 | 15 | 15/16 |
+
+The same trick works for any precision: multiply by 32 for thirty-seconds or by 64 for sixty-fourths.
+
+#### How do you divide a length into equal parts without the error adding up?
+
+Divide in decimals, but lay out from running totals, not by stepping the rounded part.
+
+Take 12' 2-1/4" (146.25") split into 7 equal parts. 146.25 ÷ 7 = 20.892857". To the nearest sixteenth that is 20-7/8" (20.875"), which is 0.018" short each time. Step 20-7/8" seven times and you land at 146.125", a full 1/8" short of the end.
+
+Instead, multiply first and round each mark on its own:
+
+| Mark | Exact (in) | On the tape |
+|---|---|---|
+| 1 | 20.893 | 20-7/8" |
+| 2 | 41.786 | 41-13/16" |
+| 3 | 62.679 | 62-11/16" |
+| 4 | 83.571 | 83-9/16" |
+| 5 | 104.464 | 104-7/16" |
+| 6 | 125.357 | 125-3/8" |
+| 7 | 146.25 | 146-1/4" |
+
+Every mark is now within 1/32" of true, and the last one lands exactly on the end.
+
+#### How do feet and inches multiply into area and volume?
+
+Convert to decimal feet before you multiply. A slab 10' × 8' is 80 sq ft. At 4" thick, the depth is 4 ÷ 12 = 0.3333 ft, so the volume is 80 × 0.3333 = **26.67 cu ft**. Concrete is ordered by the cubic yard, and a cubic yard is 27 cu ft: 26.67 ÷ 27 = **0.99 cu yd** before any waste allowance.
+
+Do not multiply feet by inches directly. 10' × 8' × 4 gives 320, which is neither cubic feet nor anything else.
+
+#### What is saw kerf, and when does it matter?
+
+Kerf is the width of material a saw blade turns into dust. A full-kerf 10" table-saw blade removes about 1/8"; a thin-kerf blade removes about 3/32". Every cut costs one kerf, so a cut list has to include it.
+
+Example: an 8-foot board (96") cut into 19" pieces with a 1/8" blade.
+
+- Five pieces need 5 × 19" = 95", plus four cuts between them: 4 × 1/8" = 1/2". Total 95-1/2". It fits, with 1/2" left.
+- Six 16" pieces need 96" of wood plus five kerfs (5/8"). The board is 5/8" too short, even though 6 × 16 = 96.
+
+The general rule: **stock needed = pieces × length + cuts × kerf**.
+
+#### How do inches convert to millimetres exactly?
+
+One inch is exactly 25.4 mm. This is a definition, not a rounding: the international yard was fixed at 0.9144 m in 1959. So 3/4" is 19.05 mm and a sixteenth is 1.5875 mm. Going the other way, 100 mm is 3.937", just under 3-15/16".
+
+#### Where does Kerf Calc fit?
+
+[Kerf Calc](https://aisixteen.com/kerf-calc/) is a field calculator that keeps the whole calculation in feet, inches and fractions. You enter dimensions the way you read them off the tape and read the result to the fraction you choose, from 1/8 down to 1/64. Area and volume work on the same tape. Each tool shows the formula it used. It works offline and has no account. It is a calculator, not a substitute for the code adopted where you build.
+
+Next: [how to calculate stair rise and run to code](https://aisixteen.com/kerf-calc/blog/stair-rise-and-run-to-code/).
+
+#### Frequently asked questions
+
+##### What is 0.625 inches as a fraction?
+
+0.625" is 5/8". Multiply the decimal by 16 to get sixteenths: 0.625 × 16 = 10, and 10/16 reduces to 5/8.
+
+##### How many inches is 12 feet 2 and 1/4 inches?
+
+146.25 inches: 12 × 12 = 144, plus 2.25.
+
+##### Should I measure in sixteenths or thirty-seconds?
+
+Framing is normally laid out to the nearest 1/16". Finish carpentry and cabinet work often go to 1/32". Pick one precision for the job and round each mark from the exact value, not from the previous mark.
+
+#### Sources
+
+- NIST Special Publication 811, *Guide for the Use of the International System of Units*, Appendix B (the inch is exactly 25.4 mm): [nist.gov](https://www.nist.gov/pml/special-publication-811)
+
+### How do you calculate stair rise and run to code?
+
+URL: https://aisixteen.com/kerf-calc/blog/stair-rise-and-run-to-code/ · App: Kerf Calc (https://aisixteen.com/kerf-calc/) · Published: 2026-11-24
+
+Short answer: Measure the total rise from finished floor to finished floor, divide by the maximum riser height (7-3/4" under the IRC) and round up to get the number of risers. Divide the total rise by that number for the exact riser. There is one tread fewer than risers.
+
+A stair is laid out from one measurement: the total rise between two finished floors. Everything else follows from it and from the limits in the building code. This guide works one stair from start to finish, first to the residential code and then to the commercial one.
+
+#### What do the IRC and the IBC require for stairs?
+
+The two model codes used across the United States set different limits. Your jurisdiction adopts one edition and may amend it, so treat these as the starting point and check locally.
+
+| Limit | IRC (one- and two-family homes) | IBC (most other buildings) |
+|---|---|---|
+| Riser height | 7-3/4" maximum | 4" minimum, 7" maximum |
+| Tread depth | 10" minimum | 11" minimum |
+| Variation within a flight | 3/8" between the largest and smallest riser, and the same for treads | 3/8" |
+| Headroom | 6' 8" minimum | 80" (6' 8") minimum |
+| Nosing | 3/4" to 1-1/4", required where treads are under 11" | Projection limited to 1-1/4" |
+
+The IRC limits are in section R311.7; the IBC limits are in section 1011. The IBC keeps the 7-3/4" and 10" figures as an exception for stairs inside dwelling units.
+
+#### How many risers do I need?
+
+Divide the total rise by the maximum riser height and round **up**.
+
+Worked example, IRC: total rise 106" (8' 10"), finished floor to finished floor.
+
+1. 106 ÷ 7.75 = 13.68. Round up: **14 risers**.
+2. Exact riser: 106 ÷ 14 = 7.5714", which is **7-9/16"** on the tape (7.5625").
+3. Treads: one fewer than risers, because the upper floor is the last step. **13 treads**.
+4. Total run at the 10" minimum tread: 13 × 10" = 130" = **10' 10"**.
+
+Rounding down to 13 risers would give 106 ÷ 13 = 8.15", which is over the limit. Always round up.
+
+The same stair to the IBC: 106 ÷ 7 = 15.14, so 16 risers of 6.625" (6-5/8"), 15 treads, and a total run of 15 × 11" = 165" (13' 9"). The commercial stair is almost three feet longer on plan for the same rise.
+
+#### How long is the stringer?
+
+The stringer is the hypotenuse of the total rise and the total run.
+
+For the IRC stair: √(106² + 130²) = √28,136 = **167.7"**, about 13' 11-3/4". Order stock longer than that: a 14-foot board is 168" and leaves almost nothing for the plumb and level cuts at each end, so this stair wants a 16-footer.
+
+The pitch is the angle whose tangent is riser ÷ tread: arctan(7.571 ÷ 10) = **37.1°**.
+
+#### Why do the risers have to match within 3/8 inch?
+
+People stop looking at a stair after the first two steps and walk by rhythm. A single odd riser is where they trip. The code limit is 3/8" between the largest and the smallest riser in a flight.
+
+Two things break the limit in practice:
+
+- **Floor finishes.** Lay out from *finished* floor to *finished* floor. If 3/4" hardwood goes down upstairs after the stringers are cut, the top riser grows by 3/4".
+- **Stepping off a rounded number.** Seven-and-nine-sixteenths is 0.009" short of the exact riser. Over 14 risers that is 1/8". Mark each riser from the bottom as a running total (7.571, 15.143, 22.714…) and round each mark by itself.
+
+Remember the bottom of the stringer too: it sits on the floor, and the first tread adds its own thickness. Cut the tread thickness off the bottom of the stringer so the first riser matches the rest.
+
+#### Is there a comfort rule as well as the code?
+
+Yes. A long-standing rule of thumb says two risers plus one tread should come to about 24" to 25". The IRC example gives 2 × 7.57 + 10 = 25.1", at the steep end. A 10-1/2" tread would lengthen the run to 136-1/2" and make the stair easier to walk, if the plan has the room. The rule is a guide; the code limits are the requirement.
+
+#### How does headroom get checked?
+
+Headroom is measured vertically from the sloped line that joins the tread nosings up to the lowest thing above it: a beam, a soffit, the edge of the floor opening. The minimum is 6' 8". On a stair with a 37° pitch, the opening in the floor above has to be long enough that a person 6' 8" tall clears its edge, which is why the stairwell opening is usually much longer than people expect.
+
+#### Where does Kerf Calc fit?
+
+[Kerf Calc](https://aisixteen.com/kerf-calc/) has a stair tool that takes the total rise and checks the riser, tread and headroom against the IRC or IBC limits as you type, and shows the formula and the code section it cites. It gives the layout in feet, inches and fractions. It runs offline. It is a field calculator: confirm the result against the code adopted where you build, and against your inspector.
+
+Related: [feet-inch-fraction math by hand](https://aisixteen.com/kerf-calc/blog/feet-inch-fraction-math/).
+
+#### Frequently asked questions
+
+##### What is the maximum riser height for a house?
+
+7-3/4" under the International Residential Code (R311.7.5.1). Local amendments can differ, and some jurisdictions use 8" or 8-1/4".
+
+##### Is the number of treads the same as the number of risers?
+
+No. A straight flight has one tread fewer than risers, because the upper floor acts as the last tread.
+
+##### How much can stair risers vary?
+
+By no more than 3/8" between the tallest and the shortest riser in one flight, under both the IRC and the IBC.
+
+#### Sources
+
+- International Residential Code 2021, section R311.7, Stairways: [codes.iccsafe.org](https://codes.iccsafe.org/content/IRC2021P2/chapter-3-building-planning)
+- International Building Code 2021, section 1011, Stairways: [codes.iccsafe.org](https://codes.iccsafe.org/content/IBC2021P2/chapter-10-means-of-egress)
+
+### How do you calculate density altitude and wind correction angle?
+
+URL: https://aisixteen.com/truecourse-e6b/blog/density-altitude-and-wind-correction/ · App: TrueCourse E6B (https://aisixteen.com/truecourse-e6b/) · Published: 2026-11-24
+
+Short answer: Pressure altitude is field elevation plus 1,000 ft for each inch the altimeter setting is below 29.92. Density altitude is roughly pressure altitude plus 120 ft for every °C above standard temperature. Wind correction angle is the angle whose sine is wind speed × sin(wind angle) ÷ true airspeed.
+
+These are the calculations an E6B flight computer exists for, and the ones a knowledge test expects you to understand. Working each once by hand shows what the computer is doing and gives you a way to catch a mis-keyed entry.
+
+![TrueCourse E6B wind triangle solving a heading of 104 degrees with a vector diagram](https://aisixteen.com/truecourse/screenshot-960.webp "TrueCourse E6B: the wind triangle with its vector diagram.")
+
+#### How do you find pressure altitude?
+
+Pressure altitude is what the altimeter reads when it is set to 29.92 inHg. From the current setting:
+
+**Pressure altitude = field elevation + (29.92 − altimeter setting) × 1,000**
+
+Example: field elevation 5,000 ft, altimeter 29.72. The difference is 0.20 inHg, worth 200 ft. Pressure altitude = **5,200 ft**. A setting above 29.92 lowers it instead.
+
+The 1,000 ft per inch figure is an approximation that holds well near sea level and is the one the FAA handbooks teach.
+
+#### How do you find density altitude?
+
+Density altitude is pressure altitude corrected for temperature: the altitude in the standard atmosphere where the air is as thin as the air you are in. The aircraft performs as if it were there.
+
+1. **Standard temperature** at your pressure altitude: 15 °C at sea level, falling 2 °C per 1,000 ft. At 5,200 ft: 15 − 10.4 = **4.6 °C**.
+2. **Deviation** from standard: with 30 °C outside, 30 − 4.6 = **25.4 °C** warmer.
+3. **Rule of thumb:** 120 ft for each °C. 25.4 × 120 = 3,048 ft.
+
+Density altitude ≈ 5,200 + 3,048 = **about 8,250 ft**.
+
+On a warm afternoon the aeroplane at a 5,000 ft airport takes off as if the runway were at 8,250 ft: a longer ground roll, a slower climb and less power from a normally aspirated engine.
+
+The 120 ft rule is linear, and the real relationship is not. Computed from the ICAO Standard Atmosphere, the density altitude for this case is about 8,050 ft, some 200 ft lower than the rule of thumb. Here the rule errs on the cautious side, and the size of the gap changes with altitude and temperature, which is one reason to use a computed value for performance planning. Humidity raises density altitude a little and is in neither figure.
+
+#### How do you solve the wind triangle?
+
+You know your true course, your true airspeed, and the wind. You want the heading to hold and the groundspeed you will make.
+
+Worked example: true course 090°, true airspeed 120 kt, wind from 160° at 30 kt.
+
+1. **Wind angle** between the course and the wind direction: 160 − 90 = 70°, from the right.
+2. **Wind correction angle:** sin(WCA) = 30 × sin 70° ÷ 120 = 0.235, so WCA = **13.6°**. The wind is from the right, so correct to the right.
+3. **True heading:** 090 + 13.6 = **104°**.
+4. **Groundspeed:** 120 × cos 13.6° − 30 × cos 70° = 116.6 − 10.3 = **106 kt**.
+
+The formulas:
+
+- **WCA = arcsin( wind speed × sin(wind angle) ÷ TAS )**
+- **Groundspeed = TAS × cos(WCA) − wind speed × cos(wind angle)**
+
+Then apply magnetic variation and compass deviation to turn the true heading into the one you fly.
+
+#### How do you find the crosswind component for landing?
+
+Same trigonometry, with the runway in place of the course.
+
+**Crosswind = wind speed × sin(angle between wind and runway)**
+**Headwind = wind speed × cos(angle)**
+
+| Angle off the runway | Crosswind as a share of wind speed |
+|---|---|
+| 10° | 17% |
+| 20° | 34% |
+| 30° | 50% |
+| 45° | 71% |
+| 60° | 87% |
+| 90° | 100% |
+
+Runway 27 with the wind 300° at 20 kt: the angle is 30°, so the crosswind is **10 kt** and the headwind 17 kt. Compare the crosswind with the maximum demonstrated crosswind in your aircraft's handbook, and with your own limits. Runway numbers are magnetic, and tower and ATIS winds are magnetic; winds in METARs and forecasts are true.
+
+#### Why does true airspeed differ from indicated airspeed?
+
+The airspeed indicator measures the pressure of the air hitting the pitot tube, and thin air pushes less. At altitude the aeroplane is moving faster through the air than the needle shows. A common approximation is that true airspeed is about 2% higher than calibrated airspeed for each 1,000 ft of density altitude. At a density altitude of 8,000 ft, 110 kt calibrated is about 124 kt true; the rule of thumb gives 128. The exact figure comes from the air density at your pressure altitude and temperature.
+
+#### Where does TrueCourse E6B fit?
+
+[TrueCourse E6B](https://aisixteen.com/truecourse-e6b/) is an E6B flight computer for student pilots, GA pilots and CFIs. It solves the wind triangle with a live vector diagram (heading, groundspeed, wind correction angle and the crosswind and headwind components), true airspeed and Mach, density, pressure and true altitude, a nav log, fuel, climb and descent, and weight and balance with a CG envelope. Its numbers come from published formulas in the FAA-H-8083 handbooks and the ICAO Standard Atmosphere. It works offline with no account. It is a training and planning aid: the aircraft's flight manual and current official weather remain the authority for any flight.
+
+#### Frequently asked questions
+
+##### What is the formula for density altitude?
+
+A common approximation is pressure altitude + 120 × (outside air temperature − standard temperature), in feet and °C. Standard temperature is 15 °C minus 2 °C per 1,000 ft of pressure altitude.
+
+##### How do you calculate crosswind quickly?
+
+Multiply the wind speed by the sine of the angle between the wind and the runway: half the wind at 30°, about 70% at 45°, nearly all of it at 60° and beyond.
+
+##### Does humidity affect density altitude?
+
+Yes, slightly. Humid air is less dense than dry air at the same pressure and temperature, so it raises density altitude. The standard formulas ignore it.
+
+#### Sources
+
+- FAA, *Pilot's Handbook of Aeronautical Knowledge* (FAA-H-8083-25), chapters on flight instruments, aircraft performance and navigation: [faa.gov](https://www.faa.gov/regulations_policies/handbooks_manuals/aviation/phak)
+- ICAO Doc 7488, *Manual of the ICAO Standard Atmosphere*.
+
+### How can you tell whether the aurora will be visible tonight?
+
+URL: https://aisixteen.com/earth-around/blog/will-the-aurora-be-visible-tonight/ · App: Earth Around (https://aisixteen.com/earth-around/) · Published: 2026-11-24
+
+Short answer: Check three things in order: the forecast Kp and view line for tonight, then, on the night, whether the solar wind's Bz is pointing south and staying there, then your own sky: darkness, cloud and a clear view toward the pole. Solar wind readings give roughly 30 to 60 minutes of warning.
+
+An aurora forecast is really several forecasts with different ranges. Some look days ahead and are rough; one looks less than an hour ahead and is quite good. Knowing which is which tells you when to go to bed and when to put your boots on.
+
+#### What actually causes an aurora?
+
+Charged particles from the Sun flow past Earth as the solar wind, carrying a magnetic field with them. When that field points south, opposite to Earth's field on the day side, the two connect and energy is loaded into Earth's magnetic tail. When it is released, electrons run down the field lines and hit the upper atmosphere at about 100 to 300 km, where oxygen and nitrogen glow: green and red from oxygen, blue and purple from nitrogen.
+
+The light forms a ring around each magnetic pole, the auroral oval. More energy makes the oval brighter and pushes it toward the equator. Every forecast is an estimate of where that oval will be.
+
+#### How far ahead can each forecast see?
+
+| What you check | Looks ahead | How reliable | What it tells you |
+|---|---|---|---|
+| Coronal hole or eruption seen on the Sun | 1 to 4 days | Rough: arrival times can be off by half a day, and the field direction is unknown | Whether a night is worth keeping free |
+| Kp forecast and tonight's view line | Hours to 3 days | Moderate | How far from the pole the aurora might reach |
+| Solar wind at L1: speed, density, Bz | About 30 to 60 minutes | Good | Whether it is about to start |
+| The sky itself | Now | Certain | Whether you can see it |
+
+#### Why is Bz the number to watch?
+
+Bz is the north–south part of the magnetic field in the solar wind. It is the switch.
+
+- **Bz south (negative):** the door is open. Around −5 nT sustained is enough for activity at high latitudes; −10 nT or lower, held for an hour or more, is storm material.
+- **Bz north (positive):** the door is mostly closed, even if the wind is fast.
+
+Speed and density set how much arrives while the door is open. A quiet wind is 300 to 500 km/s; above 600 km/s with southward Bz is a strong combination.
+
+Bz can flip in minutes, which is why a promising evening can go quiet and a dull one can light up. Watch the trend over the last half hour, not a single reading.
+
+#### How much warning do solar wind readings give?
+
+The solar wind is measured by spacecraft at the L1 point, about 1.5 million km from Earth toward the Sun. The warning is the time the wind takes to cover that distance:
+
+| Solar wind speed | Travel time from L1 |
+|---|---|
+| 400 km/s | about 62 minutes |
+| 500 km/s | about 50 minutes |
+| 600 km/s | about 42 minutes |
+| 800 km/s | about 31 minutes |
+
+So the faster and more promising the wind, the less warning you get. NOAA's short-term aurora model, OVATION, takes those L1 measurements and produces a map of the oval for roughly the next 30 to 90 minutes.
+
+#### What is the view line?
+
+The view line is the edge of where an aurora might be *seen*, which is farther from the pole than where it is overhead. Because the light is 100 km or more up, an aurora overhead at one place can be seen low on the horizon from several hundred kilometres toward the equator. NOAA publishes a view line for tonight and tomorrow night. If you are near the line, expect a glow or pillars low on the poleward horizon rather than curtains overhead.
+
+#### Does a high Kp guarantee an aurora where I am?
+
+No. Kp is a planet-wide, three-hour average. It tells you how far the oval reached, not what was above you at 23:10. You can miss a display at Kp 7 under cloud, and people at high latitudes see aurora most clear nights at Kp 2. Use Kp to answer "is it my latitude's turn?" and Bz to answer "is it happening now?".
+
+#### What on the ground still decides it?
+
+- **Darkness.** The sky has to be properly dark. At high latitudes in summer it never is, which is why the aurora season runs from late August to April.
+- **Cloud.** Aurora is far above all weather. Solid cloud ends the night.
+- **Light pollution and the Moon.** A faint aurora is easily lost in city glow or under a full Moon. Get a dark horizon toward the pole.
+- **Time of night.** Activity is most likely in the hours around local midnight, though strong storms ignore the clock.
+- **Time of year.** Geomagnetic activity is statistically higher in the weeks around the March and September equinoxes.
+- **Your eyes.** Give them 15 to 20 minutes in the dark. A faint aurora looks grey-white to the eye; a phone camera on a long exposure will show the green first.
+
+#### A simple routine for the night
+
+1. **Afternoon:** look at the forecast Kp and tonight's view line. If the line is far poleward of you, relax.
+2. **After dark:** check cloud, then check Bz and speed. Southward and steady, go out.
+3. **Outside:** look toward the pole, low on the horizon, and wait. Displays come in bursts of 10 to 30 minutes with quiet gaps between.
+
+#### Where does Earth Around fit?
+
+[Earth Around](https://aisixteen.com/earth-around/) puts the inputs for this routine in one place: tonight's aurora chance with the view line, solar wind speed and Bz, Kp, and Hp30 at 30-minute resolution, from NOAA and GFZ feeds. It is on iPhone, iPad, Mac and Apple Watch, including watch complications. It needs a connection for live readings, and it has no account and no tracking. It does not know your cloud cover or how dark your sky is; that part is yours.
+
+Background: [what Kp and the NOAA G, R and S scales mean](https://aisixteen.com/earth-around/blog/kp-index-and-noaa-g-scale/).
+
+#### Frequently asked questions
+
+##### What Bz is good for aurora?
+
+Negative, meaning southward. Around −5 nT sustained helps at high latitudes; −10 nT or lower for an hour or more usually means a storm.
+
+##### How long before an aurora do you get a warning?
+
+About 30 to 60 minutes from solar wind measurements at L1, less when the wind is fast. Forecasts days ahead exist but are rough.
+
+##### What Kp do I need to see the aurora?
+
+It depends on your magnetic latitude. Near the Arctic Circle, Kp 1 to 3 is often enough; the northern United States and northern Europe typically need Kp 5 to 7; lower latitudes need a severe storm.
+
+#### Sources
+
+- NOAA Space Weather Prediction Center, Aurora 30-Minute Forecast (OVATION): [swpc.noaa.gov/products/aurora-30-minute-forecast](https://www.swpc.noaa.gov/products/aurora-30-minute-forecast)
+- NOAA Space Weather Prediction Center, Aurora Viewline for Tonight and Tomorrow Night: [swpc.noaa.gov](https://www.swpc.noaa.gov/products/aurora-viewline-tonight-and-tomorrow-night-experimental)
+- NOAA Space Weather Prediction Center, Real Time Solar Wind: [swpc.noaa.gov/products/real-time-solar-wind](https://www.swpc.noaa.gov/products/real-time-solar-wind)
+- Russell and McPherron, "Semiannual variation of geomagnetic activity", *Journal of Geophysical Research*, 1973: [doi.org/10.1029/JA078i001p00092](https://doi.org/10.1029/JA078i001p00092)
+
+### What do the Kp index and the NOAA G, R and S scales mean?
+
+URL: https://aisixteen.com/earth-around/blog/kp-index-and-noaa-g-scale/ · App: Earth Around (https://aisixteen.com/earth-around/) · Published: 2026-11-24
+
+Short answer: Kp is a 0 to 9 index of how disturbed the Earth's magnetic field is over three hours. NOAA's G scale names the storm level from it: Kp 5 is G1 (minor), 6 is G2, 7 is G3, 8 is G4 and 9 is G5 (extreme). R rates radio blackouts from flares; S rates radiation storms.
+
+Space weather reports use a handful of numbers that look alike and measure different things. This guide separates them: what each one measures, where it comes from, and what a given level means in practice.
+
+![Earth Around dashboard with the NOAA space weather scales, planetary Kp chart and solar wind readings](https://aisixteen.com/eartharound/screenshot-960.webp "Earth Around: the NOAA scales first, then the numbers behind them.")
+
+#### What is the Kp index?
+
+Kp is the planetary K index. Thirteen magnetic observatories around the world each measure how far the horizontal magnetic field strayed from its quiet-day curve during a three-hour window. Each station turns that range into a local K value, and the values are combined into one planetary number from 0 (quiet) to 9 (extreme).
+
+Three things follow from how it is built:
+
+- **It is quasi-logarithmic.** Each step up means a much larger disturbance, not an equal one.
+- **It covers three hours.** A short, violent disturbance and a long, moderate one can give the same Kp.
+- **The official value comes later.** The definitive Kp is produced by GFZ, the German Research Centre for Geosciences in Potsdam. NOAA publishes its own estimated Kp in near real time, which is what most live displays show.
+
+#### How does Kp map to the NOAA G scale?
+
+The G scale is NOAA's public storm scale for geomagnetic storms. It is a direct relabelling of Kp from 5 upward.
+
+| G level | Name | Kp | Average frequency per 11-year cycle | Aurora may be seen as low as (NOAA's examples) |
+|---|---|---|---|---|
+| G1 | Minor | 5 | 1,700 storms (900 days) | Northern Michigan and Maine |
+| G2 | Moderate | 6 | 600 (360 days) | New York and Idaho |
+| G3 | Strong | 7 | 200 (130 days) | Illinois and Oregon |
+| G4 | Severe | 8, including 9− | 100 (60 days) | Alabama and northern California |
+| G5 | Extreme | 9 | 4 (4 days) | Florida and southern Texas |
+
+The effects NOAA lists grow with the level: weak power-grid fluctuations at G1, voltage alarms at high latitudes at G2, voltage corrections and satellite drag problems at G3, and possible widespread voltage-control problems and, at G5, grid collapse or transformer damage. Below Kp 5 there is no G level at all.
+
+#### What are the R and S scales?
+
+They rate two other things the Sun does, and neither depends on Kp.
+
+**R: radio blackouts.** A solar flare's X-rays reach Earth in about eight minutes and ionise the sunlit upper atmosphere, which absorbs HF radio. The level is set by the flare's peak X-ray flux measured by the GOES satellites.
+
+| R level | Flare class at peak | X-ray flux (W/m²) |
+|---|---|---|
+| R1 Minor | M1 | 10⁻⁵ |
+| R2 Moderate | M5 | 5 × 10⁻⁵ |
+| R3 Strong | X1 | 10⁻⁴ |
+| R4 Severe | X10 | 10⁻³ |
+| R5 Extreme | X20 | 2 × 10⁻³ |
+
+Flare classes run A, B, C, M, X, each ten times stronger than the last, so an X1 flare is ten times an M1.
+
+**S: solar radiation storms.** These rate energetic protons arriving at Earth, by the flux of protons of 10 MeV and above: S1 at 10 particle flux units, then 100, 1,000, 10,000 and 100,000 for S5. They matter to astronauts, polar flights and satellites.
+
+A single eruption can trigger all three scales at different times: R within minutes of the flare, S within tens of minutes to hours, and G one to three days later when the ejected cloud of plasma arrives.
+
+#### What is Hp30, and why use it next to Kp?
+
+Kp's three-hour window hides fast changes. In 2022 GFZ introduced the Hpo family of indices, built the same way as Kp but with shorter windows: **Hp30** every 30 minutes and Hp60 every hour. Two differences matter:
+
+- **Resolution.** A sharp substorm shows up in Hp30 within half an hour instead of being averaged into a three-hour block.
+- **No ceiling.** Kp stops at 9. Hp30 is open-ended, so it can tell one extreme storm from a stronger one.
+
+On a quiet day the two tell the same story. During a storm, Hp30 shows you its shape.
+
+#### What do solar wind speed and Bz add?
+
+Kp and the G scale describe what has already happened at the ground. The solar wind, measured by spacecraft about 1.5 million km upstream of Earth, shows what is about to happen.
+
+- **Speed.** The slow wind is around 300 to 500 km/s. Streams from coronal holes and clouds from eruptions can exceed 600 to 800 km/s.
+- **Bz.** The north–south component of the magnetic field carried by the wind. When Bz points south (negative), it links with Earth's field and energy pours in. A strongly negative Bz held for hours is the usual cause of a storm; a fast wind with northward Bz often does very little.
+
+How to use these for one specific question is covered in [how to tell whether the aurora will be visible tonight](https://aisixteen.com/earth-around/blog/will-the-aurora-be-visible-tonight/).
+
+#### Where does Earth Around fit?
+
+[Earth Around](https://aisixteen.com/earth-around/) shows the current NOAA G, R and S levels in plain words, then the numbers behind them: Kp, Hp30 at 30-minute resolution, solar wind speed and Bz, and GOES X-ray flux. It runs on iPhone, iPad, Mac and Apple Watch. It needs a connection, because the data are live feeds from NOAA and GFZ. It has no account and no tracking. It displays measurements and the official scales; operational decisions for power grids, aviation or satellites belong with the official NOAA products.
+
+#### Frequently asked questions
+
+##### What Kp is a geomagnetic storm?
+
+Kp 5 or higher. Kp 5 is G1 (minor), 6 is G2, 7 is G3, 8 is G4 and 9 is G5 (extreme).
+
+##### Is Kp a forecast or a measurement?
+
+A measurement of the past three hours. NOAA also issues Kp forecasts, which are predictions and are labelled as such.
+
+##### Do solar flares cause geomagnetic storms?
+
+Not directly. A flare's X-rays cause radio blackouts within minutes. Geomagnetic storms come from solar wind and from coronal mass ejections, which take one to three days to arrive.
+
+#### Sources
+
+- NOAA Space Weather Prediction Center, NOAA Space Weather Scales: [swpc.noaa.gov/noaa-scales-explanation](https://www.swpc.noaa.gov/noaa-scales-explanation)
+- GFZ Helmholtz Centre for Geosciences, the Kp index and the Hpo indices (Hp30, Hp60): [kp.gfz.de](https://kp.gfz.de/en/)
+- Yamazaki et al., "Geomagnetic Activity Index Hpo", *Geophysical Research Letters*, 2022: [doi.org/10.1029/2022GL098860](https://doi.org/10.1029/2022GL098860)
+
+### How do tide predictions work, and can they be computed offline?
+
+URL: https://aisixteen.com/marine-nav/blog/how-tide-predictions-work/ · App: Marine Nav (https://aisixteen.com/marine-nav/) · Published: 2026-11-24
+
+Short answer: A tide prediction is the sum of a few dozen cosine waves, called harmonic constituents, each with a fixed astronomical period and a height and timing measured for one station. The constants are published, so the sum can be computed on a device with no connection. It predicts the astronomical tide only, not wind or surge.
+
+A tide table looks like data from somewhere. It is really the output of a formula, and the same formula can run anywhere the station's constants are stored. That matters at sea, where a connection is the first thing to go.
+
+![Marine Nav tide screen for San Francisco with the day's tide curve, high and low water times](https://aisixteen.com/marinenav/screenshot-960.webp "Marine Nav: a day's tide curve computed on the device from NOAA harmonic constants.")
+
+#### What is the harmonic method?
+
+The Moon and the Sun pull on the ocean with rhythms that astronomy gives exactly: the Moon passing overhead, the Sun passing overhead, the Moon's changing distance and tilt. Each rhythm produces a small regular rise and fall of the sea, a **constituent**, with a period that never changes.
+
+What does change from port to port is how big each constituent is and how late it runs, because every bay and estuary responds differently. So for each station, a year or more of water-level measurements is analysed to find two numbers per constituent:
+
+- its **amplitude** (how high), and
+- its **phase lag** (how late, relative to the astronomical forcing).
+
+Those are the **harmonic constants**. The predicted height at any moment is then:
+
+**height = mean level + sum of [ f × amplitude × cos(speed × time + astronomical argument − phase lag) ]**
+
+where *f* and the astronomical argument are slow corrections for the 18.6-year cycle of the Moon's orbit. NOAA's standard predictions use 37 constituents.
+
+#### Which constituents matter most?
+
+Usually five carry most of the tide.
+
+| Constituent | Cause | Period (hours) |
+|---|---|---|
+| M2 | Principal lunar, twice daily | 12.42 |
+| S2 | Principal solar, twice daily | 12.00 |
+| N2 | The Moon's elliptical orbit | 12.66 |
+| K1 | Lunar-solar, once daily | 23.93 |
+| O1 | Lunar, once daily | 25.82 |
+
+Three familiar facts fall out of this table:
+
+- **Tides come about 50 minutes later each day**, because M2 repeats every 12 h 25 min, so two cycles take 24 h 50 min.
+- **Springs and neaps.** M2 and S2 drift in and out of step every 14.77 days. In step, they add (spring tides, near new and full Moon). Out of step, they partly cancel (neap tides).
+- **Mixed tides.** Where K1 and O1 are large compared with M2, as on the US west coast, the two high waters of a day have very different heights.
+
+#### Why can this be computed offline?
+
+Because nothing in the formula comes from a live measurement. The astronomy is known centuries ahead, and the station's constants are fixed numbers published by the hydrographic authority, in the US by NOAA's Center for Operational Oceanographic Products and Services. An app that stores the constants and does the sum gives the same predictions with the radio off as with it on.
+
+Times need care. A tide table read in the wrong time zone is a navigational error, so a prediction should always state the zone it is in.
+
+#### What do tide predictions leave out?
+
+Everything that is not astronomy. The predicted height is the **astronomical tide**. The observed water level also includes:
+
+- **Wind and pressure.** Onshore gales and low pressure raise the water; a deep low can add a storm surge of a metre or more. High pressure lowers it, roughly one centimetre per hectopascal.
+- **River flow** in estuaries.
+- **Seiches** and other local oscillations.
+
+Heights are given above a **chart datum**. In the United States that is Mean Lower Low Water (MLLW), the average of the lower of each day's two low waters, so a predicted height can be negative on a low spring tide. Check which datum your chart uses before adding a tide height to a charted depth.
+
+#### Is slack water at the same time as high water?
+
+Often not. Tide (the vertical movement) and tidal current (the horizontal flow) are different predictions with their own constants. In many channels the current keeps flooding well after high water and turns an hour or more later. Use current predictions for slack water, never the tide table.
+
+#### What is the rule of twelfths?
+
+A mental approximation for a regular twice-daily tide: over the six hours between low and high water, the level changes by 1, 2, 3, 3, 2 and 1 twelfths of the range. With a 3.6 m range, the water rises 0.3 m in the first hour, 0.6 in the second, 0.9 in each of the middle two, then 0.6 and 0.3. It is a sine curve in round numbers, and it fails where the tide is mixed or distorted by shallow water. A computed curve is better whenever you have one.
+
+#### Where does Marine Nav fit?
+
+[Marine Nav](https://aisixteen.com/marine-nav/) carries NOAA's published harmonic constants for its stations and runs the harmonic synthesis on the device, so tide and tidal-current predictions, including slack water, work with no signal. Times are shown in the station's own time zone, labelled. Its predictions are validated against NOAA's own published predictions for the same stations. The limits are stated on screen: astronomical tide only, no storm surge or wind, and currents along the major axis only. The app also does magnetic declination from the World Magnetic Model 2025, great-circle distance and bearing, and celestial sight reduction. It is an aid to planning, not a substitute for official tide tables, charts or prudent seamanship.
+
+#### Frequently asked questions
+
+##### How accurate are tide predictions?
+
+For the astronomical tide at a station with good constants, typically within a few centimetres and a few minutes. The observed level can differ much more when wind and pressure are unusual.
+
+##### Why are there two high tides a day?
+
+Because the Moon's pull raises water on the side of the Earth facing it and on the opposite side, and the Earth turns under both bulges. The main lunar constituent, M2, has a period of 12 hours 25 minutes.
+
+##### Do tide predictions include storm surge?
+
+No. They are the astronomical tide. Surge from wind and low pressure is forecast separately by the weather service.
+
+#### Sources
+
+- NOAA Center for Operational Oceanographic Products and Services, harmonic constituents and tide predictions: [tidesandcurrents.noaa.gov](https://tidesandcurrents.noaa.gov/about_harmonic_constituents.html)
+- NOAA Special Publication NOS CO-OPS 3, *Tidal Analysis and Prediction* (2007): [tidesandcurrents.noaa.gov/publications](https://tidesandcurrents.noaa.gov/publications/Tidal_Analysis_and_Predictions.pdf)
+- NOAA, tidal datums: [tidesandcurrents.noaa.gov/datum_options.html](https://tidesandcurrents.noaa.gov/datum_options.html)
+
+### How is a loan payment calculated?
+
+URL: https://aisixteen.com/par/blog/how-a-loan-payment-is-calculated/ · App: Par (https://aisixteen.com/par/) · Published: 2026-11-24
+
+Short answer: A fixed loan payment is PMT = P × i ÷ (1 − (1 + i)^−n), where P is the amount borrowed, i is the interest rate per period and n is the number of payments. For 420,000 at 6.25% over 360 months, i is 0.0625 ÷ 12 and the payment is 2,586.01.
+
+Every fixed-rate loan, from a car loan to a 30-year mortgage, is priced with one equation. Financial calculators call its five variables N, I/Y, PV, PMT and FV. This guide works the equation by hand so you can check any number a calculator or a lender gives you.
+
+![Par time-value-of-money screen with a running tape of calculations beside it](https://aisixteen.com/par/screenshot-960.webp "Par: the calculation on the left, the tape of every solve on the right.")
+
+#### What is the loan payment formula?
+
+**PMT = P × i ÷ (1 − (1 + i)^−n)**
+
+- **P** is the principal: the amount borrowed (PV on a calculator).
+- **i** is the periodic rate: the annual note rate divided by the number of payments per year.
+- **n** is the total number of payments (N).
+
+The formula comes from one idea: the loan amount equals the present value of all the payments, each discounted at the loan's own rate.
+
+#### How do you work it for a 30-year loan?
+
+Take 420,000 borrowed at a 6.25% note rate, paid monthly for 30 years.
+
+1. **Periodic rate:** 0.0625 ÷ 12 = 0.00520833.
+2. **Number of payments:** 30 × 12 = 360.
+3. **Growth factor:** (1.00520833)^360 = 6.4892.
+4. **Denominator:** 1 − 1 ÷ 6.4892 = 0.84590.
+5. **Numerator:** 420,000 × 0.00520833 = 2,187.50.
+6. **Payment:** 2,187.50 ÷ 0.84590 = **2,586.01** per month.
+
+Over 360 payments that is 930,964 in total, of which 510,964 is interest. The interest is larger than the loan, which is normal at this rate and term.
+
+#### How does the payment split between interest and principal?
+
+Each month, interest is charged on the balance still owed, and whatever is left of the payment reduces the balance.
+
+| Payment | Interest | Principal | Balance after |
+|---|---|---|---|
+| 1 | 2,187.50 | 398.51 | 419,601.49 |
+| 2 | 2,185.42 | 400.59 | 419,200.90 |
+| 3 | 2,183.34 | 402.67 | 418,798.23 |
+
+Interest for payment 2 is 419,601.49 × 0.00520833 = 2,185.42. The principal part grows a little every month, slowly at first: on this loan the balance does not fall below half until about year 21. That is why an extra payment early in a loan saves far more interest than the same payment late.
+
+#### Why do calculators show the payment as a negative number?
+
+Because of the cash-flow sign convention. Money you receive is positive, and money you pay out is negative. You receive the loan (PV = +420,000), so the payments are outflows (PMT = −2,586.01). If you enter both as positive, a calculator solving for the rate or the term will report an error, because no such loan can exist.
+
+#### What is the difference between the note rate, APR and APY?
+
+They answer three different questions, and regulations define two of them.
+
+| Term | What it measures | Defined by |
+|---|---|---|
+| Note rate | The rate used to compute interest on the balance | The loan contract |
+| APR | The yearly cost of credit including certain fees (the finance charge), expressed as a rate | Regulation Z (Truth in Lending), 12 CFR 1026 |
+| APY | The yearly yield on a deposit including compounding | Regulation DD (Truth in Savings), 12 CFR 1030 |
+
+**APR on a loan** is found by asking: given the payments, what rate makes them equal to the amount the borrower actually received after prepaid finance charges? In the example, if 6,000 of fees count as finance charges, the amount financed is 414,000 while the payment stays 2,586.01. Solving the same formula for the rate gives an APR of about 6.39%, above the 6.25% note rate.
+
+**APY on a deposit** shows the effect of compounding: APY = (1 + r ÷ m)^m − 1. A 6.25% rate compounded monthly is (1.00520833)^12 − 1 = **6.43%**.
+
+A loan's APR and a deposit's APY are not comparable; they are built differently on purpose.
+
+#### Do the day-count rules change the answer?
+
+For a standard monthly-payment loan, no: every month is treated as one twelfth of a year. Day count matters when interest accrues by the day, as on bonds, money-market instruments and some commercial loans.
+
+- **30/360** treats every month as 30 days and the year as 360.
+- **Actual/360** counts real days but divides by 360, which yields slightly more interest per year than the stated rate.
+- **Actual/365** and **Actual/Actual** count real days over a 365-day or actual-length year.
+
+On 1,000,000 at 6% for a 31-day month, 30/360 accrues 5,000.00, Actual/360 accrues 5,166.67 and Actual/365 accrues 5,095.89. Always check which convention a document names.
+
+#### Where does Par fit?
+
+[Par](https://aisixteen.com/par/) is an offline financial calculator with ten tools: time value of money, amortization, bonds, cash flow, day count, depreciation, percent, rate conversion, real estate and statistics. Each displayed result names the authority its method follows, such as CFPB Regulation Z and Regulation DD, the US Treasury, the IRS or NIST, and a running tape keeps every calculation so you can review it. It uses no network and has no account. It is a calculator, not financial advice, and it does not replace a lender's official disclosures.
+
+#### Frequently asked questions
+
+##### What is the monthly payment on 420,000 at 6.25% for 30 years?
+
+2,586.01 for principal and interest. Taxes, insurance and any mortgage insurance are separate and are not part of the formula.
+
+##### Why is APR higher than the interest rate?
+
+Because APR spreads certain fees over the life of the loan. With no finance charges other than interest, APR and the note rate are the same.
+
+##### How do I find the periodic rate?
+
+Divide the annual note rate by the number of payments per year. For monthly payments at 6.25%, 0.0625 ÷ 12 = 0.00520833.
+
+#### Sources
+
+- Consumer Financial Protection Bureau, Regulation Z (Truth in Lending), 12 CFR Part 1026, including Appendix J on APR computation: [consumerfinance.gov](https://www.consumerfinance.gov/rules-policy/regulations/1026/)
+- Consumer Financial Protection Bureau, Regulation DD (Truth in Savings), 12 CFR Part 1030, including Appendix A on APY: [consumerfinance.gov](https://www.consumerfinance.gov/rules-policy/regulations/1030/)
+
+### How do you lay out studs 16 inches on center, and why does 19.2 exist?
+
+URL: https://aisixteen.com/storypole/blog/stud-layout-16-on-center/ · App: Storypole (https://aisixteen.com/storypole/) · Published: 2026-11-24
+
+Short answer: Hook the tape on the end of the plate, mark 15-1/4", then every 16" after that (31-1/4", 47-1/4"…), and set each stud just past its mark. That puts stud centres at 16", 32" and 48", so the edge of a 4-foot sheet lands on the middle of a stud. 19.2" is 96 ÷ 5: five bays per 8-foot sheet.
+
+"On center" means the distance from the middle of one framing member to the middle of the next. The whole system exists so that 4 × 8 sheet goods always break on a stud. Once you see that, the odd numbers on a tape measure make sense.
+
+![Storypole tape calculator showing 8 feet 10-1/4 inches on a draggable tape blade](https://aisixteen.com/storypole/screenshot-960.webp "Storypole: the answer lands on a tape you can drag.")
+
+#### Why 16 inches, and why is the first mark at 15-1/4?
+
+A sheet of plywood, OSB or drywall is 48" × 96". Both divide evenly by 16 and by 24, so a sheet edge always falls on the centre line of a stud, with half the stud's thickness left for the next sheet.
+
+A stud is 1-1/2" thick, so its centre is 3/4" in from either face. For the centre of a stud to sit exactly 16" from the end of the wall, its near edge must be at 16 − 3/4 = **15-1/4"**.
+
+The layout, measured from the outside end of the plate:
+
+1. Mark **15-1/4"**. Draw a line and put an X on the far side of it. The stud covers the X.
+2. Mark every 16" after that: **31-1/4", 47-1/4", 63-1/4", 79-1/4", 95-1/4"**.
+3. Each stud's centre is now at 16", 32", 48", 64", 80" and 96".
+
+Most tapes print the 16" multiples in red. Marking 3/4" back from each red number gives the same lines.
+
+Lay out both plates together, clamped side by side, and always pull from the same end. Measuring stud to stud accumulates error; marks pulled from one end do not.
+
+#### How many studs does a wall need?
+
+Divide the wall length in inches by the spacing, round up, and add one for the starting end.
+
+Example: a 14-foot wall (168") at 16" on center. 168 ÷ 16 = 10.5, round up to 11 spaces, so **12 studs**. The last regular stud is centred at 160", leaving a final bay of only 8" to the end stud. That short bay is normal. Do not stretch the spacing to even it out, or the sheets stop landing on studs.
+
+That count is the plain wall only. Corners, intersecting walls, and the king, jack and cripple studs around each opening are extra, which is why estimators often carry one stud per foot of wall as a quick allowance.
+
+#### What are the black diamonds on a tape measure?
+
+They mark multiples of **19.2"**: 19-3/16", 38-3/8", 57-5/8", 76-13/16" and 96". The number is 96 ÷ 5, which gives five equal bays under an 8-foot sheet instead of six (16") or four (24").
+
+| Spacing | Bays per 8 ft | Members per 8 ft run | Used for |
+|---|---|---|---|
+| 16" | 6 | 7 | Most walls and floors |
+| 19.2" | 5 | 6 | Engineered I-joists and floor trusses |
+| 24" | 4 | 5 | Roof trusses, advanced framing, some walls |
+
+19.2" saves one member in every 8 feet compared with 16", while an 8-foot sheet laid across the framing still ends on a member. The catch is the 4-foot direction: 48 ÷ 19.2 = 2.5, so a sheet's 4-foot edge does not land on a member. That is why 19.2" is used where sheathing runs with its long side across the joists. The spacing is a consequence of sheet size, not a figure taken from a table.
+
+#### How do you space balusters or slats evenly?
+
+Equal spacing is a different problem: you choose the number of pieces, and the gap is whatever makes them fit.
+
+**gap = (opening − number of pieces × piece width) ÷ (number of pieces + 1)**
+
+The residential code adds a limit for guards: a 4" sphere must not pass through (IRC R312.1.3). So the gap has to be under 4".
+
+Worked example: a 72" opening between posts, balusters 1-1/2" wide.
+
+- With 12 balusters: (72 − 18) ÷ 13 = 4.15". Too wide.
+- With 13 balusters: (72 − 19.5) ÷ 14 = **3.75"**, or 3-3/4". That passes.
+
+For the marks, the first baluster's near edge is one gap from the post: 3-3/4". Each next one is a gap plus a width further on: 5-1/4" later. So the near edges fall at 3-3/4", 9", 14-1/4", 19-1/2" and so on, pulled from one end.
+
+#### What size is a 2x4 really?
+
+1-1/2" × 3-1/2". "2 × 4" is the nominal size; the dressed, dry size is smaller, and it is standardised in the American Softwood Lumber Standard, NIST PS 20.
+
+| Nominal | Dressed (dry) |
+|---|---|
+| 2 × 4 | 1-1/2" × 3-1/2" |
+| 2 × 6 | 1-1/2" × 5-1/2" |
+| 2 × 8 | 1-1/2" × 7-1/4" |
+| 2 × 10 | 1-1/2" × 9-1/4" |
+| 2 × 12 | 1-1/2" × 11-1/4" |
+| 1 × 4 | 3/4" × 3-1/2" |
+
+Every layout number in this article depends on the 1-1/2" figure. With full-dimension or rough-sawn lumber, the 3/4" offset changes.
+
+#### Where does Storypole fit?
+
+[Storypole](https://aisixteen.com/storypole/) is a job-site calculator for carpenters, framers and remodelers. Its layout tools give on-center marks at 16", 19.2" and 24" with the odd last bay stated, and equal spacing as the full list of marks to pull rather than only a count. It also does feet-inch-fraction tape math in exact fractions, board feet and dressed lumber sizes, roof pitch and rafters, miters and bevels, concrete in cubic yards and wire gauge. It names the standard behind each sourced value and labels 19.2" as derived (96 ÷ 5) rather than sourced. It runs offline on iPhone, iPad, Mac and Apple Watch.
+
+It does not measure: there is no camera and no AR ruler. It does the math on a measurement you already took with a tape.
+
+#### Frequently asked questions
+
+##### Where do you start measuring for 16 on center?
+
+From the outside end of the plate. Make the first mark at 15-1/4" and every 16" after it, with each stud set on the far side of its mark.
+
+##### What is 19.2 inches on a tape measure?
+
+19-3/16", marked with a black diamond. It is 96" divided by 5, giving five bays per 8-foot sheet.
+
+##### How far apart can deck or stair balusters be?
+
+Close enough that a 4" sphere cannot pass between them under the International Residential Code, so the clear gap must be less than 4". Check your local code.
+
+#### Sources
+
+- NIST Voluntary Product Standard PS 20, *American Softwood Lumber Standard* (dressed sizes of lumber).
+- International Residential Code 2021, section R312.1.3, Opening limitations: [codes.iccsafe.org](https://codes.iccsafe.org/content/IRC2021P2/chapter-3-building-planning)
+
+### Why does altitude change HVAC air calculations?
+
+URL: https://aisixteen.com/aircore/blog/altitude-correction-for-hvac-air-calculations/ · App: AirCore (https://aisixteen.com/aircore/) · Published: 2026-11-24
+
+Short answer: The familiar air-side factors (1.08 for sensible heat, 0.68 or 4840 for latent, 4.5 for total) contain the density of standard sea-level air, 0.075 lb/ft³. Air is thinner at elevation, so each factor must be multiplied by the density ratio: about 0.83 at 5,000 ft, where 1.08 becomes 0.90.
+
+Most air-side rules of thumb are the sea-level case of a more general equation. At a coastal site that does not matter. In Denver, Albuquerque or Mexico City it is a 17 to 25 percent error in airflow or capacity. This guide derives the factors, corrects them, and works one example.
+
+![AirCore psychrometric screen with air-state inputs beside a psychrometric chart](https://aisixteen.com/aircore/screenshot-960.webp "AirCore: the air state as numbers and as a point on the chart.")
+
+#### Where do 1.08, 4840 and 4.5 come from?
+
+All three are a unit conversion wrapped around the density of standard air: 0.075 lb per cubic foot, which is dry air at about 70 °F and sea-level pressure (14.696 psia).
+
+| Equation (IP units) | Factor | What is inside it |
+|---|---|---|
+| Sensible heat: q = 1.08 × cfm × ΔT | 1.08 | 0.075 lb/ft³ × 60 min/h × 0.24 Btu/lb·°F |
+| Latent heat: q = 4840 × cfm × ΔW | 4840 | 0.075 × 60 × about 1,076 Btu/lb, with W in lb of water per lb of dry air |
+| Latent heat, grains: q = 0.68 × cfm × Δgr | 0.68 | 4840 ÷ 7,000 grains per lb |
+| Total heat: q = 4.5 × cfm × Δh | 4.5 | 0.075 × 60, with h in Btu/lb |
+
+Check the first: 0.075 × 60 × 0.24 = 1.08. The 0.24 is the specific heat of dry air; some references use 1.10, which folds in a little moisture.
+
+The point is that a fan moves **volume** (cfm), but heat is carried by **mass** (pounds of air). Density is the bridge between them, and density is what altitude changes.
+
+#### How much thinner is the air at elevation?
+
+The ASHRAE standard atmosphere gives barometric pressure from elevation Z in feet:
+
+**p = 14.696 × (1 − 6.8754 × 10⁻⁶ × Z)^5.2559 psia**
+
+At the same temperature, air density is proportional to pressure, so the density ratio is simply p ÷ 14.696.
+
+| Elevation (ft) | Pressure (psia) | Density ratio | 1.08 becomes | 4.5 becomes |
+|---|---|---|---|---|
+| 0 | 14.70 | 1.00 | 1.08 | 4.50 |
+| 2,500 | 13.42 | 0.91 | 0.99 | 4.11 |
+| 5,000 | 12.23 | 0.83 | 0.90 | 3.74 |
+| 7,500 | 11.13 | 0.76 | 0.82 | 3.41 |
+| 10,000 | 10.11 | 0.69 | 0.74 | 3.09 |
+
+#### What does the correction do to a real number?
+
+Take a supply fan delivering 2,000 cfm with a 20 °F temperature rise across a heating coil.
+
+- **Sea-level factor:** q = 1.08 × 2,000 × 20 = **43,200 Btu/h**.
+- **At 5,000 ft:** q = 1.08 × 0.832 × 2,000 × 20 = **35,900 Btu/h**.
+
+The same fan, the same coil temperature rise, 17% less heat delivered. Turn it around: to deliver the full 43,200 Btu/h at 5,000 ft with a 20 °F rise, the fan must move 43,200 ÷ (0.899 × 20) = **about 2,400 cfm**.
+
+This is why equipment selected from sea-level tables comes up short at altitude, and why a measured ΔT that "proves" capacity with the 1.08 factor overstates it.
+
+#### Does altitude change the psychrometric chart too?
+
+Yes. A printed psychrometric chart is drawn for one barometric pressure, usually sea level. At a lower pressure, air at the same dry-bulb temperature and relative humidity holds *more* water per pound of dry air, has a higher enthalpy and a larger specific volume.
+
+Example, 75 °F and 50% relative humidity:
+
+| Property | Sea level | 5,000 ft |
+|---|---|---|
+| Humidity ratio | about 65 gr/lb | about 78 gr/lb |
+| Enthalpy | about 28.1 Btu/lb | about 30.2 Btu/lb |
+| Specific volume | about 13.7 ft³/lb | about 16.5 ft³/lb |
+| Dew point | about 55 °F | about 55 °F |
+
+Dew point barely moves, because it depends on the vapour pressure, not on the total pressure. The other properties move enough to change a coil selection. ASHRAE publishes separate charts for 5,000 and 7,500 ft for this reason; software simply uses the right pressure.
+
+#### How many properties do you need to fix an air state?
+
+Two, plus the barometric pressure. Moist air has seven commonly used properties: dry bulb, wet bulb, dew point, relative humidity, humidity ratio, enthalpy and specific volume. Any two independent ones determine the rest. A few pairs do not work, because they carry the same information: dew point and humidity ratio, for example, are both statements of how much water is in the air.
+
+#### Where does AirCore fit?
+
+[AirCore](https://aisixteen.com/aircore/) is an air-side calculator for HVAC technicians, designers and contractors. You enter any two of the seven properties and it solves the rest and plots the point on a psychrometric chart. Site elevation sits in the toolbar of every screen, and every number is corrected to it, so the sea-level assumption cannot slip in unnoticed. It also does air-side heat in any direction, air mixing weighted by mass, duct sizing from friction, fan laws, and pipe sizing by Darcy–Weisbach or Hazen–Williams. Its psychrometric values are checked against CoolProp and IAPWS-95 reference data. It runs offline on iPhone, iPad, Mac and Apple Watch.
+
+What it does not do: it has no fitting library and it does not perform load calculations. It computes air properties and sizes from the inputs you give it.
+
+#### Frequently asked questions
+
+##### What is the 1.08 factor at 5,000 ft?
+
+About 0.90. Multiply 1.08 by the density ratio, 12.23 ÷ 14.696 = 0.832.
+
+##### Do fans move less air at altitude?
+
+A fan at a fixed speed moves the same volume (cfm) at any density, but less mass, so it carries less heat and develops less pressure. Fan power falls in the same proportion as density.
+
+##### Does dew point change with altitude?
+
+Very little for the same moisture content by vapour pressure. Humidity ratio, enthalpy and specific volume change noticeably.
+
+#### Sources
+
+- ASHRAE, *Handbook: Fundamentals*, chapter 1, Psychrometrics (standard atmosphere equation, moist-air properties, air-side heat equations).
+- CoolProp, humid-air properties (HAPropsSI), an open reference implementation: [coolprop.org](http://www.coolprop.org/fluid_properties/HumidAir.html)

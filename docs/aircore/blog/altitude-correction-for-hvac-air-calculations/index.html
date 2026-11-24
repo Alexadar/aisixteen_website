@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why does altitude change HVAC air calculations? | AirCore</title>
+<meta name="description" content="The 1.08, 4840 and 4.5 factors assume sea-level air. Where they come from, how to correct them for elevation, and a worked airflow example at 5,000 ft.">
+<link rel="canonical" href="https://aisixteen.com/aircore/blog/altitude-correction-for-hvac-air-calculations/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b1020">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Why does altitude change HVAC air calculations? | AirCore">
+<meta property="og:description" content="The 1.08, 4840 and 4.5 factors assume sea-level air. Where they come from, how to correct them for elevation, and a worked airflow example at 5,000 ft.">
+<meta property="og:url" content="https://aisixteen.com/aircore/blog/altitude-correction-for-hvac-air-calculations/">
+<meta property="og:site_name" content="AISixteen">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Why does altitude change HVAC air calculations? | AirCore">
+<meta name="twitter:description" content="The 1.08, 4840 and 4.5 factors assume sea-level air. Where they come from, how to correct them for elevation, and a worked airflow example at 5,000 ft.">
+<meta property="og:image" content="https://aisixteen.com/aircore/screenshot.png">
+<meta property="og:image:alt" content="AirCore screenshot">
+<meta name="twitter:image" content="https://aisixteen.com/aircore/screenshot.png">
+<meta name="apple-itunes-app" content="app-id=6799999307">
+<meta property="article:published_time" content="2026-11-24">
+<meta property="article:modified_time" content="2026-11-24">
+<meta name="author" content="AISixteen">
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="apple-touch-icon" href="/logo.png">
+<link rel="preload" href="/assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css?v=0e7f320f3e">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348},"description":"Independent developer of Aisixteen Fantastic, an open-source kernel of agents, and of small, fast, private apps for iPhone, iPad, Mac and Apple Watch.","email":"info@aisixteen.com","sameAs":["https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206","https://github.com/aisixteen"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","@id":"https://aisixteen.com/aircore/blog/altitude-correction-for-hvac-air-calculations/#post","mainEntityOfPage":{"@type":"WebPage","@id":"https://aisixteen.com/aircore/blog/altitude-correction-for-hvac-air-calculations/"},"headline":"Why does altitude change HVAC air calculations?","description":"The 1.08, 4840 and 4.5 factors assume sea-level air. Where they come from, how to correct them for elevation, and a worked airflow example at 5,000 ft.","datePublished":"2026-11-24","dateModified":"2026-11-24","inLanguage":"en","wordCount":996,"image":["https://aisixteen.com/aircore/screenshot.png","https://aisixteen.com/aircore/screenshot-960.webp"],"author":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"},"publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348}},"isPartOf":{"@type":"Blog","@id":"https://aisixteen.com/aircore/blog/#blog","name":"AirCore guides"},"about":{"@type":"SoftwareApplication","@id":"https://aisixteen.com/aircore/#app","name":"AirCore: HVAC Calculator","description":"The air-side calculator for HVAC technicians, designers and contractors. Enter any two of dry bulb, wet bulb, dew point, relative humidity, humidity ratio, enthalpy or specific volume and AirCore solves the rest, putting the point on a real psychrometric chart — type a value and the point moves, drag the point and the values follow. Site elevation sits in the toolbar of every screen and every number is corrected to it, so you are not quietly working at sea level. Imperial and metric switch freely without re-rounding, and the physics lives in independently tested modules checked against published reference data.","applicationCategory":"UtilitiesApplication","operatingSystem":"iOS, iPadOS, macOS, watchOS","url":"https://aisixteen.com/aircore/","installUrl":"https://apps.apple.com/app/id6799999307","image":"https://aisixteen.com/aircore/screenshot.png","publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"}}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisixteen.com/"},{"@type":"ListItem","position":2,"name":"AirCore","item":"https://aisixteen.com/aircore/"},{"@type":"ListItem","position":3,"name":"Guides","item":"https://aisixteen.com/aircore/blog/"},{"@type":"ListItem","position":4,"name":"Why does altitude change HVAC air calculations?","item":"https://aisixteen.com/aircore/blog/altitude-correction-for-hvac-air-calculations/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the 1.08 factor at 5,000 ft?","acceptedAnswer":{"@type":"Answer","text":"About 0.90. Multiply 1.08 by the density ratio, 12.23 ÷ 14.696 = 0.832."}},{"@type":"Question","name":"Do fans move less air at altitude?","acceptedAnswer":{"@type":"Answer","text":"A fan at a fixed speed moves the same volume (cfm) at any density, but less mass, so it carries less heat and develops less pressure. Fan power falls in the same proportion as density."}},{"@type":"Question","name":"Does dew point change with altitude?","acceptedAnswer":{"@type":"Answer","text":"Very little for the same moisture content by vapour pressure. Humidity ratio, enthalpy and specific volume change noticeably."}}]}</script>
+</head>
+<body>
+<div class="page acc" style="--accent:#1e90d6"><a class="skip" href="#main">Skip to content</a><header class="site-header"><div class="site-header__inner"><a class="brand" href="/" aria-label="AISixteen home"><img src="/logo-96.webp" alt="" width="28" height="32"/><span class="brand__name">AISixteen</span></a><nav class="nav" aria-label="Main"><a class="nav__link" href="/#apps">Apps</a><a class="nav__link" href="/#guides">Guides</a><a class="nav__link" href="/fantastic/">Fantastic</a><a class="btn btn--primary btn--sm nav__cta" href="mailto:info@aisixteen.com">Get in touch</a></nav></div></header><main id="main"><nav class="crumbs wrap" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/aircore/">AirCore</a></li><li><a href="/aircore/blog/">Guides</a></li><li><span aria-current="page">Why does altitude change HVAC air calculations?</span></li></ol></nav><div class="wrap"><article class="article"><header class="article__head"><a class="byapp" href="/aircore/"><img src="/aircore/icon-160.webp" alt="" width="28" height="28"/>AirCore</a><h1 class="article__title">Why does altitude change HVAC air calculations?</h1><p class="article__meta"><span>By AISixteen</span><span>Published <time dateTime="2026-11-24">November 24, 2026</time></span><span>5 min read</span></p><p class="answer"><b>Short answer</b>The familiar air-side factors (1.08 for sensible heat, 0.68 or 4840 for latent, 4.5 for total) contain the density of standard sea-level air, 0.075 lb/ft³. Air is thinner at elevation, so each factor must be multiplied by the density ratio: about 0.83 at 5,000 ft, where 1.08 becomes 0.90.</p></header><nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">In this guide</h2><ol><li><a href="#where-do-1-08-4840-and-4-5-come-from">Where do 1.08, 4840 and 4.5 come from?</a></li><li><a href="#how-much-thinner-is-the-air-at-elevation">How much thinner is the air at elevation?</a></li><li><a href="#what-does-the-correction-do-to-a-real-number">What does the correction do to a real number?</a></li><li><a href="#does-altitude-change-the-psychrometric-chart-too">Does altitude change the psychrometric chart too?</a></li><li><a href="#how-many-properties-do-you-need-to-fix-an-air-state">How many properties do you need to fix an air state?</a></li><li><a href="#where-does-aircore-fit">Where does AirCore fit?</a></li><li><a href="#frequently-asked-questions">Frequently asked questions</a></li><li><a href="#sources">Sources</a></li></ol></nav><div class="prose"><p>Most air-side rules of thumb are the sea-level case of a more general equation. At a coastal site that does not matter. In Denver, Albuquerque or Mexico City it is a 17 to 25 percent error in airflow or capacity. This guide derives the factors, corrects them, and works one example.</p>
+<figure class="figure"><img src="/aircore/screenshot-960.webp" alt="AirCore psychrometric screen with air-state inputs beside a psychrometric chart" width="960" height="600" loading="lazy" decoding="async"><figcaption>AirCore: the air state as numbers and as a point on the chart.</figcaption></figure>
+<h2 id="where-do-1-08-4840-and-4-5-come-from">Where do 1.08, 4840 and 4.5 come from?</h2>
+<p>All three are a unit conversion wrapped around the density of standard air: 0.075 lb per cubic foot, which is dry air at about 70 °F and sea-level pressure (14.696 psia).</p>
+<div class="table-wrap" tabindex="0" role="group" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Equation (IP units)</th>
+<th>Factor</th>
+<th>What is inside it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Sensible heat: q = 1.08 × cfm × ΔT</td>
+<td>1.08</td>
+<td>0.075 lb/ft³ × 60 min/h × 0.24 Btu/lb·°F</td>
+</tr>
+<tr>
+<td>Latent heat: q = 4840 × cfm × ΔW</td>
+<td>4840</td>
+<td>0.075 × 60 × about 1,076 Btu/lb, with W in lb of water per lb of dry air</td>
+</tr>
+<tr>
+<td>Latent heat, grains: q = 0.68 × cfm × Δgr</td>
+<td>0.68</td>
+<td>4840 ÷ 7,000 grains per lb</td>
+</tr>
+<tr>
+<td>Total heat: q = 4.5 × cfm × Δh</td>
+<td>4.5</td>
+<td>0.075 × 60, with h in Btu/lb</td>
+</tr>
+</tbody></table></div>
+<p>Check the first: 0.075 × 60 × 0.24 = 1.08. The 0.24 is the specific heat of dry air; some references use 1.10, which folds in a little moisture.</p>
+<p>The point is that a fan moves <strong>volume</strong> (cfm), but heat is carried by <strong>mass</strong> (pounds of air). Density is the bridge between them, and density is what altitude changes.</p>
+<h2 id="how-much-thinner-is-the-air-at-elevation">How much thinner is the air at elevation?</h2>
+<p>The ASHRAE standard atmosphere gives barometric pressure from elevation Z in feet:</p>
+<p><strong>p = 14.696 × (1 − 6.8754 × 10⁻⁶ × Z)^5.2559 psia</strong></p>
+<p>At the same temperature, air density is proportional to pressure, so the density ratio is simply p ÷ 14.696.</p>
+<div class="table-wrap" tabindex="0" role="group" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Elevation (ft)</th>
+<th>Pressure (psia)</th>
+<th>Density ratio</th>
+<th>1.08 becomes</th>
+<th>4.5 becomes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>14.70</td>
+<td>1.00</td>
+<td>1.08</td>
+<td>4.50</td>
+</tr>
+<tr>
+<td>2,500</td>
+<td>13.42</td>
+<td>0.91</td>
+<td>0.99</td>
+<td>4.11</td>
+</tr>
+<tr>
+<td>5,000</td>
+<td>12.23</td>
+<td>0.83</td>
+<td>0.90</td>
+<td>3.74</td>
+</tr>
+<tr>
+<td>7,500</td>
+<td>11.13</td>
+<td>0.76</td>
+<td>0.82</td>
+<td>3.41</td>
+</tr>
+<tr>
+<td>10,000</td>
+<td>10.11</td>
+<td>0.69</td>
+<td>0.74</td>
+<td>3.09</td>
+</tr>
+</tbody></table></div>
+<h2 id="what-does-the-correction-do-to-a-real-number">What does the correction do to a real number?</h2>
+<p>Take a supply fan delivering 2,000 cfm with a 20 °F temperature rise across a heating coil.</p>
+<ul>
+<li><strong>Sea-level factor:</strong> q = 1.08 × 2,000 × 20 = <strong>43,200 Btu/h</strong>.</li>
+<li><strong>At 5,000 ft:</strong> q = 1.08 × 0.832 × 2,000 × 20 = <strong>35,900 Btu/h</strong>.</li>
+</ul>
+<p>The same fan, the same coil temperature rise, 17% less heat delivered. Turn it around: to deliver the full 43,200 Btu/h at 5,000 ft with a 20 °F rise, the fan must move 43,200 ÷ (0.899 × 20) = <strong>about 2,400 cfm</strong>.</p>
+<p>This is why equipment selected from sea-level tables comes up short at altitude, and why a measured ΔT that &quot;proves&quot; capacity with the 1.08 factor overstates it.</p>
+<h2 id="does-altitude-change-the-psychrometric-chart-too">Does altitude change the psychrometric chart too?</h2>
+<p>Yes. A printed psychrometric chart is drawn for one barometric pressure, usually sea level. At a lower pressure, air at the same dry-bulb temperature and relative humidity holds <em>more</em> water per pound of dry air, has a higher enthalpy and a larger specific volume.</p>
+<p>Example, 75 °F and 50% relative humidity:</p>
+<div class="table-wrap" tabindex="0" role="group" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Sea level</th>
+<th>5,000 ft</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Humidity ratio</td>
+<td>about 65 gr/lb</td>
+<td>about 78 gr/lb</td>
+</tr>
+<tr>
+<td>Enthalpy</td>
+<td>about 28.1 Btu/lb</td>
+<td>about 30.2 Btu/lb</td>
+</tr>
+<tr>
+<td>Specific volume</td>
+<td>about 13.7 ft³/lb</td>
+<td>about 16.5 ft³/lb</td>
+</tr>
+<tr>
+<td>Dew point</td>
+<td>about 55 °F</td>
+<td>about 55 °F</td>
+</tr>
+</tbody></table></div>
+<p>Dew point barely moves, because it depends on the vapour pressure, not on the total pressure. The other properties move enough to change a coil selection. ASHRAE publishes separate charts for 5,000 and 7,500 ft for this reason; software simply uses the right pressure.</p>
+<h2 id="how-many-properties-do-you-need-to-fix-an-air-state">How many properties do you need to fix an air state?</h2>
+<p>Two, plus the barometric pressure. Moist air has seven commonly used properties: dry bulb, wet bulb, dew point, relative humidity, humidity ratio, enthalpy and specific volume. Any two independent ones determine the rest. A few pairs do not work, because they carry the same information: dew point and humidity ratio, for example, are both statements of how much water is in the air.</p>
+<h2 id="where-does-aircore-fit">Where does AirCore fit?</h2>
+<p><a href="/aircore/">AirCore</a> is an air-side calculator for HVAC technicians, designers and contractors. You enter any two of the seven properties and it solves the rest and plots the point on a psychrometric chart. Site elevation sits in the toolbar of every screen, and every number is corrected to it, so the sea-level assumption cannot slip in unnoticed. It also does air-side heat in any direction, air mixing weighted by mass, duct sizing from friction, fan laws, and pipe sizing by Darcy–Weisbach or Hazen–Williams. Its psychrometric values are checked against CoolProp and IAPWS-95 reference data. It runs offline on iPhone, iPad, Mac and Apple Watch.</p>
+<p>What it does not do: it has no fitting library and it does not perform load calculations. It computes air properties and sizes from the inputs you give it.</p>
+<h2 id="frequently-asked-questions">Frequently asked questions</h2>
+<h3 id="what-is-the-1-08-factor-at-5-000-ft">What is the 1.08 factor at 5,000 ft?</h3>
+<p>About 0.90. Multiply 1.08 by the density ratio, 12.23 ÷ 14.696 = 0.832.</p>
+<h3 id="do-fans-move-less-air-at-altitude">Do fans move less air at altitude?</h3>
+<p>A fan at a fixed speed moves the same volume (cfm) at any density, but less mass, so it carries less heat and develops less pressure. Fan power falls in the same proportion as density.</p>
+<h3 id="does-dew-point-change-with-altitude">Does dew point change with altitude?</h3>
+<p>Very little for the same moisture content by vapour pressure. Humidity ratio, enthalpy and specific volume change noticeably.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>ASHRAE, <em>Handbook: Fundamentals</em>, chapter 1, Psychrometrics (standard atmosphere equation, moist-air properties, air-side heat equations).</li>
+<li>CoolProp, humid-air properties (HAPropsSI), an open reference implementation: <a href="http://www.coolprop.org/fluid_properties/HumidAir.html" target="_blank" rel="noopener">coolprop.org</a></li>
+</ul>
+</div><aside class="app-cta acc" style="--accent:#1e90d6" aria-label="About AirCore"><img class="app-cta__icon" src="/aircore/icon-160.webp" alt="" width="72" height="72" loading="lazy" decoding="async"/><div><h2 class="app-cta__name">AirCore</h2><p class="app-cta__text">The offline air-side HVAC calculator. On-device, no account, works offline.</p></div><div class="app-cta__actions"><a class="btn btn--appstore" href="https://apps.apple.com/app/id6799999307" target="_blank" rel="noreferrer" aria-label="Download AirCore on the App Store"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M16.365 1.43c0 1.14-.42 2.2-1.12 2.98-.85.94-2.24 1.66-3.4 1.57-.13-1.1.44-2.28 1.1-3.02.75-.85 2.06-1.5 3.42-1.53zM20.44 17.1c-.55 1.27-.82 1.84-1.53 2.97-.99 1.57-2.38 3.53-4.1 3.54-1.53.02-1.92-1-4-1-2.07 0-2.5.98-4.03 1.02-1.72.03-3.03-1.7-4.02-3.27-2.77-4.4-3.06-9.55-1.35-12.3 1.21-1.94 3.13-3.08 4.93-3.08 1.84 0 2.99 1.01 4.5 1.01 1.47 0 2.36-1.01 4.5-1.01 1.6 0 3.3.87 4.5 2.38-3.96 2.17-3.31 7.82.6 9.62z"></path></svg><span class="as-lines"><span class="as-top">Download on the</span><span class="as-big">App Store</span></span></a><a class="tlink" href="/aircore/">What AirCore does</a></div></aside></article></div></main><footer class="site-footer"><div class="wrap"><div class="footer"><div><div class="footer__brand-row"><img src="/logo-96.webp" alt="" width="28" height="32"/><span>AISixteen</span></div><p>Small, fast, private apps for iPhone, iPad, Mac and Apple Watch, and Fantastic, an open-source kernel of agents.</p><a class="btn btn--ghost btn--sm" href="mailto:info@aisixteen.com">info@aisixteen.com</a></div><nav aria-label="Apps"><h2>Apps</h2><ul class="footer__apps"><li><a href="/ephemeris-sky/">Ephemeris Sky</a></li><li><a href="/overtone-lab/">Overtone Lab</a></li><li><a href="/indox-text/">Indox Text</a></li><li><a href="/typing-mill/">Typing Mill</a></li><li><a href="/golden-ratio-calculator/">Golden Ratio Calculator</a></li><li><a href="/golden-ratio-calculator-lite/">Golden Ratio Calculator Lite</a></li><li><a href="/big-pink-cat/">Big Pink Cat</a></li><li><a href="/skyscraper-frog/">Skyscraper Frog</a></li><li><a href="/monstro-shooter/">Monstro Shooter</a></li><li><a href="/kerf-calc/">Kerf Calc</a></li><li><a href="/truecourse-e6b/">TrueCourse E6B</a></li><li><a href="/earth-around/">Earth Around</a></li><li><a href="/marine-nav/">Marine Nav</a></li><li><a href="/par/">Par</a></li><li><a href="/storypole/">Storypole</a></li><li><a href="/aircore/">AirCore</a></li></ul></nav><nav aria-label="More"><h2>Guides</h2><ul><li><a href="/ephemeris-sky/blog/">Ephemeris Sky guides</a></li><li><a href="/overtone-lab/blog/">Overtone Lab guides</a></li><li><a href="/indox-text/blog/">Indox Text guides</a></li><li><a href="/typing-mill/blog/">Typing Mill guides</a></li><li><a href="/golden-ratio-calculator/blog/">Golden Ratio Calculator guides</a></li><li><a href="/kerf-calc/blog/">Kerf Calc guides</a></li><li><a href="/truecourse-e6b/blog/">TrueCourse E6B guides</a></li><li><a href="/earth-around/blog/">Earth Around guides</a></li><li><a href="/marine-nav/blog/">Marine Nav guides</a></li><li><a href="/par/blog/">Par guides</a></li><li><a href="/storypole/blog/">Storypole guides</a></li><li><a href="/aircore/blog/">AirCore guides</a></li></ul><h2 style="margin-top:22px">AISixteen</h2><ul><li><a href="/fantastic/">Fantastic</a></li><li><a href="/#privacy">Privacy</a></li><li><a href="https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206" target="_blank" rel="noreferrer">App Store developer page</a></li><li><a href="https://github.com/aisixteen" target="_blank" rel="noreferrer">GitHub</a></li></ul></nav></div><div class="footer__bottom"><span>© 2026 AISixteen</span><span>No accounts. No tracking.</span></div></div></footer></div>
+<script src="/assets/site.js?v=0e7f320f3e" defer></script>
+</body>
+</html>

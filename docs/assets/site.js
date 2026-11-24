@@ -5,28 +5,13 @@
     if (!chip) return;
     var key = chip.getAttribute('data-filter');
     document.querySelectorAll('[data-filter]').forEach(function (c) {
-      c.classList.toggle('is-active', c.getAttribute('data-filter') === key);
+      var on = c.getAttribute('data-filter') === key;
+      c.classList.toggle('is-active', on);
+      c.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
     document.querySelectorAll('[data-group]').forEach(function (card) {
-      var show = key === 'all' || card.getAttribute('data-group') === key;
-      card.style.display = show ? '' : 'none';
+      card.hidden = !(key === 'all' || card.getAttribute('data-group') === key);
     });
-  });
-})();
-
-// Preview carousel: crossfade through every platform's frames — 5s hold + 0.5s fade.
-(function () {
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) return;
-  document.querySelectorAll('.carousel').forEach(function (box) {
-    var slides = box.querySelectorAll('.cslide');
-    if (slides.length < 2) return;
-    var i = 0;
-    setInterval(function () {
-      slides[i].classList.remove('is-active');
-      i = (i + 1) % slides.length;
-      slides[i].classList.add('is-active');
-    }, 5500);
   });
 })();
 

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How do you read an ephemeris? | Ephemeris Sky</title>
+<meta name="description" content="An ephemeris lists where the Sun, Moon and planets are at a set time each day. How to read the columns, convert your time, and interpolate a position.">
+<link rel="canonical" href="https://aisixteen.com/ephemeris-sky/blog/how-to-read-an-ephemeris/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b1020">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How do you read an ephemeris? | Ephemeris Sky">
+<meta property="og:description" content="An ephemeris lists where the Sun, Moon and planets are at a set time each day. How to read the columns, convert your time, and interpolate a position.">
+<meta property="og:url" content="https://aisixteen.com/ephemeris-sky/blog/how-to-read-an-ephemeris/">
+<meta property="og:site_name" content="AISixteen">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How do you read an ephemeris? | Ephemeris Sky">
+<meta name="twitter:description" content="An ephemeris lists where the Sun, Moon and planets are at a set time each day. How to read the columns, convert your time, and interpolate a position.">
+<meta property="og:image" content="https://aisixteen.com/ephemeris_sky/screenshot.png">
+<meta property="og:image:alt" content="Ephemeris Sky screenshot">
+<meta name="twitter:image" content="https://aisixteen.com/ephemeris_sky/screenshot.png">
+<meta name="apple-itunes-app" content="app-id=6782659268">
+<meta property="article:published_time" content="2026-11-24">
+<meta property="article:modified_time" content="2026-11-24">
+<meta name="author" content="AISixteen">
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="apple-touch-icon" href="/logo.png">
+<link rel="preload" href="/assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css?v=0e7f320f3e">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348},"description":"Independent developer of Aisixteen Fantastic, an open-source kernel of agents, and of small, fast, private apps for iPhone, iPad, Mac and Apple Watch.","email":"info@aisixteen.com","sameAs":["https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206","https://github.com/aisixteen"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","@id":"https://aisixteen.com/ephemeris-sky/blog/how-to-read-an-ephemeris/#post","mainEntityOfPage":{"@type":"WebPage","@id":"https://aisixteen.com/ephemeris-sky/blog/how-to-read-an-ephemeris/"},"headline":"How do you read an ephemeris?","description":"An ephemeris lists where the Sun, Moon and planets are at a set time each day. How to read the columns, convert your time, and interpolate a position.","datePublished":"2026-11-24","dateModified":"2026-11-24","inLanguage":"en","wordCount":995,"image":["https://aisixteen.com/ephemeris_sky/screenshot.png","https://aisixteen.com/ephemeris_sky/screenshot-960.webp"],"author":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"},"publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348}},"isPartOf":{"@type":"Blog","@id":"https://aisixteen.com/ephemeris-sky/blog/#blog","name":"Ephemeris Sky guides"},"about":{"@type":"SoftwareApplication","@id":"https://aisixteen.com/ephemeris-sky/#app","name":"Ephemeris Sky","description":"Turn any moment into a precise picture of the solar system. Ephemeris Sky computes real geocentric planetary positions, the aspects between them, and a live chart wheel for any date and time. Save your natal chart and read today’s sky against it, compare two charts with synastry that ranks every contact, score dignities and see the balance of a chart, and get the next solar or lunar return to the minute. Choose your house system — Placidus, Koch, Whole Sign and more — and follow an event timeline of ingresses, lunations and aspects.","applicationCategory":"UtilitiesApplication","operatingSystem":"iOS, iPadOS, macOS","url":"https://aisixteen.com/ephemeris-sky/","installUrl":"https://apps.apple.com/app/id6782659268","image":"https://aisixteen.com/ephemeris_sky/screenshot.png","publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"}}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisixteen.com/"},{"@type":"ListItem","position":2,"name":"Ephemeris Sky","item":"https://aisixteen.com/ephemeris-sky/"},{"@type":"ListItem","position":3,"name":"Guides","item":"https://aisixteen.com/ephemeris-sky/blog/"},{"@type":"ListItem","position":4,"name":"How do you read an ephemeris?","item":"https://aisixteen.com/ephemeris-sky/blog/how-to-read-an-ephemeris/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What time is an ephemeris calculated for?","acceptedAnswer":{"@type":"Answer","text":"For one fixed moment each day, printed on the page: 00:00 or 12:00 Universal Time. Convert your local time to UT before you read it."}},{"@type":"Question","name":"How far does the Moon move in a day?","acceptedAnswer":{"@type":"Answer","text":"Between about 12° and 15° of longitude, 13°11′ on average, which is why the Moon is the body that most needs interpolating."}},{"@type":"Question","name":"Is an ephemeris astronomy or astrology?","acceptedAnswer":{"@type":"Answer","text":"The table itself is astronomy: computed positions. Astrology is one of the things people do with it."}}]}</script>
+</head>
+<body>
+<div class="page acc" style="--accent:#a78bfa"><a class="skip" href="#main">Skip to content</a><header class="site-header"><div class="site-header__inner"><a class="brand" href="/" aria-label="AISixteen home"><img src="/logo-96.webp" alt="" width="28" height="32"/><span class="brand__name">AISixteen</span></a><nav class="nav" aria-label="Main"><a class="nav__link" href="/#apps">Apps</a><a class="nav__link" href="/#guides">Guides</a><a class="nav__link" href="/fantastic/">Fantastic</a><a class="btn btn--primary btn--sm nav__cta" href="mailto:info@aisixteen.com">Get in touch</a></nav></div></header><main id="main"><nav class="crumbs wrap" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/ephemeris-sky/">Ephemeris Sky</a></li><li><a href="/ephemeris-sky/blog/">Guides</a></li><li><span aria-current="page">How do you read an ephemeris?</span></li></ol></nav><div class="wrap"><article class="article"><header class="article__head"><a class="byapp" href="/ephemeris-sky/"><img src="/ephemeris_sky/icon-160.webp" alt="" width="28" height="28"/>Ephemeris Sky</a><h1 class="article__title">How do you read an ephemeris?</h1><p class="article__meta"><span>By AISixteen</span><span>Published <time dateTime="2026-11-24">November 24, 2026</time></span><span>5 min read</span></p><p class="answer"><b>Short answer</b>An ephemeris is a table of planetary positions for a fixed time each day, usually 00:00 UT. Find the date row, read each body&#x27;s zodiac longitude in degrees and minutes, and interpolate between two rows for any other time of day after converting your local time to UT.</p></header><nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">In this guide</h2><ol><li><a href="#what-does-each-column-in-an-ephemeris-mean">What does each column in an ephemeris mean?</a></li><li><a href="#which-time-does-an-ephemeris-use">Which time does an ephemeris use?</a></li><li><a href="#how-do-you-find-a-position-between-two-rows">How do you find a position between two rows?</a></li><li><a href="#what-does-retrograde-mean-in-the-table">What does retrograde mean in the table?</a></li><li><a href="#geocentric-or-heliocentric-tropical-or-sidereal">Geocentric or heliocentric, tropical or sidereal?</a></li><li><a href="#how-accurate-does-an-ephemeris-need-to-be">How accurate does an ephemeris need to be?</a></li><li><a href="#where-does-ephemeris-sky-fit">Where does Ephemeris Sky fit?</a></li><li><a href="#frequently-asked-questions">Frequently asked questions</a></li><li><a href="#sources">Sources</a></li></ol></nav><div class="prose"><p>An ephemeris (plural: ephemerides) is a table of where the Sun, Moon and planets are, computed for a regular step of time. Astronomers use one to point a telescope. Astrologers use one to draw a chart. The table is the same kind of object in both cases: numbers, not meanings.</p>
+<figure class="figure"><img src="/ephemeris_sky/screenshot-960.webp" alt="Ephemeris Sky showing a saved natal chart wheel, as shown on the App Store" width="960" height="600" loading="lazy" decoding="async"><figcaption>A chart wheel is an ephemeris row drawn as a circle.</figcaption></figure>
+<h2 id="what-does-each-column-in-an-ephemeris-mean">What does each column in an ephemeris mean?</h2>
+<p>A printed astrological ephemeris has one row per day and one column per body.</p>
+<div class="table-wrap" tabindex="0" role="group" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Column</th>
+<th>What it holds</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Date</td>
+<td>The calendar day. The positions are for one fixed moment on that day, stated on the page: midnight (00:00) or noon (12:00), in Universal Time.</td>
+</tr>
+<tr>
+<td>Sidereal time</td>
+<td>The sidereal time at Greenwich at that moment. It is used to find the Ascendant and the houses.</td>
+</tr>
+<tr>
+<td>Sun, Moon, Mercury … Pluto</td>
+<td>Each body&#39;s ecliptic longitude, written as degrees and minutes inside a zodiac sign: 14°♉32′ means 14 degrees 32 minutes of Taurus.</td>
+</tr>
+<tr>
+<td>R or D marks</td>
+<td>R where a planet turns retrograde, D where it turns direct.</td>
+</tr>
+<tr>
+<td>Lunar node</td>
+<td>The point where the Moon&#39;s orbit crosses the ecliptic, as mean or true node.</td>
+</tr>
+</tbody></table></div>
+<p>Signs are 30° each, starting from 0° Aries. So 14°32′ Taurus is 30° + 14°32′ = 44°32′ of absolute longitude. Software usually works in the absolute number and prints the sign form.</p>
+<h2 id="which-time-does-an-ephemeris-use">Which time does an ephemeris use?</h2>
+<p>Universal Time (UT), which for this purpose matches Greenwich Mean Time. Before you look anything up, convert your local clock time to UT, including daylight saving.</p>
+<p>Example: 10:30 in New York in July is Eastern Daylight Time, UT−4, so it is 14:30 UT on the same date. 22:30 in Tokyo is UT+9, so it is 13:30 UT. A late-evening time west of Greenwich can land on the <em>next</em> UT date: 21:00 in Los Angeles in winter (UT−8) is 05:00 UT the following day.</p>
+<p>Check whether your ephemeris is a midnight or a noon edition. Reading a noon table as if it were midnight puts the Moon about 6.5° out.</p>
+<h2 id="how-do-you-find-a-position-between-two-rows">How do you find a position between two rows?</h2>
+<p>By linear interpolation. Take the motion over 24 hours and scale it by the fraction of the day that has passed.</p>
+<p>Worked example, Moon, midnight ephemeris:</p>
+<ul>
+<li>Day 1, 00:00 UT: 12°00′ Taurus</li>
+<li>Day 2, 00:00 UT: 25°12′ Taurus</li>
+<li>Daily motion: 13°12′, which is 13.2°</li>
+</ul>
+<p>For 15:30 UT on day 1, the fraction of the day is 15.5 ÷ 24 = 0.6458. The Moon has moved 0.6458 × 13.2° = 8.525°, which is 8°31′. Add it to the starting position: <strong>20°31′ Taurus</strong>.</p>
+<p>Linear interpolation is good to a few arcminutes for the Moon and far better for everything else, because the other bodies move much more slowly:</p>
+<div class="table-wrap" tabindex="0" role="group" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Body</th>
+<th>Typical daily motion</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Moon</td>
+<td>about 12° to 15° (mean 13°11′)</td>
+</tr>
+<tr>
+<td>Sun</td>
+<td>about 1° (mean 0°59′)</td>
+</tr>
+<tr>
+<td>Mercury</td>
+<td>up to about 2°, and backwards when retrograde</td>
+</tr>
+<tr>
+<td>Venus</td>
+<td>up to about 1°15′</td>
+</tr>
+<tr>
+<td>Mars</td>
+<td>up to about 0°47′</td>
+</tr>
+<tr>
+<td>Jupiter</td>
+<td>up to about 0°14′</td>
+</tr>
+<tr>
+<td>Saturn</td>
+<td>up to about 0°08′</td>
+</tr>
+</tbody></table></div>
+<p>When a planet is retrograde the next day&#39;s longitude is <em>smaller</em>. The method is the same; the motion is negative.</p>
+<h2 id="what-does-retrograde-mean-in-the-table">What does retrograde mean in the table?</h2>
+<p>A planet is retrograde when its longitude, seen from the Earth, is decreasing. Nothing reverses in space: the Earth and the planet are both moving around the Sun, and the line of sight between them swings backwards for a while, the way a slower car seems to drift back as you pass it. The days on which the motion changes direction are the stations. Mercury does this about three times a year, for roughly three weeks each time.</p>
+<h2 id="geocentric-or-heliocentric-tropical-or-sidereal">Geocentric or heliocentric, tropical or sidereal?</h2>
+<p>These two choices change every number in the table, so check them first.</p>
+<ul>
+<li><strong>Geocentric</strong> positions are as seen from the centre of the Earth. <strong>Heliocentric</strong> positions are as seen from the Sun. Chart work is geocentric.</li>
+<li><strong>Tropical</strong> longitude is measured from the March equinox point. <strong>Sidereal</strong> longitude is measured against the stars and currently differs by about 24°, the exact figure depending on the reference (ayanamsa) chosen.</li>
+</ul>
+<h2 id="how-accurate-does-an-ephemeris-need-to-be">How accurate does an ephemeris need to be?</h2>
+<p>For a chart, an arcminute or two is ample: the Sun moves one arcminute in about 24 minutes of time, and most birth times are not known that well. The practical reference for checking any ephemeris is NASA&#39;s JPL Horizons system, which serves positions from the same planetary solutions used for spacecraft navigation.</p>
+<h2 id="where-does-ephemeris-sky-fit">Where does Ephemeris Sky fit?</h2>
+<p><a href="/ephemeris-sky/">Ephemeris Sky</a> computes the table on your device for any date and time, so there is nothing to interpolate. It gives geocentric, tropical positions referred to the equinox of date for the Sun, Moon and planets out to Pluto, with sign, degree and minute, daily motion and retrograde marked. Its positions are validated against JPL Horizons across 1900 to 2100: better than 7 arcminutes for every body, typically under 2. It works offline. It computes positions and shows the numbers; it does not interpret them or predict anything.</p>
+<p>Related: <a href="/ephemeris-sky/blog/house-systems-compared/">Placidus, Koch and Whole Sign houses compared</a>.</p>
+<h2 id="frequently-asked-questions">Frequently asked questions</h2>
+<h3 id="what-time-is-an-ephemeris-calculated-for">What time is an ephemeris calculated for?</h3>
+<p>For one fixed moment each day, printed on the page: 00:00 or 12:00 Universal Time. Convert your local time to UT before you read it.</p>
+<h3 id="how-far-does-the-moon-move-in-a-day">How far does the Moon move in a day?</h3>
+<p>Between about 12° and 15° of longitude, 13°11′ on average, which is why the Moon is the body that most needs interpolating.</p>
+<h3 id="is-an-ephemeris-astronomy-or-astrology">Is an ephemeris astronomy or astrology?</h3>
+<p>The table itself is astronomy: computed positions. Astrology is one of the things people do with it.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>NASA Jet Propulsion Laboratory, Horizons System: <a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank" rel="noopener">ssd.jpl.nasa.gov/horizons</a></li>
+<li>Jean Meeus, <em>Astronomical Algorithms</em>, 2nd edition (Willmann-Bell, 1998), chapters on sidereal time and interpolation.</li>
+</ul>
+</div><aside class="app-cta acc" style="--accent:#a78bfa" aria-label="About Ephemeris Sky"><img class="app-cta__icon" src="/ephemeris_sky/icon-160.webp" alt="" width="72" height="72" loading="lazy" decoding="async"/><div><h2 class="app-cta__name">Ephemeris Sky</h2><p class="app-cta__text">The sky, computed for any moment. On-device, no account, works offline.</p></div><div class="app-cta__actions"><a class="btn btn--appstore" href="https://apps.apple.com/app/id6782659268" target="_blank" rel="noreferrer" aria-label="Download Ephemeris Sky on the App Store"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M16.365 1.43c0 1.14-.42 2.2-1.12 2.98-.85.94-2.24 1.66-3.4 1.57-.13-1.1.44-2.28 1.1-3.02.75-.85 2.06-1.5 3.42-1.53zM20.44 17.1c-.55 1.27-.82 1.84-1.53 2.97-.99 1.57-2.38 3.53-4.1 3.54-1.53.02-1.92-1-4-1-2.07 0-2.5.98-4.03 1.02-1.72.03-3.03-1.7-4.02-3.27-2.77-4.4-3.06-9.55-1.35-12.3 1.21-1.94 3.13-3.08 4.93-3.08 1.84 0 2.99 1.01 4.5 1.01 1.47 0 2.36-1.01 4.5-1.01 1.6 0 3.3.87 4.5 2.38-3.96 2.17-3.31 7.82.6 9.62z"></path></svg><span class="as-lines"><span class="as-top">Download on the</span><span class="as-big">App Store</span></span></a><a class="tlink" href="/ephemeris-sky/">What Ephemeris Sky does</a></div></aside><section class="related" aria-labelledby="related-title"><h2 class="h2" id="related-title">More Ephemeris Sky guides</h2><ul class="posts posts--rows"><li><a class="post-card acc" href="/ephemeris-sky/blog/house-systems-compared/" style="--accent:#a78bfa"><h3 class="post-card__title">What is the difference between Placidus, Koch and Whole Sign houses?</h3><p class="post-card__desc">Six house systems compared by how each one divides the sky: Whole Sign, Equal, Placidus, Koch, Campanus and Regiomontanus, and why some fail near the poles.</p><span class="post-card__meta"><time dateTime="2026-11-24">November 24, 2026</time> · 5 min read</span></a></li></ul></section></article></div></main><footer class="site-footer"><div class="wrap"><div class="footer"><div><div class="footer__brand-row"><img src="/logo-96.webp" alt="" width="28" height="32"/><span>AISixteen</span></div><p>Small, fast, private apps for iPhone, iPad, Mac and Apple Watch, and Fantastic, an open-source kernel of agents.</p><a class="btn btn--ghost btn--sm" href="mailto:info@aisixteen.com">info@aisixteen.com</a></div><nav aria-label="Apps"><h2>Apps</h2><ul class="footer__apps"><li><a href="/ephemeris-sky/">Ephemeris Sky</a></li><li><a href="/overtone-lab/">Overtone Lab</a></li><li><a href="/indox-text/">Indox Text</a></li><li><a href="/typing-mill/">Typing Mill</a></li><li><a href="/golden-ratio-calculator/">Golden Ratio Calculator</a></li><li><a href="/golden-ratio-calculator-lite/">Golden Ratio Calculator Lite</a></li><li><a href="/big-pink-cat/">Big Pink Cat</a></li><li><a href="/skyscraper-frog/">Skyscraper Frog</a></li><li><a href="/monstro-shooter/">Monstro Shooter</a></li><li><a href="/kerf-calc/">Kerf Calc</a></li><li><a href="/truecourse-e6b/">TrueCourse E6B</a></li><li><a href="/earth-around/">Earth Around</a></li><li><a href="/marine-nav/">Marine Nav</a></li><li><a href="/par/">Par</a></li><li><a href="/storypole/">Storypole</a></li><li><a href="/aircore/">AirCore</a></li></ul></nav><nav aria-label="More"><h2>Guides</h2><ul><li><a href="/ephemeris-sky/blog/">Ephemeris Sky guides</a></li><li><a href="/overtone-lab/blog/">Overtone Lab guides</a></li><li><a href="/indox-text/blog/">Indox Text guides</a></li><li><a href="/typing-mill/blog/">Typing Mill guides</a></li><li><a href="/golden-ratio-calculator/blog/">Golden Ratio Calculator guides</a></li><li><a href="/kerf-calc/blog/">Kerf Calc guides</a></li><li><a href="/truecourse-e6b/blog/">TrueCourse E6B guides</a></li><li><a href="/earth-around/blog/">Earth Around guides</a></li><li><a href="/marine-nav/blog/">Marine Nav guides</a></li><li><a href="/par/blog/">Par guides</a></li><li><a href="/storypole/blog/">Storypole guides</a></li><li><a href="/aircore/blog/">AirCore guides</a></li></ul><h2 style="margin-top:22px">AISixteen</h2><ul><li><a href="/fantastic/">Fantastic</a></li><li><a href="/#privacy">Privacy</a></li><li><a href="https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206" target="_blank" rel="noreferrer">App Store developer page</a></li><li><a href="https://github.com/aisixteen" target="_blank" rel="noreferrer">GitHub</a></li></ul></nav></div><div class="footer__bottom"><span>© 2026 AISixteen</span><span>No accounts. No tracking.</span></div></div></footer></div>
+<script src="/assets/site.js?v=0e7f320f3e" defer></script>
+</body>
+</html>

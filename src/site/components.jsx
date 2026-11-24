@@ -1,146 +1,40 @@
 import React from 'react'
-import { SITE, FILTERS, appStoreUrl, deviceLabel, appFolder, platformsOf, faqsOf, trustPointsOf, privacyLineOf, claimOf } from './theme.js'
+import { SITE, FILTERS, appStoreUrl, platformsOf, faqsOf, trustPointsOf, privacyLineOf, claimOf, fmtDate } from './theme.js'
 
 const asset = (p) => `/${p}`
 
+// Site-wide data the chrome needs (the footer lists every app). Set once by render.jsx.
+export const ctx = { apps: [], posts: [] }
+
 /* ---------------- icons ---------------- */
 const ShieldIcon = ({ size = 34, stroke = '#55d3ff', sw = 1.8 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     <path d="m9 12 2 2 4-4" />
   </svg>
 )
 const CheckIcon = () => (
-  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <polyline points="20 6 9 17 4 12" />
   </svg>
 )
-const AppleIcon = ({ size = 20 }) => (
+const AppleIcon = ({ size = 22 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
     <path d="M16.365 1.43c0 1.14-.42 2.2-1.12 2.98-.85.94-2.24 1.66-3.4 1.57-.13-1.1.44-2.28 1.1-3.02.75-.85 2.06-1.5 3.42-1.53zM20.44 17.1c-.55 1.27-.82 1.84-1.53 2.97-.99 1.57-2.38 3.53-4.1 3.54-1.53.02-1.92-1-4-1-2.07 0-2.5.98-4.03 1.02-1.72.03-3.03-1.7-4.02-3.27-2.77-4.4-3.06-9.55-1.35-12.3 1.21-1.94 3.13-3.08 4.93-3.08 1.84 0 2.99 1.01 4.5 1.01 1.47 0 2.36-1.01 4.5-1.01 1.6 0 3.3.87 4.5 2.38-3.96 2.17-3.31 7.82.6 9.62z" />
   </svg>
 )
 const CheckCircleIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
     <polyline points="22 4 12 14.01 9 11.01" />
   </svg>
 )
-
-/* ---------------- shared chrome ---------------- */
-export const Header = () => (
-  <header className="site-header">
-    <div className="site-header__inner">
-      <a className="brand" href="/">
-        <img src={asset('logo.png')} alt="AISixteen" width="34" height="38" />
-        <span className="brand__name">AISixteen</span>
-      </a>
-      <nav className="nav">
-        <a className="nav__link nav__text" href="/#apps">Apps</a>
-        <a className="nav__link nav__text" href="/fantastic/">Fantastic</a>
-        <a className="nav__link nav__text" href="/#privacy">Privacy</a>
-        <a className="btn btn--primary btn--sm" href={`mailto:${SITE.email}`}>Get in touch</a>
-      </nav>
-    </div>
-  </header>
-)
-
-export const Footer = ({ year }) => (
-  <footer className="site-footer">
-    <div className="footer">
-      <div>
-        <div className="footer__brand-row">
-          <img src={asset('logo.png')} alt="AISixteen" width="30" height="34" />
-          <span>AISixteen</span>
-        </div>
-        <p>Small, fast, private apps for iPhone, iPad &amp; Mac. Available for collaborations, pilots, and custom tooling.</p>
-        <a className="btn btn--primary" href={`mailto:${SITE.email}`}>Email {SITE.email}</a>
-      </div>
-      <div className="footer__links">
-        <b>Links</b>
-        <a className="nav__link" href="/#apps">All apps</a>
-        <a className="nav__link" href="/fantastic/">Fantastic</a>
-        <a className="nav__link" href="/#privacy">Privacy</a>
-        <a className="nav__link" href={`mailto:${SITE.email}`}>Contact</a>
-      </div>
-    </div>
-    <div className="footer__bottom">© {year} AISixteen</div>
-  </footer>
-)
-
-const AppStoreButton = ({ app }) => (
-  <a className="btn btn--appstore" href={appStoreUrl(app)} target="_blank" rel="noreferrer">
-    <AppleIcon />
-    <span className="as-lines">
-      <span className="as-top">Download on the</span>
-      <span className="as-big">App Store</span>
-    </span>
-  </a>
-)
-
-/* ---------------- home ---------------- */
-const AppCard = ({ app }) => (
-  <a className="card" href={`/${app.slug}/`} data-group={app.group} style={{ '--accent': app.accent }} aria-label={`Open ${app.name}`}>
-    <div className="card__shotwrap">
-      <img className="card__shot" src={asset(app.screenshot)} alt="" loading="lazy" decoding="async" />
-      <div className="card__shotfade" />
-      <div className="card__bar" />
-    </div>
-    <div className="card__body">
-      <div className="card__head">
-        <img className="card__icon" src={asset(app.icon)} alt={`${app.name} icon`} width="56" height="56" loading="lazy" decoding="async" />
-        <div style={{ minWidth: 0 }}>
-          <div className="card__name">{app.name}</div>
-          <span className="badge">{app.category}</span>
-        </div>
-      </div>
-      <p className="card__desc">{app.tagline}</p>
-      <span className="card__more">Learn more <span className="card__arrow">&rarr;</span></span>
-    </div>
-  </a>
-)
-
-const Featured = ({ app }) => (
-  <section className="section">
-    <a className="featured" href={`/${app.slug}/`} style={{ '--accent': app.accent }} aria-label={`Open ${app.name}`}>
-      <div className="featured__body">
-        <span className="eyebrow">Featured</span>
-        <div className="featured__head">
-          <img className="featured__icon" src={asset(app.icon)} alt={`${app.name} icon`} width="60" height="60" />
-          <div>
-            <div className="featured__name">{app.name}</div>
-            <div className="featured__cat">{app.category}</div>
-          </div>
-        </div>
-        <p className="featured__desc">{app.tagline} {app.short}</p>
-        <span className="btn btn--primary">View app <span style={{ fontSize: 17 }}>&rarr;</span></span>
-      </div>
-      <div className="featured__media">
-        <img src={asset(app.screenshot)} alt={`${app.name} screenshot`} />
-      </div>
-    </a>
-  </section>
-)
-
-const PrivacyBlock = () => (
-  <section className="privacy" id="privacy">
-    <div className="privacy__box">
-      <div className="privacy__icon"><ShieldIcon /></div>
-      <div>
-        <h2>Privacy by default</h2>
-        <p>Our apps do not collect, store, or transmit any personal data — no identifiers, no usage analytics, no device information. Nothing about you leaves your device. There's no account to create and nothing to opt out of, because there was never anything to collect.</p>
-      </div>
-    </div>
-  </section>
-)
-
-/* ---------------- fantastic ---------------- */
 const GitHubIcon = ({ size = 18 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.39-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z" />
   </svg>
 )
-
+// Used by the /fantastic/ page (styles in fantastic.css).
 const Terminal = ({ title, children }) => (
   <div className="frame-mac fx-term">
     <div className="frame-mac__bar">
@@ -151,225 +45,366 @@ const Terminal = ({ title, children }) => (
   </div>
 )
 
-// Home: Fantastic is the headline product; the consumer apps follow as their own section.
-const FantasticHero = ({ f }) => (
-  <section className="hero fx-hero rise" style={{ '--accent': f.accent }}>
-    <a className="hero__badge" href={`/${f.slug}/`}><span className="dot-live" /> {f.fullName} · {f.status}</a>
-    <h1 className="hero__title fx-hero__title">Humans and AIs,<br /><span className="grad">one workspace.</span></h1>
-    <p className="hero__sub">{f.homeSub}</p>
-    <div className="hero__cta">
-      <a className="btn btn--primary" href={`/${f.slug}/`}>Explore Fantastic</a>
-      <a className="btn btn--ghost" href={f.repo} target="_blank" rel="noreferrer"><GitHubIcon /> Source on GitHub</a>
-    </div>
-    <div className="fx-hero__install">
-      <span className="fx-hero__prompt">$</span><code>cargo install fantastic --locked</code>
-    </div>
-    <div className="fx-hero__duo">
-      <StackStrip f={f} />
-      <div className="fx-hero__visual">
-        <img className="fx-hero__icon" src={asset(f.icon)} alt={`${f.name} icon`} width="96" height="96" />
-        <Terminal title="the idea in one call">{f.oneCall}</Terminal>
+/* ---------------- shared chrome ---------------- */
+const Logo = ({ size = 32 }) => (
+  <img src={asset('logo-96.webp')} alt="" width={Math.round(size * 0.875)} height={size} />
+)
+
+export const Header = () => (
+  <>
+    <a className="skip" href="#main">Skip to content</a>
+    <header className="site-header">
+      <div className="site-header__inner">
+        <a className="brand" href="/" aria-label="AISixteen home">
+          <Logo />
+          <span className="brand__name">AISixteen</span>
+        </a>
+        <nav className="nav" aria-label="Main">
+          <a className="nav__link" href="/#apps">Apps</a>
+          <a className="nav__link" href="/#guides">Guides</a>
+          <a className="nav__link" href="/fantastic/">Fantastic</a>
+          <a className="btn btn--primary btn--sm nav__cta" href={`mailto:${SITE.email}`}>Get in touch</a>
+        </nav>
       </div>
-    </div>
-  </section>
+    </header>
+  </>
 )
 
-export const Home = ({ apps, featured, fantastic, year }) => {
+export const Footer = ({ year }) => {
+  const withPosts = ctx.apps.filter((a) => a.posts && a.posts.length)
+  return (
+    <footer className="site-footer">
+      <div className="wrap">
+        <div className="footer">
+          <div>
+            <div className="footer__brand-row"><Logo /><span>AISixteen</span></div>
+            <p>Small, fast, private apps for iPhone, iPad, Mac and Apple Watch, and Fantastic, an open-source kernel of agents.</p>
+            <a className="btn btn--ghost btn--sm" href={`mailto:${SITE.email}`}>{SITE.email}</a>
+          </div>
+          <nav aria-label="Apps">
+            <h2>Apps</h2>
+            <ul className="footer__apps">
+              {ctx.apps.map((a) => <li key={a.slug}><a href={`/${a.slug}/`}>{a.name}</a></li>)}
+            </ul>
+          </nav>
+          <nav aria-label="More">
+            <h2>Guides</h2>
+            <ul>
+              {withPosts.map((a) => <li key={a.slug}><a href={`/${a.slug}/blog/`}>{a.name} guides</a></li>)}
+            </ul>
+            <h2 style={{ marginTop: 22 }}>AISixteen</h2>
+            <ul>
+              <li><a href="/fantastic/">Fantastic</a></li>
+              <li><a href="/#privacy">Privacy</a></li>
+              <li><a href={SITE.developerUrl} target="_blank" rel="noreferrer">App Store developer page</a></li>
+              <li><a href={SITE.github} target="_blank" rel="noreferrer">GitHub</a></li>
+            </ul>
+          </nav>
+        </div>
+        <div className="footer__bottom"><span>© {year} AISixteen</span><span>No accounts. No tracking.</span></div>
+      </div>
+    </footer>
+  )
+}
+
+const AppStoreButton = ({ app }) => (
+  <a className="btn btn--appstore" href={appStoreUrl(app)} target="_blank" rel="noreferrer" aria-label={`Download ${app.name} on the App Store`}>
+    <AppleIcon />
+    <span className="as-lines">
+      <span className="as-top">Download on the</span>
+      <span className="as-big">App Store</span>
+    </span>
+  </a>
+)
+
+const Crumbs = ({ items }) => (
+  <nav className="crumbs wrap" aria-label="Breadcrumb">
+    <ol>
+      {items.map((c, i) => (
+        <li key={i}>{c.href ? <a href={c.href}>{c.name}</a> : <span aria-current="page">{c.name}</span>}</li>
+      ))}
+    </ol>
+  </nav>
+)
+
+const minutes = (n) => `${n} min read`
+
+// One post in a list. `showApp` adds the app's icon and name (home page, where apps mix).
+const PostCard = ({ post, showApp = false, level = 3 }) => {
+  const H = `h${level}`
+  return (
+    <li>
+      <a className="post-card acc" href={post.url} style={{ '--accent': post.app.accent }}>
+        {showApp && <span className="post-card__app"><img src={asset(post.app.iconSm)} alt="" width="22" height="22" loading="lazy" decoding="async" />{post.app.name}</span>}
+        <H className="post-card__title">{post.title}</H>
+        <p className="post-card__desc">{post.description}</p>
+        <span className="post-card__meta"><time dateTime={post.date}>{fmtDate(post.date)}</time> · {minutes(post.minutes)}</span>
+      </a>
+    </li>
+  )
+}
+
+/* ---------------- home ---------------- */
+const AppCard = ({ app }) => (
+  <a className="card acc" href={`/${app.slug}/`} data-group={app.group} style={{ '--accent': app.accent }}>
+    <img className="card__shot" src={asset(app.shotSm)} alt={`${app.name} screenshot`} width="960" height="600" loading="lazy" decoding="async" />
+    <div className="card__body">
+      <div className="card__head">
+        <img className="card__icon" src={asset(app.iconSm)} alt="" width="48" height="48" loading="lazy" decoding="async" />
+        <div style={{ minWidth: 0 }}>
+          <h3 className="card__name">{app.name}</h3>
+          <span className="card__cat">{app.category}</span>
+        </div>
+      </div>
+      <p className="card__desc">{app.tagline}</p>
+    </div>
+  </a>
+)
+
+const FantasticStage = ({ f }) => (
+  <div className="stage">
+    <img className="stage__icon" src={asset(f.iconSm)} alt="" width="68" height="68" />
+    <div className="term">
+      <div className="term__bar"><i /><i /><i /><span>the idea in one call</span></div>
+      <pre>{f.oneCall}</pre>
+    </div>
+    <ul className="layers" aria-label="The Fantastic stack, layer by layer">
+      {f.stackLayers.map((l) => (
+        <li key={l.key}>
+          <span>{l.name}</span>
+          <span className={`layers__state${l.status.includes('available') ? ' is-on' : ''}`}>{l.status.map((s) => f.statuses[s].label).join(' / ')}</span>
+        </li>
+      ))}
+    </ul>
+    <a className="stage__more" href={`/${f.slug}/#stack`}>The stack, built from scratch <span className="card__arrow">&rarr;</span></a>
+  </div>
+)
+
+export const Home = ({ apps, featured, fantastic: f, posts, year }) => {
   const liveApps = apps.filter((a) => a.live).map((a) => a.name)
+  const withPosts = apps.filter((a) => a.posts.length)
   return (
-  <div className="page">
-    <Header />
-    <main>
-      {fantastic && <FantasticHero f={fantastic} />}
-
-      <section className="hero apps-intro" id="apps-intro">
-        <div className="hero__badge"><span className="dot-live" /> Independent apps for iPhone, iPad &amp; Mac</div>
-        <h2 className="hero__title apps-intro__title">Apps that keep<br /><span className="grad">to themselves.</span></h2>
-        <p className="hero__sub">AISixteen builds small, fast, thoughtfully crafted apps that run on your device — no accounts, no tracking, nothing about you sent to a server.</p>
-        <div className="hero__cta">
-          <a className="btn btn--primary" href="#apps">Explore the apps</a>
-          <a className="btn btn--ghost" href="#privacy">Our privacy stance</a>
-        </div>
-        <div className="hero__stats">
-          <div className="stat"><b>{apps.length}</b>apps shipped</div>
-          <div className="stat"><b>0</b>data collected</div>
-          <div className="stat"><b>0</b>accounts needed</div>
-        </div>
-      </section>
-
-      <Featured app={featured} />
-
-      <section className="apps" id="apps">
-        <div className="apps__head">
-          <div>
-            <div className="apps__eyebrow">Catalog</div>
-            <h2>All apps</h2>
-            <p>Every one collects nothing{liveApps.length ? `, and all but ${liveApps.join(' and ')} run fully offline` : ' and runs offline'}.</p>
-          </div>
-          <div className="filters">
-            {FILTERS.map((f) => (
-              <span key={f.key} className={`chip${f.key === 'all' ? ' is-active' : ''}`} data-filter={f.key}>{f.label}</span>
-            ))}
-          </div>
-        </div>
-        <div className="grid">
-          {apps.map((app) => <AppCard key={app.slug} app={app} />)}
-        </div>
-      </section>
-
-      <PrivacyBlock />
-    </main>
-    <Footer year={year} />
-  </div>
-  )
-}
-
-/* ---------------- landing preview (multi-device carousel) ---------------- */
-const FrameMac = ({ app, children }) => (
-  <div className="frame-mac">
-    <div className="frame-mac__bar">
-      <span className="tl tl--r" /><span className="tl tl--y" /><span className="tl tl--g" />
-      <span className="frame-mac__title">{app.name}</span>
-    </div>
-    <div className="frame-mac__screen"><div className="frame__glow" />{children}</div>
-  </div>
-)
-const FrameIpad = ({ children }) => (
-  <div className="frame-ipad">
-    <div className="frame-ipad__screen"><div className="frame__glow" />{children}</div>
-  </div>
-)
-const FrameIphone = ({ children }) => (
-  <div className="frame-iphone">
-    <div className="frame-iphone__screen">
-      <div className="frame__glow" />{children}
-    </div>
-  </div>
-)
-const FrameWatch = ({ children }) => (
-  <div className="frame-watch">
-    <div className="frame-watch__crown" />
-    <div className="frame-watch__screen frame__screen"><div className="frame__glow" />{children}</div>
-  </div>
-)
-const FRAME = { mac: FrameMac, ipad: FrameIpad, iphone: FrameIphone, watch: FrameWatch }
-const FRAME_LABEL = { mac: 'Mac', ipad: 'iPad', iphone: 'iPhone', watch: 'Apple Watch' }
-
-// Rotates through every platform's screenshots, each in its own device frame.
-// site.js crossfades the .cslide items (5s hold, 0.5s fade).
-const Carousel = ({ app }) => {
-  const fallbackFrame = app.device === 'ipad' ? 'ipad' : app.device === 'ios' ? 'iphone' : 'mac'
-  const slides = app.slides && app.slides.length ? app.slides : [{ frame: fallbackFrame, src: app.screenshot }]
-  return (
-    <div className={`carousel carousel--${app.carouselSize || 'mac'}`}>
-      {slides.map((s, i) => {
-        const Frame = FRAME[s.frame] || FrameMac
-        return (
-          <div className={`cslide${i === 0 ? ' is-active' : ''}`} key={i}>
-            <div className="device">
-              <div className="device__label"><span>&#9658;</span> {FRAME_LABEL[s.frame]} preview</div>
-              <Frame app={app}>
-                <img
-                  className="media"
-                  src={asset(s.src)}
-                  alt={i === 0 ? `${app.name} preview` : ''}
-                  loading={i === 0 ? undefined : 'lazy'}
-                  decoding="async"
-                />
-              </Frame>
+    <div className="page">
+      <Header />
+      <main id="main">
+        <section className="hero wrap acc" style={{ '--accent': f.accent }}>
+          <div className="hero__grid">
+            <div>
+              <a className="pill" href={`/${f.slug}/`}><span className="pill__dot" /> {f.fullName} · {f.status}</a>
+              <h1 className="hero__title">Humans and AIs,<br /><span className="grad">one workspace.</span></h1>
+              <p className="hero__sub">{f.homeSub}</p>
+              <div className="hero__cta">
+                <a className="btn btn--primary" href={`/${f.slug}/`}>Explore Fantastic</a>
+                <a className="btn btn--ghost" href={f.repo} target="_blank" rel="noreferrer"><GitHubIcon /> Source on GitHub</a>
+              </div>
+              <div className="cmd"><b>$</b><code>cargo install fantastic --locked</code></div>
             </div>
+            <FantasticStage f={f} />
           </div>
-        )
-      })}
-    </div>
-  )
-}
+        </section>
 
-// Slim cross-promo bar on every app page. Border runs from the app's accent to Fantastic's.
-const MadeInFantastic = ({ f }) => (
-  <section className="mif-wrap">
-    <a className="mif" href={`/${f.slug}/`} style={{ '--fx': f.accent }} aria-label={`Made in ${f.name} — learn about ${f.fullName}`}>
-      <img className="mif__icon" src={asset(f.icon)} alt="" width="40" height="40" loading="lazy" decoding="async" />
-      <span className="mif__text">
-        <span className="mif__label">Made in <b>{f.name}</b></span>
-        <span className="mif__sub">Built by humans and AIs in one workspace — our open-source kernel of agents.</span>
-      </span>
-      <span className="mif__cta">Explore <span className="card__arrow">&rarr;</span></span>
-    </a>
-  </section>
-)
-
-export const Landing = ({ app, more, fantastic, year }) => (
-  <div className="page" style={{ '--accent': app.accent }}>
-    <Header />
-    <main>
-      <section className="landing-hero" style={{ paddingTop: 34, paddingBottom: 0 }}>
-        <a className="back" href="/"><span>&larr;</span> All apps</a>
-      </section>
-
-      <section className="landing-hero rise">
-        <div className="split">
-          <div>
-            <span className="landing__cat">{app.category}</span>
-            <div className="landing__head">
-              <img className="landing__icon" src={asset(app.icon)} alt={`${app.name} icon`} width="78" height="78" />
-              <h1 className="landing__title">{app.name}</h1>
+        <section className="band wrap" id="apps-intro" aria-labelledby="apps-intro-title">
+          <div className="sec-head">
+            <p className="kicker">Independent apps for iPhone, iPad, Mac and Apple Watch</p>
+            <h2 className="h2" id="apps-intro-title">Apps that keep to themselves.</h2>
+            <p className="lead">AISixteen builds small, fast, carefully made apps that run on your device. No accounts, no tracking, and nothing about you sent to a server.</p>
+            <dl className="stats">
+              <div><dt>apps on the App Store</dt><dd>{apps.length}</dd></div>
+              <div><dt>accounts needed</dt><dd>0</dd></div>
+              <div><dt>personal data collected</dt><dd>0</dd></div>
+            </dl>
+          </div>
+          <a className="featured acc" href={`/${featured.slug}/`} style={{ '--accent': featured.accent }}>
+            <div className="featured__body">
+              <p className="kicker">Featured</p>
+              <div className="featured__head">
+                <img className="featured__icon" src={asset(featured.iconSm)} alt="" width="64" height="64" />
+                <div>
+                  <h3 className="featured__name">{featured.name}</h3>
+                  <span className="featured__cat">{featured.category}</span>
+                </div>
+              </div>
+              <p className="featured__desc">{featured.tagline} {featured.short}</p>
+              <span className="featured__go">View {featured.name} <span className="card__arrow">&rarr;</span></span>
             </div>
-            <p className="landing__tagline">{app.tagline}</p>
-            <p className="landing__blurb">{app.blurb}</p>
-            <div className="landing__actions">
-              <AppStoreButton app={app} />
-              <span className="meta-note">On the App Store{app.storeName ? ` as ${app.storeName}` : ''} · {platformsOf(app)}</span>
+            <div className="featured__media">
+              <img src={asset(featured.shotSm)} alt={`${featured.name} screenshot`} width="960" height="600" loading="lazy" decoding="async" />
             </div>
-            <div className="trust-row">
-              {trustPointsOf(app).map((t, i) => (
-                <span className="trust" key={i}><CheckCircleIcon /> {t}</span>
+          </a>
+        </section>
+
+        <section className="band--tight wrap" id="apps" aria-labelledby="apps-title">
+          <div className="apps__head">
+            <div className="sec-head" style={{ marginBottom: 0 }}>
+              <p className="kicker">Catalog</p>
+              <h2 className="h2" id="apps-title">All apps</h2>
+              <p className="lead">Every one collects nothing{liveApps.length ? `, and all but ${liveApps.join(' and ')} run fully offline` : ' and runs offline'}.</p>
+            </div>
+            <div className="filters" role="group" aria-label="Filter apps by category">
+              {FILTERS.map((x) => (
+                <button type="button" key={x.key} className={`chip${x.key === 'all' ? ' is-active' : ''}`} data-filter={x.key} aria-pressed={x.key === 'all' ? 'true' : 'false'}>{x.label}</button>
               ))}
             </div>
           </div>
-          <Carousel app={app} />
-        </div>
-      </section>
+          <div className="grid">
+            {apps.map((app) => <AppCard key={app.slug} app={app} />)}
+          </div>
+        </section>
 
-      {fantastic && app.madeInFantastic !== false && <MadeInFantastic f={fantastic} />}
-
-      <section className="inside">
-        <h2>What's inside</h2>
-        <div className="features">
-          {app.features.map((feat, i) => (
-            <div className="feature" key={i}>
-              <div className="feature__icon"><CheckIcon /></div>
-              <p>{feat}</p>
+        {posts.length > 0 && (
+          <section className="band wrap" id="guides" aria-labelledby="guides-title">
+            <div className="sec-head">
+              <p className="kicker">Guides</p>
+              <h2 className="h2" id="guides-title">How the numbers work</h2>
+              <p className="lead">Plain explanations of the problems these apps solve, with worked examples and the sources behind them.</p>
             </div>
+            <ul className="posts">
+              {posts.map((p) => <PostCard key={p.url} post={p} showApp />)}
+            </ul>
+            <div className="guide-index" aria-label="Guides by app">
+              {withPosts.map((a) => (
+                <a href={`/${a.slug}/blog/`} key={a.slug}><img src={asset(a.iconSm)} alt="" width="24" height="24" loading="lazy" decoding="async" />{a.name} guides</a>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section className="band--tight wrap" id="privacy" aria-labelledby="privacy-title">
+          <div className="privacy__box">
+            <div className="privacy__icon"><ShieldIcon stroke="currentColor" /></div>
+            <div>
+              <h2 className="h2" id="privacy-title">Privacy by default</h2>
+              <p>Our apps do not collect, store, or transmit any personal data: no identifiers, no usage analytics, no device information. Nothing about you leaves your device. There's no account to create and nothing to opt out of, because there was never anything to collect.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+      <Footer year={year} />
+    </div>
+  )
+}
+
+/* ---------------- app page ---------------- */
+const PLATFORM_LABEL = { mac: 'Mac', ipad: 'iPad', ios: 'iPhone', watch: 'Apple Watch' }
+
+// Every platform's screenshots in one strip: native horizontal scroll with snap, no script.
+const Shots = ({ app }) => (
+  <div className="shots" tabIndex={0} role="group" aria-label={`${app.name} screenshots`}>
+    {app.slides.map((s, i) => (
+      <figure key={s.src}>
+        <img src={asset(s.src)} alt={`${app.name} on ${PLATFORM_LABEL[s.platform]}, screenshot ${s.n}`} width={s.w} height={s.h} loading="lazy" decoding="async" />
+        <figcaption>{PLATFORM_LABEL[s.platform]}</figcaption>
+      </figure>
+    ))}
+  </div>
+)
+
+const MadeInFantastic = ({ f }) => (
+  <a className="mif" href={`/${f.slug}/`}>
+    <img className="mif__icon" src={asset(f.iconSm)} alt="" width="44" height="44" loading="lazy" decoding="async" />
+    <span className="mif__text">
+      <span className="mif__label">Made in {f.name}</span>
+      <span className="mif__sub">Built by humans and AIs in one workspace, our open-source kernel of agents.</span>
+    </span>
+    <span className="mif__cta">Explore <span className="card__arrow">&rarr;</span></span>
+  </a>
+)
+
+const AppCta = ({ app, heading: H = 'h2' }) => (
+  <aside className="app-cta acc" style={{ '--accent': app.accent }} aria-label={`About ${app.name}`}>
+    <img className="app-cta__icon" src={asset(app.iconSm)} alt="" width="72" height="72" loading="lazy" decoding="async" />
+    <div>
+      <H className="app-cta__name">{app.name}</H>
+      <p className="app-cta__text">{app.tagline} {claimOf(app)}</p>
+    </div>
+    <div className="app-cta__actions">
+      <AppStoreButton app={app} />
+      <a className="tlink" href={`/${app.slug}/`}>What {app.name} does</a>
+    </div>
+  </aside>
+)
+
+export const Landing = ({ app, more, fantastic, year }) => (
+  <div className="page acc" style={{ '--accent': app.accent }}>
+    <Header />
+    <main id="main">
+      <Crumbs items={[{ name: 'Home', href: '/' }, { name: 'Apps', href: '/#apps' }, { name: app.name }]} />
+      <section className="app-hero wrap">
+        <div className="split">
+          <div>
+            <span className="app-hero__cat">{app.category}</span>
+            <div className="app-hero__head">
+              <img className="app-hero__icon" src={asset(app.iconSm)} alt={`${app.name} app icon`} width="84" height="84" />
+              <h1 className="app-hero__title">{app.name}</h1>
+            </div>
+            <p className="app-hero__tagline">{app.tagline}</p>
+            <p className="app-hero__blurb">{app.blurb}</p>
+            <div className="app-hero__actions">
+              <AppStoreButton app={app} />
+              <span className="meta-note">On the App Store{app.storeName ? ` as ${app.storeName}` : ''} · {platformsOf(app)}</span>
+            </div>
+            <ul className="trust-row">
+              {trustPointsOf(app).map((t, i) => <li className="trust" key={i}><CheckCircleIcon /> {t}</li>)}
+            </ul>
+          </div>
+          <div className="app-hero__shot">
+            <img src={asset(app.shotSm)} alt={`${app.name}: ${app.tagline}`} width="960" height="600" fetchpriority="high" decoding="async" />
+          </div>
+        </div>
+      </section>
+
+      {app.slides.length > 0 && (
+        <section className="band--tight wrap" aria-labelledby="shots-title">
+          <div className="sec-head"><h2 className="h2" id="shots-title">{app.name} on {platformsOf(app).replace('&', 'and')}</h2></div>
+          <Shots app={app} />
+        </section>
+      )}
+
+      <section className="band--tight wrap" aria-labelledby="inside-title">
+        <div className="sec-head"><h2 className="h2" id="inside-title">What's inside</h2></div>
+        <ul className="features">
+          {app.features.map((feat, i) => (
+            <li className="feature" key={i}><span className="feature__icon"><CheckIcon /></span>{feat}</li>
           ))}
-        </div>
+        </ul>
+        <p className="note" style={{ marginTop: 16 }}><ShieldIcon size={24} stroke="currentColor" /><span>{privacyLineOf(app)}</span></p>
       </section>
 
-      <section className="privacy-strip">
-        <div className="privacy-strip__box">
-          <ShieldIcon size={26} />
-          <p>{privacyLineOf(app)}</p>
-        </div>
-      </section>
+      {app.posts.length > 0 && (
+        <section className="band--tight wrap" id="guides" aria-labelledby="guides-title">
+          <div className="sec-head">
+            <p className="kicker">Guides</p>
+            <h2 className="h2" id="guides-title">Guides from the {app.name} blog</h2>
+          </div>
+          <ul className="posts">
+            {app.posts.slice(0, 3).map((p) => <PostCard key={p.url} post={p} />)}
+          </ul>
+          <p style={{ marginTop: 18 }}><a className="tlink" href={`/${app.slug}/blog/`}>All {app.name} guides</a></p>
+        </section>
+      )}
 
-      <section className="faq">
-        <h2>Questions</h2>
+      <section className="band--tight wrap" aria-labelledby="faq-title">
+        <div className="sec-head"><h2 className="h2" id="faq-title">Questions about {app.name}</h2></div>
         <div className="faq__list">
           {faqsOf(app).map((f, i) => (
-            <details className="faq__item" key={i}>
-              <summary>{f.q}<span className="faq__plus">+</span></summary>
+            <details className="faq__item" key={i} open={i < (app.qa.length || 1)}>
+              <summary>{f.q}<span className="faq__plus" aria-hidden="true">+</span></summary>
               <p>{f.a}</p>
             </details>
           ))}
         </div>
       </section>
 
-      <section className="more">
-        <h2>More from AISixteen</h2>
+      {fantastic && app.madeInFantastic !== false && (
+        <section className="band--tight wrap" aria-label="Made in Fantastic"><MadeInFantastic f={fantastic} /></section>
+      )}
+
+      <section className="band--tight wrap" aria-labelledby="more-title">
+        <div className="sec-head"><h2 className="h2" id="more-title">More from AISixteen</h2></div>
         <div className="more-grid">
           {more.map((m) => (
-            <a className="mini-card" href={`/${m.slug}/`} key={m.slug} style={{ '--accent': m.accent }} aria-label={`Open ${m.name}`}>
-              <img className="mini-card__icon" src={asset(m.icon)} alt={`${m.name} icon`} width="46" height="46" loading="lazy" decoding="async" />
+            <a className="mini-card acc" href={`/${m.slug}/`} key={m.slug} style={{ '--accent': m.accent }}>
+              <img className="mini-card__icon" src={asset(m.iconSm)} alt="" width="46" height="46" loading="lazy" decoding="async" />
               <div style={{ minWidth: 0 }}>
                 <div className="mini-card__name">{m.name}</div>
                 <div className="mini-card__cat">{m.category}</div>
@@ -379,27 +414,88 @@ export const Landing = ({ app, more, fantastic, year }) => (
         </div>
       </section>
 
-      <section className="final-cta-wrap">
+      <section className="band--tight wrap" aria-labelledby="get-title">
         <div className="final-cta">
-          <h2>Get {app.name}</h2>
+          <h2 className="h2" id="get-title">Get {app.name}</h2>
           <p>{app.tagline} {claimOf(app)}</p>
           <AppStoreButton app={app} />
         </div>
       </section>
-
       <div className="stickpad" />
     </main>
 
     <div className="sticky-cta">
       <div className="sticky-cta__app">
-        <img src={asset(app.icon)} alt="" width="38" height="38" loading="lazy" decoding="async" />
+        <img src={asset(app.iconSm)} alt="" width="38" height="38" loading="lazy" decoding="async" />
         <span className="sticky-cta__name">{app.name}</span>
       </div>
-      <a className="sticky-cta__btn" href={appStoreUrl(app)} target="_blank" rel="noreferrer">
+      <a className="sticky-cta__btn" href={appStoreUrl(app)} target="_blank" rel="noreferrer" aria-label={`${app.name} on the App Store`}>
         <AppleIcon size={16} /> App Store
       </a>
     </div>
+    <Footer year={year} />
+  </div>
+)
 
+/* ---------------- blog ---------------- */
+export const BlogIndex = ({ app, year }) => (
+  <div className="page acc" style={{ '--accent': app.accent }}>
+    <Header />
+    <main id="main">
+      <Crumbs items={[{ name: 'Home', href: '/' }, { name: app.name, href: `/${app.slug}/` }, { name: 'Guides' }]} />
+      <div className="wrap">
+        <header className="blog-head">
+          <a className="byapp" href={`/${app.slug}/`}><img src={asset(app.iconSm)} alt="" width="28" height="28" />{app.name}</a>
+          <h1 className="blog-head__title">{app.name} guides</h1>
+          <p className="lead">{app.blogIntro || `Articles about the problems ${app.name} solves, with worked examples and sources.`}</p>
+        </header>
+        <ul className="posts posts--rows" style={{ maxWidth: 860 }}>
+          {app.posts.map((p) => <PostCard key={p.url} post={p} level={2} />)}
+        </ul>
+        <div style={{ maxWidth: 860 }}><AppCta app={app} /></div>
+      </div>
+    </main>
+    <Footer year={year} />
+  </div>
+)
+
+export const Article = ({ app, post, related, year }) => (
+  <div className="page acc" style={{ '--accent': app.accent }}>
+    <Header />
+    <main id="main">
+      <Crumbs items={[{ name: 'Home', href: '/' }, { name: app.name, href: `/${app.slug}/` }, { name: 'Guides', href: `/${app.slug}/blog/` }, { name: post.title }]} />
+      <div className="wrap">
+        <article className="article">
+          <header className="article__head">
+            <a className="byapp" href={`/${app.slug}/`}><img src={asset(app.iconSm)} alt="" width="28" height="28" />{app.name}</a>
+            <h1 className="article__title">{post.title}</h1>
+            <p className="article__meta">
+              <span>By AISixteen</span>
+              <span>Published <time dateTime={post.date}>{fmtDate(post.date)}</time></span>
+              {post.updated !== post.date && <span>Updated <time dateTime={post.updated}>{fmtDate(post.updated)}</time></span>}
+              <span>{minutes(post.minutes)}</span>
+            </p>
+            <p className="answer"><b>Short answer</b>{post.answer}</p>
+          </header>
+          {post.toc.length > 2 && (
+            <nav className="toc" aria-labelledby="toc-title">
+              <h2 id="toc-title">In this guide</h2>
+              <ol>{post.toc.map((t) => <li key={t.id}><a href={`#${t.id}`}>{t.text}</a></li>)}</ol>
+            </nav>
+          )}
+          <div className="prose" dangerouslySetInnerHTML={{ __html: post.html }} />
+          <AppCta app={app} />
+          {related.length > 0 && (
+            <section className="related" aria-labelledby="related-title">
+              <h2 className="h2" id="related-title">More {app.name} guides</h2>
+              <ul className="posts posts--rows">
+                {related.map((p) => <PostCard key={p.url} post={p} />)}
+              </ul>
+            </section>
+          )}
+        </article>
+      </div>
+    </main>
     <Footer year={year} />
   </div>
 )
@@ -892,7 +988,7 @@ const Install = ({ f }) => (
 export const FantasticPage = ({ f, year }) => (
   <div className="page fl-page" style={{ '--accent': f.accent }}>
     <Header />
-    <main>
+    <main id="main">
       <section className="fl-hero">
         <div className="fl-hero__bg" aria-hidden="true"><span /><span /><span /></div>
         <a className="fl-pill fl-in" href="#next" style={{ '--d': '0s' }}>
@@ -953,10 +1049,10 @@ export const FantasticPage = ({ f, year }) => (
 export const NotFound = ({ year }) => (
   <div className="page">
     <Header />
-    <main>
+    <main id="main">
       <section className="notfound">
         <h1 className="grad">404</h1>
-        <p>That page drifted off into space. Let's get you back.</p>
+        <p>That page is not here. The apps and the guides are.</p>
         <a className="btn btn--primary" href="/">Back to all apps</a>
       </section>
     </main>

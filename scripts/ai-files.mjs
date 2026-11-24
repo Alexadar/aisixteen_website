@@ -119,5 +119,28 @@ Privacy: ${claimOf(a)}
 ${faqsOf(a).map((q) => `**${q.q}** ${q.a}`).join('\n\n')}
 `)
   }
+
+  // Guides: the full text of every post, under its app.
+  const withPosts = apps.filter((a) => a.posts && a.posts.length)
+  if (withPosts.length) out.push(`## Guides\n`)
+  for (const a of withPosts) {
+    for (const p of a.posts) {
+      out.push(`### ${p.title}
+
+URL: ${ORIGIN}${p.url} · App: ${a.name} (${ORIGIN}/${a.slug}/) · Published: ${p.date}${p.updated !== p.date ? ` · Updated: ${p.updated}` : ''}
+
+Short answer: ${md(p.answer)}
+
+${p.text.replace(/^(#{2,4}) /gm, '##$1 ').replace(/\]\(\//g, `](${ORIGIN}/`)}
+`)
+    }
+  }
   return out.join('\n')
+}
+
+// Appended to the hand-written /llms.txt: one line per post, grouped by app.
+export function llmsPosts({ apps }) {
+  const withPosts = apps.filter((a) => a.posts && a.posts.length)
+  if (!withPosts.length) return ''
+  return `\n## Guides\n${withPosts.map((a) => a.posts.map((p) => `- [${p.title}](${ORIGIN}${p.url}): ${md(p.description)} (${a.name})`).join('\n')).join('\n')}\n`
 }

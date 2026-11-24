@@ -6,7 +6,21 @@ export const SITE = {
   origin: 'https://aisixteen.com',
   email: 'info@aisixteen.com',
   tagline: 'Apps that keep to themselves.', // hero headline; edit here to change
+  // The App Store developer page and the public GitHub organisation (Organization.sameAs).
+  developerUrl: 'https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206',
+  github: 'https://github.com/aisixteen',
+  // The day the app pages and the home page last really changed. Used for their sitemap
+  // <lastmod>; never the build date. Posts carry their own dates.
+  updated: '2026-11-24',
 }
+
+// schema.org operatingSystem, derived from the platforms line each app page shows.
+export const osOf = (app) => {
+  const p = platformsOf(app)
+  return ['iOS', 'iPadOS', 'macOS', ...(p.includes('Watch') ? ['watchOS'] : [])].join(', ')
+}
+
+export const fmtDate = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
 
 export const FILTERS = [
   { key: 'all', label: 'All' },
@@ -48,6 +62,7 @@ export const privacyLineOf = (app) => app.live
 
 // Honest, generated FAQ — one source for both the visible accordion and FAQPage schema.
 export const faqsOf = (app) => app.faqs || [
+  ...(app.qa || []),
   app.live
     ? { q: `Does ${app.name} need an internet connection?`, a: `Yes, for live readings. ${app.name} pulls public ${app.liveSource || 'data'} feeds to show current conditions; previously loaded values stay visible offline.` }
     : app.icloud

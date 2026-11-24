@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How do tide predictions work, and can they be computed offline?</title>
+<meta name="description" content="Tide tables are built by adding harmonic constituents such as M2, S2, K1 and O1. How the method works, what it leaves out, and why it needs no connection.">
+<link rel="canonical" href="https://aisixteen.com/marine-nav/blog/how-tide-predictions-work/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b1020">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How do tide predictions work, and can they be computed offline?">
+<meta property="og:description" content="Tide tables are built by adding harmonic constituents such as M2, S2, K1 and O1. How the method works, what it leaves out, and why it needs no connection.">
+<meta property="og:url" content="https://aisixteen.com/marine-nav/blog/how-tide-predictions-work/">
+<meta property="og:site_name" content="AISixteen">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How do tide predictions work, and can they be computed offline?">
+<meta name="twitter:description" content="Tide tables are built by adding harmonic constituents such as M2, S2, K1 and O1. How the method works, what it leaves out, and why it needs no connection.">
+<meta property="og:image" content="https://aisixteen.com/marinenav/screenshot.png">
+<meta property="og:image:alt" content="Marine Nav screenshot">
+<meta name="twitter:image" content="https://aisixteen.com/marinenav/screenshot.png">
+<meta name="apple-itunes-app" content="app-id=6795571481">
+<meta property="article:published_time" content="2026-11-24">
+<meta property="article:modified_time" content="2026-11-24">
+<meta name="author" content="AISixteen">
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="apple-touch-icon" href="/logo.png">
+<link rel="preload" href="/assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css?v=0e7f320f3e">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348},"description":"Independent developer of Aisixteen Fantastic, an open-source kernel of agents, and of small, fast, private apps for iPhone, iPad, Mac and Apple Watch.","email":"info@aisixteen.com","sameAs":["https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206","https://github.com/aisixteen"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","@id":"https://aisixteen.com/marine-nav/blog/how-tide-predictions-work/#post","mainEntityOfPage":{"@type":"WebPage","@id":"https://aisixteen.com/marine-nav/blog/how-tide-predictions-work/"},"headline":"How do tide predictions work, and can they be computed offline?","description":"Tide tables are built by adding harmonic constituents such as M2, S2, K1 and O1. How the method works, what it leaves out, and why it needs no connection.","datePublished":"2026-11-24","dateModified":"2026-11-24","inLanguage":"en","wordCount":1021,"image":["https://aisixteen.com/marinenav/screenshot.png","https://aisixteen.com/marinenav/screenshot-960.webp"],"author":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"},"publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348}},"isPartOf":{"@type":"Blog","@id":"https://aisixteen.com/marine-nav/blog/#blog","name":"Marine Nav guides"},"about":{"@type":"SoftwareApplication","@id":"https://aisixteen.com/marine-nav/#app","name":"Marine Nav","description":"An offline navigation toolkit for sailors and navigators. Predict tide heights and tidal currents — including slack water — work a celestial sight from sextant altitude to a fix, read magnetic declination from the World Magnetic Model, and solve great-circle distance and bearing. Everything is computed on your device from published data, so it keeps working with no signal at sea.","applicationCategory":"UtilitiesApplication","operatingSystem":"iOS, iPadOS, macOS","url":"https://aisixteen.com/marine-nav/","installUrl":"https://apps.apple.com/app/id6795571481","image":"https://aisixteen.com/marinenav/screenshot.png","publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"}}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisixteen.com/"},{"@type":"ListItem","position":2,"name":"Marine Nav","item":"https://aisixteen.com/marine-nav/"},{"@type":"ListItem","position":3,"name":"Guides","item":"https://aisixteen.com/marine-nav/blog/"},{"@type":"ListItem","position":4,"name":"How do tide predictions work, and can they be computed offline?","item":"https://aisixteen.com/marine-nav/blog/how-tide-predictions-work/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How accurate are tide predictions?","acceptedAnswer":{"@type":"Answer","text":"For the astronomical tide at a station with good constants, typically within a few centimetres and a few minutes. The observed level can differ much more when wind and pressure are unusual."}},{"@type":"Question","name":"Why are there two high tides a day?","acceptedAnswer":{"@type":"Answer","text":"Because the Moon's pull raises water on the side of the Earth facing it and on the opposite side, and the Earth turns under both bulges. The main lunar constituent, M2, has a period of 12 hours 25 minutes."}},{"@type":"Question","name":"Do tide predictions include storm surge?","acceptedAnswer":{"@type":"Answer","text":"No. They are the astronomical tide. Surge from wind and low pressure is forecast separately by the weather service."}}]}</script>
+</head>
+<body>
+<div class="page acc" style="--accent:#2e9fe0"><a class="skip" href="#main">Skip to content</a><header class="site-header"><div class="site-header__inner"><a class="brand" href="/" aria-label="AISixteen home"><img src="/logo-96.webp" alt="" width="28" height="32"/><span class="brand__name">AISixteen</span></a><nav class="nav" aria-label="Main"><a class="nav__link" href="/#apps">Apps</a><a class="nav__link" href="/#guides">Guides</a><a class="nav__link" href="/fantastic/">Fantastic</a><a class="btn btn--primary btn--sm nav__cta" href="mailto:info@aisixteen.com">Get in touch</a></nav></div></header><main id="main"><nav class="crumbs wrap" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/marine-nav/">Marine Nav</a></li><li><a href="/marine-nav/blog/">Guides</a></li><li><span aria-current="page">How do tide predictions work, and can they be computed offline?</span></li></ol></nav><div class="wrap"><article class="article"><header class="article__head"><a class="byapp" href="/marine-nav/"><img src="/marinenav/icon-160.webp" alt="" width="28" height="28"/>Marine Nav</a><h1 class="article__title">How do tide predictions work, and can they be computed offline?</h1><p class="article__meta"><span>By AISixteen</span><span>Published <time dateTime="2026-11-24">November 24, 2026</time></span><span>5 min read</span></p><p class="answer"><b>Short answer</b>A tide prediction is the sum of a few dozen cosine waves, called harmonic constituents, each with a fixed astronomical period and a height and timing measured for one station. The constants are published, so the sum can be computed on a device with no connection. It predicts the astronomical tide only, not wind or surge.</p></header><nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">In this guide</h2><ol><li><a href="#what-is-the-harmonic-method">What is the harmonic method?</a></li><li><a href="#which-constituents-matter-most">Which constituents matter most?</a></li><li><a href="#why-can-this-be-computed-offline">Why can this be computed offline?</a></li><li><a href="#what-do-tide-predictions-leave-out">What do tide predictions leave out?</a></li><li><a href="#is-slack-water-at-the-same-time-as-high-water">Is slack water at the same time as high water?</a></li><li><a href="#what-is-the-rule-of-twelfths">What is the rule of twelfths?</a></li><li><a href="#where-does-marine-nav-fit">Where does Marine Nav fit?</a></li><li><a href="#frequently-asked-questions">Frequently asked questions</a></li><li><a href="#sources">Sources</a></li></ol></nav><div class="prose"><p>A tide table looks like data from somewhere. It is really the output of a formula, and the same formula can run anywhere the station&#39;s constants are stored. That matters at sea, where a connection is the first thing to go.</p>
+<figure class="figure"><img src="/marinenav/screenshot-960.webp" alt="Marine Nav tide screen for San Francisco with the day&#39;s tide curve, high and low water times" width="960" height="600" loading="lazy" decoding="async"><figcaption>Marine Nav: a day&#39;s tide curve computed on the device from NOAA harmonic constants.</figcaption></figure>
+<h2 id="what-is-the-harmonic-method">What is the harmonic method?</h2>
+<p>The Moon and the Sun pull on the ocean with rhythms that astronomy gives exactly: the Moon passing overhead, the Sun passing overhead, the Moon&#39;s changing distance and tilt. Each rhythm produces a small regular rise and fall of the sea, a <strong>constituent</strong>, with a period that never changes.</p>
+<p>What does change from port to port is how big each constituent is and how late it runs, because every bay and estuary responds differently. So for each station, a year or more of water-level measurements is analysed to find two numbers per constituent:</p>
+<ul>
+<li>its <strong>amplitude</strong> (how high), and</li>
+<li>its <strong>phase lag</strong> (how late, relative to the astronomical forcing).</li>
+</ul>
+<p>Those are the <strong>harmonic constants</strong>. The predicted height at any moment is then:</p>
+<p><strong>height = mean level + sum of [ f × amplitude × cos(speed × time + astronomical argument − phase lag) ]</strong></p>
+<p>where <em>f</em> and the astronomical argument are slow corrections for the 18.6-year cycle of the Moon&#39;s orbit. NOAA&#39;s standard predictions use 37 constituents.</p>
+<h2 id="which-constituents-matter-most">Which constituents matter most?</h2>
+<p>Usually five carry most of the tide.</p>
+<div class="table-wrap" tabindex="0" role="group" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Constituent</th>
+<th>Cause</th>
+<th>Period (hours)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>M2</td>
+<td>Principal lunar, twice daily</td>
+<td>12.42</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>Principal solar, twice daily</td>
+<td>12.00</td>
+</tr>
+<tr>
+<td>N2</td>
+<td>The Moon&#39;s elliptical orbit</td>
+<td>12.66</td>
+</tr>
+<tr>
+<td>K1</td>
+<td>Lunar-solar, once daily</td>
+<td>23.93</td>
+</tr>
+<tr>
+<td>O1</td>
+<td>Lunar, once daily</td>
+<td>25.82</td>
+</tr>
+</tbody></table></div>
+<p>Three familiar facts fall out of this table:</p>
+<ul>
+<li><strong>Tides come about 50 minutes later each day</strong>, because M2 repeats every 12 h 25 min, so two cycles take 24 h 50 min.</li>
+<li><strong>Springs and neaps.</strong> M2 and S2 drift in and out of step every 14.77 days. In step, they add (spring tides, near new and full Moon). Out of step, they partly cancel (neap tides).</li>
+<li><strong>Mixed tides.</strong> Where K1 and O1 are large compared with M2, as on the US west coast, the two high waters of a day have very different heights.</li>
+</ul>
+<h2 id="why-can-this-be-computed-offline">Why can this be computed offline?</h2>
+<p>Because nothing in the formula comes from a live measurement. The astronomy is known centuries ahead, and the station&#39;s constants are fixed numbers published by the hydrographic authority, in the US by NOAA&#39;s Center for Operational Oceanographic Products and Services. An app that stores the constants and does the sum gives the same predictions with the radio off as with it on.</p>
+<p>Times need care. A tide table read in the wrong time zone is a navigational error, so a prediction should always state the zone it is in.</p>
+<h2 id="what-do-tide-predictions-leave-out">What do tide predictions leave out?</h2>
+<p>Everything that is not astronomy. The predicted height is the <strong>astronomical tide</strong>. The observed water level also includes:</p>
+<ul>
+<li><strong>Wind and pressure.</strong> Onshore gales and low pressure raise the water; a deep low can add a storm surge of a metre or more. High pressure lowers it, roughly one centimetre per hectopascal.</li>
+<li><strong>River flow</strong> in estuaries.</li>
+<li><strong>Seiches</strong> and other local oscillations.</li>
+</ul>
+<p>Heights are given above a <strong>chart datum</strong>. In the United States that is Mean Lower Low Water (MLLW), the average of the lower of each day&#39;s two low waters, so a predicted height can be negative on a low spring tide. Check which datum your chart uses before adding a tide height to a charted depth.</p>
+<h2 id="is-slack-water-at-the-same-time-as-high-water">Is slack water at the same time as high water?</h2>
+<p>Often not. Tide (the vertical movement) and tidal current (the horizontal flow) are different predictions with their own constants. In many channels the current keeps flooding well after high water and turns an hour or more later. Use current predictions for slack water, never the tide table.</p>
+<h2 id="what-is-the-rule-of-twelfths">What is the rule of twelfths?</h2>
+<p>A mental approximation for a regular twice-daily tide: over the six hours between low and high water, the level changes by 1, 2, 3, 3, 2 and 1 twelfths of the range. With a 3.6 m range, the water rises 0.3 m in the first hour, 0.6 in the second, 0.9 in each of the middle two, then 0.6 and 0.3. It is a sine curve in round numbers, and it fails where the tide is mixed or distorted by shallow water. A computed curve is better whenever you have one.</p>
+<h2 id="where-does-marine-nav-fit">Where does Marine Nav fit?</h2>
+<p><a href="/marine-nav/">Marine Nav</a> carries NOAA&#39;s published harmonic constants for its stations and runs the harmonic synthesis on the device, so tide and tidal-current predictions, including slack water, work with no signal. Times are shown in the station&#39;s own time zone, labelled. Its predictions are validated against NOAA&#39;s own published predictions for the same stations. The limits are stated on screen: astronomical tide only, no storm surge or wind, and currents along the major axis only. The app also does magnetic declination from the World Magnetic Model 2025, great-circle distance and bearing, and celestial sight reduction. It is an aid to planning, not a substitute for official tide tables, charts or prudent seamanship.</p>
+<h2 id="frequently-asked-questions">Frequently asked questions</h2>
+<h3 id="how-accurate-are-tide-predictions">How accurate are tide predictions?</h3>
+<p>For the astronomical tide at a station with good constants, typically within a few centimetres and a few minutes. The observed level can differ much more when wind and pressure are unusual.</p>
+<h3 id="why-are-there-two-high-tides-a-day">Why are there two high tides a day?</h3>
+<p>Because the Moon&#39;s pull raises water on the side of the Earth facing it and on the opposite side, and the Earth turns under both bulges. The main lunar constituent, M2, has a period of 12 hours 25 minutes.</p>
+<h3 id="do-tide-predictions-include-storm-surge">Do tide predictions include storm surge?</h3>
+<p>No. They are the astronomical tide. Surge from wind and low pressure is forecast separately by the weather service.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>NOAA Center for Operational Oceanographic Products and Services, harmonic constituents and tide predictions: <a href="https://tidesandcurrents.noaa.gov/about_harmonic_constituents.html" target="_blank" rel="noopener">tidesandcurrents.noaa.gov</a></li>
+<li>NOAA Special Publication NOS CO-OPS 3, <em>Tidal Analysis and Prediction</em> (2007): <a href="https://tidesandcurrents.noaa.gov/publications/Tidal_Analysis_and_Predictions.pdf" target="_blank" rel="noopener">tidesandcurrents.noaa.gov/publications</a></li>
+<li>NOAA, tidal datums: <a href="https://tidesandcurrents.noaa.gov/datum_options.html" target="_blank" rel="noopener">tidesandcurrents.noaa.gov/datum_options.html</a></li>
+</ul>
+</div><aside class="app-cta acc" style="--accent:#2e9fe0" aria-label="About Marine Nav"><img class="app-cta__icon" src="/marinenav/icon-160.webp" alt="" width="72" height="72" loading="lazy" decoding="async"/><div><h2 class="app-cta__name">Marine Nav</h2><p class="app-cta__text">Tides, currents and celestial navigation. On-device, no account, works offline.</p></div><div class="app-cta__actions"><a class="btn btn--appstore" href="https://apps.apple.com/app/id6795571481" target="_blank" rel="noreferrer" aria-label="Download Marine Nav on the App Store"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M16.365 1.43c0 1.14-.42 2.2-1.12 2.98-.85.94-2.24 1.66-3.4 1.57-.13-1.1.44-2.28 1.1-3.02.75-.85 2.06-1.5 3.42-1.53zM20.44 17.1c-.55 1.27-.82 1.84-1.53 2.97-.99 1.57-2.38 3.53-4.1 3.54-1.53.02-1.92-1-4-1-2.07 0-2.5.98-4.03 1.02-1.72.03-3.03-1.7-4.02-3.27-2.77-4.4-3.06-9.55-1.35-12.3 1.21-1.94 3.13-3.08 4.93-3.08 1.84 0 2.99 1.01 4.5 1.01 1.47 0 2.36-1.01 4.5-1.01 1.6 0 3.3.87 4.5 2.38-3.96 2.17-3.31 7.82.6 9.62z"></path></svg><span class="as-lines"><span class="as-top">Download on the</span><span class="as-big">App Store</span></span></a><a class="tlink" href="/marine-nav/">What Marine Nav does</a></div></aside></article></div></main><footer class="site-footer"><div class="wrap"><div class="footer"><div><div class="footer__brand-row"><img src="/logo-96.webp" alt="" width="28" height="32"/><span>AISixteen</span></div><p>Small, fast, private apps for iPhone, iPad, Mac and Apple Watch, and Fantastic, an open-source kernel of agents.</p><a class="btn btn--ghost btn--sm" href="mailto:info@aisixteen.com">info@aisixteen.com</a></div><nav aria-label="Apps"><h2>Apps</h2><ul class="footer__apps"><li><a href="/ephemeris-sky/">Ephemeris Sky</a></li><li><a href="/overtone-lab/">Overtone Lab</a></li><li><a href="/indox-text/">Indox Text</a></li><li><a href="/typing-mill/">Typing Mill</a></li><li><a href="/golden-ratio-calculator/">Golden Ratio Calculator</a></li><li><a href="/golden-ratio-calculator-lite/">Golden Ratio Calculator Lite</a></li><li><a href="/big-pink-cat/">Big Pink Cat</a></li><li><a href="/skyscraper-frog/">Skyscraper Frog</a></li><li><a href="/monstro-shooter/">Monstro Shooter</a></li><li><a href="/kerf-calc/">Kerf Calc</a></li><li><a href="/truecourse-e6b/">TrueCourse E6B</a></li><li><a href="/earth-around/">Earth Around</a></li><li><a href="/marine-nav/">Marine Nav</a></li><li><a href="/par/">Par</a></li><li><a href="/storypole/">Storypole</a></li><li><a href="/aircore/">AirCore</a></li></ul></nav><nav aria-label="More"><h2>Guides</h2><ul><li><a href="/ephemeris-sky/blog/">Ephemeris Sky guides</a></li><li><a href="/overtone-lab/blog/">Overtone Lab guides</a></li><li><a href="/indox-text/blog/">Indox Text guides</a></li><li><a href="/typing-mill/blog/">Typing Mill guides</a></li><li><a href="/golden-ratio-calculator/blog/">Golden Ratio Calculator guides</a></li><li><a href="/kerf-calc/blog/">Kerf Calc guides</a></li><li><a href="/truecourse-e6b/blog/">TrueCourse E6B guides</a></li><li><a href="/earth-around/blog/">Earth Around guides</a></li><li><a href="/marine-nav/blog/">Marine Nav guides</a></li><li><a href="/par/blog/">Par guides</a></li><li><a href="/storypole/blog/">Storypole guides</a></li><li><a href="/aircore/blog/">AirCore guides</a></li></ul><h2 style="margin-top:22px">AISixteen</h2><ul><li><a href="/fantastic/">Fantastic</a></li><li><a href="/#privacy">Privacy</a></li><li><a href="https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206" target="_blank" rel="noreferrer">App Store developer page</a></li><li><a href="https://github.com/aisixteen" target="_blank" rel="noreferrer">GitHub</a></li></ul></nav></div><div class="footer__bottom"><span>© 2026 AISixteen</span><span>No accounts. No tracking.</span></div></div></footer></div>
+<script src="/assets/site.js?v=0e7f320f3e" defer></script>
+</body>
+</html>

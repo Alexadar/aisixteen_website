@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How do you calculate stair rise and run to code? | Kerf Calc</title>
+<meta name="description" content="Divide total rise by the maximum riser, round up, then divide back. A worked stair layout with the IRC and IBC limits for risers, treads, headroom and variation.">
+<link rel="canonical" href="https://aisixteen.com/kerf-calc/blog/stair-rise-and-run-to-code/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b1020">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How do you calculate stair rise and run to code? | Kerf Calc">
+<meta property="og:description" content="Divide total rise by the maximum riser, round up, then divide back. A worked stair layout with the IRC and IBC limits for risers, treads, headroom and variation.">
+<meta property="og:url" content="https://aisixteen.com/kerf-calc/blog/stair-rise-and-run-to-code/">
+<meta property="og:site_name" content="AISixteen">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How do you calculate stair rise and run to code? | Kerf Calc">
+<meta name="twitter:description" content="Divide total rise by the maximum riser, round up, then divide back. A worked stair layout with the IRC and IBC limits for risers, treads, headroom and variation.">
+<meta property="og:image" content="https://aisixteen.com/kerfcalc/screenshot.png">
+<meta property="og:image:alt" content="Kerf Calc screenshot">
+<meta name="twitter:image" content="https://aisixteen.com/kerfcalc/screenshot.png">
+<meta name="apple-itunes-app" content="app-id=6788179502">
+<meta property="article:published_time" content="2026-11-24">
+<meta property="article:modified_time" content="2026-11-24">
+<meta name="author" content="AISixteen">
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="apple-touch-icon" href="/logo.png">
+<link rel="preload" href="/assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css?v=0e7f320f3e">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348},"description":"Independent developer of Aisixteen Fantastic, an open-source kernel of agents, and of small, fast, private apps for iPhone, iPad, Mac and Apple Watch.","email":"info@aisixteen.com","sameAs":["https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206","https://github.com/aisixteen"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","@id":"https://aisixteen.com/kerf-calc/blog/stair-rise-and-run-to-code/#post","mainEntityOfPage":{"@type":"WebPage","@id":"https://aisixteen.com/kerf-calc/blog/stair-rise-and-run-to-code/"},"headline":"How do you calculate stair rise and run to code?","description":"Divide total rise by the maximum riser, round up, then divide back. A worked stair layout with the IRC and IBC limits for risers, treads, headroom and variation.","datePublished":"2026-11-24","dateModified":"2026-11-24","inLanguage":"en","wordCount":931,"image":["https://aisixteen.com/kerfcalc/screenshot.png"],"author":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"},"publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348}},"isPartOf":{"@type":"Blog","@id":"https://aisixteen.com/kerf-calc/blog/#blog","name":"Kerf Calc guides"},"about":{"@type":"SoftwareApplication","@id":"https://aisixteen.com/kerf-calc/#app","name":"Kerf Calc","description":"Kerf Calc is the offline construction field calculator that just works — no account, no subscription. Punch feet-inch-fraction dimensions like a tape, then run rafters, stairs to code, concrete, rebar, roofing, drywall and more — each tool shows the exact formula and the code it cites (IRC, ASTM, NIST, ACI).","applicationCategory":"UtilitiesApplication","operatingSystem":"iOS, iPadOS, macOS","url":"https://aisixteen.com/kerf-calc/","installUrl":"https://apps.apple.com/app/id6788179502","image":"https://aisixteen.com/kerfcalc/screenshot.png","publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"}}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisixteen.com/"},{"@type":"ListItem","position":2,"name":"Kerf Calc","item":"https://aisixteen.com/kerf-calc/"},{"@type":"ListItem","position":3,"name":"Guides","item":"https://aisixteen.com/kerf-calc/blog/"},{"@type":"ListItem","position":4,"name":"How do you calculate stair rise and run to code?","item":"https://aisixteen.com/kerf-calc/blog/stair-rise-and-run-to-code/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the maximum riser height for a house?","acceptedAnswer":{"@type":"Answer","text":"7-3/4\" under the International Residential Code (R311.7.5.1). Local amendments can differ, and some jurisdictions use 8\" or 8-1/4\"."}},{"@type":"Question","name":"Is the number of treads the same as the number of risers?","acceptedAnswer":{"@type":"Answer","text":"No. A straight flight has one tread fewer than risers, because the upper floor acts as the last tread."}},{"@type":"Question","name":"How much can stair risers vary?","acceptedAnswer":{"@type":"Answer","text":"By no more than 3/8\" between the tallest and the shortest riser in one flight, under both the IRC and the IBC."}}]}</script>
+</head>
+<body>
+<div class="page acc" style="--accent:#c9e34a"><a class="skip" href="#main">Skip to content</a><header class="site-header"><div class="site-header__inner"><a class="brand" href="/" aria-label="AISixteen home"><img src="/logo-96.webp" alt="" width="28" height="32"/><span class="brand__name">AISixteen</span></a><nav class="nav" aria-label="Main"><a class="nav__link" href="/#apps">Apps</a><a class="nav__link" href="/#guides">Guides</a><a class="nav__link" href="/fantastic/">Fantastic</a><a class="btn btn--primary btn--sm nav__cta" href="mailto:info@aisixteen.com">Get in touch</a></nav></div></header><main id="main"><nav class="crumbs wrap" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/kerf-calc/">Kerf Calc</a></li><li><a href="/kerf-calc/blog/">Guides</a></li><li><span aria-current="page">How do you calculate stair rise and run to code?</span></li></ol></nav><div class="wrap"><article class="article"><header class="article__head"><a class="byapp" href="/kerf-calc/"><img src="/kerfcalc/icon-160.webp" alt="" width="28" height="28"/>Kerf Calc</a><h1 class="article__title">How do you calculate stair rise and run to code?</h1><p class="article__meta"><span>By AISixteen</span><span>Published <time dateTime="2026-11-24">November 24, 2026</time></span><span>4 min read</span></p><p class="answer"><b>Short answer</b>Measure the total rise from finished floor to finished floor, divide by the maximum riser height (7-3/4&quot; under the IRC) and round up to get the number of risers. Divide the total rise by that number for the exact riser. There is one tread fewer than risers.</p></header><nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">In this guide</h2><ol><li><a href="#what-do-the-irc-and-the-ibc-require-for-stairs">What do the IRC and the IBC require for stairs?</a></li><li><a href="#how-many-risers-do-i-need">How many risers do I need?</a></li><li><a href="#how-long-is-the-stringer">How long is the stringer?</a></li><li><a href="#why-do-the-risers-have-to-match-within-3-8-inch">Why do the risers have to match within 3/8 inch?</a></li><li><a href="#is-there-a-comfort-rule-as-well-as-the-code">Is there a comfort rule as well as the code?</a></li><li><a href="#how-does-headroom-get-checked">How does headroom get checked?</a></li><li><a href="#where-does-kerf-calc-fit">Where does Kerf Calc fit?</a></li><li><a href="#frequently-asked-questions">Frequently asked questions</a></li><li><a href="#sources">Sources</a></li></ol></nav><div class="prose"><p>A stair is laid out from one measurement: the total rise between two finished floors. Everything else follows from it and from the limits in the building code. This guide works one stair from start to finish, first to the residential code and then to the commercial one.</p>
+<h2 id="what-do-the-irc-and-the-ibc-require-for-stairs">What do the IRC and the IBC require for stairs?</h2>
+<p>The two model codes used across the United States set different limits. Your jurisdiction adopts one edition and may amend it, so treat these as the starting point and check locally.</p>
+<div class="table-wrap" tabindex="0" role="group" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Limit</th>
+<th>IRC (one- and two-family homes)</th>
+<th>IBC (most other buildings)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Riser height</td>
+<td>7-3/4&quot; maximum</td>
+<td>4&quot; minimum, 7&quot; maximum</td>
+</tr>
+<tr>
+<td>Tread depth</td>
+<td>10&quot; minimum</td>
+<td>11&quot; minimum</td>
+</tr>
+<tr>
+<td>Variation within a flight</td>
+<td>3/8&quot; between the largest and smallest riser, and the same for treads</td>
+<td>3/8&quot;</td>
+</tr>
+<tr>
+<td>Headroom</td>
+<td>6&#39; 8&quot; minimum</td>
+<td>80&quot; (6&#39; 8&quot;) minimum</td>
+</tr>
+<tr>
+<td>Nosing</td>
+<td>3/4&quot; to 1-1/4&quot;, required where treads are under 11&quot;</td>
+<td>Projection limited to 1-1/4&quot;</td>
+</tr>
+</tbody></table></div>
+<p>The IRC limits are in section R311.7; the IBC limits are in section 1011. The IBC keeps the 7-3/4&quot; and 10&quot; figures as an exception for stairs inside dwelling units.</p>
+<h2 id="how-many-risers-do-i-need">How many risers do I need?</h2>
+<p>Divide the total rise by the maximum riser height and round <strong>up</strong>.</p>
+<p>Worked example, IRC: total rise 106&quot; (8&#39; 10&quot;), finished floor to finished floor.</p>
+<ol>
+<li>106 ÷ 7.75 = 13.68. Round up: <strong>14 risers</strong>.</li>
+<li>Exact riser: 106 ÷ 14 = 7.5714&quot;, which is <strong>7-9/16&quot;</strong> on the tape (7.5625&quot;).</li>
+<li>Treads: one fewer than risers, because the upper floor is the last step. <strong>13 treads</strong>.</li>
+<li>Total run at the 10&quot; minimum tread: 13 × 10&quot; = 130&quot; = <strong>10&#39; 10&quot;</strong>.</li>
+</ol>
+<p>Rounding down to 13 risers would give 106 ÷ 13 = 8.15&quot;, which is over the limit. Always round up.</p>
+<p>The same stair to the IBC: 106 ÷ 7 = 15.14, so 16 risers of 6.625&quot; (6-5/8&quot;), 15 treads, and a total run of 15 × 11&quot; = 165&quot; (13&#39; 9&quot;). The commercial stair is almost three feet longer on plan for the same rise.</p>
+<h2 id="how-long-is-the-stringer">How long is the stringer?</h2>
+<p>The stringer is the hypotenuse of the total rise and the total run.</p>
+<p>For the IRC stair: √(106² + 130²) = √28,136 = <strong>167.7&quot;</strong>, about 13&#39; 11-3/4&quot;. Order stock longer than that: a 14-foot board is 168&quot; and leaves almost nothing for the plumb and level cuts at each end, so this stair wants a 16-footer.</p>
+<p>The pitch is the angle whose tangent is riser ÷ tread: arctan(7.571 ÷ 10) = <strong>37.1°</strong>.</p>
+<h2 id="why-do-the-risers-have-to-match-within-3-8-inch">Why do the risers have to match within 3/8 inch?</h2>
+<p>People stop looking at a stair after the first two steps and walk by rhythm. A single odd riser is where they trip. The code limit is 3/8&quot; between the largest and the smallest riser in a flight.</p>
+<p>Two things break the limit in practice:</p>
+<ul>
+<li><strong>Floor finishes.</strong> Lay out from <em>finished</em> floor to <em>finished</em> floor. If 3/4&quot; hardwood goes down upstairs after the stringers are cut, the top riser grows by 3/4&quot;.</li>
+<li><strong>Stepping off a rounded number.</strong> Seven-and-nine-sixteenths is 0.009&quot; short of the exact riser. Over 14 risers that is 1/8&quot;. Mark each riser from the bottom as a running total (7.571, 15.143, 22.714…) and round each mark by itself.</li>
+</ul>
+<p>Remember the bottom of the stringer too: it sits on the floor, and the first tread adds its own thickness. Cut the tread thickness off the bottom of the stringer so the first riser matches the rest.</p>
+<h2 id="is-there-a-comfort-rule-as-well-as-the-code">Is there a comfort rule as well as the code?</h2>
+<p>Yes. A long-standing rule of thumb says two risers plus one tread should come to about 24&quot; to 25&quot;. The IRC example gives 2 × 7.57 + 10 = 25.1&quot;, at the steep end. A 10-1/2&quot; tread would lengthen the run to 136-1/2&quot; and make the stair easier to walk, if the plan has the room. The rule is a guide; the code limits are the requirement.</p>
+<h2 id="how-does-headroom-get-checked">How does headroom get checked?</h2>
+<p>Headroom is measured vertically from the sloped line that joins the tread nosings up to the lowest thing above it: a beam, a soffit, the edge of the floor opening. The minimum is 6&#39; 8&quot;. On a stair with a 37° pitch, the opening in the floor above has to be long enough that a person 6&#39; 8&quot; tall clears its edge, which is why the stairwell opening is usually much longer than people expect.</p>
+<h2 id="where-does-kerf-calc-fit">Where does Kerf Calc fit?</h2>
+<p><a href="/kerf-calc/">Kerf Calc</a> has a stair tool that takes the total rise and checks the riser, tread and headroom against the IRC or IBC limits as you type, and shows the formula and the code section it cites. It gives the layout in feet, inches and fractions. It runs offline. It is a field calculator: confirm the result against the code adopted where you build, and against your inspector.</p>
+<p>Related: <a href="/kerf-calc/blog/feet-inch-fraction-math/">feet-inch-fraction math by hand</a>.</p>
+<h2 id="frequently-asked-questions">Frequently asked questions</h2>
+<h3 id="what-is-the-maximum-riser-height-for-a-house">What is the maximum riser height for a house?</h3>
+<p>7-3/4&quot; under the International Residential Code (R311.7.5.1). Local amendments can differ, and some jurisdictions use 8&quot; or 8-1/4&quot;.</p>
+<h3 id="is-the-number-of-treads-the-same-as-the-number-of-risers">Is the number of treads the same as the number of risers?</h3>
+<p>No. A straight flight has one tread fewer than risers, because the upper floor acts as the last tread.</p>
+<h3 id="how-much-can-stair-risers-vary">How much can stair risers vary?</h3>
+<p>By no more than 3/8&quot; between the tallest and the shortest riser in one flight, under both the IRC and the IBC.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>International Residential Code 2021, section R311.7, Stairways: <a href="https://codes.iccsafe.org/content/IRC2021P2/chapter-3-building-planning" target="_blank" rel="noopener">codes.iccsafe.org</a></li>
+<li>International Building Code 2021, section 1011, Stairways: <a href="https://codes.iccsafe.org/content/IBC2021P2/chapter-10-means-of-egress" target="_blank" rel="noopener">codes.iccsafe.org</a></li>
+</ul>
+</div><aside class="app-cta acc" style="--accent:#c9e34a" aria-label="About Kerf Calc"><img class="app-cta__icon" src="/kerfcalc/icon-160.webp" alt="" width="72" height="72" loading="lazy" decoding="async"/><div><h2 class="app-cta__name">Kerf Calc</h2><p class="app-cta__text">The field calculator that shows its work. On-device, no account, works offline.</p></div><div class="app-cta__actions"><a class="btn btn--appstore" href="https://apps.apple.com/app/id6788179502" target="_blank" rel="noreferrer" aria-label="Download Kerf Calc on the App Store"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M16.365 1.43c0 1.14-.42 2.2-1.12 2.98-.85.94-2.24 1.66-3.4 1.57-.13-1.1.44-2.28 1.1-3.02.75-.85 2.06-1.5 3.42-1.53zM20.44 17.1c-.55 1.27-.82 1.84-1.53 2.97-.99 1.57-2.38 3.53-4.1 3.54-1.53.02-1.92-1-4-1-2.07 0-2.5.98-4.03 1.02-1.72.03-3.03-1.7-4.02-3.27-2.77-4.4-3.06-9.55-1.35-12.3 1.21-1.94 3.13-3.08 4.93-3.08 1.84 0 2.99 1.01 4.5 1.01 1.47 0 2.36-1.01 4.5-1.01 1.6 0 3.3.87 4.5 2.38-3.96 2.17-3.31 7.82.6 9.62z"></path></svg><span class="as-lines"><span class="as-top">Download on the</span><span class="as-big">App Store</span></span></a><a class="tlink" href="/kerf-calc/">What Kerf Calc does</a></div></aside><section class="related" aria-labelledby="related-title"><h2 class="h2" id="related-title">More Kerf Calc guides</h2><ul class="posts posts--rows"><li><a class="post-card acc" href="/kerf-calc/blog/feet-inch-fraction-math/" style="--accent:#c9e34a"><h3 class="post-card__title">How do you add, subtract and divide feet, inches and fractions?</h3><p class="post-card__desc">Feet-inch-fraction math by hand: convert to inches, work in sixteenths, convert back. Worked examples, a decimal-to-fraction table and the saw-kerf allowance.</p><span class="post-card__meta"><time dateTime="2026-11-24">November 24, 2026</time> · 4 min read</span></a></li></ul></section></article></div></main><footer class="site-footer"><div class="wrap"><div class="footer"><div><div class="footer__brand-row"><img src="/logo-96.webp" alt="" width="28" height="32"/><span>AISixteen</span></div><p>Small, fast, private apps for iPhone, iPad, Mac and Apple Watch, and Fantastic, an open-source kernel of agents.</p><a class="btn btn--ghost btn--sm" href="mailto:info@aisixteen.com">info@aisixteen.com</a></div><nav aria-label="Apps"><h2>Apps</h2><ul class="footer__apps"><li><a href="/ephemeris-sky/">Ephemeris Sky</a></li><li><a href="/overtone-lab/">Overtone Lab</a></li><li><a href="/indox-text/">Indox Text</a></li><li><a href="/typing-mill/">Typing Mill</a></li><li><a href="/golden-ratio-calculator/">Golden Ratio Calculator</a></li><li><a href="/golden-ratio-calculator-lite/">Golden Ratio Calculator Lite</a></li><li><a href="/big-pink-cat/">Big Pink Cat</a></li><li><a href="/skyscraper-frog/">Skyscraper Frog</a></li><li><a href="/monstro-shooter/">Monstro Shooter</a></li><li><a href="/kerf-calc/">Kerf Calc</a></li><li><a href="/truecourse-e6b/">TrueCourse E6B</a></li><li><a href="/earth-around/">Earth Around</a></li><li><a href="/marine-nav/">Marine Nav</a></li><li><a href="/par/">Par</a></li><li><a href="/storypole/">Storypole</a></li><li><a href="/aircore/">AirCore</a></li></ul></nav><nav aria-label="More"><h2>Guides</h2><ul><li><a href="/ephemeris-sky/blog/">Ephemeris Sky guides</a></li><li><a href="/overtone-lab/blog/">Overtone Lab guides</a></li><li><a href="/indox-text/blog/">Indox Text guides</a></li><li><a href="/typing-mill/blog/">Typing Mill guides</a></li><li><a href="/golden-ratio-calculator/blog/">Golden Ratio Calculator guides</a></li><li><a href="/kerf-calc/blog/">Kerf Calc guides</a></li><li><a href="/truecourse-e6b/blog/">TrueCourse E6B guides</a></li><li><a href="/earth-around/blog/">Earth Around guides</a></li><li><a href="/marine-nav/blog/">Marine Nav guides</a></li><li><a href="/par/blog/">Par guides</a></li><li><a href="/storypole/blog/">Storypole guides</a></li><li><a href="/aircore/blog/">AirCore guides</a></li></ul><h2 style="margin-top:22px">AISixteen</h2><ul><li><a href="/fantastic/">Fantastic</a></li><li><a href="/#privacy">Privacy</a></li><li><a href="https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206" target="_blank" rel="noreferrer">App Store developer page</a></li><li><a href="https://github.com/aisixteen" target="_blank" rel="noreferrer">GitHub</a></li></ul></nav></div><div class="footer__bottom"><span>© 2026 AISixteen</span><span>No accounts. No tracking.</span></div></div></footer></div>
+<script src="/assets/site.js?v=0e7f320f3e" defer></script>
+</body>
+</html>

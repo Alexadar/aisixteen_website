@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How is a loan payment calculated? | Par</title>
+<meta name="description" content="The loan payment formula worked by hand on a 30-year example, the first rows of the amortization schedule, and how the note rate, APR and APY differ.">
+<link rel="canonical" href="https://aisixteen.com/par/blog/how-a-loan-payment-is-calculated/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b1020">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How is a loan payment calculated? | Par">
+<meta property="og:description" content="The loan payment formula worked by hand on a 30-year example, the first rows of the amortization schedule, and how the note rate, APR and APY differ.">
+<meta property="og:url" content="https://aisixteen.com/par/blog/how-a-loan-payment-is-calculated/">
+<meta property="og:site_name" content="AISixteen">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How is a loan payment calculated? | Par">
+<meta name="twitter:description" content="The loan payment formula worked by hand on a 30-year example, the first rows of the amortization schedule, and how the note rate, APR and APY differ.">
+<meta property="og:image" content="https://aisixteen.com/par/screenshot.png">
+<meta property="og:image:alt" content="Par screenshot">
+<meta name="twitter:image" content="https://aisixteen.com/par/screenshot.png">
+<meta name="apple-itunes-app" content="app-id=6795570043">
+<meta property="article:published_time" content="2026-11-24">
+<meta property="article:modified_time" content="2026-11-24">
+<meta name="author" content="AISixteen">
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="apple-touch-icon" href="/logo.png">
+<link rel="preload" href="/assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css?v=0e7f320f3e">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348},"description":"Independent developer of Aisixteen Fantastic, an open-source kernel of agents, and of small, fast, private apps for iPhone, iPad, Mac and Apple Watch.","email":"info@aisixteen.com","sameAs":["https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206","https://github.com/aisixteen"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","@id":"https://aisixteen.com/par/blog/how-a-loan-payment-is-calculated/#post","mainEntityOfPage":{"@type":"WebPage","@id":"https://aisixteen.com/par/blog/how-a-loan-payment-is-calculated/"},"headline":"How is a loan payment calculated?","description":"The loan payment formula worked by hand on a 30-year example, the first rows of the amortization schedule, and how the note rate, APR and APY differ.","datePublished":"2026-11-24","dateModified":"2026-11-24","inLanguage":"en","wordCount":966,"image":["https://aisixteen.com/par/screenshot.png","https://aisixteen.com/par/screenshot-960.webp"],"author":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"},"publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348}},"isPartOf":{"@type":"Blog","@id":"https://aisixteen.com/par/blog/#blog","name":"Par guides"},"about":{"@type":"SoftwareApplication","@id":"https://aisixteen.com/par/#app","name":"Par","description":"An offline financial calculator for people who must have one: loan officers, mortgage and commercial real-estate underwriters, treasury and fixed-income desks, and candidates studying where only a financial calculator is permitted. Ten tools cover time value of money, amortization, bonds, cash flow, day count, depreciation, percent, rate conversion, real estate, and statistics — and every displayed number traces to a cited authority.","applicationCategory":"UtilitiesApplication","operatingSystem":"iOS, iPadOS, macOS","url":"https://aisixteen.com/par/","installUrl":"https://apps.apple.com/app/id6795570043","image":"https://aisixteen.com/par/screenshot.png","publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"}}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisixteen.com/"},{"@type":"ListItem","position":2,"name":"Par","item":"https://aisixteen.com/par/"},{"@type":"ListItem","position":3,"name":"Guides","item":"https://aisixteen.com/par/blog/"},{"@type":"ListItem","position":4,"name":"How is a loan payment calculated?","item":"https://aisixteen.com/par/blog/how-a-loan-payment-is-calculated/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the monthly payment on 420,000 at 6.25% for 30 years?","acceptedAnswer":{"@type":"Answer","text":"2,586.01 for principal and interest. Taxes, insurance and any mortgage insurance are separate and are not part of the formula."}},{"@type":"Question","name":"Why is APR higher than the interest rate?","acceptedAnswer":{"@type":"Answer","text":"Because APR spreads certain fees over the life of the loan. With no finance charges other than interest, APR and the note rate are the same."}},{"@type":"Question","name":"How do I find the periodic rate?","acceptedAnswer":{"@type":"Answer","text":"Divide the annual note rate by the number of payments per year. For monthly payments at 6.25%, 0.0625 ÷ 12 = 0.00520833."}}]}</script>
+</head>
+<body>
+<div class="page acc" style="--accent:#ffa01e"><a class="skip" href="#main">Skip to content</a><header class="site-header"><div class="site-header__inner"><a class="brand" href="/" aria-label="AISixteen home"><img src="/logo-96.webp" alt="" width="28" height="32"/><span class="brand__name">AISixteen</span></a><nav class="nav" aria-label="Main"><a class="nav__link" href="/#apps">Apps</a><a class="nav__link" href="/#guides">Guides</a><a class="nav__link" href="/fantastic/">Fantastic</a><a class="btn btn--primary btn--sm nav__cta" href="mailto:info@aisixteen.com">Get in touch</a></nav></div></header><main id="main"><nav class="crumbs wrap" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/par/">Par</a></li><li><a href="/par/blog/">Guides</a></li><li><span aria-current="page">How is a loan payment calculated?</span></li></ol></nav><div class="wrap"><article class="article"><header class="article__head"><a class="byapp" href="/par/"><img src="/par/icon-160.webp" alt="" width="28" height="28"/>Par</a><h1 class="article__title">How is a loan payment calculated?</h1><p class="article__meta"><span>By AISixteen</span><span>Published <time dateTime="2026-11-24">November 24, 2026</time></span><span>4 min read</span></p><p class="answer"><b>Short answer</b>A fixed loan payment is PMT = P × i ÷ (1 − (1 + i)^−n), where P is the amount borrowed, i is the interest rate per period and n is the number of payments. For 420,000 at 6.25% over 360 months, i is 0.0625 ÷ 12 and the payment is 2,586.01.</p></header><nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">In this guide</h2><ol><li><a href="#what-is-the-loan-payment-formula">What is the loan payment formula?</a></li><li><a href="#how-do-you-work-it-for-a-30-year-loan">How do you work it for a 30-year loan?</a></li><li><a href="#how-does-the-payment-split-between-interest-and-principal">How does the payment split between interest and principal?</a></li><li><a href="#why-do-calculators-show-the-payment-as-a-negative-number">Why do calculators show the payment as a negative number?</a></li><li><a href="#what-is-the-difference-between-the-note-rate-apr-and-apy">What is the difference between the note rate, APR and APY?</a></li><li><a href="#do-the-day-count-rules-change-the-answer">Do the day-count rules change the answer?</a></li><li><a href="#where-does-par-fit">Where does Par fit?</a></li><li><a href="#frequently-asked-questions">Frequently asked questions</a></li><li><a href="#sources">Sources</a></li></ol></nav><div class="prose"><p>Every fixed-rate loan, from a car loan to a 30-year mortgage, is priced with one equation. Financial calculators call its five variables N, I/Y, PV, PMT and FV. This guide works the equation by hand so you can check any number a calculator or a lender gives you.</p>
+<figure class="figure"><img src="/par/screenshot-960.webp" alt="Par time-value-of-money screen with a running tape of calculations beside it" width="960" height="600" loading="lazy" decoding="async"><figcaption>Par: the calculation on the left, the tape of every solve on the right.</figcaption></figure>
+<h2 id="what-is-the-loan-payment-formula">What is the loan payment formula?</h2>
+<p><strong>PMT = P × i ÷ (1 − (1 + i)^−n)</strong></p>
+<ul>
+<li><strong>P</strong> is the principal: the amount borrowed (PV on a calculator).</li>
+<li><strong>i</strong> is the periodic rate: the annual note rate divided by the number of payments per year.</li>
+<li><strong>n</strong> is the total number of payments (N).</li>
+</ul>
+<p>The formula comes from one idea: the loan amount equals the present value of all the payments, each discounted at the loan&#39;s own rate.</p>
+<h2 id="how-do-you-work-it-for-a-30-year-loan">How do you work it for a 30-year loan?</h2>
+<p>Take 420,000 borrowed at a 6.25% note rate, paid monthly for 30 years.</p>
+<ol>
+<li><strong>Periodic rate:</strong> 0.0625 ÷ 12 = 0.00520833.</li>
+<li><strong>Number of payments:</strong> 30 × 12 = 360.</li>
+<li><strong>Growth factor:</strong> (1.00520833)^360 = 6.4892.</li>
+<li><strong>Denominator:</strong> 1 − 1 ÷ 6.4892 = 0.84590.</li>
+<li><strong>Numerator:</strong> 420,000 × 0.00520833 = 2,187.50.</li>
+<li><strong>Payment:</strong> 2,187.50 ÷ 0.84590 = <strong>2,586.01</strong> per month.</li>
+</ol>
+<p>Over 360 payments that is 930,964 in total, of which 510,964 is interest. The interest is larger than the loan, which is normal at this rate and term.</p>
+<h2 id="how-does-the-payment-split-between-interest-and-principal">How does the payment split between interest and principal?</h2>
+<p>Each month, interest is charged on the balance still owed, and whatever is left of the payment reduces the balance.</p>
+<div class="table-wrap" tabindex="0" role="group" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Payment</th>
+<th>Interest</th>
+<th>Principal</th>
+<th>Balance after</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>2,187.50</td>
+<td>398.51</td>
+<td>419,601.49</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2,185.42</td>
+<td>400.59</td>
+<td>419,200.90</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2,183.34</td>
+<td>402.67</td>
+<td>418,798.23</td>
+</tr>
+</tbody></table></div>
+<p>Interest for payment 2 is 419,601.49 × 0.00520833 = 2,185.42. The principal part grows a little every month, slowly at first: on this loan the balance does not fall below half until about year 21. That is why an extra payment early in a loan saves far more interest than the same payment late.</p>
+<h2 id="why-do-calculators-show-the-payment-as-a-negative-number">Why do calculators show the payment as a negative number?</h2>
+<p>Because of the cash-flow sign convention. Money you receive is positive, and money you pay out is negative. You receive the loan (PV = +420,000), so the payments are outflows (PMT = −2,586.01). If you enter both as positive, a calculator solving for the rate or the term will report an error, because no such loan can exist.</p>
+<h2 id="what-is-the-difference-between-the-note-rate-apr-and-apy">What is the difference between the note rate, APR and APY?</h2>
+<p>They answer three different questions, and regulations define two of them.</p>
+<div class="table-wrap" tabindex="0" role="group" aria-label="Table"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>What it measures</th>
+<th>Defined by</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Note rate</td>
+<td>The rate used to compute interest on the balance</td>
+<td>The loan contract</td>
+</tr>
+<tr>
+<td>APR</td>
+<td>The yearly cost of credit including certain fees (the finance charge), expressed as a rate</td>
+<td>Regulation Z (Truth in Lending), 12 CFR 1026</td>
+</tr>
+<tr>
+<td>APY</td>
+<td>The yearly yield on a deposit including compounding</td>
+<td>Regulation DD (Truth in Savings), 12 CFR 1030</td>
+</tr>
+</tbody></table></div>
+<p><strong>APR on a loan</strong> is found by asking: given the payments, what rate makes them equal to the amount the borrower actually received after prepaid finance charges? In the example, if 6,000 of fees count as finance charges, the amount financed is 414,000 while the payment stays 2,586.01. Solving the same formula for the rate gives an APR of about 6.39%, above the 6.25% note rate.</p>
+<p><strong>APY on a deposit</strong> shows the effect of compounding: APY = (1 + r ÷ m)^m − 1. A 6.25% rate compounded monthly is (1.00520833)^12 − 1 = <strong>6.43%</strong>.</p>
+<p>A loan&#39;s APR and a deposit&#39;s APY are not comparable; they are built differently on purpose.</p>
+<h2 id="do-the-day-count-rules-change-the-answer">Do the day-count rules change the answer?</h2>
+<p>For a standard monthly-payment loan, no: every month is treated as one twelfth of a year. Day count matters when interest accrues by the day, as on bonds, money-market instruments and some commercial loans.</p>
+<ul>
+<li><strong>30/360</strong> treats every month as 30 days and the year as 360.</li>
+<li><strong>Actual/360</strong> counts real days but divides by 360, which yields slightly more interest per year than the stated rate.</li>
+<li><strong>Actual/365</strong> and <strong>Actual/Actual</strong> count real days over a 365-day or actual-length year.</li>
+</ul>
+<p>On 1,000,000 at 6% for a 31-day month, 30/360 accrues 5,000.00, Actual/360 accrues 5,166.67 and Actual/365 accrues 5,095.89. Always check which convention a document names.</p>
+<h2 id="where-does-par-fit">Where does Par fit?</h2>
+<p><a href="/par/">Par</a> is an offline financial calculator with ten tools: time value of money, amortization, bonds, cash flow, day count, depreciation, percent, rate conversion, real estate and statistics. Each displayed result names the authority its method follows, such as CFPB Regulation Z and Regulation DD, the US Treasury, the IRS or NIST, and a running tape keeps every calculation so you can review it. It uses no network and has no account. It is a calculator, not financial advice, and it does not replace a lender&#39;s official disclosures.</p>
+<h2 id="frequently-asked-questions">Frequently asked questions</h2>
+<h3 id="what-is-the-monthly-payment-on-420-000-at-6-25-for-30-years">What is the monthly payment on 420,000 at 6.25% for 30 years?</h3>
+<p>2,586.01 for principal and interest. Taxes, insurance and any mortgage insurance are separate and are not part of the formula.</p>
+<h3 id="why-is-apr-higher-than-the-interest-rate">Why is APR higher than the interest rate?</h3>
+<p>Because APR spreads certain fees over the life of the loan. With no finance charges other than interest, APR and the note rate are the same.</p>
+<h3 id="how-do-i-find-the-periodic-rate">How do I find the periodic rate?</h3>
+<p>Divide the annual note rate by the number of payments per year. For monthly payments at 6.25%, 0.0625 ÷ 12 = 0.00520833.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>Consumer Financial Protection Bureau, Regulation Z (Truth in Lending), 12 CFR Part 1026, including Appendix J on APR computation: <a href="https://www.consumerfinance.gov/rules-policy/regulations/1026/" target="_blank" rel="noopener">consumerfinance.gov</a></li>
+<li>Consumer Financial Protection Bureau, Regulation DD (Truth in Savings), 12 CFR Part 1030, including Appendix A on APY: <a href="https://www.consumerfinance.gov/rules-policy/regulations/1030/" target="_blank" rel="noopener">consumerfinance.gov</a></li>
+</ul>
+</div><aside class="app-cta acc" style="--accent:#ffa01e" aria-label="About Par"><img class="app-cta__icon" src="/par/icon-160.webp" alt="" width="72" height="72" loading="lazy" decoding="async"/><div><h2 class="app-cta__name">Par</h2><p class="app-cta__text">The financial calculator that cites its sources. On-device, no account, works offline.</p></div><div class="app-cta__actions"><a class="btn btn--appstore" href="https://apps.apple.com/app/id6795570043" target="_blank" rel="noreferrer" aria-label="Download Par on the App Store"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M16.365 1.43c0 1.14-.42 2.2-1.12 2.98-.85.94-2.24 1.66-3.4 1.57-.13-1.1.44-2.28 1.1-3.02.75-.85 2.06-1.5 3.42-1.53zM20.44 17.1c-.55 1.27-.82 1.84-1.53 2.97-.99 1.57-2.38 3.53-4.1 3.54-1.53.02-1.92-1-4-1-2.07 0-2.5.98-4.03 1.02-1.72.03-3.03-1.7-4.02-3.27-2.77-4.4-3.06-9.55-1.35-12.3 1.21-1.94 3.13-3.08 4.93-3.08 1.84 0 2.99 1.01 4.5 1.01 1.47 0 2.36-1.01 4.5-1.01 1.6 0 3.3.87 4.5 2.38-3.96 2.17-3.31 7.82.6 9.62z"></path></svg><span class="as-lines"><span class="as-top">Download on the</span><span class="as-big">App Store</span></span></a><a class="tlink" href="/par/">What Par does</a></div></aside></article></div></main><footer class="site-footer"><div class="wrap"><div class="footer"><div><div class="footer__brand-row"><img src="/logo-96.webp" alt="" width="28" height="32"/><span>AISixteen</span></div><p>Small, fast, private apps for iPhone, iPad, Mac and Apple Watch, and Fantastic, an open-source kernel of agents.</p><a class="btn btn--ghost btn--sm" href="mailto:info@aisixteen.com">info@aisixteen.com</a></div><nav aria-label="Apps"><h2>Apps</h2><ul class="footer__apps"><li><a href="/ephemeris-sky/">Ephemeris Sky</a></li><li><a href="/overtone-lab/">Overtone Lab</a></li><li><a href="/indox-text/">Indox Text</a></li><li><a href="/typing-mill/">Typing Mill</a></li><li><a href="/golden-ratio-calculator/">Golden Ratio Calculator</a></li><li><a href="/golden-ratio-calculator-lite/">Golden Ratio Calculator Lite</a></li><li><a href="/big-pink-cat/">Big Pink Cat</a></li><li><a href="/skyscraper-frog/">Skyscraper Frog</a></li><li><a href="/monstro-shooter/">Monstro Shooter</a></li><li><a href="/kerf-calc/">Kerf Calc</a></li><li><a href="/truecourse-e6b/">TrueCourse E6B</a></li><li><a href="/earth-around/">Earth Around</a></li><li><a href="/marine-nav/">Marine Nav</a></li><li><a href="/par/">Par</a></li><li><a href="/storypole/">Storypole</a></li><li><a href="/aircore/">AirCore</a></li></ul></nav><nav aria-label="More"><h2>Guides</h2><ul><li><a href="/ephemeris-sky/blog/">Ephemeris Sky guides</a></li><li><a href="/overtone-lab/blog/">Overtone Lab guides</a></li><li><a href="/indox-text/blog/">Indox Text guides</a></li><li><a href="/typing-mill/blog/">Typing Mill guides</a></li><li><a href="/golden-ratio-calculator/blog/">Golden Ratio Calculator guides</a></li><li><a href="/kerf-calc/blog/">Kerf Calc guides</a></li><li><a href="/truecourse-e6b/blog/">TrueCourse E6B guides</a></li><li><a href="/earth-around/blog/">Earth Around guides</a></li><li><a href="/marine-nav/blog/">Marine Nav guides</a></li><li><a href="/par/blog/">Par guides</a></li><li><a href="/storypole/blog/">Storypole guides</a></li><li><a href="/aircore/blog/">AirCore guides</a></li></ul><h2 style="margin-top:22px">AISixteen</h2><ul><li><a href="/fantastic/">Fantastic</a></li><li><a href="/#privacy">Privacy</a></li><li><a href="https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206" target="_blank" rel="noreferrer">App Store developer page</a></li><li><a href="https://github.com/aisixteen" target="_blank" rel="noreferrer">GitHub</a></li></ul></nav></div><div class="footer__bottom"><span>© 2026 AISixteen</span><span>No accounts. No tracking.</span></div></div></footer></div>
+<script src="/assets/site.js?v=0e7f320f3e" defer></script>
+</body>
+</html>

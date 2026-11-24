@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What do the Kp index and the NOAA G, R and S scales mean?</title>
+<meta name="description" content="Kp runs from 0 to 9 and measures geomagnetic disturbance; NOAA's G1 to G5 storm levels map onto it. The R and S scales, Hp30 and what each level does.">
+<link rel="canonical" href="https://aisixteen.com/earth-around/blog/kp-index-and-noaa-g-scale/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b1020">
+<meta property="og:type" content="article">
+<meta property="og:title" content="What do the Kp index and the NOAA G, R and S scales mean?">
+<meta property="og:description" content="Kp runs from 0 to 9 and measures geomagnetic disturbance; NOAA's G1 to G5 storm levels map onto it. The R and S scales, Hp30 and what each level does.">
+<meta property="og:url" content="https://aisixteen.com/earth-around/blog/kp-index-and-noaa-g-scale/">
+<meta property="og:site_name" content="AISixteen">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What do the Kp index and the NOAA G, R and S scales mean?">
+<meta name="twitter:description" content="Kp runs from 0 to 9 and measures geomagnetic disturbance; NOAA's G1 to G5 storm levels map onto it. The R and S scales, Hp30 and what each level does.">
+<meta property="og:image" content="https://aisixteen.com/eartharound/screenshot.png">
+<meta property="og:image:alt" content="Earth Around screenshot">
+<meta name="twitter:image" content="https://aisixteen.com/eartharound/screenshot.png">
+<meta name="apple-itunes-app" content="app-id=6794748918">
+<meta property="article:published_time" content="2026-11-24">
+<meta property="article:modified_time" content="2026-11-24">
+<meta name="author" content="AISixteen">
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="apple-touch-icon" href="/logo.png">
+<link rel="preload" href="/assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css?v=0e7f320f3e">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348},"description":"Independent developer of Aisixteen Fantastic, an open-source kernel of agents, and of small, fast, private apps for iPhone, iPad, Mac and Apple Watch.","email":"info@aisixteen.com","sameAs":["https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206","https://github.com/aisixteen"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","@id":"https://aisixteen.com/earth-around/blog/kp-index-and-noaa-g-scale/#post","mainEntityOfPage":{"@type":"WebPage","@id":"https://aisixteen.com/earth-around/blog/kp-index-and-noaa-g-scale/"},"headline":"What do the Kp index and the NOAA G, R and S scales mean?","description":"Kp runs from 0 to 9 and measures geomagnetic disturbance; NOAA's G1 to G5 storm levels map onto it. The R and S scales, Hp30 and what each level does.","datePublished":"2026-11-24","dateModified":"2026-11-24","inLanguage":"en","wordCount":1057,"image":["https://aisixteen.com/eartharound/screenshot.png","https://aisixteen.com/eartharound/screenshot-960.webp"],"author":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"},"publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/","logo":{"@type":"ImageObject","url":"https://aisixteen.com/logo.png","width":304,"height":348}},"isPartOf":{"@type":"Blog","@id":"https://aisixteen.com/earth-around/blog/#blog","name":"Earth Around guides"},"about":{"@type":"SoftwareApplication","@id":"https://aisixteen.com/earth-around/#app","name":"Earth Around","description":"Earth Around watches the Sun for you. See whether a storm is happening right now on the NOAA G, R and S scales, what is driving it — solar wind speed and Bz — and live GOES X-ray flux for flares. Check tonight's aurora chance and view line, and read Hp30 for 30-minute storm resolution. On iPhone, iPad, Mac, and right on your Apple Watch.","applicationCategory":"UtilitiesApplication","operatingSystem":"iOS, iPadOS, macOS, watchOS","url":"https://aisixteen.com/earth-around/","installUrl":"https://apps.apple.com/app/id6794748918","image":"https://aisixteen.com/eartharound/screenshot.png","publisher":{"@type":"Organization","@id":"https://aisixteen.com/#organization","name":"AISixteen","url":"https://aisixteen.com/"}}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisixteen.com/"},{"@type":"ListItem","position":2,"name":"Earth Around","item":"https://aisixteen.com/earth-around/"},{"@type":"ListItem","position":3,"name":"Guides","item":"https://aisixteen.com/earth-around/blog/"},{"@type":"ListItem","position":4,"name":"What do the Kp index and the NOAA G, R and S scales mean?","item":"https://aisixteen.com/earth-around/blog/kp-index-and-noaa-g-scale/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What Kp is a geomagnetic storm?","acceptedAnswer":{"@type":"Answer","text":"Kp 5 or higher. Kp 5 is G1 (minor), 6 is G2, 7 is G3, 8 is G4 and 9 is G5 (extreme)."}},{"@type":"Question","name":"Is Kp a forecast or a measurement?","acceptedAnswer":{"@type":"Answer","text":"A measurement of the past three hours. NOAA also issues Kp forecasts, which are predictions and are labelled as such."}},{"@type":"Question","name":"Do solar flares cause geomagnetic storms?","acceptedAnswer":{"@type":"Answer","text":"Not directly. A flare's X-rays cause radio blackouts within minutes. Geomagnetic storms come from solar wind and from coronal mass ejections, which take one to three days to arrive."}}]}</script>
+</head>
+<body>
+<div class="page acc" style="--accent:#4df0a0"><a class="skip" href="#main">Skip to content</a><header class="site-header"><div class="site-header__inner"><a class="brand" href="/" aria-label="AISixteen home"><img src="/logo-96.webp" alt="" width="28" height="32"/><span class="brand__name">AISixteen</span></a><nav class="nav" aria-label="Main"><a class="nav__link" href="/#apps">Apps</a><a class="nav__link" href="/#guides">Guides</a><a class="nav__link" href="/fantastic/">Fantastic</a><a class="btn btn--primary btn--sm nav__cta" href="mailto:info@aisixteen.com">Get in touch</a></nav></div></header><main id="main"><nav class="crumbs wrap" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/earth-around/">Earth Around</a></li><li><a href="/earth-around/blog/">Guides</a></li><li><span aria-current="page">What do the Kp index and the NOAA G, R and S scales mean?</span></li></ol></nav><div class="wrap"><article class="article"><header class="article__head"><a class="byapp" href="/earth-around/"><img src="/eartharound/icon-160.webp" alt="" width="28" height="28"/>Earth Around</a><h1 class="article__title">What do the Kp index and the NOAA G, R and S scales mean?</h1><p class="article__meta"><span>By AISixteen</span><span>Published <time dateTime="2026-11-24">November 24, 2026</time></span><span>5 min read</span></p><p class="answer"><b>Short answer</b>Kp is a 0 to 9 index of how disturbed the Earth&#x27;s magnetic field is over three hours. NOAA&#x27;s G scale names the storm level from it: Kp 5 is G1 (minor), 6 is G2, 7 is G3, 8 is G4 and 9 is G5 (extreme). R rates radio blackouts from flares; S rates radiation storms.</p></header><nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">In this guide</h2><ol><li><a href="#what-is-the-kp-index">What is the Kp index?</a></li><li><a href="#how-does-kp-map-to-the-noaa-g-scale">How does Kp map to the NOAA G scale?</a></li><li><a href="#what-are-the-r-and-s-scales">What are the R and S scales?</a></li><li><a href="#what-is-hp30-and-why-use-it-next-to-kp">What is Hp30, and why use it next to Kp?</a></li><li><a href="#what-do-solar-wind-speed-and-bz-add">What do solar wind speed and Bz add?</a></li><li><a href="#where-does-earth-around-fit">Where does Earth Around fit?</a></li><li><a href="#frequently-asked-questions">Frequently asked questions</a></li><li><a href="#sources">Sources</a></li></ol></nav><div class="prose"><p>Space weather reports use a handful of numbers that look alike and measure different things. This guide separates them: what each one measures, where it comes from, and what a given level means in practice.</p>
+<figure class="figure"><img src="/eartharound/screenshot-960.webp" alt="Earth Around dashboard with the NOAA space weather scales, planetary Kp chart and solar wind readings" width="960" height="600" loading="lazy" decoding="async"><figcaption>Earth Around: the NOAA scales first, then the numbers behind them.</figcaption></figure>
+<h2 id="what-is-the-kp-index">What is the Kp index?</h2>
+<p>Kp is the planetary K index. Thirteen magnetic observatories around the world each measure how far the horizontal magnetic field strayed from its quiet-day curve during a three-hour window. Each station turns that range into a local K value, and the values are combined into one planetary number from 0 (quiet) to 9 (extreme).</p>
+<p>Three things follow from how it is built:</p>
+<ul>
+<li><strong>It is quasi-logarithmic.</strong> Each step up means a much larger disturbance, not an equal one.</li>
+<li><strong>It covers three hours.</strong> A short, violent disturbance and a long, moderate one can give the same Kp.</li>
+<li><strong>The official value comes later.</strong> The definitive Kp is produced by GFZ, the German Research Centre for Geosciences in Potsdam. NOAA publishes its own estimated Kp in near real time, which is what most live displays show.</li>
+</ul>
+<h2 id="how-does-kp-map-to-the-noaa-g-scale">How does Kp map to the NOAA G scale?</h2>
+<p>The G scale is NOAA&#39;s public storm scale for geomagnetic storms. It is a direct relabelling of Kp from 5 upward.</p>
+<div class="table-wrap" tabindex="0" role="group" aria-label="Table"><table>
+<thead>
+<tr>
+<th>G level</th>
+<th>Name</th>
+<th>Kp</th>
+<th>Average frequency per 11-year cycle</th>
+<th>Aurora may be seen as low as (NOAA&#39;s examples)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>G1</td>
+<td>Minor</td>
+<td>5</td>
+<td>1,700 storms (900 days)</td>
+<td>Northern Michigan and Maine</td>
+</tr>
+<tr>
+<td>G2</td>
+<td>Moderate</td>
+<td>6</td>
+<td>600 (360 days)</td>
+<td>New York and Idaho</td>
+</tr>
+<tr>
+<td>G3</td>
+<td>Strong</td>
+<td>7</td>
+<td>200 (130 days)</td>
+<td>Illinois and Oregon</td>
+</tr>
+<tr>
+<td>G4</td>
+<td>Severe</td>
+<td>8, including 9−</td>
+<td>100 (60 days)</td>
+<td>Alabama and northern California</td>
+</tr>
+<tr>
+<td>G5</td>
+<td>Extreme</td>
+<td>9</td>
+<td>4 (4 days)</td>
+<td>Florida and southern Texas</td>
+</tr>
+</tbody></table></div>
+<p>The effects NOAA lists grow with the level: weak power-grid fluctuations at G1, voltage alarms at high latitudes at G2, voltage corrections and satellite drag problems at G3, and possible widespread voltage-control problems and, at G5, grid collapse or transformer damage. Below Kp 5 there is no G level at all.</p>
+<h2 id="what-are-the-r-and-s-scales">What are the R and S scales?</h2>
+<p>They rate two other things the Sun does, and neither depends on Kp.</p>
+<p><strong>R: radio blackouts.</strong> A solar flare&#39;s X-rays reach Earth in about eight minutes and ionise the sunlit upper atmosphere, which absorbs HF radio. The level is set by the flare&#39;s peak X-ray flux measured by the GOES satellites.</p>
+<div class="table-wrap" tabindex="0" role="group" aria-label="Table"><table>
+<thead>
+<tr>
+<th>R level</th>
+<th>Flare class at peak</th>
+<th>X-ray flux (W/m²)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>R1 Minor</td>
+<td>M1</td>
+<td>10⁻⁵</td>
+</tr>
+<tr>
+<td>R2 Moderate</td>
+<td>M5</td>
+<td>5 × 10⁻⁵</td>
+</tr>
+<tr>
+<td>R3 Strong</td>
+<td>X1</td>
+<td>10⁻⁴</td>
+</tr>
+<tr>
+<td>R4 Severe</td>
+<td>X10</td>
+<td>10⁻³</td>
+</tr>
+<tr>
+<td>R5 Extreme</td>
+<td>X20</td>
+<td>2 × 10⁻³</td>
+</tr>
+</tbody></table></div>
+<p>Flare classes run A, B, C, M, X, each ten times stronger than the last, so an X1 flare is ten times an M1.</p>
+<p><strong>S: solar radiation storms.</strong> These rate energetic protons arriving at Earth, by the flux of protons of 10 MeV and above: S1 at 10 particle flux units, then 100, 1,000, 10,000 and 100,000 for S5. They matter to astronauts, polar flights and satellites.</p>
+<p>A single eruption can trigger all three scales at different times: R within minutes of the flare, S within tens of minutes to hours, and G one to three days later when the ejected cloud of plasma arrives.</p>
+<h2 id="what-is-hp30-and-why-use-it-next-to-kp">What is Hp30, and why use it next to Kp?</h2>
+<p>Kp&#39;s three-hour window hides fast changes. In 2022 GFZ introduced the Hpo family of indices, built the same way as Kp but with shorter windows: <strong>Hp30</strong> every 30 minutes and Hp60 every hour. Two differences matter:</p>
+<ul>
+<li><strong>Resolution.</strong> A sharp substorm shows up in Hp30 within half an hour instead of being averaged into a three-hour block.</li>
+<li><strong>No ceiling.</strong> Kp stops at 9. Hp30 is open-ended, so it can tell one extreme storm from a stronger one.</li>
+</ul>
+<p>On a quiet day the two tell the same story. During a storm, Hp30 shows you its shape.</p>
+<h2 id="what-do-solar-wind-speed-and-bz-add">What do solar wind speed and Bz add?</h2>
+<p>Kp and the G scale describe what has already happened at the ground. The solar wind, measured by spacecraft about 1.5 million km upstream of Earth, shows what is about to happen.</p>
+<ul>
+<li><strong>Speed.</strong> The slow wind is around 300 to 500 km/s. Streams from coronal holes and clouds from eruptions can exceed 600 to 800 km/s.</li>
+<li><strong>Bz.</strong> The north–south component of the magnetic field carried by the wind. When Bz points south (negative), it links with Earth&#39;s field and energy pours in. A strongly negative Bz held for hours is the usual cause of a storm; a fast wind with northward Bz often does very little.</li>
+</ul>
+<p>How to use these for one specific question is covered in <a href="/earth-around/blog/will-the-aurora-be-visible-tonight/">how to tell whether the aurora will be visible tonight</a>.</p>
+<h2 id="where-does-earth-around-fit">Where does Earth Around fit?</h2>
+<p><a href="/earth-around/">Earth Around</a> shows the current NOAA G, R and S levels in plain words, then the numbers behind them: Kp, Hp30 at 30-minute resolution, solar wind speed and Bz, and GOES X-ray flux. It runs on iPhone, iPad, Mac and Apple Watch. It needs a connection, because the data are live feeds from NOAA and GFZ. It has no account and no tracking. It displays measurements and the official scales; operational decisions for power grids, aviation or satellites belong with the official NOAA products.</p>
+<h2 id="frequently-asked-questions">Frequently asked questions</h2>
+<h3 id="what-kp-is-a-geomagnetic-storm">What Kp is a geomagnetic storm?</h3>
+<p>Kp 5 or higher. Kp 5 is G1 (minor), 6 is G2, 7 is G3, 8 is G4 and 9 is G5 (extreme).</p>
+<h3 id="is-kp-a-forecast-or-a-measurement">Is Kp a forecast or a measurement?</h3>
+<p>A measurement of the past three hours. NOAA also issues Kp forecasts, which are predictions and are labelled as such.</p>
+<h3 id="do-solar-flares-cause-geomagnetic-storms">Do solar flares cause geomagnetic storms?</h3>
+<p>Not directly. A flare&#39;s X-rays cause radio blackouts within minutes. Geomagnetic storms come from solar wind and from coronal mass ejections, which take one to three days to arrive.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li>NOAA Space Weather Prediction Center, NOAA Space Weather Scales: <a href="https://www.swpc.noaa.gov/noaa-scales-explanation" target="_blank" rel="noopener">swpc.noaa.gov/noaa-scales-explanation</a></li>
+<li>GFZ Helmholtz Centre for Geosciences, the Kp index and the Hpo indices (Hp30, Hp60): <a href="https://kp.gfz.de/en/" target="_blank" rel="noopener">kp.gfz.de</a></li>
+<li>Yamazaki et al., &quot;Geomagnetic Activity Index Hpo&quot;, <em>Geophysical Research Letters</em>, 2022: <a href="https://doi.org/10.1029/2022GL098860" target="_blank" rel="noopener">doi.org/10.1029/2022GL098860</a></li>
+</ul>
+</div><aside class="app-cta acc" style="--accent:#4df0a0" aria-label="About Earth Around"><img class="app-cta__icon" src="/eartharound/icon-160.webp" alt="" width="72" height="72" loading="lazy" decoding="async"/><div><h2 class="app-cta__name">Earth Around</h2><p class="app-cta__text">Watch the Sun, from your wrist. No account, no tracking — live NOAA data.</p></div><div class="app-cta__actions"><a class="btn btn--appstore" href="https://apps.apple.com/app/id6794748918" target="_blank" rel="noreferrer" aria-label="Download Earth Around on the App Store"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M16.365 1.43c0 1.14-.42 2.2-1.12 2.98-.85.94-2.24 1.66-3.4 1.57-.13-1.1.44-2.28 1.1-3.02.75-.85 2.06-1.5 3.42-1.53zM20.44 17.1c-.55 1.27-.82 1.84-1.53 2.97-.99 1.57-2.38 3.53-4.1 3.54-1.53.02-1.92-1-4-1-2.07 0-2.5.98-4.03 1.02-1.72.03-3.03-1.7-4.02-3.27-2.77-4.4-3.06-9.55-1.35-12.3 1.21-1.94 3.13-3.08 4.93-3.08 1.84 0 2.99 1.01 4.5 1.01 1.47 0 2.36-1.01 4.5-1.01 1.6 0 3.3.87 4.5 2.38-3.96 2.17-3.31 7.82.6 9.62z"></path></svg><span class="as-lines"><span class="as-top">Download on the</span><span class="as-big">App Store</span></span></a><a class="tlink" href="/earth-around/">What Earth Around does</a></div></aside><section class="related" aria-labelledby="related-title"><h2 class="h2" id="related-title">More Earth Around guides</h2><ul class="posts posts--rows"><li><a class="post-card acc" href="/earth-around/blog/will-the-aurora-be-visible-tonight/" style="--accent:#4df0a0"><h3 class="post-card__title">How can you tell whether the aurora will be visible tonight?</h3><p class="post-card__desc">What to check before an aurora watch: Bz, solar wind speed, Kp and the view line, how far ahead each one can see, and why darkness and cloud still decide.</p><span class="post-card__meta"><time dateTime="2026-11-24">November 24, 2026</time> · 5 min read</span></a></li></ul></section></article></div></main><footer class="site-footer"><div class="wrap"><div class="footer"><div><div class="footer__brand-row"><img src="/logo-96.webp" alt="" width="28" height="32"/><span>AISixteen</span></div><p>Small, fast, private apps for iPhone, iPad, Mac and Apple Watch, and Fantastic, an open-source kernel of agents.</p><a class="btn btn--ghost btn--sm" href="mailto:info@aisixteen.com">info@aisixteen.com</a></div><nav aria-label="Apps"><h2>Apps</h2><ul class="footer__apps"><li><a href="/ephemeris-sky/">Ephemeris Sky</a></li><li><a href="/overtone-lab/">Overtone Lab</a></li><li><a href="/indox-text/">Indox Text</a></li><li><a href="/typing-mill/">Typing Mill</a></li><li><a href="/golden-ratio-calculator/">Golden Ratio Calculator</a></li><li><a href="/golden-ratio-calculator-lite/">Golden Ratio Calculator Lite</a></li><li><a href="/big-pink-cat/">Big Pink Cat</a></li><li><a href="/skyscraper-frog/">Skyscraper Frog</a></li><li><a href="/monstro-shooter/">Monstro Shooter</a></li><li><a href="/kerf-calc/">Kerf Calc</a></li><li><a href="/truecourse-e6b/">TrueCourse E6B</a></li><li><a href="/earth-around/">Earth Around</a></li><li><a href="/marine-nav/">Marine Nav</a></li><li><a href="/par/">Par</a></li><li><a href="/storypole/">Storypole</a></li><li><a href="/aircore/">AirCore</a></li></ul></nav><nav aria-label="More"><h2>Guides</h2><ul><li><a href="/ephemeris-sky/blog/">Ephemeris Sky guides</a></li><li><a href="/overtone-lab/blog/">Overtone Lab guides</a></li><li><a href="/indox-text/blog/">Indox Text guides</a></li><li><a href="/typing-mill/blog/">Typing Mill guides</a></li><li><a href="/golden-ratio-calculator/blog/">Golden Ratio Calculator guides</a></li><li><a href="/kerf-calc/blog/">Kerf Calc guides</a></li><li><a href="/truecourse-e6b/blog/">TrueCourse E6B guides</a></li><li><a href="/earth-around/blog/">Earth Around guides</a></li><li><a href="/marine-nav/blog/">Marine Nav guides</a></li><li><a href="/par/blog/">Par guides</a></li><li><a href="/storypole/blog/">Storypole guides</a></li><li><a href="/aircore/blog/">AirCore guides</a></li></ul><h2 style="margin-top:22px">AISixteen</h2><ul><li><a href="/fantastic/">Fantastic</a></li><li><a href="/#privacy">Privacy</a></li><li><a href="https://apps.apple.com/us/developer/koreniuk-oleksandr/id1563057206" target="_blank" rel="noreferrer">App Store developer page</a></li><li><a href="https://github.com/aisixteen" target="_blank" rel="noreferrer">GitHub</a></li></ul></nav></div><div class="footer__bottom"><span>© 2026 AISixteen</span><span>No accounts. No tracking.</span></div></div></footer></div>
+<script src="/assets/site.js?v=0e7f320f3e" defer></script>
+</body>
+</html>

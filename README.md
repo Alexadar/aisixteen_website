@@ -1,127 +1,88 @@
-# AISixteen — one-page site
+# aisixteen.com
 
-A minimal, fast Vite + React site to showcase AISixteen apps. Configured to build into `docs/` so it can be deployed with GitHub Pages.
+A static, prerendered site: the home page, one page per app, a blog per app, and the
+`/fantastic/` page. React is used only at build time as the template engine; every page is
+plain HTML in `docs/`, which GitHub Pages serves. No client-side rendering.
 
-## Quick start
-
-- Requirements: Node.js 18+ and npm
-- Install deps and run the dev server:
+## Commands
 
 ```bash
 npm install
-npm run dev
+npm run build            # scripts/build-site.mjs -> docs/
+npm run preview          # build, then serve docs/ on http://localhost:4173
+npm run test:layout      # Playwright: layout, SEO, links, contrast (see below)
+npm run optimize-media   # after adding an icon, screenshot.png or logo (needs ImageMagick)
+npm run indexnow         # after a deploy is live: pings IndexNow with every sitemap URL
+./build.sh               # clean build AND git commit (the deploy step)
 ```
-
-Open the printed local URL (usually <http://localhost:5173>).
 
 ## Structure
 
-- `index.html` — Vite entry
-- `src/` — React app
-- `media/` — public assets (already includes `logo.png`)
-- `vite.config.js` — configured to output to `docs/`
-- `docs/` — build output (what GitHub Pages serves)
+- `src/data/apps.js` — every app: copy, App Store id, accent, app-specific questions (`QA`)
+  and the blog intro line. Single source for the pages, JSON-LD, `llms-full.txt` and sitemap.
+- `src/data/fantastic.js` — content of `/fantastic/`.
+- `src/site/` — `components.jsx` (templates), `render.jsx` (head, meta, JSON-LD), `site.css`
+  (design tokens: one indigo theme), `fantastic.css` (only `/fantastic/`), `site.js`, `fonts/`.
+- `content/<app-slug>/<post-slug>.md` — blog posts (see below).
+- `media/<folder>/` — icons and screenshots. Published at the site root under the same path.
+- `scripts/` — the build, `posts.mjs` (Markdown -> post), `ai-files.mjs` (robots.txt, llms).
+- `docs/` — build output. Never edit by hand.
 
-## Add or edit apps
+## URLs
 
-Edit `src/data/apps.js` to manage the cards on the page.
+- `/<app-slug>/` — app page. `/<app-slug>/blog/` — its posts. `/<app-slug>/blog/<post-slug>/` — a post.
+- Media folders whose name is an old app URL (`/eartharound/`, `/ephemeris_sky/`, …) get a
+  small noindex page that forwards to the app page.
+- `sitemap.xml` lists every indexable page with a `lastmod`: a post's own `updated` date, and
+  `SITE.updated` in `src/site/theme.js` for app pages. Change that constant when app pages
+  really change; it is never the build date.
 
-## Build
+## Writing a post
 
-### Quick Build (Automated)
+Create `content/<app-slug>/<post-slug>.md`. The app must already exist in `apps.js`.
 
-Use the automated build script for a complete build and deployment process:
+```markdown
+---
+title: How do you …?
+description: One or two sentences, at most 165 characters.
+date: 2026-11-24
+updated: 2026-12-02
+answer: The direct answer, shown in a box under the title.
+---
 
-```bash
-./build.sh
+Intro paragraph.
+
+![Alt text that describes the picture](/kerfcalc/screenshot-960.webp "Optional caption")
+
+## A question as a heading?
+
+Body…
+
+## Frequently asked questions
+
+### A question?
+
+Its answer. (This section becomes FAQPage structured data.)
+
+## Sources
+
+- …
 ```
 
-This script will:
-- Clean the `docs/` directory
-- Run the build process
-- Ensure CNAME is set to `aisixteen.com`
-- Commit all changes to git
-
-### Manual Build
-
-```bash
-npm run build
-```
-
-This generates the static site in `docs/` and creates `docs/404.html` for SPA fallback.
-
-## Deploy to GitHub Pages
-
-You have two options: a project site or a user/organization site.
-
-### Option A — Project site (recommended)
-
-1. Create a new GitHub repository, e.g. `aisixteen-site`.
-2. Push this code to that repo.
-3. Build locally so `docs/` exists:
-
-   ```bash
-   npm install
-   npm run build
-   ```
-   
-4. Commit the build output:
-
-   ```bash
-   git add .
-   git commit -m "feat: initial site"
-   git push origin main
-   ```
-   
-5. On GitHub: Settings → Pages → Build and deployment → Source: "Deploy from a branch".
-6. Set Branch to `main` and Folder to `/docs`.
-7. Save. Your site will be available at:
-   `https://<username>.github.io/<repo>/`
-
-If deploying under a subpath like `/aisixteen-site/`, update `base` in `vite.config.js` to `'/<repo>/'` and rebuild:
-
-```js
-// vite.config.js
-export default () => ({
-   // ...
-   base: '/aisixteen-site/',
-})
-```
-
-The logo path already uses `import.meta.env.BASE_URL` so it will load correctly under a subpath.
-
-### Option B — User/Org site (`<username>.github.io`)
-
-1. Name the repository exactly `your-username.github.io`.
-2. Keep `base: '/'` in `vite.config.js` (already set).
-3. Build and push to `main` with `docs/` committed, then enable Pages from `main` → `/docs` as above.
-
-## Local preview of the production build
-
-```bash
-npm run build
-npm run preview
-```
-
-## Custom domain (optional)
-
-If you use a custom domain, add a `CNAME` file to `docs/` with your domain name after building. Example:
-
-```bash
-echo "aisixteen.com" > docs/CNAME
-```
-
-
-Then set the same custom domain in the repo’s Pages settings.
-
-## License
-
-MIT — do whatever you want, no warranty.
+The build adds the page chrome, table of contents, canonical, Open Graph, BlogPosting,
+BreadcrumbList and FAQPage JSON-LD, the Smart App Banner, related posts, the sitemap entry
+and the `llms.txt` / `llms-full.txt` entries. Rules for the text: facts checked against the
+app and a cited source; no prices and no ratings; no predictive claims for the astrology app;
+nothing the app does not do.
 
 ## Layout tests
 
 `npm run test:layout` runs Playwright against the built `docs/` in Chromium, Firefox and
-WebKit, on desktop and phone sizes (`playwright.config.mjs`, `tests/layout.spec.mjs`). It checks
+WebKit, on desktop and phone sizes (`playwright.config.mjs`). `tests/site.spec.mjs` checks every
+page's canonical, title, description, headings and image sizes; JSON-LD validity (BlogPosting,
+BreadcrumbList, FAQPage that mirrors the visible text, no price or rating); that the sitemap
+lists exactly the indexable pages; that no internal link is broken; sideways scroll on every
+post; and WCAG AA contrast of the indigo theme. `tests/layout.spec.mjs` checks
 that no page scrolls sideways at any common width, that nothing moves after load (scroll
 reveals, the /fantastic/ reel, the video), that the reel keeps one size on every slide with its
 drawings inside it, and that no script throws. Install the browsers once with
