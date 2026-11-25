@@ -17,7 +17,7 @@ export const SITE = {
 // schema.org operatingSystem, derived from the platforms line each app page shows.
 export const osOf = (app) => {
   const p = platformsOf(app)
-  return ['iOS', 'iPadOS', 'macOS', ...(p.includes('Watch') ? ['watchOS'] : [])].join(', ')
+  return ['iOS', 'iPadOS', ...(p.includes('Mac') ? ['macOS'] : []), ...(p.includes('Watch') ? ['watchOS'] : [])].join(', ')
 }
 
 export const fmtDate = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
