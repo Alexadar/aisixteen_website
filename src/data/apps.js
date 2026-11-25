@@ -123,6 +123,7 @@ export const apps = [
   {
     slug: 'big-pink-cat',
     name: 'Big Pink Cat',
+    platforms: 'iPhone & iPad', // App Store: iOS only (the Mac version is not published)
     category: 'Games',
     group: 'games',
     accent: '#ff5c9a',

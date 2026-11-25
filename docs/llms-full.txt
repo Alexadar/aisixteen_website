@@ -283,7 +283,7 @@ Privacy: On-device, no account, works offline.
 ### Big Pink Cat
 
 URL: https://aisixteen.com/big-pink-cat/ · App Store: https://apps.apple.com/app/id6497066161
-Category: Games · Platforms: iPhone, iPad & Mac
+Category: Games · Platforms: iPhone & iPad
 
 A cosmic, choose-your-path story. Meet the mysterious Pink Cat and uncover the secrets of the universe.
 
@@ -301,7 +301,7 @@ Privacy: On-device, no account, works offline.
 
 **What data does Big Pink Cat collect?** None. It collects, stores, and transmits zero personal data — nothing ever leaves your device.
 
-**Which devices are supported?** Big Pink Cat is available for iPhone, iPad & Mac.
+**Which devices are supported?** Big Pink Cat is available for iPhone & iPad.
 
 ### Skyscraper Frog
 

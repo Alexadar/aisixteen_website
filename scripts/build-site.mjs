@@ -32,7 +32,7 @@ await build({
 const R = await import(pathToFileURL(bundlePath).href)
 const { apps, featuredSlug } = await import(pathToFileURL(join(siteSrc, '..', 'data', 'apps.js')).href)
 const { fantastic: fantasticData } = await import(pathToFileURL(join(siteSrc, '..', 'data', 'fantastic.js')).href)
-const { SITE } = await import(pathToFileURL(join(siteSrc, 'theme.js')).href)
+const { SITE, platformsOf } = await import(pathToFileURL(join(siteSrc, 'theme.js')).href)
 
 // Intrinsic size of a PNG or WebP in media/, so every <img> carries width and height and
 // nothing shifts while images load.
@@ -66,7 +66,10 @@ const small = (rel, name) => {
 const PER_PLATFORM = 3 // screenshots per platform in the strip
 const decorated = apps.map((a) => {
   const folder = a.icon.split('/')[0]
-  const order = [a.device, 'ios', 'ipad', 'mac', 'watch'].filter((p, i, arr) => arr.indexOf(p) === i)
+  // Only platforms the app is published on (apps.js `platforms`, default iPhone, iPad & Mac).
+  const on = platformsOf(a)
+  const published = (p) => p === 'mac' ? on.includes('Mac') : p === 'watch' ? on.includes('Watch') : true
+  const order = [a.device, 'ios', 'ipad', 'mac', 'watch'].filter((p, i, arr) => arr.indexOf(p) === i && published(p))
   const slides = []
   for (const plat of order) {
     const dir = join(media, folder, plat)
