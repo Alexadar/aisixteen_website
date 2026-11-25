@@ -180,7 +180,9 @@ test.describe('structured data', () => {
       const [app] = ofType(p, 'SoftwareApplication')
       if (p.isPost || p.isBlogIndex) continue
       expect(app, `${p.rel}: SoftwareApplication`).toBeTruthy()
-      expect(app.operatingSystem, `${p.rel}: operatingSystem`).toMatch(/^iOS, iPadOS, macOS(, watchOS)?$/)
+      expect(app.operatingSystem, `${p.rel}: operatingSystem`).toMatch(/^iOS, iPadOS(, macOS)?(, watchOS)?$/)
+      // macOS only when the page says the app is on Mac (published platforms, apps.js `platforms`).
+      expect(app.operatingSystem.includes('macOS'), `${p.rel}: macOS only when the page says Mac`).toBe(/\bMac\b/.test(p.meta('description')))
       expect(app.operatingSystem.includes('watchOS'), `${p.rel}: watchOS only when the page says Apple Watch`).toBe(/Apple Watch<\/span>|&amp; Apple Watch/.test(p.html))
       expect(p.meta('apple-itunes-app'), `${p.rel}: Smart App Banner`).toBe(`app-id=${app.installUrl.split('/id')[1]}`)
     }
