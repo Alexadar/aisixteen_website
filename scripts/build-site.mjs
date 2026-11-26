@@ -126,6 +126,10 @@ page(`${fantastic.slug}/index.html`, R.renderFantastic(fantastic, { year }), SIT
 page('404.html', R.renderNotFound({ year }))
 // Old app URLs that are now media folders: send them to the app page.
 for (const app of decorated) if (app.folder !== app.slug) page(`${app.folder}/index.html`, R.renderRedirect(app))
+// Retired URLs Google still crawls (Search Console "Not found (404)"): forward them instead of 404.
+// /tarot/ was an app page until 2026-08-28; the others were only ever linked from outside.
+const RETIRED = { tarot: ['Tarot', '/'], studio: ['Studio', '/'], enterprise: ['Enterprise', '/'], faq: ['FAQ', '/'] }
+for (const [path, [name, to]] of Object.entries(RETIRED)) page(`${path}/index.html`, R.renderForward(name, to))
 
 // 4) Shared cached assets (one copy each).
 fs.mkdirSync(join(docs, 'assets', 'fonts'), { recursive: true })
