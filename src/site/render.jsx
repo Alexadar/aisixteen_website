@@ -279,6 +279,25 @@ export function renderNotFound({ year }) {
 
 // A media folder that shares its name with an old app URL (/eartharound/, /ephemeris_sky/…)
 // gets a tiny page that sends visitors and crawlers to the app page, instead of a 404.
+// A retired URL (no app page of its own any more): a noindex stub that forwards to `toPath`.
+export function renderForward(name, toPath) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(name)} | AISixteen</title>
+<link rel="canonical" href="${SITE.origin}${toPath}">
+<meta name="robots" content="noindex, follow">
+<meta http-equiv="refresh" content="0; url=${toPath}">
+</head>
+<body>
+<p><a href="${toPath}">${esc(name)} is no longer here. Continue to AISixteen.</a></p>
+</body>
+</html>
+`
+}
+
 export function renderRedirect(app) {
   const to = `${SITE.origin}/${app.slug}/`
   return `<!DOCTYPE html>
